@@ -1,0 +1,232 @@
+# 블래스퍼머스1 (Blasphemous) 게임 컨텐츠 분석
+
+## 1. 게임 개요
+
+- **개발사**: The Game Kitchen (스페인)
+- **장르**: 메트로이드바니아 액션 플랫포머
+- **배경**: 가상의 지역 Cvstodia
+- **주인공**: The Penitent One (참회자)
+- **무기**: Mea Culpa (메아 쿨파) - 단일 검
+
+---
+
+## 2. 핵심 전투 시스템
+
+### 2.1 기본 공격
+- **기본 콤보**: 표준 검 콤보 공격
+- **다운 공격**: 공중에서 아래로 찌르기 (Plunging Attack)
+- **공격 특성**: 무거운 느낌의 공격감 (Hollow Knight보다 묵직함)
+
+### 2.2 방어 메커니즘
+
+#### 패리 (Parry)
+- 적의 약한 공격을 정확한 타이밍에 막음
+- 성공 시 적이 취약 상태가 되어 강력한 반격 가능
+- 매우 좁은 타이밍 윈도우
+
+#### 회피/슬라이드 (Dodge/Slide)
+- 슬라이딩으로 회피
+- 짧은 시간 동안 무적 상태 부여
+- 가장 기본적인 방어 메커니즘
+
+### 2.3 처형 (Execution)
+- 특정 적에게 충분한 데미지를 입히면 빨간색으로 깜빡이며 상호작용 프롬프트 표시
+- 처형 실행 시:
+  - Fervor (마나) 회복
+  - 보너스 Tears of Atonement (재화) 획득
+
+### 2.4 에어 임펄스 (Air Impulse)
+- 적이나 오브젝트를 공격하면서 점프 시 위로 부스트
+- 업그레이드로 최대 4회 연속 사용 가능
+
+---
+
+## 3. 자원 시스템
+
+### 3.1 체력 (Health)
+- 화면 좌상단 HP 바
+- Bile Flask로 회복
+- 업그레이드로 최대 체력 증가 가능
+
+### 3.2 Fervor (마나)
+- 체력 바 아래 파란색 미터
+- 적 공격/처형으로 충전
+- Prayer(기도/마법) 사용에 소비
+- **죄책감 시스템**: 사망 시 최대 Fervor 제한
+
+### 3.3 Tears of Atonement (재화)
+- 적 처치/항아리 파괴로 획득
+- 용도:
+  - Mea Culpa 업그레이드
+  - 능력 해금
+  - Bile Flask 충전
+  - 다양한 아이템 구매
+
+### 3.4 Bile Flask (회복 물약)
+- 초기: 2개
+- 최대: 10개 (Empty Bile Vessel 수집)
+- Prie Dieu에서 리필
+- **회복력 업그레이드**: Nacimiento NPC에서 Quicksilver 사용
+
+---
+
+## 4. 죽음과 죄책감 시스템 (Death & Guilt)
+
+### 4.1 사망 시
+- 죄책감 파편(Guilt Fragment) 생성
+- 최대 Fervor 감소
+- 이전 Prie Dieu에서 부활
+
+### 4.2 죄책감 해소 방법
+1. 사망 지점으로 돌아가 죄책감 파편 회수
+2. Guilt Statue에서 재화 지불하여 정화
+3. 참회를 통한 정화
+
+---
+
+## 5. 장비 시스템
+
+### 5.1 Rosary Beads (묵주 구슬)
+- 초기 2개 슬롯 → 최대 8개 (Rosary Knot 수집)
+- 다양한 스탯 보너스 제공:
+  - 방어력 증가
+  - 체력 증가
+  - Fervor 증가
+  - 특수 효과
+- 총 30개 (기본 게임)
+
+### 5.2 Mea Culpa Hearts (검 심장)
+- Prie Dieu에서만 장착 가능
+- **한 번에 1개만 장착**
+- 장점과 단점 동시 부여
+- 총 9개 (기본) + DLC 추가
+
+### 5.3 Prayers (기도/마법)
+- **한 번에 1개만 장착**
+- Fervor 소비하여 사용
+- 공격형/버프형 다양
+- 총 17개 (DLC 포함)
+
+### 5.4 Relics (유물)
+- 최대 3개 장착
+- 이동 능력 해금
+- 환경 상호작용 가능
+
+---
+
+## 6. 이동 능력 (Progression Abilities)
+
+### 6.1 특징
+- **완전 선택적** - 게임 클리어에 필수 아님
+- 숨겨진 아이템/업그레이드 접근용
+- 일반적인 더블점프/벽타기 대신 독특한 방식
+
+### 6.2 주요 이동 능력
+1. **Blood Perpetuated In Sand**: 빨간 빛나는 지점에 피 모래 플랫폼 생성 (더블점프 역할)
+2. **Linen of Golden Thread**: 바닥 없는 구덩이에서 안전하게 하강
+3. **Three Gnarled Tongues**: 거미줄 통과 대시
+4. **뿌리 성장 능력**: 특정 지점에서 뿌리가 자라남
+
+---
+
+## 7. 맵 구조 및 레벨 디자인
+
+### 7.1 디자인 철학
+- 다크소울 영감의 비선형 탐험
+- 초반에 여러 방향으로 진행 가능
+- 첫 3개 보스 순서 자유
+
+### 7.2 체크포인트 규칙
+- Prie Dieu (기도대) = 체크포인트
+- 각 지역당 약 1개
+- 최대 7개 화면 간격 이내
+
+### 7.3 주요 지역
+| 지역명 | 특징 |
+|--------|------|
+| Holy Line | 시작 지역, Albero로 연결 |
+| Albero | Cvstodia 외곽 마을 |
+| Mercy Dreams | 오래된 감옥 |
+| Desecrated Cistern | 대형 하수도 |
+| Mountains of the Endless Dusk | 산악 지역 |
+| Where Olive Trees Wither | 올리브 나무 지역 |
+| Graveyard of the Peaks | 산봉우리 묘지 |
+| Convent of Our Lady of the Charred Visage | 눈덮인 산 위 수도원 |
+| Library of the Negated Words | 도서관 |
+| The Sleeping Canvases | 이단 예술품 보관소 |
+| Archcathedral Rooftops | 대성당 옥상 |
+| Wall of the Holy Prohibitions | 교회 감옥 |
+| Mother of Mothers | 최종 지역 |
+
+### 7.4 비밀 요소
+- 벽 공격으로 숨겨진 통로 발견
+- 비밀 방에 업그레이드/아이템 다수
+
+---
+
+## 8. 적 시스템
+
+### 8.1 일반 적
+- 각 적마다 고유 공격 패턴
+- 근거리/중거리/원거리 공격
+- 약한 공격은 패리 가능
+- 뒤에서 공격 시 추가 데미지
+
+### 8.2 보스
+- 각 지역 끝에 위치
+- 방대한 체력
+- 고유한 공격 세트
+- 처치 시 새 지역 해금
+
+### 8.3 주요 보스 목록
+1. Warden of the Silent Sorrow
+2. Ten Piedad
+3. Our Lady of the Charred Visage
+4. Perpetva
+5. Tres Angustias
+6. Esdras of the Anointed Legion
+7. Melquíades the Exhumed Archbishop
+8. Expósito Scion of Abjuration
+9. Quirce Returned by the Flames
+10. Crisanta of the Wrapped Agony
+11. His Holiness Escribar / Last Son of the Miracle (최종 보스)
+
+---
+
+## 9. NPC 및 퀘스트
+
+### 9.1 주요 NPC
+- **Nacimiento**: Bile Flask 업그레이드
+- **Soledad**: Rosary Knot 수집
+- **Engracia**: 묵주 제작자
+- **상인들**: 아이템 판매
+
+### 9.2 퀘스트 시스템
+- 다양한 사이드 퀘스트
+- NPC 상호작용으로 진행
+- 아이템/장비 보상
+
+---
+
+## 10. WinAPI 구현 시 핵심 요소
+
+### 10.1 필수 구현 시스템
+1. **게임 루프**: 입력 처리, 업데이트, 렌더링
+2. **스프라이트 시스템**: 애니메이션, 레이어링
+3. **충돌 시스템**: 히트박스, 지형 충돌
+4. **상태 머신**: 캐릭터/적 상태 관리
+5. **타일맵 시스템**: 레벨 구성
+
+### 10.2 게임플레이 시스템
+1. 전투 (공격, 패리, 회피, 처형)
+2. 자원 관리 (HP, Fervor, Tears)
+3. 장비 시스템
+4. 죄책감/사망 시스템
+5. 체크포인트 시스템
+
+### 10.3 기술적 고려사항
+- 더블 버퍼링으로 깜빡임 방지
+- 스프라이트시트 로딩 및 관리
+- 사운드 시스템 (BGM, 효과음)
+- 세이브/로드 시스템
+- 카메라 시스템 (스크롤, 화면 전환)
