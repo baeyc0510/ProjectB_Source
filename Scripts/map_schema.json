@@ -1,0 +1,137 @@
+{
+    "version": "1.0",
+    "collider_types": {
+        "box": {
+            "display_name": "Box Collider",
+            "color": [0, 255, 0],
+            "fields": [
+                {"name": "layer", "type": "enum", "options": ["ground", "wall", "platform"], "default": "ground"},
+                {"name": "one_way", "type": "bool", "default": false},
+                {"name": "friction", "type": "float", "min": 0, "max": 1, "default": 0.8}
+            ]
+        },
+        "slope_left": {
+            "display_name": "Slope Left",
+            "color": [255, 0, 255],
+            "fields": [
+                {"name": "angle", "type": "int", "min": 15, "max": 60, "default": 45}
+            ]
+        },
+        "slope_right": {
+            "display_name": "Slope Right",
+            "color": [255, 100, 255],
+            "fields": [
+                {"name": "angle", "type": "int", "min": 15, "max": 60, "default": 45}
+            ]
+        },
+        "one_way": {
+            "display_name": "One-Way Platform",
+            "color": [0, 200, 255],
+            "fields": []
+        },
+        "trigger": {
+            "display_name": "Trigger Zone",
+            "color": [255, 255, 0],
+            "fields": [
+                {"name": "event_id", "type": "string", "default": ""},
+                {"name": "once", "type": "bool", "default": true},
+                {"name": "delay", "type": "float", "min": 0, "default": 0}
+            ]
+        },
+        "damage": {
+            "display_name": "Damage Zone",
+            "color": [255, 0, 0],
+            "fields": [
+                {"name": "damage", "type": "int", "min": 0, "default": 10},
+                {"name": "knockback", "type": "float", "default": 5.0},
+                {"name": "element", "type": "enum", "options": ["none", "fire", "ice", "poison"], "default": "none"}
+            ]
+        },
+        "ladder": {
+            "display_name": "Ladder",
+            "color": [200, 150, 50],
+            "fields": []
+        }
+    },
+    "tile_layers": [
+        {"name": "bg_far", "depth": -20, "parallax": 0.3},
+        {"name": "bg_near", "depth": -10, "parallax": 0.6},
+        {"name": "main", "depth": 0, "parallax": 1.0},
+        {"name": "fg", "depth": 10, "parallax": 1.0}
+    ],
+    "prop_types": {
+        "destructible": {
+            "display_name": "Destructible",
+            "color": [255, 100, 50],
+            "fields": [
+                {"name": "hp", "type": "int", "min": 1, "default": 100},
+                {"name": "drop_item", "type": "string", "default": ""},
+                {"name": "drop_chance", "type": "float", "min": 0, "max": 1, "default": 0.5}
+            ]
+        },
+        "interactable": {
+            "display_name": "Interactable",
+            "color": [50, 200, 255],
+            "fields": [
+                {"name": "action", "type": "enum", "options": ["examine", "open", "push", "pull", "use"], "default": "examine"},
+                {"name": "script_id", "type": "string", "default": ""},
+                {"name": "requires_item", "type": "string", "default": ""}
+            ]
+        },
+        "collectible": {
+            "display_name": "Collectible",
+            "color": [255, 220, 50],
+            "fields": [
+                {"name": "item_id", "type": "string", "default": ""},
+                {"name": "amount", "type": "int", "min": 1, "default": 1},
+                {"name": "respawn", "type": "bool", "default": false}
+            ]
+        },
+        "hazard": {
+            "display_name": "Hazard",
+            "color": [255, 50, 50],
+            "fields": [
+                {"name": "damage", "type": "int", "min": 0, "default": 10},
+                {"name": "element", "type": "enum", "options": ["none", "fire", "ice", "poison", "electric"], "default": "none"},
+                {"name": "continuous", "type": "bool", "default": false}
+            ]
+        },
+        "decoration": {
+            "display_name": "Decoration",
+            "color": [150, 150, 150],
+            "fields": [
+                {"name": "layer_offset", "type": "int", "default": 0},
+                {"name": "animated", "type": "bool", "default": false},
+                {"name": "animation_file", "type": "string", "default": ""}
+            ]
+        }
+    },
+    "custom_objects": {
+        "spawn_point": {
+            "display_name": "Spawn Point",
+            "color": [255, 200, 0],
+            "fields": [
+                {"name": "type", "type": "enum", "options": ["player", "enemy", "item"], "default": "player"},
+                {"name": "facing", "type": "enum", "options": ["left", "right"], "default": "right"},
+                {"name": "enemy_id", "type": "string", "default": ""}
+            ]
+        },
+        "checkpoint": {
+            "display_name": "Checkpoint",
+            "color": [0, 255, 200],
+            "fields": [
+                {"name": "id", "type": "string", "default": ""},
+                {"name": "active_by_default", "type": "bool", "default": false}
+            ]
+        },
+        "door": {
+            "display_name": "Door/Portal",
+            "color": [100, 100, 255],
+            "fields": [
+                {"name": "target_map", "type": "string", "default": ""},
+                {"name": "target_spawn", "type": "string", "default": ""},
+                {"name": "requires_key", "type": "string", "default": ""}
+            ]
+        }
+    }
+}
