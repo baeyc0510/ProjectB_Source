@@ -42,8 +42,6 @@ TOOL_CONFIG = load_tool_config()
 # --- Configuration ---
 BACKGROUND_COLOR = (30, 30, 30)
 TEXT_COLOR = (220, 220, 220)
-SELECTED_TEXT_COLOR = (255, 255, 0)
-DIR_COLOR = (150, 180, 255)
 FONT_SIZE = 20
 
 RECT_COLOR = (255, 0, 0)
@@ -79,8 +77,6 @@ EDITOR_HELP_LINES = [
 ]
 PIVOT_CROSS_COLOR = (255, 100, 100)
 PIVOT_CROSS_SIZE = 8
-# --- Browser Help Text ---
-BROWSER_HELP_LINES = ["Up/Down: Navigate | Enter: Select | Q/ESC: Quit"]
 
 # --- Input Field Class ---
 class InputField:
@@ -251,84 +247,83 @@ def estimate_cell_size(image_path):
     except:
         return 64, 64
 
-def run_file_browser(screen, font):
-    """Displays a file browser and returns the path of the selected image."""
-    current_path = os.getcwd()
-    selected_index = 0
-    scroll_offset = 0
-    running = True
-    clock = pygame.time.Clock()
+def open_file_dialog():
+    """Opens a file dialog and returns the path of the selected file (PNG or JSON)."""
+    import tkinter as tk
+    from tkinter import filedialog
 
-    while running:
-        try:
-            items = os.listdir(current_path)
-            dirs = sorted([d for d in items if os.path.isdir(os.path.join(current_path, d))])
-            files = sorted([f for f in items if os.path.isfile(os.path.join(current_path, f)) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))])
-            
-            display_items = ["[..]"] + dirs + files
-        except OSError as e:
-            print(f"Error reading path: {e}")
-            current_path = os.path.dirname(current_path)
-            continue
+    # Determine default directory from config
+    project_root = TOOL_CONFIG.get("project_root", "")
+    resources_folder = TOOL_CONFIG.get("resources_folder", "Resources")
+    default_dir = os.path.join(project_root, resources_folder)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return None
-            elif event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_q, pygame.K_ESCAPE):
-                    return None
-                elif event.key == pygame.K_UP:
-                    if len(display_items) > 0: selected_index = (selected_index - 1) % len(display_items)
-                elif event.key == pygame.K_DOWN:
-                    if len(display_items) > 0: selected_index = (selected_index + 1) % len(display_items)
-                elif event.key == pygame.K_RETURN:
-                    if not display_items: continue
-                    selected_item = display_items[selected_index]
-                    new_path = os.path.normpath(os.path.join(current_path, selected_item))
-                    if selected_item == "[..]":
-                        current_path = os.path.dirname(current_path)
-                        selected_index = 0
-                    elif os.path.isdir(new_path):
-                        current_path = new_path
-                        selected_index = 0
-                    else:
-                        return new_path
-            elif event.type == pygame.VIDEORESIZE:
-                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+    if not os.path.exists(default_dir):
+        default_dir = os.getcwd()
 
-        screen.fill(BACKGROUND_COLOR)
-        
-        # --- Drawing ---
-        max_visible_items = screen.get_height() // FONT_SIZE - 4
-        if selected_index >= scroll_offset + max_visible_items:
-            scroll_offset = selected_index - max_visible_items + 1
-        if selected_index < scroll_offset:
-            scroll_offset = selected_index
+    root = tk.Tk()
+    root.withdraw()
 
-        path_surf = font.render(f"Current Path: {current_path}", True, TEXT_COLOR)
-        screen.blit(path_surf, (5, 5))
+    file_path = filedialog.askopenfilename(
+        title="Select Sprite Image or Animation JSON",
+        initialdir=default_dir,
+        filetypes=[
+            ("Supported files", "*.png *.jpg *.jpeg *.bmp *.json"),
+            ("Image files", "*.png *.jpg *.jpeg *.bmp"),
+            ("Animation JSON", "*.json"),
+            ("All files", "*.*")
+        ]
+    )
 
-        for i, item in enumerate(display_items[scroll_offset:scroll_offset + max_visible_items]):
-            actual_index = i + scroll_offset
-            color = TEXT_COLOR
-            if actual_index == selected_index:
-                color = SELECTED_TEXT_COLOR
-            
-            is_dir = os.path.isdir(os.path.join(current_path, item)) or item == "[..]"
-            display_text = f"> {item}" if is_dir else f"  {item}"
-            if is_dir: color = DIR_COLOR if actual_index != selected_index else SELECTED_TEXT_COLOR
-            
-            item_surf = font.render(display_text, True, color)
-            screen.blit(item_surf, (10, 35 + i * FONT_SIZE))
-        
-        for i, line in enumerate(BROWSER_HELP_LINES):
-             screen.blit(font.render(line, True, HELP_TEXT_COLOR), (5, screen.get_height() - (len(BROWSER_HELP_LINES) - i) * (FONT_SIZE)))
+    root.destroy()
+    return file_path if file_path else None
 
-        pygame.display.flip()
-        clock.tick(30)
-    return None
 
-def run_editor(image_path):
+def load_animation_json(json_path):
+    """Load animation data from JSON file. Returns (image_path, frames, pivot_mode) or None on error."""
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        image_rel_path = data.get("image", "")
+        frames = data.get("frames", [])
+        pivot_mode = data.get("pivot", "bottom-center")
+
+        if not image_rel_path:
+            print(f"Error: No 'image' field in JSON file")
+            return None
+
+        # Resolve image path (relative to project root)
+        project_root = TOOL_CONFIG.get("project_root", "")
+        image_path = os.path.join(project_root, image_rel_path)
+
+        # If not found, try relative to JSON file location
+        if not os.path.exists(image_path):
+            json_dir = os.path.dirname(json_path)
+            image_path = os.path.join(json_dir, image_rel_path)
+
+        # If still not found, try as absolute path
+        if not os.path.exists(image_path):
+            image_path = image_rel_path
+
+        if not os.path.exists(image_path):
+            print(f"Error: Image file not found: {image_rel_path}")
+            return None
+
+        print(f"Loaded animation: {len(frames)} frames, pivot: {pivot_mode}")
+        return (image_path, frames, pivot_mode)
+    except Exception as e:
+        print(f"Error loading animation JSON: {e}")
+        return None
+
+def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
+    """
+    Run the animation frame editor.
+
+    Args:
+        image_path: Path to the sprite sheet image
+        loaded_frames: Optional pre-loaded frames list from JSON
+        loaded_pivot: Optional pre-loaded pivot mode from JSON
+    """
     pygame.init()
 
     font_help = pygame.font.Font(None, FONT_SIZE)
@@ -354,22 +349,28 @@ def run_editor(image_path):
     is_panning = False
     pan_start = None
 
-    # Try to load existing JSON data first
-    json_path = os.path.splitext(image_path)[0] + ".json"
-    frames = []
-    pivot_mode = "bottom-center"
-    if os.path.exists(json_path):
-        try:
-            with open(json_path, 'r') as f:
-                data = json.load(f)
-                frames = data.get("frames", [])
-                pivot_mode = data.get("pivot", "bottom-center")
-                print(f"Loaded {len(frames)} frames from '{json_path}'")
-        except Exception as e:
-            print(f"Error loading JSON: {e}")
-            frames = auto_detect_frames(image_path)
+    # Use pre-loaded data if available, otherwise try to load or auto-detect
+    if loaded_frames is not None:
+        frames = loaded_frames
+        pivot_mode = loaded_pivot if loaded_pivot else "bottom-center"
+        print(f"Using loaded data: {len(frames)} frames, pivot: {pivot_mode}")
     else:
-        frames = auto_detect_frames(image_path)
+        # Try to load existing JSON data first
+        json_path = os.path.splitext(image_path)[0] + ".json"
+        frames = []
+        pivot_mode = "bottom-center"
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, 'r') as f:
+                    data = json.load(f)
+                    frames = data.get("frames", [])
+                    pivot_mode = data.get("pivot", "bottom-center")
+                    print(f"Loaded {len(frames)} frames from '{json_path}'")
+            except Exception as e:
+                print(f"Error loading JSON: {e}")
+                frames = auto_detect_frames(image_path)
+        else:
+            frames = auto_detect_frames(image_path)
 
     running = True; snapping_enabled = True; is_previewing = False
     selected_frame_index = -1; show_pivots = True
@@ -946,37 +947,61 @@ def run_editor(image_path):
     print("Tool closed.")
     return None
 
+def process_file_path(file_path):
+    """
+    Process file path and return (image_path, frames, pivot) tuple.
+    For PNG: returns (image_path, None, None)
+    For JSON: loads animation data and returns (image_path, frames, pivot)
+    """
+    if not file_path or not os.path.exists(file_path):
+        return None, None, None
+
+    ext = os.path.splitext(file_path)[1].lower()
+
+    if ext == ".json":
+        # Load animation JSON
+        result = load_animation_json(file_path)
+        if result:
+            return result  # (image_path, frames, pivot)
+        else:
+            print(f"Failed to load animation from: {file_path}")
+            return None, None, None
+    else:
+        # Treat as image file
+        return file_path, None, None
+
+
 def main():
-    """Main entry point. Launches browser or editor in a loop."""
+    """Main entry point. Launches file dialog or editor in a loop."""
+    file_path = None
     image_path = None
+    loaded_frames = None
+    loaded_pivot = None
 
     # Initial file selection
     if len(sys.argv) > 1:
-        image_path = sys.argv[1]
-        if not os.path.exists(image_path):
-            print(f"Error: Image file not found at '{image_path}'")
+        file_path = sys.argv[1]
+        if not os.path.exists(file_path):
+            print(f"Error: File not found at '{file_path}'")
             return
+        image_path, loaded_frames, loaded_pivot = process_file_path(file_path)
     else:
-        pygame.init()
-        screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-        font = pygame.font.Font(None, FONT_SIZE)
-        pygame.display.set_caption("File Browser")
-        image_path = run_file_browser(screen, font)
-        pygame.quit()
+        file_path = open_file_dialog()
+        if file_path:
+            image_path, loaded_frames, loaded_pivot = process_file_path(file_path)
 
     # Main loop - allows opening multiple files
     while image_path:
         print(f"Starting editor for: {image_path}")
-        result = run_editor(image_path)
+        result = run_editor(image_path, loaded_frames, loaded_pivot)
 
         if result == "open_file":
-            # Open file browser to select another image
-            pygame.init()
-            screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-            font = pygame.font.Font(None, FONT_SIZE)
-            pygame.display.set_caption("File Browser")
-            image_path = run_file_browser(screen, font)
-            pygame.quit()
+            # Open file dialog to select another file
+            file_path = open_file_dialog()
+            if file_path:
+                image_path, loaded_frames, loaded_pivot = process_file_path(file_path)
+            else:
+                image_path = None
         else:
             # Normal exit
             break
