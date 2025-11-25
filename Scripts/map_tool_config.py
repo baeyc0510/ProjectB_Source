@@ -3,25 +3,49 @@ import json
 
 # --- Tool Config ---
 def load_tool_config():
-    """Load tool configuration from tool_config.json"""
+    """Load tool configuration from tool_config.json and validate project_root."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Default project_root to the parent of the Scripts folder
+    # This is the ultimate fallback if no config file or invalid path in config.
+    default_project_root = os.path.dirname(script_dir) 
+
     config_path = os.path.join(script_dir, "tool_config.json")
-    default_config = {
-        "project_root": os.path.dirname(script_dir),
+    
+    # Start with default values
+    config = {
+        "project_root": default_project_root,
         "resources_folder": "Resources",
         "maps_folder": "Maps",
         "animations_folder": "Animations"
     }
+
     if os.path.exists(config_path):
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
-                config = json.load(f)
-                if "project_root" in config:
-                    config["project_root"] = config["project_root"].replace("\\", "/")
-                return config
+                loaded_config = json.load(f)
+                config.update(loaded_config) # Update default config with loaded values
+
+            # Normalize path separators
+            if "project_root" in config:
+                config["project_root"] = config["project_root"].replace("\\", "/")
+            
+            # Validate project_root and apply fallback if necessary
+            configured_project_root = config["project_root"]
+            drive, _ = os.path.splitdrive(configured_project_root)
+            
+            is_drive_missing = drive and not os.path.exists(drive)
+            is_path_missing = not os.path.exists(configured_project_root)
+
+            if is_drive_missing or is_path_missing:
+                # Only warn if the configured root is different from the default fallback
+                if configured_project_root != default_project_root:
+                    print(f"Warning: Configured project_root '{configured_project_root}' not found or its drive is missing. Falling back to '{default_project_root}'.")
+                config["project_root"] = default_project_root
+
         except Exception as e:
-            print(f"Warning: Failed to load config: {e}")
-    return default_config
+            print(f"Warning: Failed to load or parse tool_config.json: {e}. Using default configuration.")
+    
+    return config
 
 def get_relative_path(absolute_path, project_root):
     """Get relative path from project root"""

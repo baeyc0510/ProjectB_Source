@@ -9,24 +9,46 @@ import numpy as np
 def load_tool_config():
     """Load tool configuration from tool_config.json"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Default project_root to the parent of the Scripts folder
+    # This is the ultimate fallback if no config file or invalid path in config.
+    default_project_root = os.path.dirname(script_dir) 
+
     config_path = os.path.join(script_dir, "tool_config.json")
-    default_config = {
-        "project_root": os.path.dirname(script_dir),  # Default to parent of Scripts folder
+    
+    config = {
+        "project_root": default_project_root,
         "resources_folder": "Resources",
         "maps_folder": "Maps",
         "animations_folder": "Animations"
     }
+
     if os.path.exists(config_path):
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
-                config = json.load(f)
-                # Normalize path separators
-                if "project_root" in config:
-                    config["project_root"] = config["project_root"].replace("\\", "/")
-                return config
+                loaded_config = json.load(f)
+                config.update(loaded_config) # Update default config with loaded values
+
+            # Normalize path separators
+            if "project_root" in config:
+                config["project_root"] = config["project_root"].replace("\\", "/")
+            
+            # Validate project_root and apply fallback if necessary
+            configured_project_root = config["project_root"]
+            drive, _ = os.path.splitdrive(configured_project_root)
+            
+            is_drive_missing = drive and not os.path.exists(drive)
+            is_path_missing = not os.path.exists(configured_project_root)
+
+            if is_drive_missing or is_path_missing:
+                # Only warn if the configured root is different from the default fallback
+                if configured_project_root != default_project_root:
+                    print(f"Warning: Configured project_root '{configured_project_root}' not found or its drive is missing. Falling back to '{default_project_root}'.")
+                config["project_root"] = default_project_root
+
         except Exception as e:
-            print(f"Warning: Failed to load config: {e}")
-    return default_config
+            print(f"Warning: Failed to load or parse tool_config.json: {e}. Using default configuration.")
+    
+    return config
 
 def get_relative_path(absolute_path, project_root):
     """Get relative path from project root"""
@@ -139,6 +161,33 @@ class InputField:
         if self.active and self.cursor_visible:
             cursor_x = text_x + text_surf.get_width() + 2
             pygame.draw.line(screen, DETAIL_VALUE_COLOR, (cursor_x, text_y), (cursor_x, text_y + text_surf.get_height()), 2)
+
+# --- Float Input Field Class (for frame_interval) ---
+class FloatInputField(InputField):
+    def set_value(self, value):
+        # Format to a reasonable number of decimal places
+        self.text = f"{value:.4f}".rstrip('0').rstrip('.') if value is not None else ""
+
+    def get_value(self):
+        try:
+            return float(self.text) if self.text else 0.0
+        except ValueError:
+            return 0.0
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_BACKSPACE:
+                self.text = self.text[:-1]
+                return True
+            elif event.key in (pygame.K_RETURN, pygame.K_TAB):
+                return False  # Let parent handle tab/enter
+            elif event.unicode.isdigit():
+                self.text += event.unicode
+                return True
+            elif event.unicode == '.' and '.' not in self.text:
+                self.text += event.unicode
+                return True
+        return False
 
 # --- Helper Functions ---
 def get_snap_coord(mouse_coord, existing_coords, tolerance):
@@ -279,7 +328,7 @@ def open_file_dialog():
 
 
 def load_animation_json(json_path):
-    """Load animation data from JSON file. Returns (image_path, frames, pivot_mode) or None on error."""
+    """Load animation data from JSON file. Returns (image_path, frames, pivot_mode, frame_interval) or None on error."""
     try:
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -287,21 +336,25 @@ def load_animation_json(json_path):
         image_rel_path = data.get("image", "")
         frames = data.get("frames", [])
         pivot_mode = data.get("pivot", "bottom-center")
+        frame_interval = data.get("frame_interval", 1.0 / PREVIEW_FPS) # Default to PREVIEW_FPS if not found
 
         if not image_rel_path:
             print(f"Error: No 'image' field in JSON file")
             return None
 
-        # Resolve image path (relative to project root)
+        # Resolve image path (relative to project root + resources_folder)
         project_root = TOOL_CONFIG.get("project_root", "")
-        image_path = os.path.join(project_root, image_rel_path)
+        resources_folder = TOOL_CONFIG.get("resources_folder", "Resources")
+        
+        # Try path relative to project_root/resources_folder
+        image_path = os.path.join(project_root, resources_folder, image_rel_path)
 
-        # If not found, try relative to JSON file location
+        # If not found, try relative to JSON file location (as a fallback for older saved files or unusual setups)
         if not os.path.exists(image_path):
             json_dir = os.path.dirname(json_path)
             image_path = os.path.join(json_dir, image_rel_path)
 
-        # If still not found, try as absolute path
+        # If still not found, try as absolute path (as a last resort)
         if not os.path.exists(image_path):
             image_path = image_rel_path
 
@@ -309,13 +362,13 @@ def load_animation_json(json_path):
             print(f"Error: Image file not found: {image_rel_path}")
             return None
 
-        print(f"Loaded animation: {len(frames)} frames, pivot: {pivot_mode}")
-        return (image_path, frames, pivot_mode)
+        print(f"Loaded animation: {len(frames)} frames, pivot: {pivot_mode}, interval: {frame_interval:.3f}s")
+        return (image_path, frames, pivot_mode, frame_interval)
     except Exception as e:
         print(f"Error loading animation JSON: {e}")
         return None
 
-def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
+def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interval=None):
     """
     Run the animation frame editor.
 
@@ -323,6 +376,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
         image_path: Path to the sprite sheet image
         loaded_frames: Optional pre-loaded frames list from JSON
         loaded_pivot: Optional pre-loaded pivot mode from JSON
+        loaded_interval: Optional pre-loaded frame interval from JSON
     """
     pygame.init()
 
@@ -393,6 +447,12 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
     input_fields = [input_x, input_y, input_w, input_h]
     active_input_index = -1  # -1 means no input field is active
 
+    # --- Global Animation Settings ---
+    frame_interval = loaded_interval if loaded_interval is not None else 1.0 / PREVIEW_FPS
+    input_interval = FloatInputField(110, help_area_height + 50, 80, 24, "Interval (s)", font_detail)
+    input_interval.set_value(frame_interval)
+    active_interval_input = False
+
     # --- Grid Mode Input Fields ---
     input_grid_w = InputField(90, help_area_height + 80, 80, 24, "Cell W", font_detail)
     input_grid_h = InputField(90, help_area_height + 110, 80, 24, "Cell H", font_detail)
@@ -425,13 +485,15 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
         active_input_index = index
 
     def deactivate_all_inputs():
-        nonlocal active_input_index, active_grid_input_index
+        nonlocal active_input_index, active_grid_input_index, active_interval_input
         for field in input_fields:
             field.active = False
         for field in grid_input_fields:
             field.active = False
+        input_interval.active = False
         active_input_index = -1
         active_grid_input_index = -1
+        active_interval_input = False
 
     def update_grid_input_fields():
         """Update grid input field values from grid_cell_w/h"""
@@ -489,6 +551,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
             field.update(dt)
         for field in grid_input_fields:
             field.update(dt)
+        input_interval.update(dt)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: running = False
@@ -539,6 +602,21 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
                     if event.key == pygame.K_ESCAPE:
                         deactivate_all_inputs()
                         update_input_fields_from_frame()
+                        continue
+
+                # Handle interval input field events
+                if active_interval_input:
+                    handled = input_interval.handle_event(event)
+                    if handled:
+                        frame_interval = input_interval.get_value()
+                        continue
+                    if event.key in (pygame.K_RETURN, pygame.K_TAB):
+                        frame_interval = input_interval.get_value()
+                        deactivate_all_inputs()
+                        continue
+                    if event.key == pygame.K_ESCAPE:
+                        deactivate_all_inputs()
+                        input_interval.set_value(frame_interval)
                         continue
 
                 # Handle grid input field events
@@ -634,13 +712,22 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
 
                         # Determine default directory from config
                         project_root = TOOL_CONFIG.get("project_root", "")
+
+                        # Validate that the drive from project_root exists
+                        if project_root:
+                            drive, _ = os.path.splitdrive(project_root)
+                            if drive and not os.path.exists(drive):
+                                script_dir = os.path.dirname(os.path.abspath(__file__))
+                                new_root = os.path.dirname(script_dir)
+                                print(f"Warning: Drive '{drive}' from 'project_root' in config not found. Falling back to '{new_root}'.")
+                                project_root = new_root
+
                         resources_folder = TOOL_CONFIG.get("resources_folder", "Resources")
                         animations_folder = TOOL_CONFIG.get("animations_folder", "Animations")
                         default_dir = os.path.join(project_root, resources_folder, animations_folder)
 
                         # Create directory if it doesn't exist
-                        if not os.path.exists(default_dir):
-                            os.makedirs(default_dir, exist_ok=True)
+                        os.makedirs(default_dir, exist_ok=True)
 
                         # Default filename from image name
                         default_filename = os.path.splitext(os.path.basename(image_path))[0] + ".json"
@@ -659,11 +746,18 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
                         if output_path:
                             # Get relative image path from project root
                             image_rel_path = get_relative_path(image_path, project_root)
+                            resources_folder_name = TOOL_CONFIG.get("resources_folder", "Resources")
+                            
+                            # Remove the resources folder prefix if present
+                            if image_rel_path.startswith(f"{resources_folder_name}/"):
+                                image_rel_path = image_rel_path[len(resources_folder_name) + 1:]
+
                             # Compact JSON: one frame per line
                             with open(output_path, 'w') as f:
                                 f.write('{\n')
                                 f.write(f'    "image": "{image_rel_path}",\n')
                                 f.write(f'    "pivot": "{pivot_mode}",\n')
+                                f.write(f'    "frame_interval": {round(frame_interval, 4)},\n')
                                 f.write('    "frames": [\n')
                                 for i, frame in enumerate(frames):
                                     comma = "," if i < len(frames) - 1 else ""
@@ -691,6 +785,14 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
                             set_active_grid_input(i)
                             clicked_on_input = True
                             break
+                if not clicked_on_input and mouse_pos[0] >= panel_x and selected_frame_index == -1 and not grid_mode:
+                    actual_rect = pygame.Rect(panel_x + input_interval.rect.x, input_interval.rect.y, input_interval.rect.width, input_interval.rect.height)
+                    if actual_rect.collidepoint(mouse_pos):
+                        deactivate_all_inputs()
+                        active_interval_input = True
+                        input_interval.active = True
+                        clicked_on_input = True
+
                 # Check frame input fields (when frame is selected and not in grid mode)
                 if not clicked_on_input and mouse_pos[0] >= panel_x and selected_frame_index != -1 and not grid_mode:
                     for i, field in enumerate(input_fields):
@@ -806,7 +908,11 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
         if is_previewing:
             overlay = pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA); overlay.fill(PREVIEW_BG_COLOR); screen.blit(overlay, (0, 0))
             if frames:
-                preview_frame_index = (pygame.time.get_ticks() // (1000 // PREVIEW_FPS)) % len(frames)
+                if frame_interval > 0:
+                    preview_frame_index = int(pygame.time.get_ticks() / (frame_interval * 1000)) % len(frames)
+                else:
+                    preview_frame_index = 0
+                
                 frame_rect_data = frames[preview_frame_index]
                 if frame_rect_data[2] > 0 and frame_rect_data[3] > 0:
                     try:
@@ -922,6 +1028,11 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
                 count_surf = font_detail.render(count_text, True, DETAIL_LABEL_COLOR)
                 screen.blit(count_surf, (panel_x + 10, 70))
 
+            # --- Animation Settings ---
+            anim_set_surf = font_detail.render("Animation Settings", True, DETAIL_LABEL_COLOR)
+            screen.blit(anim_set_surf, (panel_x + 10, help_area_height + 20))
+            input_interval.draw(screen, panel_x)
+
         # --- Draw Save Notification ---
         if save_notification:
             msg, timestamp = save_notification
@@ -949,12 +1060,12 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None):
 
 def process_file_path(file_path):
     """
-    Process file path and return (image_path, frames, pivot) tuple.
-    For PNG: returns (image_path, None, None)
-    For JSON: loads animation data and returns (image_path, frames, pivot)
+    Process file path and return (image_path, frames, pivot, frame_interval) tuple.
+    For PNG: returns (image_path, None, None, None)
+    For JSON: loads animation data and returns (image_path, frames, pivot, frame_interval)
     """
     if not file_path or not os.path.exists(file_path):
-        return None, None, None
+        return None, None, None, None
 
     ext = os.path.splitext(file_path)[1].lower()
 
@@ -962,13 +1073,13 @@ def process_file_path(file_path):
         # Load animation JSON
         result = load_animation_json(file_path)
         if result:
-            return result  # (image_path, frames, pivot)
+            return result  # (image_path, frames, pivot, frame_interval)
         else:
             print(f"Failed to load animation from: {file_path}")
-            return None, None, None
+            return None, None, None, None
     else:
         # Treat as image file
-        return file_path, None, None
+        return file_path, None, None, None
 
 
 def main():
@@ -977,6 +1088,7 @@ def main():
     image_path = None
     loaded_frames = None
     loaded_pivot = None
+    loaded_interval = None
 
     # Initial file selection
     if len(sys.argv) > 1:
@@ -984,29 +1096,29 @@ def main():
         if not os.path.exists(file_path):
             print(f"Error: File not found at '{file_path}'")
             return
-        image_path, loaded_frames, loaded_pivot = process_file_path(file_path)
+        image_path, loaded_frames, loaded_pivot, loaded_interval = process_file_path(file_path)
     else:
         file_path = open_file_dialog()
         if file_path:
-            image_path, loaded_frames, loaded_pivot = process_file_path(file_path)
+            image_path, loaded_frames, loaded_pivot, loaded_interval = process_file_path(file_path)
 
     # Main loop - allows opening multiple files
     while image_path:
         print(f"Starting editor for: {image_path}")
-        result = run_editor(image_path, loaded_frames, loaded_pivot)
+        result = run_editor(image_path, loaded_frames, loaded_pivot, loaded_interval)
 
         if result == "open_file":
             # Open file dialog to select another file
             file_path = open_file_dialog()
             if file_path:
-                image_path, loaded_frames, loaded_pivot = process_file_path(file_path)
+                image_path, loaded_frames, loaded_pivot, loaded_interval = process_file_path(file_path)
             else:
                 image_path = None
         else:
             # Normal exit
             break
 
-    if not image_path:
+    if not image_path and file_path is None:
         print("No file selected. Exiting.")
 
 if __name__ == "__main__":
