@@ -1,9 +1,9 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CMonster.h"
 
 CMonster::CMonster()
 {
-	name	= TEXT("¸ó½ºÅÍ");
+	name	= TEXT("ëª¬ìŠ¤í„°");
 	scale	= Vec2(100, 100);
 }
 

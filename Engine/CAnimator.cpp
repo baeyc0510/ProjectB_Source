@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CAnimator.h"
 
 CAnimator::CAnimator()
@@ -8,6 +8,8 @@ CAnimator::CAnimator()
 	ratio			= 1;
 	curFrame		= 0;
 	curTime			= 0;
+	m_iDirection	= 1;
+	m_bIsFinished = false;
 }
 
 CAnimator::~CAnimator()
@@ -53,21 +55,22 @@ void CAnimator::CreateAnimation(const wstring& aniName, CImage* image, float ste
 
 void CAnimator::Play(const wstring& aniName, bool reset)
 {
-	// ÇöÀç ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ ÇÃ·¹ÀÌÇÏ°íÀÚ ÇÏ´Â ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ¸ç
-	// reset ¾Æ´Ò °æ¿ì ÇöÀç ¾Ö´Ï¸ÞÀÌ¼ÇÀ» º¯°æÇÏÁö ¾ÊÀ½
-	// reset : °°Àº ¾Ö´Ï¸ÞÀÌ¼ÇÀ» Ã³À½ºÎÅÍ Àç»ý
-	// (ex. °ø°Ý ¸ð¼ÇÃ³·³ ´©¸¦¶§¸¶´Ù Ã³À½ºÎÅÍ Àç»ýÇØ¾ßÇÏ´Â ¾Ö´Ï¸ÞÀÌ¼Ç)
+	// í˜„ìž¬ ì• ë‹ˆë©”ì´ì…˜ì´ í”Œë ˆì´í•˜ê³ ìž í•˜ëŠ” ì• ë‹ˆë©”ì´ì…˜ì´ë©°
+	// reset ì•„ë‹ ê²½ìš° í˜„ìž¬ ì• ë‹ˆë©”ì´ì…˜ì„ ë³€ê²½í•˜ì§€ ì•ŠìŒ
+	// reset : ê°™ì€ ì• ë‹ˆë©”ì´ì…˜ì„ ì²˜ìŒë¶€í„° ìž¬ìƒ
+	// (ex. ê³µê²© ëª¨ì…˜ì²˜ëŸ¼ ëˆ„ë¥¼ë•Œë§ˆë‹¤ ì²˜ìŒë¶€í„° ìž¬ìƒí•´ì•¼í•˜ëŠ” ì• ë‹ˆë©”ì´ì…˜)
 	if (playing && aniName == curAnimation->GetKey() && !reset)
 		return;
 
 	CAnimation* animation = FindAnimation(aniName);
 	assert(nullptr != animation && "Animation no exist");
 
-	// reset ÀÏ °æ¿ì Ã³À½ºÎÅÍ Àç»ý
+	// reset ì¼ ê²½ìš° ì²˜ìŒë¶€í„° ìž¬ìƒ
 	if (reset || curAnimation != animation)
 	{
 		curFrame = 0;
 		curTime = 0;
+		m_bIsFinished = false;
 	}
 	curAnimation = animation;
 }
@@ -88,32 +91,48 @@ void CAnimator::ComponentOnEnable()
 
 void CAnimator::ComponentUpdate()
 {
-	// ÇöÀç ÇÃ·¹ÀÌÁßÀÎ ÇÁ·¹ÀÓÀÇ ´©Àû½Ã°£
+	// í˜„ìž¬ í”Œë ˆì´ì¤‘ì¸ í”„ë ˆìž„ì˜ ëˆ„ì ì‹œê°„
 	curTime += DT;
 
-	// ´©Àû½Ã°£ÀÌ ÇöÀç ÇÃ·¹ÀÌÁßÀÎ ÇÁ·¹ÀÓÀÇ Áö¼Ó½Ã°£º¸´Ù Ä¿Á³À» °æ¿ì
-	// -> ´ÙÀ½ ÇÁ·¹ÀÓÀ» º¸¿©Áà¾ß ÇÏ´Â °æ¿ì
+	// ëˆ„ì ì‹œê°„ì´ í˜„ìž¬ í”Œë ˆì´ì¤‘ì¸ í”„ë ˆìž„ì˜ ì§€ì†ì‹œê°„ë³´ë‹¤ ì»¤ì¡Œì„ ê²½ìš°
+	// -> ë‹¤ìŒ í”„ë ˆìž„ì„ ë³´ì—¬ì¤˜ì•¼ í•˜ëŠ” ê²½ìš°
 	if (curAnimation->frames[curFrame].time < curTime)
 	{
-		curFrame++;	// ÇöÀç ÇÃ·¹ÀÌÁßÀÎ ÇÁ·¹ÀÓÀÇ ÀÎµ¦½º¸¦ ÇÏ³ª Áõ°¡
-		curTime = 0;	// ÇöÀç ÇÃ·¹ÀÌÁßÀÎ ÇÁ·¹ÀÓÀÇ ´©Àû½Ã°£ ÃÊ±âÈ­
+		curFrame++;	// í˜„ìž¬ í”Œë ˆì´ì¤‘ì¸ í”„ë ˆìž„ì˜ ì¸ë±ìŠ¤ë¥¼ í•˜ë‚˜ ì¦ê°€
+		curTime = 0;	// í˜„ìž¬ í”Œë ˆì´ì¤‘ì¸ í”„ë ˆìž„ì˜ ëˆ„ì ì‹œê°„ ì´ˆê¸°í™”
 
-		// ¸¸¾à ÇÃ·¹ÀÌÁßÀÎ ÇÁ·¹ÀÓÀÌ ¸¶Áö¸· ÇÁ·¹ÀÓÀÌ¾úÀ» °æ¿ì
+		if (!m_bIsFinished)
+		{
+			// í”„ë ˆìž„ ì´ë²¤íŠ¸ ì‹¤í–‰
+			for (const wstring& eventName : curAnimation->frames[curFrame - 1].events)
+			{
+				Logger::Debug(L"Animation Event Triggered: " + eventName);
+			}
+		}
+
+		// ë§Œì•½ í”Œë ˆì´ì¤‘ì¸ í”„ë ˆìž„ì´ ë§ˆì§€ë§‰ í”„ë ˆìž„ì´ì—ˆì„ ê²½ìš°
 		if (curFrame == curAnimation->frames.size())
 		{
-			// ¹Ýº¹ ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ¶ó¸é Ã³À½ºÎÅÍ, ¾Æ´Ï¶ó¸é ¸¶Áö¸·À» ´Ù½Ã Àç»ý
-			if (curAnimation->repeat)	curFrame = 0;
-			else						curFrame--;
+			// ë°˜ë³µ ì• ë‹ˆë©”ì´ì…˜ì´ë¼ë©´ ì²˜ìŒë¶€í„°, ì•„ë‹ˆë¼ë©´ ë§ˆì§€ë§‰ì„ ë‹¤ì‹œ ìž¬ìƒ
+			if (curAnimation->repeat)
+			{
+				curFrame = 0;
+			}
+			else
+			{
+				curFrame--;
+				m_bIsFinished = true;
+			}
 		}
 	}
 }
 
 void CAnimator::ComponentRender()
 {
-	Vec2 pos = GetOwner()->GetRenderPos();				// ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ ±×·ÁÁú À§Ä¡ È®ÀÎ
-	AniFrame frame = curAnimation->frames[curFrame];	// ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ ±×·ÁÁú ÇÁ·¹ÀÓ È®ÀÎ
+	Vec2 pos = GetOwner()->GetRenderPos();				// ì• ë‹ˆë©”ì´ì…˜ì´ ê·¸ë ¤ì§ˆ ìœ„ì¹˜ í™•ì¸
+	AniFrame frame = curAnimation->frames[curFrame];	// ì• ë‹ˆë©”ì´ì…˜ì´ ê·¸ë ¤ì§ˆ í”„ë ˆìž„ í™•ì¸
 
-	// ÇÁ·¹ÀÓ ÀÌ¹ÌÁö ±×¸®±â
+	// í”„ë ˆìž„ ì´ë¯¸ì§€ ê·¸ë¦¬ê¸°
 	RENDER->FrameImage(
 		curAnimation->image,
 		pos.x - frame.scale.x * 0.5f * ratio,
@@ -123,7 +142,8 @@ void CAnimator::ComponentRender()
 		frame.pos.x,
 		frame.pos.y,
 		frame.pos.x + frame.scale.x,
-		frame.pos.y + frame.scale.y
+		frame.pos.y + frame.scale.y,
+		m_iDirection == -1
 	);
 }
 

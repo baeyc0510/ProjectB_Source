@@ -1,6 +1,6 @@
-#pragma once
+ï»¿#pragma once
 
-// Àü¹æ¼±¾ğ : Å¬·¡½ºÀÇ ÀÌ¸§¸¸À¸·Î ¼±¾ğ
+// ì „ë°©ì„ ì–¸ : í´ë˜ìŠ¤ì˜ ì´ë¦„ë§Œìœ¼ë¡œ ì„ ì–¸
 class CScene;
 
 class CSceneManager : public SingleTon<CSceneManager>
@@ -16,16 +16,16 @@ public:
 	void		Render();
 	void		Release();
 
-	CScene*		FindScene(int key);					// ¾À Å½»ö
-	void		AddScene(int key, CScene* scene);	// ¾À Ãß°¡
-	void		RemoveScene(int key);				// ¾À »èÁ¦
-	void		ChangeScene(int key);				// ¾À ÀüÈ¯
-	void		SetStartScene(int key);				// ½ÃÀÛ ¾À ¼³Á¤
+	CScene*		FindScene(int key);					// ì”¬ íƒìƒ‰
+	void		AddScene(int key, CScene* scene);	// ì”¬ ì¶”ê°€
+	void		RemoveScene(int key);				// ì”¬ ì‚­ì œ
+	void		ChangeScene(int key);				// ì”¬ ì „í™˜
+	void		SetStartScene(int key);				// ì‹œì‘ ì”¬ ì„¤ì •
 
-	CScene*		GetCurScene();						// ÇöÀç ¾À ¹İÈ¯
+	CScene*		GetCurScene();						// í˜„ì¬ ì”¬ ë°˜í™˜
 
 private:
-	map<int, CScene*>		mapScene;				// °ÔÀÓ¾ÀµéÀ» º¸°üÇÏ´Â ÀÚ·á±¸Á¶
-	CScene*					curScene;				// ÇöÀç °ÔÀÓ¾À
+	map<int, CScene*>		mapScene;				// ê²Œì„ì”¬ë“¤ì„ ë³´ê´€í•˜ëŠ” ìë£Œêµ¬ì¡°
+	CScene*					curScene;				// í˜„ì¬ ê²Œì„ì”¬
 };
 

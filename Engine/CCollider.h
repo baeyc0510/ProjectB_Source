@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 class CCollisionManager;
 
@@ -33,19 +33,19 @@ private:
 	void			ComponentOnDisable()			override;
 	void			ComponentRelease()				override;
 
-	static UINT		colliderCount;					// Ãæµ¹Ã¼°¡ »ı¼ºµÉ¶§¸¶´Ù Áõ°¡ÇÏ´Â °ª
-	UINT			id;								// Ãæµ¹Ã¼ÀÇ ID (°ÔÀÓ¿¡¼­ Áßº¹µÇÁö ¾Ê´Â À¯ÀÏÇÑ ID)
-	UINT			count;							// Ãæµ¹ÁßÀÎ Ãæµ¹Ã¼ °¹¼ö
+	static UINT		colliderCount;					// ì¶©ëŒì²´ê°€ ìƒì„±ë ë•Œë§ˆë‹¤ ì¦ê°€í•˜ëŠ” ê°’
+	UINT			id;								// ì¶©ëŒì²´ì˜ ID (ê²Œì„ì—ì„œ ì¤‘ë³µë˜ì§€ ì•ŠëŠ” ìœ ì¼í•œ ID)
+	UINT			count;							// ì¶©ëŒì¤‘ì¸ ì¶©ëŒì²´ ê°¯ìˆ˜
 
-	UINT			layer;							// Ãæµ¹Ã¼ÀÇ ·¹ÀÌ¾î
+	UINT			layer;							// ì¶©ëŒì²´ì˜ ë ˆì´ì–´
 	Vec2			pos;
-	Vec2			offset;							// Ãæµ¹Ã¼ÀÇ º¯À§Â÷
+	Vec2			offset;							// ì¶©ëŒì²´ì˜ ë³€ìœ„ì°¨
 	Vec2			scale;
 
 private:
-	// Ãæµ¹½ÃÁ¡ ÇÔ¼ö
-	void			OnCollisionEnter(CCollider* other);		// Ãæµ¹ ÁøÀÔ
-	void			OnCollisionStay(CCollider* other);		// Ãæµ¹ Áß
-	void			OnCollisionExit(CCollider* other);		// Ãæµ¹ ÇØÁ¦
+	// ì¶©ëŒì‹œì  í•¨ìˆ˜
+	void			OnCollisionEnter(CCollider* other);		// ì¶©ëŒ ì§„ì…
+	void			OnCollisionStay(CCollider* other);		// ì¶©ëŒ ì¤‘
+	void			OnCollisionExit(CCollider* other);		// ì¶©ëŒ í•´ì œ
 };
 

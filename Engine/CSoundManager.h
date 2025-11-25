@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class CSoundManager : public SingleTon<CSoundManager>
 {
 	friend SingleTon<CSoundManager>;

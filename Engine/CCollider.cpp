@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CCollider.h"
 
 UINT CCollider::colliderCount = 0;
@@ -20,7 +20,7 @@ CCollider::~CCollider()
 
 bool CCollider::IsCollision(CCollider* other)
 {
-	// �簢 �浹
+	// 사각 충돌
 	if (abs(GetPos().x - other->GetPos().x) < (GetScale().x + other->GetScale().x) * 0.5f &&
 		abs(GetPos().y - other->GetPos().y) < (GetScale().y + other->GetScale().y) * 0.5f)
 		return true;

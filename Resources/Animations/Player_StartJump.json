@@ -1,0 +1,12 @@
+{
+    "image": "MVP_Resources/Player/penitent_jump_anim.bmp",
+    "pivot": "bottom-center",
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 99, 37, 81], "events": ["JumpStart"]},
+        {"rect": [37, 105, 39, 75], "events": []},
+        {"rect": [76, 103, 37, 77], "events": []},
+        {"rect": [0, 180, 47, 76], "events": []},
+        {"rect": [47, 183, 43, 73], "events": []}
+    ]
+}

@@ -1,11 +1,11 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CWeapon.h"
 
 #include "CMissile.h"
 
 CWeapon::CWeapon()
 {
-	name = TEXT("¹«±â");
+	name = TEXT("ë¬´ê¸°");
 	scale = Vec2(30, 100);
 }
 

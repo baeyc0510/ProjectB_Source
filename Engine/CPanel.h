@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class CPanel : public CUI
 {
 public:
@@ -17,7 +17,7 @@ private:
 	void	OnDisable()			override;
 	void	Release()			override;
 
-	// final : »ó¼Ó¹ŞÀº ÀÚ½ÄÅ¬·¡½º¿¡¼­ ÀçÁ¤ÀÇÇÏÁö ¸øÇÏµµ·Ï Á¦ÇÑ
+	// final : ìƒì†ë°›ì€ ìì‹í´ë˜ìŠ¤ì—ì„œ ì¬ì •ì˜í•˜ì§€ ëª»í•˜ë„ë¡ ì œí•œ
 	void	OnMouseEnter()		final;
 	void	OnMouseOver()		final;
 	void	OnMouseExit()		final;

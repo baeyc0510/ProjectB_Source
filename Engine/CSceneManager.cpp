@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CSceneManager.h"
 
 CSceneManager::CSceneManager()
@@ -26,7 +26,7 @@ void CSceneManager::Render()
 
 void CSceneManager::Release()
 {
-	// °ÔÀÓ¾À ÀÚ·á±¸Á¶¸¦ ¼øÈ¸ÇÏ¸ç µ¿ÀûÇÒ´çµÈ ¾ÀÀ» Á¦°Å
+	// ê²Œì„ì”¬ ìë£Œêµ¬ì¡°ë¥¼ ìˆœíšŒí•˜ë©° ë™ì í• ë‹¹ëœ ì”¬ì„ ì œê±°
 	for (pair<int, CScene*> scene : mapScene)
 	{
 		scene.second->SceneRelease();
@@ -46,7 +46,7 @@ CScene* CSceneManager::FindScene(int key)
 
 void CSceneManager::AddScene(int key, CScene* scene)
 {
-	// °°Àº Å°°ªÀÇ ¾ÀÀÌ ÀÌ¹Ì ÀÖÀ» °æ¿ì
+	// ê°™ì€ í‚¤ê°’ì˜ ì”¬ì´ ì´ë¯¸ ìˆì„ ê²½ìš°
 	CScene* findScene = FindScene(key);
 	assert(nullptr != scene && "Scene already exist");
 
@@ -69,7 +69,7 @@ void CSceneManager::ChangeScene(int key)
 	CScene* scene = FindScene(key);
 	assert(nullptr != scene && "Scene do not exist");
 
-	// ÀÌÀü ¾ÀÀ» Exit, ´ÙÀ½ ¾ÀÀ» Enter
+	// ì´ì „ ì”¬ì„ Exit, ë‹¤ìŒ ì”¬ì„ Enter
 	curScene->SceneExit();
 	curScene = scene;
 	curScene->SceneEnter();

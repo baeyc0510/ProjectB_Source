@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class CSoundController : public CGameObject
 {
 public:

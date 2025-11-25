@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 class CScene;
 class CGameObject;
@@ -16,40 +16,40 @@ public:
 	void Update();
 	void Release();
 
-	void AddGameObject(CScene* scene, CGameObject* obj);							// °ÔÀÓ¿ÀºêÁ§Æ® Ãß°¡ ÀÌº¥Æ® Ãß°¡
-	void AddChild(CGameObject* parent, Component<CGameObject>* child);				// ÄÄÆ÷³ÍÆ® Ãß°¡ ÀÌº¥Æ® Ãß°¡
-	void Delete(CScene* scene, Component<CGameObject>* obj);						// ¿ÀºêÁ§Æ® »èÁ¦ ÀÌº¥Æ® Ãß°¡
+	void AddGameObject(CScene* scene, CGameObject* obj);							// ê²Œì„ì˜¤ë¸Œì íŠ¸ ì¶”ê°€ ì´ë²¤íŠ¸ ì¶”ê°€
+	void AddChild(CGameObject* parent, Component<CGameObject>* child);				// ì»´í¬ë„ŒíŠ¸ ì¶”ê°€ ì´ë²¤íŠ¸ ì¶”ê°€
+	void Delete(CScene* scene, Component<CGameObject>* obj);						// ì˜¤ë¸Œì íŠ¸ ì‚­ì œ ì´ë²¤íŠ¸ ì¶”ê°€
 
-	void AddUI(CScene* scene, CUI* ui);												// UI Ãß°¡ ÀÌº¥Æ® Ãß°¡
-	void AddChild(CUI* parent, CUI* child);											// ÀÚ½ÄUI Ãß°¡ ÀÌº¥Æ® Ãß°¡
-	void Delete(CScene* scene, CUI* ui);											// UI »èÁ¦ ÀÌº¥Æ® Ãß°¡
-	void ShowUI(CUI* ui, bool show);												// UI Ç¥½Ã º¯°æ ÀÌº¥Æ® Ãß°¡
+	void AddUI(CScene* scene, CUI* ui);												// UI ì¶”ê°€ ì´ë²¤íŠ¸ ì¶”ê°€
+	void AddChild(CUI* parent, CUI* child);											// ìì‹UI ì¶”ê°€ ì´ë²¤íŠ¸ ì¶”ê°€
+	void Delete(CScene* scene, CUI* ui);											// UI ì‚­ì œ ì´ë²¤íŠ¸ ì¶”ê°€
+	void ShowUI(CUI* ui, bool show);												// UI í‘œì‹œ ë³€ê²½ ì´ë²¤íŠ¸ ì¶”ê°€
 
-	void ChangeScene(int sceneType, float delay = 0);								// ¾À ÀüÈ¯ ÀÌº¥Æ® Ãß°¡
-
-private:
-	void ProgressAddGameObject();													// °ÔÀÓ¿ÀºêÁ§Æ® Ãß°¡ ÀÌº¥Æ® ÁøÇà
-	void ProgressAddComponent();													// ÄÄÆ÷³ÍÆ® Ãß°¡ ÀÌº¥Æ® ÁøÇà
-	void ProgressDeleteObject();													// ¿ÀºêÁ§Æ® »èÁ¦ ÀÌº¥Æ® ÁøÇà
-
-	void ProgressAddUI();															// UI Ãß°¡ ÀÌº¥Æ® ÁøÇà
-	void ProgressAddChildUI();														// ÀÚ½ÄUI Ãß°¡ ÀÌº¥Æ® ÁøÇà
-	void ProgressDeleteUI();														// UI »èÁ¦ ÀÌº¥Æ® ÁøÇà
-	void ProgressShowUI();															// UI Ç¥½Ã º¯°æ ÀÌº¥Æ® ÁøÇà
-
-	void ProgressChangeScene();														// ¾À ÀüÈ¯ ÀÌº¥Æ® ÁøÇà
+	void ChangeScene(int sceneType, float delay = 0);								// ì”¬ ì „í™˜ ì´ë²¤íŠ¸ ì¶”ê°€
 
 private:
-	queue<pair<CScene*, CGameObject*>>					addGameObjectQueue;			// °ÔÀÓ¿ÀºêÁ§Æ® Ãß°¡ ÀÌº¥Æ® º¸°ü
-	queue<pair<CGameObject*, Component<CGameObject>*>>	addChildQueue;				// ÄÄÆ÷³ÍÆ® Ãß°¡ ÀÌº¥Æ® º¸°ü
-	queue<pair<CScene*, Component<CGameObject>*>>		deleteObjectQueue;			// ¿ÀºêÁ§Æ® »èÁ¦ ÀÌº¥Æ® º¸°ü
+	void ProgressAddGameObject();													// ê²Œì„ì˜¤ë¸Œì íŠ¸ ì¶”ê°€ ì´ë²¤íŠ¸ ì§„í–‰
+	void ProgressAddComponent();													// ì»´í¬ë„ŒíŠ¸ ì¶”ê°€ ì´ë²¤íŠ¸ ì§„í–‰
+	void ProgressDeleteObject();													// ì˜¤ë¸Œì íŠ¸ ì‚­ì œ ì´ë²¤íŠ¸ ì§„í–‰
 
-	queue<pair<CScene*, CUI*>>							addUIQueue;					// UI Ãß°¡ ÀÌº¥Æ® º¸°ü
-	queue<pair<CUI*, CUI*>>								addChildUIQueue;			// ÀÚ½ÄUI Ãß°¡ ÀÌº¥Æ® º¸°ü
-	queue<pair<CScene*, CUI*>>							deleteUIQueue;				// UI »èÁ¦ ÀÌº¥Æ® º¸°ü
-	queue<pair<CUI*, bool>>								showUIQueue;				// UI Ç¥½Ã º¯°æ ÀÌº¥Æ® º¸°ü
+	void ProgressAddUI();															// UI ì¶”ê°€ ì´ë²¤íŠ¸ ì§„í–‰
+	void ProgressAddChildUI();														// ìì‹UI ì¶”ê°€ ì´ë²¤íŠ¸ ì§„í–‰
+	void ProgressDeleteUI();														// UI ì‚­ì œ ì´ë²¤íŠ¸ ì§„í–‰
+	void ProgressShowUI();															// UI í‘œì‹œ ë³€ê²½ ì´ë²¤íŠ¸ ì§„í–‰
 
-	pair<int, float>*									changeSceneEvent;			// ¾À ÀüÈ¯ ÀÌº¥Æ® º¸°ü º¯¼ö
+	void ProgressChangeScene();														// ì”¬ ì „í™˜ ì´ë²¤íŠ¸ ì§„í–‰
+
+private:
+	queue<pair<CScene*, CGameObject*>>					addGameObjectQueue;			// ê²Œì„ì˜¤ë¸Œì íŠ¸ ì¶”ê°€ ì´ë²¤íŠ¸ ë³´ê´€
+	queue<pair<CGameObject*, Component<CGameObject>*>>	addChildQueue;				// ì»´í¬ë„ŒíŠ¸ ì¶”ê°€ ì´ë²¤íŠ¸ ë³´ê´€
+	queue<pair<CScene*, Component<CGameObject>*>>		deleteObjectQueue;			// ì˜¤ë¸Œì íŠ¸ ì‚­ì œ ì´ë²¤íŠ¸ ë³´ê´€
+
+	queue<pair<CScene*, CUI*>>							addUIQueue;					// UI ì¶”ê°€ ì´ë²¤íŠ¸ ë³´ê´€
+	queue<pair<CUI*, CUI*>>								addChildUIQueue;			// ìì‹UI ì¶”ê°€ ì´ë²¤íŠ¸ ë³´ê´€
+	queue<pair<CScene*, CUI*>>							deleteUIQueue;				// UI ì‚­ì œ ì´ë²¤íŠ¸ ë³´ê´€
+	queue<pair<CUI*, bool>>								showUIQueue;				// UI í‘œì‹œ ë³€ê²½ ì´ë²¤íŠ¸ ë³´ê´€
+
+	pair<int, float>*									changeSceneEvent;			// ì”¬ ì „í™˜ ì´ë²¤íŠ¸ ë³´ê´€ ë³€ìˆ˜
 };
 
 #define EVENT		CEventManager::GetInstance()

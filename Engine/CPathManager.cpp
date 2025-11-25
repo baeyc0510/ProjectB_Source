@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CPathManager.h"
 
 CPathManager::CPathManager()
@@ -11,11 +11,11 @@ CPathManager::~CPathManager()
 
 void CPathManager::Init()
 {
-	WCHAR pathArray[255] = {};				// °æ·Î¸¦ ¹Ş±â À§ÇÑ ¹®ÀÚ¿­
-	GetCurrentDirectory(255, pathArray);	// ÇöÀç °æ·Î¸¦ È®ÀÎ
-	path = wstring(pathArray);				// ¹®ÀÚ¿­À» wstringÀ¸·Î º¯È¯
+	WCHAR pathArray[255] = {};				// ê²½ë¡œë¥¼ ë°›ê¸° ìœ„í•œ ë¬¸ìì—´
+	GetCurrentDirectory(255, pathArray);	// í˜„ì¬ ê²½ë¡œë¥¼ í™•ì¸
+	path = wstring(pathArray);				// ë¬¸ìì—´ì„ wstringìœ¼ë¡œ ë³€í™˜
 
-	Logger::Debug(TEXT("°ÔÀÓ °æ·Î"));
+	Logger::Debug(TEXT("ê²Œì„ ê²½ë¡œ"));
 	Logger::Debug(path);
 }
 

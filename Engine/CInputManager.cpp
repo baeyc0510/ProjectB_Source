@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CInputManager.h"
 
 CInputManager::CInputManager()
@@ -21,10 +21,10 @@ void CInputManager::Init()
 
 void CInputManager::Update()
 {
-	// ÇöÀç ¼±ÅÃ(Focus)µÈ À©µµ¿ì°¡ °ÔÀÓ À©µµ¿ìÀÎ°¡¸¦ È®ÀÎ
+	// í˜„ì¬ ì„ íƒ(Focus)ëœ ìœˆë„ìš°ê°€ ê²Œì„ ìœˆë„ìš°ì¸ê°€ë¥¼ í™•ì¸
 	if (hWnd != GetFocus())
 	{
-		// À©µµ¿ì°¡ ¼±ÅÃ(Focus)µÈ »óÅÂ°¡ ¾Æ´Ò °æ¿ì Å°ÀÔ·ÂÀ» ÇØÁ¦½ÃÅ´
+		// ìœˆë„ìš°ê°€ ì„ íƒ(Focus)ëœ ìƒíƒœê°€ ì•„ë‹ ê²½ìš° í‚¤ì…ë ¥ì„ í•´ì œì‹œí‚´
 		for (int key = 0; key < VKEY_SIZE; key++)
 		{
 			prevKeys[key] = curKeys[key];
@@ -33,7 +33,7 @@ void CInputManager::Update()
 		return;
 	}
 
-	// ¸ğµç Å° »çÀÌÁî¸¸Å­ ¹İº¹ÇÏ¸ç ÀÔ·Â»óÅÂ¸¦ È®ÀÎ
+	// ëª¨ë“  í‚¤ ì‚¬ì´ì¦ˆë§Œí¼ ë°˜ë³µí•˜ë©° ì…ë ¥ìƒíƒœë¥¼ í™•ì¸
 	for (int key = 0; key < VKEY_SIZE; key++)
 	{
 		prevKeys[key] = curKeys[key];
@@ -47,9 +47,9 @@ void CInputManager::Update()
 		}
 	}
 
-	// GetCursorPos() À©µµ¿ì¿¡¼­ ¸ğ´ÏÅÍ ÁÂ»ó´Ü ±âÁØ ¸¶¿ì½ºÀÇ ÁÂÇ¥¸¦ ¹İÈ¯
+	// GetCursorPos() ìœˆë„ìš°ì—ì„œ ëª¨ë‹ˆí„° ì¢Œìƒë‹¨ ê¸°ì¤€ ë§ˆìš°ìŠ¤ì˜ ì¢Œí‘œë¥¼ ë°˜í™˜
 	GetCursorPos(&mousePos);
-	// ¸ğ´ÏÅÍ ÁÂ»ó´Ü ±âÁØ ¸¶¿ì½º ÁÂÇ¥¸¦ °ÔÀÓ À©µµ¿ì ±âÁØ ¸¶¿ì½º À§Ä¡·Î °è»ê
+	// ëª¨ë‹ˆí„° ì¢Œìƒë‹¨ ê¸°ì¤€ ë§ˆìš°ìŠ¤ ì¢Œí‘œë¥¼ ê²Œì„ ìœˆë„ìš° ê¸°ì¤€ ë§ˆìš°ìŠ¤ ìœ„ì¹˜ë¡œ ê³„ì‚°
 	ScreenToClient(hWnd, &mousePos);
 }
 
@@ -62,7 +62,7 @@ bool CInputManager::ButtonStay(const int key, bool ignoreUI)
 	if (SINGLE(CUIManager)->GetFocusedUI() != nullptr && !ignoreUI)
 		return false;
 
-	// Å°°¡ ´­¸®°í ÀÖ´Â Áß
+	// í‚¤ê°€ ëˆŒë¦¬ê³  ìˆëŠ” ì¤‘
 	return prevKeys[key] == true && curKeys[key] == true;
 }
 
@@ -71,7 +71,7 @@ bool CInputManager::ButtonUp(const int key, bool ignoreUI)
 	if (SINGLE(CUIManager)->GetFocusedUI() != nullptr && !ignoreUI)
 		return false;
 
-	// Å°°¡ ¿Ã¶ó°£ ¼ø°£
+	// í‚¤ê°€ ì˜¬ë¼ê°„ ìˆœê°„
 	return prevKeys[key] == true && curKeys[key] == false;
 }
 
@@ -80,7 +80,7 @@ bool CInputManager::ButtonDown(const int key, bool ignoreUI)
 	if (SINGLE(CUIManager)->GetFocusedUI() != nullptr && !ignoreUI)
 		return false;
 
-	// Å°°¡ ³»·Á°£ ¼ø°£
+	// í‚¤ê°€ ë‚´ë ¤ê°„ ìˆœê°„
 	return prevKeys[key] == false && curKeys[key] == true;
 }
 

@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CSoundController.h"
 
 CSoundController::CSoundController()
@@ -13,8 +13,6 @@ CSoundController::~CSoundController()
 
 void CSoundController::Init()
 {
-	soundOnce = LOADSOUND(TEXT("soundOnce"), TEXT("Sound\\swish.wav"));
-	soundLoop = LOADSOUND(TEXT("soundLoop"), TEXT("Sound\\drumloop.wav"));
 }
 
 void CSoundController::OnEnable()

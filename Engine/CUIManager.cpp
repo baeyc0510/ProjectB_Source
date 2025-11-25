@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CUIManager.h"
 
 CUIManager::CUIManager()
@@ -41,11 +41,11 @@ CUI* CUIManager::GetFocusedUI()
 
 void CUIManager::SetFocusedUI(CUI* ui)
 {
-	// ÀÌ¹Ì Æ÷Ä¿½ÌµÈ UIÀÏ °æ¿ì ÁøÇàÇÏÁö ¾ÊÀ½
+	// ì´ë¯¸ í¬ì»¤ì‹±ëœ UIì¼ ê²½ìš° ì§„í–‰í•˜ì§€ ì•ŠìŒ
 	if (focusedUI == ui)
 		return;
 
-	// Æ÷Ä¿½ÌÀ» nullptr·Î ÁöÁ¤ÇÒ °æ¿ì Æ÷Ä¿½Ì UI ¸¦ nullptr·Î ¼³Á¤
+	// í¬ì»¤ì‹±ì„ nullptrë¡œ ì§€ì •í•  ê²½ìš° í¬ì»¤ì‹± UI ë¥¼ nullptrë¡œ ì„¤ì •
 	if (nullptr == ui)
 	{
 		focusedUI = nullptr;
@@ -54,7 +54,7 @@ void CUIManager::SetFocusedUI(CUI* ui)
 
 	focusedUI = ui;
 
-	// Æ÷Ä¿½ÌµÈ UI¸¦ ÃÖ»ó´Ü¿¡ ¹èÄ¡ÇÏµµ·Ï ÀÚ·á±¸Á¶ÀÇ °¡Àå µÚ¿¡ ¹èÄ¡
+	// í¬ì»¤ì‹±ëœ UIë¥¼ ìµœìƒë‹¨ì— ë°°ì¹˜í•˜ë„ë¡ ìžë£Œêµ¬ì¡°ì˜ ê°€ìž¥ ë’¤ì— ë°°ì¹˜
 	CScene* curScene = SINGLE(CSceneManager)->GetCurScene();
 	list<CUI*>& listUI = curScene->uiList;
 
@@ -112,12 +112,12 @@ CUI* CUIManager::GetTopUI()
 	CScene* curScene = SINGLE(CSceneManager)->GetCurScene();
 	const list<CUI*>& uiList = curScene->uiList;
 
-	// °¡Àå À§¿¡ ÀÖ´Â UI´Â ¾ÀÀÇ °ÔÀÓ¿ÀºêÁ§Æ® ÀÚ·á±¸Á¶¿¡¼­ Â÷·Ê´ë·Î ¼øÈ¸ÇÏ¸ç Render ÇÑ´Ù´Â °ÍÀ» ÀÌ¿ëÇÏ¿©
-	// °¡Àå ¸¶Áö¸·¿¡ ÀÖ´Â °ÔÀÓ¿ÀºêÁ§Æ®°¡ Á¦ÀÏ À§¿¡ ÀÖ´Â °ÔÀÓ¿ÀºêÁ§Æ®
-	// ¿ª¹æÇâ ¹Ýº¹ÀÚ : °¡Àå µÚÀÇ ¿ä¼ÒºÎÅÍ ¿ª¼øÀ¸·Î ¼øÈ¸
+	// ê°€ìž¥ ìœ„ì— ìžˆëŠ” UIëŠ” ì”¬ì˜ ê²Œìž„ì˜¤ë¸Œì íŠ¸ ìžë£Œêµ¬ì¡°ì—ì„œ ì°¨ë¡€ëŒ€ë¡œ ìˆœíšŒí•˜ë©° Render í•œë‹¤ëŠ” ê²ƒì„ ì´ìš©í•˜ì—¬
+	// ê°€ìž¥ ë§ˆì§€ë§‰ì— ìžˆëŠ” ê²Œìž„ì˜¤ë¸Œì íŠ¸ê°€ ì œì¼ ìœ„ì— ìžˆëŠ” ê²Œìž„ì˜¤ë¸Œì íŠ¸
+	// ì—­ë°©í–¥ ë°˜ë³µìž : ê°€ìž¥ ë’¤ì˜ ìš”ì†Œë¶€í„° ì—­ìˆœìœ¼ë¡œ ìˆœíšŒ
 	for (auto iter = uiList.rbegin(); iter != uiList.rend(); iter++)
 	{
-		// ¿ª¼øÀ¸·Î ¼øÈ¸ Áß °¡Àå¸ÕÀú ¸¶¿ì½º°¡ ¿Ã·ÁÁ® ÀÖ´Â UI°¡ ¸¶¿ì½º Å¬¸¯ÀÇ ´ë»ó
+		// ì—­ìˆœìœ¼ë¡œ ìˆœíšŒ ì¤‘ ê°€ìž¥ë¨¼ì € ë§ˆìš°ìŠ¤ê°€ ì˜¬ë ¤ì ¸ ìžˆëŠ” UIê°€ ë§ˆìš°ìŠ¤ í´ë¦­ì˜ ëŒ€ìƒ
 		CUI* pUI = static_cast<CUI*>(*iter);
 		if (pUI->IsMouseOn() && pUI->IsShow())
 		{
@@ -136,7 +136,7 @@ CUI* CUIManager::GetTopChildUI(CUI* parentUI)
 	queue<CUI*> queueUI;
 	CUI* topChildUI = nullptr;
 
-	// BFS À» ÅëÇØ¼­ UIÁß ¸¶¿ì½º°¡ ¿Ã¶ó°£ °¡Àå ÀÚ½Ä UI È®ÀÎ
+	// BFS ì„ í†µí•´ì„œ UIì¤‘ ë§ˆìš°ìŠ¤ê°€ ì˜¬ë¼ê°„ ê°€ìž¥ ìžì‹ UI í™•ì¸
 	queueUI.push(parentUI);
 	while (!queueUI.empty())
 	{

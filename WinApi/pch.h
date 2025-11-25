@@ -1,15 +1,15 @@
-#pragma once
+ï»¿#pragma once
 
-// °ÔÀÓ ¿£Áø
+// ê²Œì„ ì—”ì§„
 #include "EnginePch.h"
 #include "Engine.h"
 
 #pragma comment(lib, "Engine.lib")
 
-// WinApi ÇÁ·¹ÀÓ¿öÅ©
+// WinApi í”„ë ˆì„ì›Œí¬
 #include "framework.h"
 
-// C++ Ç¥ÁØ ¶óÀÌºê·¯¸®
+// C++ í‘œì¤€ ë¼ì´ë¸ŒëŸ¬ë¦¬
 #include <clocale>
 #include <cassert>
 

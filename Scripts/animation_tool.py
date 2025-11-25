@@ -162,6 +162,120 @@ class InputField:
             cursor_x = text_x + text_surf.get_width() + 2
             pygame.draw.line(screen, DETAIL_VALUE_COLOR, (cursor_x, text_y), (cursor_x, text_y + text_surf.get_height()), 2)
 
+class StringInputField(InputField):
+    def set_value(self, value):
+        self.text = str(value) if value is not None else ""
+
+    def get_value(self):
+        return self.text
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_BACKSPACE:
+                self.text = self.text[:-1]
+                return True
+            elif event.key in (pygame.K_RETURN, pygame.K_TAB):
+                return False  # Let parent handle
+            else:
+                self.text += event.unicode
+                return True
+        return False
+        
+class EventEditor:
+    def __init__(self, x, y, font):
+        self.x = x
+        self.y = y
+        self.font = font
+        self.event_fields = []
+        self.active_field_idx = -1
+        self.add_button_rect = None
+        self.remove_button_rects = []
+
+    def set_events(self, events):
+        self.event_fields = []
+        y_offset = 0
+        for event_str in events:
+            field = StringInputField(self.x, self.y + y_offset, 150, 24, "", self.font)
+            field.set_value(event_str)
+            self.event_fields.append(field)
+            y_offset += 28
+
+    def get_events(self):
+        return [field.get_value() for field in self.event_fields]
+
+    def handle_event(self, event, panel_x):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # Handle add button click
+            if self.add_button_rect and self.add_button_rect.collidepoint(event.pos):
+                self.event_fields.append(StringInputField(self.x, self.y + len(self.event_fields) * 28, 150, 24, "", self.font))
+                return True
+
+            # Handle remove button clicks
+            for i, rect in reversed(list(enumerate(self.remove_button_rects))):
+                if rect.collidepoint(event.pos):
+                    self.event_fields.pop(i)
+                    # Deactivate if it was active
+                    if self.active_field_idx == i:
+                        self.active_field_idx = -1
+                    elif self.active_field_idx > i:
+                        self.active_field_idx -= 1
+                    return True
+            
+            # Handle activating an input field
+            for i, field in enumerate(self.event_fields):
+                actual_rect = pygame.Rect(panel_x + field.rect.x, field.rect.y, field.rect.width, field.rect.height)
+                if actual_rect.collidepoint(event.pos):
+                    self.active_field_idx = i
+                    for j, f in enumerate(self.event_fields):
+                        f.active = (j == i)
+                    return True
+
+        if self.active_field_idx != -1:
+            field = self.event_fields[self.active_field_idx]
+            if field.handle_event(event):
+                return True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_TAB:
+                    field.active = False
+                    self.active_field_idx = (self.active_field_idx + 1) % len(self.event_fields)
+                    self.event_fields[self.active_field_idx].active = True
+                    return True
+                if event.key == pygame.K_RETURN:
+                    field.active = False
+                    self.active_field_idx = -1
+                    return True
+        return False
+
+    def draw(self, screen, panel_x):
+        title_surf = self.font.render("Events:", True, DETAIL_LABEL_COLOR)
+        screen.blit(title_surf, (panel_x + 10, self.y - 25))
+        
+        self.remove_button_rects = []
+        y_offset = 0
+        for i, field in enumerate(self.event_fields):
+            field.rect.y = self.y + y_offset
+            field.draw(screen, panel_x)
+            
+            # Draw remove button
+            remove_rect = pygame.Rect(panel_x + field.rect.right + 5, field.rect.y, 20, 24)
+            pygame.draw.rect(screen, (180, 50, 50), remove_rect)
+            remove_surf = self.font.render("X", True, (255, 255, 255))
+            screen.blit(remove_surf, (remove_rect.x + 5, remove_rect.y + 4))
+            self.remove_button_rects.append(remove_rect)
+            
+            y_offset += 28
+
+        # Draw Add Event button
+        add_rect = pygame.Rect(panel_x + 10, self.y + y_offset, 100, 24)
+        pygame.draw.rect(screen, (50, 180, 50), add_rect)
+        add_surf = self.font.render("Add Event", True, (255, 255, 255))
+        screen.blit(add_surf, (add_rect.x + 10, add_rect.y + 4))
+        self.add_button_rect = add_rect
+
+    def update(self, dt):
+        for field in self.event_fields:
+            field.update(dt)
+
 # --- Float Input Field Class (for frame_interval) ---
 class FloatInputField(InputField):
     def set_value(self, value):
@@ -216,8 +330,17 @@ def auto_detect_frames(image_path):
         alpha_channel = img[:, :, 3]
         _, thresh = cv2.threshold(alpha_channel, 0, 255, cv2.THRESH_BINARY)
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        frames = [[x, y, w, h] for c in contours if cv2.contourArea(c) > MIN_CONTOUR_AREA for x, y, w, h in [cv2.boundingRect(c)]]
-        frames.sort(key=lambda r: (r[1] // 50, r[0]))  # Sort by row then column
+        
+        # Create frames in the new dictionary format
+        frames = []
+        for c in contours:
+            if cv2.contourArea(c) > MIN_CONTOUR_AREA:
+                x, y, w, h = cv2.boundingRect(c)
+                frames.append({"rect": [x, y, w, h], "events": []})
+        
+        # Sort by row then column
+        frames.sort(key=lambda f: (f["rect"][1] // 50, f["rect"][0]))
+        
         print(f"Auto-detected {len(frames)} frames.")
         return frames
     except Exception as e:
@@ -248,8 +371,9 @@ def grid_split_frames(image_path, cell_width, cell_height):
                     cell = img[y:y+cell_height, x:x+cell_width, 3]
                     if np.sum(cell) < MIN_CONTOUR_AREA * 255:
                         continue  # Skip empty cells
-
-                frames.append([x, y, cell_width, cell_height])
+                
+                # Append frame in the new dictionary format
+                frames.append({"rect": [x, y, cell_width, cell_height], "events": []})
 
         print(f"Grid split: {len(frames)} frames (cell: {cell_width}x{cell_height})")
         return frames
@@ -334,10 +458,26 @@ def load_animation_json(json_path):
             data = json.load(f)
 
         image_rel_path = data.get("image", "")
-        frames = data.get("frames", [])
+        loaded_frames = data.get("frames", [])
         pivot_mode = data.get("pivot", "bottom-center")
         frame_interval = data.get("frame_interval", 1.0 / PREVIEW_FPS) # Default to PREVIEW_FPS if not found
 
+        # --- Data Structure Migration ---
+        frames = []
+        if loaded_frames:
+            # Check the type of the first frame to determine the format
+            if isinstance(loaded_frames[0], list):
+                # Old format: list of lists -> convert to new format
+                for frame_rect in loaded_frames:
+                    frames.append({"rect": frame_rect, "events": []})
+                print("Info: Migrated old frame format to new format.")
+            else:
+                # New format: list of dicts, ensure 'events' exists
+                for frame_data in loaded_frames:
+                    if "events" not in frame_data:
+                        frame_data["events"] = []
+                    frames.append(frame_data)
+        
         if not image_rel_path:
             print(f"Error: No 'image' field in JSON file")
             return None
@@ -403,9 +543,17 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
     is_panning = False
     pan_start = None
 
+    # --- Data Migration for loaded_frames ---
+    frames = []
+    if loaded_frames:
+        if isinstance(loaded_frames[0], list): # Old format
+            for rect in loaded_frames:
+                frames.append({"rect": rect, "events": []})
+        else: # New format
+            frames = loaded_frames
+
     # Use pre-loaded data if available, otherwise try to load or auto-detect
     if loaded_frames is not None:
-        frames = loaded_frames
         pivot_mode = loaded_pivot if loaded_pivot else "bottom-center"
         print(f"Using loaded data: {len(frames)} frames, pivot: {pivot_mode}")
     else:
@@ -415,11 +563,11 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
         pivot_mode = "bottom-center"
         if os.path.exists(json_path):
             try:
-                with open(json_path, 'r') as f:
-                    data = json.load(f)
-                    frames = data.get("frames", [])
-                    pivot_mode = data.get("pivot", "bottom-center")
-                    print(f"Loaded {len(frames)} frames from '{json_path}'")
+                # Use load_animation_json which handles migration
+                _image_path, loaded_data, loaded_pivot_mode, _ = load_animation_json(json_path)
+                frames = loaded_data if loaded_data else []
+                pivot_mode = loaded_pivot_mode if loaded_pivot_mode else "bottom-center"
+                print(f"Loaded {len(frames)} frames from '{json_path}'")
             except Exception as e:
                 print(f"Error loading JSON: {e}")
                 frames = auto_detect_frames(image_path)
@@ -463,10 +611,10 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
         """Update input field values from selected frame"""
         if selected_frame_index != -1 and selected_frame_index < len(frames):
             frame = frames[selected_frame_index]
-            input_x.set_value(frame[0])
-            input_y.set_value(frame[1])
-            input_w.set_value(frame[2])
-            input_h.set_value(frame[3])
+            input_x.set_value(frame["rect"][0])
+            input_y.set_value(frame["rect"][1])
+            input_w.set_value(frame["rect"][2])
+            input_h.set_value(frame["rect"][3])
         else:
             for field in input_fields:
                 field.text = ""
@@ -476,7 +624,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
         if selected_frame_index != -1 and selected_frame_index < len(frames):
             w = max(1, input_w.get_value())
             h = max(1, input_h.get_value())
-            frames[selected_frame_index] = [input_x.get_value(), input_y.get_value(), w, h]
+            frames[selected_frame_index]["rect"] = [input_x.get_value(), input_y.get_value(), w, h]
 
     def set_active_input(index):
         nonlocal active_input_index
@@ -536,7 +684,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
         if not is_previewing and not start_pos and not is_panning:
             cursor_set = False
             if selected_frame_index != -1 and selected_frame_index < len(frames) and in_view_area:
-                selected_rect = pygame.Rect(frames[selected_frame_index])
+                selected_rect = pygame.Rect(frames[selected_frame_index]["rect"])
                 # Scale handles for zoom
                 handles = get_handles(selected_rect)
                 for name, h_rect in handles.items():
@@ -657,7 +805,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                 elif event.key == pygame.K_n and not is_previewing:
                     if current_rect and current_rect.width > 0 and current_rect.height > 0:
                         current_rect.normalize()
-                        frames.append([current_rect.x, current_rect.y, current_rect.width, current_rect.height])
+                        frames.append({"rect": [current_rect.x, current_rect.y, current_rect.width, current_rect.height], "events": []})
                         selected_frame_index = len(frames) - 1
                         current_rect, start_pos = None, None
                         update_input_fields_from_frame()
@@ -746,6 +894,10 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                         if output_path:
                             # Get relative image path from project root
                             image_rel_path = get_relative_path(image_path, project_root)
+
+                            # Ensure the stored path uses .bmp
+                            image_rel_path = os.path.splitext(image_rel_path)[0] + ".bmp"
+
                             resources_folder_name = TOOL_CONFIG.get("resources_folder", "Resources")
                             
                             # Remove the resources folder prefix if present
@@ -810,13 +962,13 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and mouse_pos[0] < panel_x:
                     start_pos = translated_mouse_pos
                     if selected_frame_index != -1 and selected_frame_index < len(frames):
-                        handles = get_handles(pygame.Rect(frames[selected_frame_index]))
+                        handles = get_handles(pygame.Rect(frames[selected_frame_index]["rect"]))
                         for name, h_rect in handles.items():
                             if h_rect.collidepoint(translated_mouse_pos): resize_mode = name; break
                     if not resize_mode:
                         clicked_idx = -1
                         for i in range(len(frames) - 1, -1, -1):
-                            if pygame.Rect(frames[i]).collidepoint(translated_mouse_pos): clicked_idx = i; break
+                            if pygame.Rect(frames[i]["rect"]).collidepoint(translated_mouse_pos): clicked_idx = i; break
                         if clicked_idx != -1:
                             selected_frame_index, is_moving = clicked_idx, True
                             update_input_fields_from_frame()
@@ -830,11 +982,11 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                         update_input_fields_from_frame()
                 elif event.type == pygame.MOUSEMOTION:
                     if start_pos and resize_mode and selected_frame_index != -1:
-                        rect = pygame.Rect(frames[selected_frame_index]); mx, my = translated_mouse_pos
+                        rect = pygame.Rect(frames[selected_frame_index]["rect"]); mx, my = translated_mouse_pos
                         # Apply snapping
                         if snapping_enabled:
-                            snap_coords_x = [f[0] for i, f in enumerate(frames) if i != selected_frame_index] + [f[0] + f[2] for i, f in enumerate(frames) if i != selected_frame_index]
-                            snap_coords_y = [f[1] for i, f in enumerate(frames) if i != selected_frame_index] + [f[1] + f[3] for i, f in enumerate(frames) if i != selected_frame_index]
+                            snap_coords_x = [f["rect"][0] for i, f in enumerate(frames) if i != selected_frame_index] + [f["rect"][0] + f["rect"][2] for i, f in enumerate(frames) if i != selected_frame_index]
+                            snap_coords_y = [f["rect"][1] for i, f in enumerate(frames) if i != selected_frame_index] + [f["rect"][1] + f["rect"][3] for i, f in enumerate(frames) if i != selected_frame_index]
                             mx = get_snap_coord(mx, snap_coords_x, SNAP_TOLERANCE)
                             my = get_snap_coord(my, snap_coords_y, SNAP_TOLERANCE)
                         if 'right' in resize_mode: rect.width = mx - rect.x
@@ -843,20 +995,25 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                         if 'top' in resize_mode: rect.height += rect.y - my; rect.y = my
                         if rect.width < 1: rect.width = 1
                         if rect.height < 1: rect.height = 1
-                        frames[selected_frame_index] = [rect.x, rect.y, rect.width, rect.height]
+                        frames[selected_frame_index]["rect"] = [rect.x, rect.y, rect.width, rect.height]
                     elif start_pos and is_moving and selected_frame_index != -1:
                         dx, dy = translated_mouse_pos[0] - start_pos[0], translated_mouse_pos[1] - start_pos[1]
-                        new_x = frames[selected_frame_index][0] + dx
-                        new_y = frames[selected_frame_index][1] + dy
+                        
+                        rect_data = frames[selected_frame_index]["rect"]
+                        new_x = rect_data[0] + dx
+                        new_y = rect_data[1] + dy
+                        
                         # Apply snapping
                         if snapping_enabled:
-                            snap_coords_x = [f[0] for i, f in enumerate(frames) if i != selected_frame_index] + [f[0] + f[2] for i, f in enumerate(frames) if i != selected_frame_index]
-                            snap_coords_y = [f[1] for i, f in enumerate(frames) if i != selected_frame_index] + [f[1] + f[3] for i, f in enumerate(frames) if i != selected_frame_index]
+                            snap_coords_x = [f["rect"][0] for i, f in enumerate(frames) if i != selected_frame_index] + [f["rect"][0] + f["rect"][2] for i, f in enumerate(frames) if i != selected_frame_index]
+                            snap_coords_y = [f["rect"][1] for i, f in enumerate(frames) if i != selected_frame_index] + [f["rect"][1] + f["rect"][3] for i, f in enumerate(frames) if i != selected_frame_index]
                             snapped_x = get_snap_coord(new_x, snap_coords_x, SNAP_TOLERANCE)
                             snapped_y = get_snap_coord(new_y, snap_coords_y, SNAP_TOLERANCE)
-                            if snapped_x != new_x: dx = snapped_x - frames[selected_frame_index][0]
-                            if snapped_y != new_y: dy = snapped_y - frames[selected_frame_index][1]
-                        frames[selected_frame_index][0] += dx; frames[selected_frame_index][1] += dy
+                            if snapped_x != new_x: dx = snapped_x - rect_data[0]
+                            if snapped_y != new_y: dy = snapped_y - rect_data[1]
+
+                        rect_data[0] += dx
+                        rect_data[1] += dy
                         start_pos = translated_mouse_pos
                     elif start_pos and current_rect is not None:
                         x1, y1 = start_pos
@@ -913,10 +1070,11 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                 else:
                     preview_frame_index = 0
                 
-                frame_rect_data = frames[preview_frame_index]
-                if frame_rect_data[2] > 0 and frame_rect_data[3] > 0:
+                frame_data = frames[preview_frame_index]
+                frame_rect = frame_data["rect"]
+                if frame_rect[2] > 0 and frame_rect[3] > 0:
                     try:
-                        preview_img = sprite_sheet.subsurface(pygame.Rect(frame_rect_data))
+                        preview_img = sprite_sheet.subsurface(pygame.Rect(frame_rect))
                         anchor_pos = (screen.get_width() // 2, screen.get_height() // 2)
                         if pivot_mode == 'bottom-center': w, h = preview_img.get_size(); draw_pos = (anchor_pos[0] - w // 2, anchor_pos[1] - h); screen.blit(preview_img, draw_pos)
                         else: screen.blit(preview_img, preview_img.get_rect(center=anchor_pos))
@@ -924,14 +1082,15 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
             preview_text_surf = font_help.render(f"PREVIEW MODE ({pivot_mode}) - P to exit", True, HELP_TEXT_COLOR)
             screen.blit(preview_text_surf, (5, screen.get_height() - FONT_SIZE - 5))
         else:
-            for i, frame_coords in enumerate(frames):
+            for i, frame_data in enumerate(frames):
+                frame_rect = frame_data["rect"]
                 rect_color = SELECTED_RECT_COLOR if i == selected_frame_index else SAVED_RECT_COLOR
-                pygame.draw.rect(screen, rect_color, to_screen_rect_list(frame_coords), RECT_WIDTH)
-                num_surf = font_frame.render(str(i), True, NUMBER_COLOR); screen.blit(num_surf, (to_screen_rect_list(frame_coords).x + 2, to_screen_rect_list(frame_coords).y + 2))
+                pygame.draw.rect(screen, rect_color, to_screen_rect_list(frame_rect), RECT_WIDTH)
+                num_surf = font_frame.render(str(i), True, NUMBER_COLOR); screen.blit(num_surf, (to_screen_rect_list(frame_rect).x + 2, to_screen_rect_list(frame_rect).y + 2))
 
                 # Draw pivot point cross
                 if show_pivots:
-                    fx, fy, fw, fh = frame_coords
+                    fx, fy, fw, fh = frame_rect
                     if pivot_mode == "bottom-center":
                         pivot_x = fx + fw / 2
                         pivot_y = fy + fh
@@ -947,7 +1106,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
             if current_rect:
                 current_rect.normalize(); pygame.draw.rect(screen, RECT_COLOR, to_screen_rect_obj(current_rect), RECT_WIDTH)
             if selected_frame_index != -1 and selected_frame_index < len(frames):
-                handles = get_handles(pygame.Rect(frames[selected_frame_index]))
+                handles = get_handles(pygame.Rect(frames[selected_frame_index]["rect"]))
                 for h_rect in handles.values(): pygame.draw.rect(screen, HANDLE_COLOR, to_screen_rect_obj(h_rect))
 
         # Reset clipping for UI drawing

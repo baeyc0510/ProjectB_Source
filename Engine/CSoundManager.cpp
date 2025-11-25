@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CSoundManager.h"
 
 CSoundManager::CSoundManager()
@@ -12,7 +12,7 @@ CSoundManager::~CSoundManager()
 
 void CSoundManager::Init()
 {
-	// »ç¿îµå ½Ã½ºÅÛ »ý¼º
+	// ì‚¬ìš´ë“œ ì‹œìŠ¤í…œ ìƒì„±
 	FMOD_RESULT result;
 	result = System_Create(&system);
 	assert(FMOD_OK == result && "Create sound system falied");
@@ -24,7 +24,7 @@ void CSoundManager::Init()
 void CSoundManager::Update()
 {
 	/* IMPORTANT! CALL THIS ONCE PER FRAME! */
-	// FMOD ½Ã½ºÅÛÀÌ »ç¿îµå¸¦ °ü¸®ÇÏ±â À§ÇØ ÇÁ·¹ÀÓ¸¶´Ù È£Ãâ ÇÊ¿ä
+	// FMOD ì‹œìŠ¤í…œì´ ì‚¬ìš´ë“œë¥¼ ê´€ë¦¬í•˜ê¸° ìœ„í•´ í”„ë ˆìž„ë§ˆë‹¤ í˜¸ì¶œ í•„ìš”
 	FMOD_RESULT result = system->update();
 	assert(FMOD_OK == result && "Update sound system falied");
 }
@@ -45,7 +45,7 @@ void CSoundManager::PlayOnce(CSound* sound, float volume)
 	result = sound->GetSound()->setMode(FMOD_LOOP_OFF);
 	assert(FMOD_OK == result && "Set Loop failed");
 
-	FMOD::Channel* channel;		// FMODÀÇ ¾÷µ¥ÀÌÆ®¿¡¼­ ¸ðµÎ Àç»ý½Ã ¹ÝÈ¯µÊ
+	FMOD::Channel* channel;		// FMODì˜ ì—…ë°ì´íŠ¸ì—ì„œ ëª¨ë‘ ìž¬ìƒì‹œ ë°˜í™˜ë¨
 	result = system->playSound(sound->GetSound(), nullptr, false, &(channel));
 	assert(FMOD_OK == result && "Play sound failed");
 

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class CInputManager : public SingleTon<CInputManager>
 {
 	friend SingleTon<CInputManager>;
@@ -6,25 +6,25 @@ private:
 	CInputManager();
 	virtual ~CInputManager();
 
-	static const UINT VKEY_SIZE = 0xFF;	// VKÀÇ ÃÖ´ë °¹¼ö
+	static const UINT VKEY_SIZE = 0xFF;	// VKì˜ ìµœëŒ€ ê°¯ìˆ˜
 
 public:
 	void					Init();
 	void					Update();
 	void					Release();
 
-	bool					ButtonStay(const int key, bool ignoreUI = false);	// Å°¸¦ ´©¸£°í ÀÖ´Â Áß
-	bool					ButtonUp(const int key, bool ignoreUI = false);		// Å°°¡ ¿Ã¶ó°£ ¼ø°£
-	bool					ButtonDown(const int key, bool ignoreUI = false);	// Å°°¡ ³»·Á°£ ¼ø°£
-	Vec2					MouseScreenPos();									// ¸¶¿ì½º È­¸é À§Ä¡
-	Vec2					MouseWorldPos();									// ¸¶¿ì½º °ÔÀÓ À§Ä¡
+	bool					ButtonStay(const int key, bool ignoreUI = false);	// í‚¤ë¥¼ ëˆ„ë¥´ê³  ìˆëŠ” ì¤‘
+	bool					ButtonUp(const int key, bool ignoreUI = false);		// í‚¤ê°€ ì˜¬ë¼ê°„ ìˆœê°„
+	bool					ButtonDown(const int key, bool ignoreUI = false);	// í‚¤ê°€ ë‚´ë ¤ê°„ ìˆœê°„
+	Vec2					MouseScreenPos();									// ë§ˆìš°ìŠ¤ í™”ë©´ ìœ„ì¹˜
+	Vec2					MouseWorldPos();									// ë§ˆìš°ìŠ¤ ê²Œì„ ìœ„ì¹˜
 
 private:
 	HWND					hWnd;
 
-	array<bool, VKEY_SIZE>	prevKeys;						// ÀÌÀü Å°ÀÇ ÀÔ·Â»óÅÂ
-	array<bool, VKEY_SIZE>	curKeys;						// ÇöÀç Å°ÀÇ ÀÔ·Â»óÅÂ
-	POINT					mousePos;						// ÇöÀç ¸¶¿ì½º À§Ä¡
+	array<bool, VKEY_SIZE>	prevKeys;						// ì´ì „ í‚¤ì˜ ì…ë ¥ìƒíƒœ
+	array<bool, VKEY_SIZE>	curKeys;						// í˜„ì¬ í‚¤ì˜ ì…ë ¥ìƒíƒœ
+	POINT					mousePos;						// í˜„ì¬ ë§ˆìš°ìŠ¤ ìœ„ì¹˜
 };
 
 #define	INPUT				CInputManager::GetInstance()

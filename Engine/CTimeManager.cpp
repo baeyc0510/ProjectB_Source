@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CTimeManager.h"
 
 CTimeManager::CTimeManager()
@@ -24,8 +24,8 @@ void CTimeManager::Init()
 
 void CTimeManager::Update()
 {
-	// ÀÌÀüÇÁ·¹ÀÓ¿¡¼­ ÇöÀçÇÁ·¹ÀÓ±îÁö °É¸° ½Ã°£À» ÃøÁ¤
-	// ´ÜÀ§½Ã°£ = ÇöÀçÇÁ·¹ÀÓ½Ã°£ - ÀÌÀüÇÁ·¹ÀÓ½Ã°£
+	// ì´ì „í”„ë ˆì„ì—ì„œ í˜„ì¬í”„ë ˆì„ê¹Œì§€ ê±¸ë¦° ì‹œê°„ì„ ì¸¡ì •
+	// ë‹¨ìœ„ì‹œê°„ = í˜„ì¬í”„ë ˆì„ì‹œê°„ - ì´ì „í”„ë ˆì„ì‹œê°„
 	curTime = chrono::high_resolution_clock::now();
 	chrono::duration<float> elapsed = curTime - prevTime;
 
@@ -33,7 +33,7 @@ void CTimeManager::Update()
 	if (dt > 0.1f) dt = 0.1f;
 	prevTime = curTime;
 
-	// 1ÃÊ°¡ °É¸±¶§±îÁö ¹İº¹ÇÑ È½¼ö°¡ ÃÊ´çÇÁ·¹ÀÓ¼ö
+	// 1ì´ˆê°€ ê±¸ë¦´ë•Œê¹Œì§€ ë°˜ë³µí•œ íšŸìˆ˜ê°€ ì´ˆë‹¹í”„ë ˆì„ìˆ˜
 	updateCount++;
 	updateOneSecond += dt;
 	if (updateOneSecond >= 1.0)

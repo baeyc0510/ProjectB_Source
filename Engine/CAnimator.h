@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CAnimation;
 class CImage;
@@ -19,8 +19,10 @@ public:
 	void			Play(const wstring& aniName, bool reset = false);
 	void			Stop();
 
+	bool			IsFinished() const { return m_bIsFinished; }
 	float			GetRatio()				{ return ratio; }
 	void			SetRatio(float ratio)	{ this->ratio = ratio; }
+	void			SetDirection(int dir)	{ m_iDirection = dir; }
 
 private:
 	void			ComponentInit()			override;
@@ -37,5 +39,7 @@ private:
 
 	UINT							curFrame;
 	float							curTime;
+	int								m_iDirection;
+	bool							m_bIsFinished;
 };
 

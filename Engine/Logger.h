@@ -1,7 +1,7 @@
-#pragma once
+ï»¿#pragma once
 
 //============================================
-//## Logger (Visual Studio Ãâ·ÂÃ¢¿¡ Á¤º¸Ç¥½Ã	##
+//## Logger (Visual Studio ì¶œë ¥ì°½ì— ì •ë³´í‘œì‹œ	##
 //============================================
 
 class Logger
@@ -27,7 +27,7 @@ private:
 public:
 	static void Debug(const wstring& content)
 	{
-#ifdef _DEBUG	// ºôµå ±¸¼ºÀÌ DebugÀÏ °æ¿ì Æ÷ÇÔ
+#ifdef _DEBUG	// ë¹Œë“œ êµ¬ì„±ì´ Debugì¼ ê²½ìš° í¬í•¨
 		Log(TEXT("[Debug]"), content.c_str());
 #endif
 	}

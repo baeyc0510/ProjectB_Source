@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class CWeapon : public CGameObject
 {
 public:

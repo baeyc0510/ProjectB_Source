@@ -198,10 +198,18 @@ class MapEditor:
             img = pygame.image.load(path).convert_alpha()
             self.tileset_images.append(img)
             self.tileset_paths.append(path)
-            # Store relative path from project root for saving
+            # Store relative path from project root for saving, ensuring it's a .bmp
             project_root = TOOL_CONFIG.get("project_root", "")
             rel_path = get_relative_path(path, project_root)
-            self.map_data.tilesets.append(rel_path)
+            bmp_rel_path = os.path.splitext(rel_path)[0] + ".bmp"
+            
+            # Avoid adding duplicate paths
+            if bmp_rel_path not in self.map_data.tilesets:
+                self.map_data.tilesets.append(bmp_rel_path)
+            
+            # Find the index for the tile
+            self.tile_tileset_idx = self.map_data.tilesets.index(bmp_rel_path)
+
             # Auto-detect tile regions
             self.detected_tile_boxes = auto_detect_tiles(path)
             # Reset tileset view
@@ -801,7 +809,7 @@ class MapEditor:
         if not self.tileset_images or not self.selected_tile_src:
             return
 
-        tile = Tile(0, self.selected_tile_src.copy(), [int(pos[0]), int(pos[1])], self.current_layer)
+        tile = Tile(self.tile_tileset_idx, self.selected_tile_src.copy(), [int(pos[0]), int(pos[1])], self.current_layer)
         self.map_data.tiles.append(tile)
 
     def _place_prop(self, pos):
@@ -823,7 +831,7 @@ class MapEditor:
 
         prop = Prop(
             self.current_prop_type,
-            0,  # tileset_idx
+            self.tile_tileset_idx,  # tileset_idx
             self.selected_tile_src.copy(),
             [int(pos[0]), int(pos[1])],
             default_data
@@ -1047,7 +1055,7 @@ class MapEditor:
         root.withdraw()
         path = filedialog.askopenfilename(
             title="Select Tileset",
-            filetypes=[("PNG files", "*.png"), ("All files", "*.*")]
+            filetypes=[("Image files", "*.bmp *.png"), ("All files", "*.*")]
         )
         root.destroy()
         if path:

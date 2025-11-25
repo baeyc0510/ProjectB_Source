@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class CPathManager : public SingleTon<CPathManager>
 {
 	friend SingleTon<CPathManager>;

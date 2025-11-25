@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class CCameraManager : public SingleTon<CCameraManager>
 {
 	friend SingleTon<CCameraManager>;
@@ -12,13 +12,13 @@ public:
 	void				Render();
 	void				Release();
 
-	Vec2				WorldToScreenPoint(Vec2 worldPoint);	// °ÔÀÓÀ§Ä¡->È­¸éÀ§Ä¡
-	Vec2				ScreenToWorldPoint(Vec2 screenPoint);	// È­¸éÀ§Ä¡->°ÔÀÓÀ§Ä¡
+	Vec2				WorldToScreenPoint(Vec2 worldPoint);	// ê²Œì„ìœ„ì¹˜->í™”ë©´ìœ„ì¹˜
+	Vec2				ScreenToWorldPoint(Vec2 screenPoint);	// í™”ë©´ìœ„ì¹˜->ê²Œì„ìœ„ì¹˜
 
 	void				Scroll(Vec2 dir, float velocity);
 
-	void				FadeIn(float duration);	// ¾À ÁøÀÔ È¿°ú
-	void				FadeOut(float duration);	// ¾À Å»Ãâ È¿°ú
+	void				FadeIn(float duration);	// ì”¬ ì§„ì… íš¨ê³¼
+	void				FadeOut(float duration);	// ì”¬ íƒˆì¶œ íš¨ê³¼
 
 	void				SetTargetPos(const Vec2& targetPos, float timeToTarget = 0);
 	void				SetTargetObj(CGameObject* targetObj);
@@ -31,16 +31,16 @@ private:
 	void				MoveToTarget();
 	void				BrightToTarget();
 
-	// ¸ñÇ¥ ¿ÀºêÁ§Æ®¸¦ ÁöÁ¤ÇÒ °æ¿ì ¸ñÇ¥ À§Ä¡´Â ¸ñÇ¥ ¿ÀºêÁ§Æ®ÀÇ À§Ä¡·Î ÁöÁ¤µÊ
-	Vec2				lookAt;				// Ä«¸Ş¶ó°¡ º¸°íÀÖ´Â À§Ä¡
-	Vec2				targetPos;			// Ä«¸Ş¶óÀÇ ¸ñÇ¥ À§Ä¡
-	CGameObject*		targetObj;			// Ä«¸Ş¶óÀÇ ¸ñÇ¥ ¿ÀºêÁ§Æ®
-	float				timeToTarget;		// ¸ñÇ¥±îÁö ³²Àº ½Ã°£
+	// ëª©í‘œ ì˜¤ë¸Œì íŠ¸ë¥¼ ì§€ì •í•  ê²½ìš° ëª©í‘œ ìœ„ì¹˜ëŠ” ëª©í‘œ ì˜¤ë¸Œì íŠ¸ì˜ ìœ„ì¹˜ë¡œ ì§€ì •ë¨
+	Vec2				lookAt;				// ì¹´ë©”ë¼ê°€ ë³´ê³ ìˆëŠ” ìœ„ì¹˜
+	Vec2				targetPos;			// ì¹´ë©”ë¼ì˜ ëª©í‘œ ìœ„ì¹˜
+	CGameObject*		targetObj;			// ì¹´ë©”ë¼ì˜ ëª©í‘œ ì˜¤ë¸Œì íŠ¸
+	float				timeToTarget;		// ëª©í‘œê¹Œì§€ ë‚¨ì€ ì‹œê°„
 
-	CImage*				fadeImage;			// ÀüÈ¯ È¿°ú¿ë ÀÌ¹ÌÁö
-	float				targetBright;		// Ä«¸Ş¶óÀÇ ¸ñÇ¥ ¹à±â
-	float				curBright;			// Ä«¸Ş¶óÀÇ ÇöÀç ¹à±â
-	float				timeToBright;		// Ä«¸Ş¶óÀÇ ¹à±â º¯È­ ³²Àº½Ã°£
+	CImage*				fadeImage;			// ì „í™˜ íš¨ê³¼ìš© ì´ë¯¸ì§€
+	float				targetBright;		// ì¹´ë©”ë¼ì˜ ëª©í‘œ ë°ê¸°
+	float				curBright;			// ì¹´ë©”ë¼ì˜ í˜„ì¬ ë°ê¸°
+	float				timeToBright;		// ì¹´ë©”ë¼ì˜ ë°ê¸° ë³€í™” ë‚¨ì€ì‹œê°„
 };
 
 #define CAMERA	CCameraManager::GetInstance()

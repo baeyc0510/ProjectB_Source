@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class CSceneStage01 : public CScene
 {
 public:

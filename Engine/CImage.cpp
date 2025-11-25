@@ -1,38 +1,59 @@
-#include "pch.h"
+ï»¿#include "pch.h"
+
 #include "CImage.h"
 
+
+
 CImage::CImage()
+
 {
+
 	hDC = 0;
+
 	hBmp = 0;
+
 	bmpInfo = {};
+
 }
+
+
 
 CImage::~CImage()
+
 {
+
 	DeleteDC(hDC);
+
 	DeleteObject(hBmp);
+
 }
+
+
 
 void CImage::Load(const wstring path)
+
 {
 	hBmp = (HBITMAP)LoadImage(
-		nullptr,								// hInstance. nullptr·Î ÇØµµ µÊ.
-		path.c_str(),							// ÆÄÀÏ °æ·Î¸¦ C style ¹®ÀÚ¿­·Î º¯È¯
-		IMAGE_BITMAP,							// ÀÌ¹ÌÁö Å¸ÀÔ, ºñÆ®¸Ê ÀÌ¹ÌÁö·Î ÁöÁ¤
-		0, 0,									// ÀÌ¹ÌÁöÀÇ X, Y Å©±â, 0À» ÁÖ¸é ÀÌ¹ÌÁö Å©±â·Î ¼³Á¤
-		LR_CREATEDIBSECTION | LR_LOADFROMFILE	// ÀÌ¹ÌÁö ·Îµù Å¸ÀÔ.
+		nullptr,								// hInstance. nullptrë¡œ í•´ë„ ë¨.
+		path.c_str(),							// íŒŒì¼ ê²½ë¡œë¥¼ C style ë¬¸ìì—´ë¡œ ë³€í™˜
+		IMAGE_BITMAP,							// ì´ë¯¸ì§€ íƒ€ì…, ë¹„íŠ¸ë§µ ì´ë¯¸ì§€ë¡œ ì§€ì •
+		0, 0,									// ì´ë¯¸ì§€ì˜ X, Y í¬ê¸°, 0ì„ ì£¼ë©´ ì´ë¯¸ì§€ í¬ê¸°ë¡œ ì„¤ì •
+		LR_CREATEDIBSECTION | LR_LOADFROMFILE	// ì´ë¯¸ì§€ ë¡œë”© íƒ€ì….
 	);
 
-	assert(hBmp && "Image Load Failed");		// ÀÌ¹ÌÁö°¡ ¾ø´Ù¸é assert¸¦ ÅëÇÑ Á¾·á
 
-	hDC = CreateCompatibleDC(MAINDC);			// ºñÆ®¸ÊÀÌ¹ÌÁö¿Í ¿¬°áÇÒ DC »ı¼º
-	SelectObject(hDC, hBmp);					// ºñÆ®¸ÊÀÌ¹ÌÁö¿Í DC ¿¬°á
-	GetObject(hBmp, sizeof(BITMAP), &bmpInfo);	// ºñÆ®¸ÊÀÌ¹ÌÁö Á¤º¸ ÃßÃâ
+	assert(hBmp && "Image Load Failed");		// ì´ë¯¸ì§€ê°€ ì—†ë‹¤ë©´ assertë¥¼ í†µí•œ ì¢…ë£Œ
+	hDC = CreateCompatibleDC(MAINDC);			// ë¹„íŠ¸ë§µì´ë¯¸ì§€ì™€ ì—°ê²°í•  DC ìƒì„±
+	SelectObject(hDC, hBmp);					// ë¹„íŠ¸ë§µì´ë¯¸ì§€ì™€ DC ì—°ê²°
+	GetObject(hBmp, sizeof(BITMAP), &bmpInfo);	// ë¹„íŠ¸ë§µì´ë¯¸ì§€ ì •ë³´ ì¶”ì¶œ
 }
 
+
+
 void CImage::Create(UINT sizeX, UINT sizeY)
+
 {
+
 	hBmp = CreateCompatibleBitmap(MAINDC, sizeX, sizeY);
 	hDC = CreateCompatibleDC(MAINDC);
 
@@ -41,3 +62,4 @@ void CImage::Create(UINT sizeX, UINT sizeY)
 
 	GetObject(hBmp, sizeof(BITMAP), &bmpInfo);
 }
+

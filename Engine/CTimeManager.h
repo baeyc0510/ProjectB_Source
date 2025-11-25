@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class CTimeManager : public SingleTon<CTimeManager>
 {
 	friend SingleTon<CTimeManager>;
@@ -15,13 +15,13 @@ public:
 	float			GetDT();
 
 private:
-	UINT			fps;	// FPS : ÁÖ»çÀ²(ÇÁ·¹ÀÓ), 1ÃÊ´ç ±×·ÁÁø È­¸é ¼ö
-	float			dt;		// Delta Time : ´ÜÀ§½Ã°£, 1ÇÁ·¹ÀÓ´ç ¼Ò¿äµÈ ½Ã°£
+	UINT			fps;	// FPS : ì£¼ì‚¬ìœ¨(í”„ë ˆìž„), 1ì´ˆë‹¹ ê·¸ë ¤ì§„ í™”ë©´ ìˆ˜
+	float			dt;		// Delta Time : ë‹¨ìœ„ì‹œê°„, 1í”„ë ˆìž„ë‹¹ ì†Œìš”ëœ ì‹œê°„
 
 	int				updateCount;
 	float			updateOneSecond;
-	chrono::high_resolution_clock::time_point prevTime;	// ÀÌÀüÇÁ·¹ÀÓÀÇ ½Ã°£
-	chrono::high_resolution_clock::time_point curTime;	// ÇöÀçÇÁ·¹ÀÓÀÇ ½Ã°£
+	chrono::high_resolution_clock::time_point prevTime;	// ì´ì „í”„ë ˆìž„ì˜ ì‹œê°„
+	chrono::high_resolution_clock::time_point curTime;	// í˜„ìž¬í”„ë ˆìž„ì˜ ì‹œê°„
 };
 
 #define DT			CTimeManager::GetInstance()->GetDT()

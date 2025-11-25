@@ -1,7 +1,7 @@
-#pragma once
+ï»¿#pragma once
 
-// ¸®¼Ò½º : °ÔÀÓ¿¡ ÇÊ¿äÇÑ ÄÚµå ¿ÜÀÇ ÀÚ¿ø
-// ex) ÀÌ¹ÌÁö, »ç¿îµå, ¾Ö´Ï¸ŞÀÌ¼Ç, µî
+// ë¦¬ì†ŒìŠ¤ : ê²Œì„ì— í•„ìš”í•œ ì½”ë“œ ì™¸ì˜ ìì›
+// ex) ì´ë¯¸ì§€, ì‚¬ìš´ë“œ, ì• ë‹ˆë©”ì´ì…˜, ë“±
 class CResource
 {
 public:
@@ -16,6 +16,6 @@ public:
 	void		SetPath(const wstring& path)	{ this->path = path; }
 
 protected:
-	wstring		key;							// ¸®¼Ò½ºÀÇ Å½»ö¿ë Å°
-	wstring		path;							// ¸®¼Ò½ºÀÇ °æ·Î
+	wstring		key;							// ë¦¬ì†ŒìŠ¤ì˜ íƒìƒ‰ìš© í‚¤
+	wstring		path;							// ë¦¬ì†ŒìŠ¤ì˜ ê²½ë¡œ
 };

@@ -36,20 +36,12 @@ void CRenderManager::Init()
 	winSize = SINGLE(CEngine)->GetWinSize();
 	hDC		= GetDC(SINGLE(CEngine)->GetHWnd());
 
-	// <더블 버퍼링>
-	// 현재 게임화면에 직접 그릴경우 그리는 과정이 포착되어
-	// 반짝거리는 블링크 현상 발생
-	// 백버퍼에 그리는 작업을 진행하고 모두 그렸을 경우
-	// 브론트버퍼에 결과물을 복사해주는 방식으로 블링크 현상을 해결
-
-	// 더블 버퍼링의 메모리 DC와 비트맵 생성
 	hMemDC = CreateCompatibleDC(hDC);
 	hBMP = CreateCompatibleBitmap(hDC, (int)winSize.x, (int)winSize.y);
 
 	HBITMAP hOldBitmap = static_cast<HBITMAP>(SelectObject(hMemDC, hBMP));
 	DeleteObject(hOldBitmap);
 
-	// 기본 펜 & 브러시 설정
 	SetPen();
 	SetBrush();
 	SetText();
@@ -58,24 +50,20 @@ void CRenderManager::Init()
 
 void CRenderManager::BeginDraw()
 {
-	// 백버퍼를 모두 흰색으로 초기화
 	PatBlt(hMemDC, 0, 0, (int)winSize.x, (int)winSize.y, WHITENESS);
 }
 
 void CRenderManager::EndDraw()
 {
-	// 백버퍼를 프론트버퍼로 복사
 	BitBlt(hDC, 0, 0, (int)winSize.x, (int)winSize.y, hMemDC, 0, 0, SRCCOPY);
 }
 
 void CRenderManager::Release()
 {
-	// 사용했던 프론트버퍼와 백버퍼 삭제
 	DeleteObject(hMemDC);
 	DeleteObject(hBMP);
 	ReleaseDC(hWnd, hDC);
 
-	// 사용했던 펜 & 브러시 삭제
 	DeleteObject(hCurPen);
 	DeleteObject(hCurBrush);
 
@@ -91,12 +79,6 @@ void CRenderManager::Pixel(float x, float y, COLORREF color)
 
 void CRenderManager::Line(float startX, float startY, float endX, float endY)
 {
-	// WinGDI 사용법
-	// 1. 현재펜과 현재브러시를 선택
-	// 2. 그리기 작업 진행
-	// 3. 이전펜과 이전브러시로 복구
-	// Why? 다른 영역에서 사용하다 잠시 빌려쓴 경우를 대비
-
 	HPEN prevPen = static_cast<HPEN>(SelectObject(hMemDC, hCurPen));
 	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hMemDC, hCurBrush));
 
@@ -162,11 +144,39 @@ void CRenderManager::TransparentImage(CImage* pImg, float startX, float startY, 
 		pImg->GetImageDC(), 0, 0, pImg->GetBmpWidth(), pImg->GetBmpHeight(), transparent);
 }
 
-void CRenderManager::FrameImage(CImage* pImg, float dstStartX, float dstStartY, float dstEndX, float dstEndY, float srcStartX, float srcStartY, float srcEndX, float srcEndY, COLORREF transparent)
+void CRenderManager::FrameImage(CImage* pImg, float dstStartX, float dstStartY, float dstEndX, float dstEndY, float srcStartX, float srcStartY, float srcEndX, float srcEndY, bool flipX, COLORREF transparent)
 {
-	TransparentBlt(hMemDC, (int)dstStartX, (int)dstStartY, (int)(dstEndX - dstStartX), (int)(dstEndY - dstStartY),
-		pImg->GetImageDC(), (int)srcStartX, (int)srcStartY, (int)(srcEndX - srcStartX), (int)(srcEndY - srcStartY), transparent);
+	if (!pImg) return;
+
+	HDC hImgDC = pImg->GetImageDC();
+	int iSrcWidth = (int)(srcEndX - srcStartX);
+	int iSrcHeight = (int)(srcEndY - srcStartY);
+	int iDstWidth = (int)(dstEndX - dstStartX);
+	int iDstHeight = (int)(dstEndY - dstStartY);
+
+	if (flipX)
+	{
+		HDC hTempDC = CreateCompatibleDC(hImgDC);
+		HBITMAP hTempBitmap = CreateCompatibleBitmap(hImgDC, iSrcWidth, iSrcHeight);
+		HBITMAP hOldBitmap = (HBITMAP)SelectObject(hTempDC, hTempBitmap);
+
+		StretchBlt(hTempDC, iSrcWidth - 1, 0, -iSrcWidth, iSrcHeight,
+			hImgDC, (int)srcStartX, (int)srcStartY, iSrcWidth, iSrcHeight, SRCCOPY);
+
+		TransparentBlt(hMemDC, (int)dstStartX, (int)dstStartY, iDstWidth, iDstHeight,
+			hTempDC, 0, 0, iSrcWidth, iSrcHeight, transparent);
+		
+		SelectObject(hTempDC, hOldBitmap);
+		DeleteObject(hTempBitmap);
+		DeleteDC(hTempDC);
+	}
+	else
+	{
+		TransparentBlt(hMemDC, (int)dstStartX, (int)dstStartY, iDstWidth, iDstHeight,
+			hImgDC, (int)srcStartX, (int)srcStartY, iSrcWidth, iSrcHeight, transparent);
+	}
 }
+
 
 void CRenderManager::BlendImage(CImage* pImg, float dstStartX, float dstStartY, float dstEndX, float dstEndY, float srcStartX, float srcStartY, float srcEndX, float srcEndY, float ratio)
 {
@@ -182,7 +192,6 @@ void CRenderManager::BlendImage(CImage* pImg, float dstStartX, float dstStartY, 
 
 void CRenderManager::SetPen(PenType type, COLORREF color, int width)
 {
-	// 선택하는 펜이 현재 펜과 동일할 경우 새로 만들지 않음
 	if (penType == type && penWidth == width && penColor == color)
 		return;
 
@@ -190,10 +199,8 @@ void CRenderManager::SetPen(PenType type, COLORREF color, int width)
 	penWidth = width;
 	penColor = color;
 
-	// 이전 펜을 제거
 	DeleteObject(hCurPen);
 
-	// 펜 타입에 따라 펜 스타일을 다르게 설정
 	switch (type)
 	{
 	case PenType::Solid:
@@ -216,25 +223,20 @@ void CRenderManager::SetPen(PenType type, COLORREF color, int width)
 
 void CRenderManager::SetBrush(BrushType type, COLORREF color)
 {
-	// 선택하는 브러시가 현재 브러시와 동일할 경우 새로 만들지 않음
 	if (brushType == type && brushColor == color)
 		return;
 
 	brushType = type;
 	brushColor = color;
 
-	// 이전 브러시를 제거
 	DeleteObject(hCurBrush);
 
-	// 브러시 타입에 따라 브러시 스타일을 다르게 설정
 	switch (type)
 	{
 	case BrushType::Solid:
 		hCurBrush = CreateSolidBrush(color);
 		break;
 	case BrushType::Null:
-		// Null 브러시만 유독 희안한 구현
-		// 컴퓨터는 투명표현이 불가능 -> 특별처리 필요
 		hCurBrush = static_cast<HBRUSH>(GetStockObject(NULL_BRUSH));
 		break;
 	default:
@@ -245,7 +247,6 @@ void CRenderManager::SetBrush(BrushType type, COLORREF color)
 
 void CRenderManager::SetText(int size, COLORREF color, TextAlign align)
 {
-	// 선택하는 텍스트가 현재 텍스트와 동일할 경우 새로 만들지 않음
 	if (textSize == size && textColor == color && textAlign == align)
 		return;
 
@@ -255,7 +256,7 @@ void CRenderManager::SetText(int size, COLORREF color, TextAlign align)
 
 	DeleteObject(hFont);
 	hFont = CreateFont(size, 0, 0, 0, 0, 0, 0, 0, HANGEUL_CHARSET,
-		0, 0, 0, VARIABLE_PITCH | FF_ROMAN, TEXT("굴림"));
+		0, 0, 0, VARIABLE_PITCH | FF_ROMAN, TEXT("援대┝"));
 	SelectObject(hMemDC, hFont);
 
 	SetTextColor(hMemDC, color);
@@ -286,7 +287,6 @@ void CRenderManager::SetText(int size, COLORREF color, TextAlign align)
 
 void CRenderManager::SetTextBackMode(TextBackMode mode, COLORREF backColor)
 {
-	// 선택하는 텍스트 배경이 현재 텍스트와 동일할 경우 새로 만들지 않음
 	if (textBackMode == mode && textBackColor == backColor)
 		return;
 
@@ -298,6 +298,7 @@ void CRenderManager::SetTextBackMode(TextBackMode mode, COLORREF backColor)
 	case TextBackMode::Solid:
 		SetBkMode(hMemDC, OPAQUE);
 		break;
+
 	default:
 		SetBkMode(hMemDC, TRANSPARENT);
 		break;

@@ -1,11 +1,11 @@
-#include "pch.h"
+Ôªø#include "pch.h"
 #include "CMissile.h"
 
 #include "CGame.h"
 
 CMissile::CMissile()
 {
-	name = TEXT("πÃªÁ¿œ");
+	name = TEXT("ÎØ∏ÏÇ¨Ïùº");
 	scale = Vec2(20, 20);
 	dir = Vec2(0, -1);
 	speed = 200.f;

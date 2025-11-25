@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 struct IRender abstract
 {
 	virtual void	Render() = 0;

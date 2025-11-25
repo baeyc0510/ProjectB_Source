@@ -3,7 +3,7 @@
 
 #include "CGame.h"
 #include "CPlayer.h"
-#include "CMonster.h"
+#include "CGround.h"
 #include "CCameraController.h"
 #include "CSoundController.h"
 
@@ -17,13 +17,22 @@ CSceneStage01::~CSceneStage01()
 
 void CSceneStage01::Init()
 {
+	// Ground
+	CGround* pGround = new CGround();
+	pGround->SetName(L"Ground");
+	pGround->SetPos(Vec2(CGame::WINSIZE.x / 2.f, CGame::WINSIZE.y - 50.f));
+	pGround->SetScale(Vec2(CGame::WINSIZE.x, 100.f));
+
+	CCollider* pGroundCollider = new CCollider();
+	pGroundCollider->SetScale(pGround->GetScale());
+	pGroundCollider->SetLayer(Layer::Ground);
+	pGround->AddChild(pGroundCollider);
+	AddGameObject(pGround);
+
+	// Player
 	CPlayer* player = new CPlayer();
 	player->SetPos(Vec2(CGame::WINSIZE.x * 0.5f, CGame::WINSIZE.y * 0.5f));
 	AddGameObject(player);
-
-	CMonster* monster = new CMonster();
-	monster->SetPos(Vec2(CGame::WINSIZE.x * 0.5f, 100));
-	AddGameObject(monster);
 
 	CCameraController* controller = new CCameraController();
 	AddGameObject(controller);
@@ -38,14 +47,14 @@ void CSceneStage01::Init()
 
 	//auto click1 = [](DWORD_PTR button1, DWORD_PTR param2) {
 	//	CButton* button = (CButton*)button1;
-	//	wstring text = button->GetName() + TEXT("ÀÌ Å¬¸¯µÊ");
+	//	wstring text = button->GetName() + TEXT("ì´ í´ë¦­ë¨");
 	//	Logger::Debug(text);
 	//};
 
 	//CButton* button1 = new CButton();
 	//button1->SetScale(Vec2(100, 50));
 	//button1->SetPos(Vec2(50, 50));
-	//button1->SetName(TEXT("¹öÆ°1"));
+	//button1->SetName(TEXT("ë²„íŠ¼1"));
 	//button1->SetClickCallback(click1, (DWORD_PTR)button1, 0);
 	//panel1->AddChild(button1);
 

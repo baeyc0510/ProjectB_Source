@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class CSceneManager;
 class CEventManager;
 class CUIManager;
@@ -26,18 +26,18 @@ public:
 	void				DeleteAllUI();
 
 private:
-	// ¼ø¼ö°¡»óÇÔ¼ö :
-	// ÇÔ¼ö¸¦ Ãß»óÈ­ÇÏ¿© ±¸Ã¼È­ÇÏÁö ¾ÊÀ» °æ¿ì ÀÎ½ºÅÏ½º »ı¼ºÀ» ¸·À½
-	// ¾ÀÀ» »ó¼Ó¹Ş¾Æ ¼ø¼ö°¡»óÇÔ¼öµéÀ» ±¸Ã¼È­½ÃÄÑ ¾ÀÀ» ¿Ï¼º½ÃÅ´
-	virtual void		Init()		= 0;	// ÃÊ±âÈ­
-	virtual void		Enter()		= 0;	// ÁøÀÔ
-	virtual void		Update()	= 0;	// °ÔÀÓ·ÎÁ÷ °»½Å
-	virtual void		Render()	= 0;	// °ÔÀÓÇ¥Çö °»½Å
-	virtual void		Exit()		= 0;	// Å»Ãâ
-	virtual void		Release()	= 0;	// ¸¶¹«¸®
+	// ìˆœìˆ˜ê°€ìƒí•¨ìˆ˜ :
+	// í•¨ìˆ˜ë¥¼ ì¶”ìƒí™”í•˜ì—¬ êµ¬ì²´í™”í•˜ì§€ ì•Šì„ ê²½ìš° ì¸ìŠ¤í„´ìŠ¤ ìƒì„±ì„ ë§‰ìŒ
+	// ì”¬ì„ ìƒì†ë°›ì•„ ìˆœìˆ˜ê°€ìƒí•¨ìˆ˜ë“¤ì„ êµ¬ì²´í™”ì‹œì¼œ ì”¬ì„ ì™„ì„±ì‹œí‚´
+	virtual void		Init()		= 0;	// ì´ˆê¸°í™”
+	virtual void		Enter()		= 0;	// ì§„ì…
+	virtual void		Update()	= 0;	// ê²Œì„ë¡œì§ ê°±ì‹ 
+	virtual void		Render()	= 0;	// ê²Œì„í‘œí˜„ ê°±ì‹ 
+	virtual void		Exit()		= 0;	// íƒˆì¶œ
+	virtual void		Release()	= 0;	// ë§ˆë¬´ë¦¬
 
-	// ¾À ºÎ¸ğ Àü¿ë ÇÔ¼öµé :
-	// ¾À¿¡ ÀÖ´Â ¸ğµç °ÔÀÓ¿ÀºêÁ§Æ®µéÀ» °»½Å
+	// ì”¬ ë¶€ëª¨ ì „ìš© í•¨ìˆ˜ë“¤ :
+	// ì”¬ì— ìˆëŠ” ëª¨ë“  ê²Œì„ì˜¤ë¸Œì íŠ¸ë“¤ì„ ê°±ì‹ 
 	void				SceneInit();		
 	void				SceneEnter();		
 	void				SceneUpdate();		

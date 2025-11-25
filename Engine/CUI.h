@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 class CUIManager;
 class CEventManager;
@@ -62,7 +62,7 @@ private:
 	virtual void	OnMouseDown()			{}
 	virtual void	OnMouseClicked()		{}
 
-	bool			prevMouseOn;			// UI°¡ ÀÌÀü ÇÁ·¹ÀÓ¿¡ ¸¶¿ì½º°¡ ¿Ã·ÁÁø ¿©ºÎ
-	bool			prevDown;				// UI°¡ ÀÌÀü ÇÁ·¹ÀÓ¿¡ ´­·È´ÂÁö ¿©ºÎ
+	bool			prevMouseOn;			// UIê°€ ì´ì „ í”„ë ˆì„ì— ë§ˆìš°ìŠ¤ê°€ ì˜¬ë ¤ì§„ ì—¬ë¶€
+	bool			prevDown;				// UIê°€ ì´ì „ í”„ë ˆì„ì— ëˆŒë ¸ëŠ”ì§€ ì—¬ë¶€
 };
 

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "CResource.h"
 
 class CAnimator;
@@ -10,6 +10,7 @@ struct AniFrame
 	Vec2	pos;
 	Vec2	scale;
 	float	time;
+	vector<wstring> events;
 };
 
 class CAnimation : public CResource
@@ -25,11 +26,11 @@ public:
 	void				Load(const wstring& key, const wstring& path);
 	void				SetRepeat(bool repeat) { this->repeat = repeat; }
 	void				Create(CImage* image, float stepTime, UINT count, bool repeat,
-							Vec2 pos, Vec2 scale, Vec2 step);	// ÀÏÁ¤ °£°İÀ¸·Î ÇÁ·¹ÀÓ »ı¼º
+							Vec2 pos, Vec2 scale, Vec2 step);	// ì¼ì • ê°„ê²©ìœ¼ë¡œ í”„ë ˆì„ ìƒì„±
 
 private:
-	CImage*				image;		// ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌ¹ÌÁö
-	vector<AniFrame>	frames;		// ¾Ö´Ï¸ŞÀÌ¼Ç ÇÁ·¹ÀÓµé
-	bool				repeat;		// ¾Ö´Ï¸ŞÀÌ¼Ç ¹İº¹¿©ºÎ
+	CImage*				image;		// ì• ë‹ˆë©”ì´ì…˜ ì´ë¯¸ì§€
+	vector<AniFrame>	frames;		// ì• ë‹ˆë©”ì´ì…˜ í”„ë ˆì„ë“¤
+	bool				repeat;		// ì• ë‹ˆë©”ì´ì…˜ ë°˜ë³µì—¬ë¶€
 };
 

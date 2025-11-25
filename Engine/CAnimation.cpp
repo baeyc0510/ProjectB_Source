@@ -1,4 +1,4 @@
-#include "pch.h"
+Ôªø#include "pch.h"
 #include <fstream>
 #include "JSON/inc/json.hpp"
 #include "StringHelper.h"
@@ -19,67 +19,53 @@ CAnimation::~CAnimation()
 void CAnimation::Load(const wstring& key, const wstring& path)
 {
     filesystem::path filePath(path);
+    if (!filesystem::exists(filePath)) return;
 
-    if (!filesystem::exists(filePath))
-    {
-        return;
-    }
-
-    // JSON ∆ƒ¿œ
     ifstream file(filePath);
-    if (!file.is_open()) 
-        return;
+    if (!file.is_open()) return;
 
     json data;
-    try 
-    {
-        file >> data;
-    }
-    catch (const json::parse_error&) 
-    {
-        file.close();
-        return;
-    }
+    try { file >> data; }
+    catch (const json::parse_error&) { file.close(); return; }
     file.close();
 
-
-    // ¿ÃπÃ¡ˆ ∞Ê∑Œ (string -> wstring ∫Ø»Ø)
+    // 1. Ïù¥ÎØ∏ÏßÄ Î°úÎìú
     string imgPathStr = data["image"];
-    wstring imgPath = ToWString(imgPathStr);
+    this->image = LOADIMAGE(key, filesystem::path(imgPathStr));
 
-    // «¡∑π¿” ∞£∞› Ω√∞£
-    float interval = 0.1f; // ±‚∫ª∞™
-    if (data.contains("frame_interval")) 
-    {
-        interval = data["frame_interval"];
-    }
+    // 2. ÏòµÏÖò ÏÑ§Ï†ï
+    float interval = 0.1f;
+    if (data.contains("frame_interval")) interval = data["frame_interval"];
 
-    // ¿ÃπÃ¡ˆ ∑ŒµÂ
-	this->image = LOADIMAGE(key, imgPath);
-
-    // «¡∑π¿” µ•¿Ã≈Õ ∆ƒΩÃ
+    // 3. ÌîÑÎ†àÏûÑ Îç∞Ïù¥ÌÑ∞ ÌååÏã±
     const auto& jsonFrames = data["frames"];
-    
+
     this->frames.clear();
     this->frames.reserve(jsonFrames.size());
 
     for (const auto& f : jsonFrames)
     {
-        // JSON ±∏¡∂: [x, y, w, h]
-        float x = f[0];
-        float y = f[1];
-        float w = f[2];
-        float h = f[3];
+        const auto& r = f["rect"]; // [x, y, w, h]
 
         AniFrame frame;
-        frame.pos = Vec2(x, y);
-        frame.scale = Vec2(w, h);
+        frame.pos = Vec2(r[0], r[1]);
+        frame.scale = Vec2(r[2], r[3]);
         frame.time = interval;
+
+        // Ïù¥Î≤§Ìä∏ (Ï∂îÌõÑ Íµ¨ÌòÑ)
+        if (f.contains("events"))
+        {
+            const auto& events = f["events"];
+            for (const auto& e : events)
+            {
+                frame.events.push_back(ToWString(e.get<string>()));
+            }
+        }
 
         this->frames.push_back(frame);
     }
 
-    this->repeat = false;
+    this->repeat = true;
 }
 
 void CAnimation::Create(CImage* image, float stepTime, UINT count, bool repeat, Vec2 pos, Vec2 scale, Vec2 step)

@@ -1,11 +1,11 @@
-#pragma once
+ï»¿#pragma once
 
 //========================================
-//##		µğÀÚÀÎ ÆĞÅÏ FlyWeight		##
+//##		ë””ìì¸ íŒ¨í„´ FlyWeight		##
 //========================================
 /*
-	ÇÑ°³ÀÇ °íÀ¯ µ¥ÀÌÅÍ¸¦ ´Ù¸¥ °´Ã¼µé¿¡¼­ °øÀ¯ÇÏ°Ô ¸¸µé¾î ¸Ş¸ğ¸® »ç¿ë·®À» ÁÙÀÓ
-	°íÀ¯ µ¥ÀÌÅÍ¸¦ ÂüÁ¶ÇÏ¿© »ç¿ëÇÏ±â¿¡ ºÒ·¯¿À´Â ½Ã°£À» ÁÙÀÓ
+	í•œê°œì˜ ê³ ìœ  ë°ì´í„°ë¥¼ ë‹¤ë¥¸ ê°ì²´ë“¤ì—ì„œ ê³µìœ í•˜ê²Œ ë§Œë“¤ì–´ ë©”ëª¨ë¦¬ ì‚¬ìš©ëŸ‰ì„ ì¤„ì„
+	ê³ ìœ  ë°ì´í„°ë¥¼ ì°¸ì¡°í•˜ì—¬ ì‚¬ìš©í•˜ê¸°ì— ë¶ˆëŸ¬ì˜¤ëŠ” ì‹œê°„ì„ ì¤„ì„
 */
 
 class CImage;
@@ -26,7 +26,7 @@ public:
 	CImage*			ImageFind(const wstring& key);
 	CImage*			ImageLoad(const wstring& key, const wstring& file);
 
-	// ¾Ö´Ï¸ŞÀÌ¼Ç Åø¾À ÇÊ¿ä
+	// ì• ë‹ˆë©”ì´ì…˜ íˆ´ì”¬ í•„ìš”
 	CAnimation*		AnimationFind(const wstring& key);
 	CAnimation*		AnimationLoad(const wstring& key, const wstring file);
 

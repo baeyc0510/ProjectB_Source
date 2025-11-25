@@ -1,12 +1,12 @@
-#pragma once
+ï»¿#pragma once
 
-// WinApi ÇÁ·¹ÀÓ¿öÅ©
+// WinApi í”„ë ˆì„ì›Œí¬
 #include <Windows.h>
 
-// WinApi img32 ¶óÀÌºê·¯¸®
+// WinApi img32 ë¼ì´ë¸ŒëŸ¬ë¦¬
 #pragma comment(lib, "MsImg32.lib")
 
-// FMOD »ç¿îµå
+// FMOD ì‚¬ìš´ë“œ
 #include "FMOD/inc/fmod.hpp"
 #pragma comment(lib, "FMOD/lib/fmod_vc.lib")
 
@@ -15,7 +15,7 @@
 
 using namespace FMOD;
 
-// C++ Ç¥ÁØ ¶óÀÌºê·¯¸®
+// C++ í‘œì¤€ ë¼ì´ë¸ŒëŸ¬ë¦¬
 #include <cassert>
 #include <chrono>
 #include <string>

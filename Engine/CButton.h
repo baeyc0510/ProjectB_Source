@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 
-// ÇÔ¼öÆ÷ÀÎÅÍ : ÇÔ¼ö¸¦ °¡¸®Å°´Â Æ÷ÀÎÅÍ º¯¼ö·Î ÇÔ¼öÀÇ ½ÃÀÛÁÖ¼Ò¸¦ ÀúÀåÇÏ´Â º¯¼ö
-// ¹İÈ¯Çü (*ÇÔ¼öÆ÷ÀÎÅÍ ÀÌ¸§)(¸Å°³º¯¼öµé...)
+// í•¨ìˆ˜í¬ì¸í„° : í•¨ìˆ˜ë¥¼ ê°€ë¦¬í‚¤ëŠ” í¬ì¸í„° ë³€ìˆ˜ë¡œ í•¨ìˆ˜ì˜ ì‹œì‘ì£¼ì†Œë¥¼ ì €ì¥í•˜ëŠ” ë³€ìˆ˜
+// ë°˜í™˜í˜• (*í•¨ìˆ˜í¬ì¸í„° ì´ë¦„)(ë§¤ê°œë³€ìˆ˜ë“¤...)
 // ex) void (*FuncPointer)(int);
-// °¡¸®Å°°í ÀÖ´Â ÇÔ¼ö¸¦ È£ÃâÇÏ±â À§ÇØ¼­´Â ÇÔ¼öÆ÷ÀÎÅÍ ÀÌ¸§À» ÅëÇØ¼­ ÁøÇà
+// ê°€ë¦¬í‚¤ê³  ìˆëŠ” í•¨ìˆ˜ë¥¼ í˜¸ì¶œí•˜ê¸° ìœ„í•´ì„œëŠ” í•¨ìˆ˜í¬ì¸í„° ì´ë¦„ì„ í†µí•´ì„œ ì§„í–‰
 // ex) FuncPointer(10);
 typedef void(*CallbackFunc)(DWORD_PTR, DWORD_PTR);
 
@@ -24,7 +24,7 @@ private:
 	void	OnDisable()					override;
 	void	Release()					override;
 
-	// final : »ó¼Ó¹ŞÀº ÀÚ½ÄÅ¬·¡½º¿¡¼­ ÀçÁ¤ÀÇÇÏÁö ¸øÇÏµµ·Ï Á¦ÇÑ
+	// final : ìƒì†ë°›ì€ ìì‹í´ë˜ìŠ¤ì—ì„œ ì¬ì •ì˜í•˜ì§€ ëª»í•˜ë„ë¡ ì œí•œ
 	void	OnMouseEnter()				final;
 	void	OnMouseOver()				final;
 	void	OnMouseExit()				final;
@@ -32,7 +32,7 @@ private:
 	void	OnMouseDown()				final;
 	void	OnMouseClicked()			final;
 
-	// delete : ´õÀÌ»ó ÇØ´çÇÔ¼ö¸¦ »ç¿ë ÇÒ¼ö ¾øµµ·Ï Á¦ÇÑ
+	// delete : ë”ì´ìƒ í•´ë‹¹í•¨ìˆ˜ë¥¼ ì‚¬ìš© í• ìˆ˜ ì—†ë„ë¡ ì œí•œ
 	void	AddChildUI(CUI* child)		= delete;
 	void	DeleteChildUI(CUI* child)	= delete;
 

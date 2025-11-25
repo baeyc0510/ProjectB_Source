@@ -1,4 +1,5 @@
-#pragma once
+﻿#pragma once
+#include "Component.h"
 class CEventManager;
 class CScene;
 

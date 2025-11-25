@@ -123,6 +123,12 @@
     <ClInclude Include="StringHelper.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="CRigidbody.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Delegate.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -196,6 +202,9 @@
     </ClCompile>
     <ClCompile Include="CButton.cpp">
       <Filter>Asset\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="CRigidbody.cpp">
+      <Filter>Component</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
