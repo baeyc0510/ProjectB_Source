@@ -7,26 +7,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="16a55d06-b49c-468b-b753-a1679c86e6c4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.WinApi/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.WinApi/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/Components/CAnimator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Components/CAnimator.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/Components/CAnimator.h" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Components/CAnimator.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/Core/Component.h" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Core/Component.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/Util/Delegate.h" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Util/Delegate.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Ability/Ability.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Ability/Ability.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Ability/Ability.h" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Ability/Ability.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Component/CAbilitySystem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Component/CAbilitySystem.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Component/CAbilitySystem.h" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Component/CAbilitySystem.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Component/CRigidbody.h" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Component/CRigidbody.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Component/CStateSystem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Component/CStateSystem.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Component/CStateSystem.h" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Component/CStateSystem.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Enum.h" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Enum.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Object/Character/CPlayer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Object/Character/CPlayer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/Object/Character/CPlayer.h" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/Game/Object/Character/CPlayer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/State/State.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/Game/State/State.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/WinApi/WinApi.vcxproj" beforeDir="false" afterPath="$PROJECT_DIR$/WinApi/WinApi.vcxproj" afterDir="false" />
-    </list>
+    <list default="true" id="16a55d06-b49c-468b-b753-a1679c86e6c4" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -87,7 +68,7 @@
       <option name="presentableId" value="Default" />
       <updated>1764144999435</updated>
       <workItem from="1764145001234" duration="603000" />
-      <workItem from="1764145630997" duration="6843000" />
+      <workItem from="1764145630997" duration="7209000" />
     </task>
     <servers />
   </component>

@@ -15,6 +15,7 @@ public:
 	bool TryActivateAbility(EAbility abilityType);
 	void CancelAbility(EAbility abilityType);
 	void CancelAllAbilities();
+	void CancelAbilitiesWithTag(StateTag tag);
 	
 	// 이벤트 중계
 	void TriggerEvent(EGameEvent eventType);
@@ -28,7 +29,7 @@ public:
 protected:
 	void ComponentInit() override;
 	void ComponentOnEnable() override {}
-	void ComponentUpdate() override {}
+	void ComponentUpdate() override;
 	void ComponentRender() override {}
 	void ComponentOnDisable() override {}
 	void ComponentRelease() override;

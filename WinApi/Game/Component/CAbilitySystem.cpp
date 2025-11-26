@@ -40,6 +40,10 @@ bool CAbilitySystem::TryActivateAbility(EAbility abilityType)
 	if (ability->IsActive())
 		return false;
 
+	// 쿨다운 체크
+	if (ability->IsOnCooldown())
+		return false;
+
 	// State 조건 체크
 	if (stateSystem)
 	{
@@ -53,8 +57,16 @@ bool CAbilitySystem::TryActivateAbility(EAbility abilityType)
 		// 금지 태그 확인
 		if (blocked != Tag_None && stateSystem->HasAnyTag(blocked))
 			return false;
+	}
 
-		// 태그 조작
+	// CancelTags에 해당하는 Ability들 취소
+	StateTag cancelTags = ability->GetCancelTags();
+	if (cancelTags != Tag_None)
+		CancelAbilitiesWithTag(cancelTags);
+
+	// 태그 조작
+	if (stateSystem)
+	{
 		StateTag toRemove = ability->GetTagsToRemove();
 		StateTag toAdd = ability->GetTagsToAdd();
 
@@ -84,10 +96,32 @@ void CAbilitySystem::CancelAbility(EAbility abilityType)
 
 void CAbilitySystem::CancelAllAbilities()
 {
-	for (Ability* ability : activeAbilities)
+	// 복사본으로 순회 (Cancel 중 activeAbilities 변경 가능)
+	vector<Ability*> abilitiesToCancel = activeAbilities;
+	for (Ability* ability : abilitiesToCancel)
 	{
 		if (ability->IsActive())
 			ability->Cancel();
+	}
+}
+
+void CAbilitySystem::CancelAbilitiesWithTag(StateTag tag)
+{
+	vector<Ability*> abilitiesToCancel;
+
+	for (Ability* ability : activeAbilities)
+	{
+		if (ability->IsActive())
+		{
+			StateTag abilityTags = ability->GetTagsToAdd();
+			if ((abilityTags & tag) != Tag_None)
+				abilitiesToCancel.push_back(ability);
+		}
+	}
+
+	for (Ability* ability : abilitiesToCancel)
+	{
+		ability->Cancel();
 	}
 }
 
@@ -127,11 +161,34 @@ void CAbilitySystem::ComponentRelease()
 }
 
 //========================================
+// Component 업데이트
+//========================================
+
+void CAbilitySystem::ComponentUpdate()
+{
+	// 모든 Ability 쿨다운 업데이트
+	float deltaTime = fDT;
+	for (auto& pair : abilities)
+	{
+		pair.second->UpdateCooldown(deltaTime);
+	}
+}
+
+//========================================
 // 내부 함수
 //========================================
 
 void CAbilitySystem::OnAbilityEnded(Ability* ability)
 {
+	// 태그 자동 제거
+	if (stateSystem)
+	{
+		StateTag tagsToRemove = ability->GetTagsToAdd();
+		if (tagsToRemove != Tag_None)
+			stateSystem->RemoveTag(tagsToRemove);
+	}
+
+	// activeAbilities에서 제거
 	auto iter = find(activeAbilities.begin(), activeAbilities.end(), ability);
 	if (iter != activeAbilities.end())
 		activeAbilities.erase(iter);
