@@ -5,7 +5,7 @@
 #include "framework.h"
 #include "WinApi.h"
 
-#include "CGame.h"
+#include "Game/CGame.h"
 
 #define MAX_LOADSTRING 100
 

@@ -28,7 +28,8 @@ using namespace FMOD;
 using namespace std;
 
 // Util
-#include "SingleTon.h"
-#include "Component.h"
-#include "Struct.h"
-#include "Logger.h"
+#include "Util/SingleTon.h"
+#include "Util/Struct.h"
+#include "Util/Logger.h"
+#include "Util/StringHelper.h"
+#include "Core/Component.h"
