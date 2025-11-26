@@ -137,7 +137,7 @@ void CAnimator::ComponentUpdate()
 			// 프레임 이벤트 실행
 			for (const wstring& eventName : curAnimation->frames[curFrame - 1].events)
 			{
-				Logger::Debug(L"Animation Event Triggered: " + eventName);
+				OnFrameEvent.Broadcast(eventName);
 			}
 		}
 

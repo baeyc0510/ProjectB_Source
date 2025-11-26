@@ -27,6 +27,9 @@ public:
 	void			SetRatio(float ratio)	{ this->ratio = ratio; }
 	void			SetDirection(int dir)	{ direction = dir; }
 
+	// 프레임 이벤트 (AbilitySystem 연동용)
+	MulticastDelegate<const wstring&> OnFrameEvent;
+
 private:
 	void			ComponentInit()			override;
 	void			ComponentOnEnable()		override;

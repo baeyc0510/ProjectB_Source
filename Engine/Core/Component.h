@@ -128,6 +128,18 @@ public:
 		delete component;
 	}
 
+	template <typename ComponentType>
+	ComponentType* GetComponent()
+	{
+		for (Component<T>* component : childList)
+		{
+			ComponentType* casted = dynamic_cast<ComponentType*>(component);
+			if (casted)
+				return casted;
+		}
+		return nullptr;
+	}
+
 protected:
 	void SetReservedDelete() override
 	{

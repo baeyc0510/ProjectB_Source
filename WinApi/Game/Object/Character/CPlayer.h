@@ -4,6 +4,8 @@
 class CRigidbody;
 class CAnimator;
 class CCollider;
+class CStateSystem;
+class CAbilitySystem;
 
 class CPlayer : public CGameObject
 {
@@ -14,30 +16,30 @@ public:
 	CCollider* GetCollider() { return collider; }
 
 private:
-	void	Init()			override;
-	void	OnEnable()		override;
-	void	Update()		override;
-	void	Render()		override;
-	void	OnDisable()		override;
-	void	Release()		override;
-
-	void	OnCollisionEnter(CCollider* other) override;
-	void	OnCollisionStay(CCollider* other) override;
-	void	OnCollisionExit(CCollider* other) override;
+	void Init() override;
+	void OnEnable() override;
+	void Update() override;
+	void Render() override;
+	void OnDisable() override;
+	void Release() override; 
+	void OnCollisionEnter(CCollider* other) override;
+	void OnCollisionStay(CCollider* other) override;
+	void OnCollisionExit(CCollider* other) override;
 
 private:
-	void	AnimatorUpdate();
+	void HandleInput();
+	void UpdateState();
 
-	CAnimator*	animator;
+	// 컴포넌트
+	CAnimator* animator;
 	CRigidbody* rigidbody;
-	CCollider*  collider;
-	float		speed;
-	float		jumpForce;
+	CCollider* collider;
+	CStateSystem* stateSystem;
+	CAbilitySystem* abilitySystem;
 
-	PlayerState state;
-	bool		bIsGrounded;
-	Vec2		moveDir;
-	Vec2		lookDir;
-	bool		isMove;
-	int			direction;
+	// 속성
+	float speed;
+	float jumpForce;
+	int direction;
+	bool bIsGrounded;
 };

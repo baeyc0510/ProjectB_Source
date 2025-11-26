@@ -16,20 +16,20 @@ public:
 
 public:
     // Getters
-    Vec2    GetVelocity() { return velocity; }
-    bool    IsUsingGravity() { return bUseGravity; }
-    float   GetGravityScale() { return gravityScale; }
+    Vec2 GetVelocity() { return velocity; }
+    bool IsUsingGravity() { return bUseGravity; }
+    float GetGravityScale() { return gravityScale; }
 
     // Setters
-    void    SetVelocity(Vec2 velocity) { velocity = velocity; }
-    void    SetVelocity(float x, float y) { velocity = Vec2(x, y); }
-    void    UseGravity(bool use) { bUseGravity = use; }
-    void    SetGravityScale(float scale) { gravityScale = scale; }
+    void SetVelocity(Vec2 inVelocity) { velocity = inVelocity; }
+    void SetVelocity(float x, float y) { velocity = Vec2(x, y); }
+    void UseGravity(bool use) { bUseGravity = use; }
+    void SetGravityScale(float scale) { gravityScale = scale; }
 
 private:
-    Vec2    velocity;
-    float   gravityScale;
-    bool    bUseGravity;
+    Vec2 velocity;
+    float gravityScale;
+    bool bUseGravity;
 
     // A world-wide gravity constant. Could be moved to a PhysicsManager later.
     const float GRAVITY_CONSTANT = 980.f; 

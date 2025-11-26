@@ -6,17 +6,19 @@
 // 핸들 타입
 using DelegateHandle = unsigned long long;
 
-// 멤버 함수를 델리게이트 콜백으로 변환하는 매크로
-// 사용 예: animator->Play(L"Idle", false, DELEGATE(this, OnAnimFinished));
-#define DELEGATE(Object, Function) \
-    [Object](auto&&... args) { Object->Function(std::forward<decltype(args)>(args)...); }
+// 멤버 함수를 델리게이트 콜백으로 변환 (인자 전달)
+#define BIND_ARGS(Object, Function) \
+    [Object](auto&&... args) { (Object)->Function(std::forward<decltype(args)>(args)...); }
 
-// 멀티캐스트 델리게이트 (여러 리스너 관리)
+// 멤버 함수를 델리게이트 콜백으로 변환 (인자 없음)
+#define BIND(Object, Function) \
+    [Object]() { (Object)->Function(); }
+
+// 멀티캐스트 델리게이트
 template<typename... Args>
 class MulticastDelegate
 {
 public:
-    // 실행할 함수 타입
     using EventFunc = std::function<void(Args...)>;
 
 private:
@@ -34,6 +36,7 @@ public:
     MulticastDelegate() {}
     ~MulticastDelegate() { Clear(); }
 
+    // 콜백 등록
     DelegateHandle Add(EventFunc func)
     {
         DelegateHandle newHandle = ++idCounter;
@@ -41,6 +44,7 @@ public:
         return newHandle;
     }
 
+    // 콜백 제거
     void Remove(DelegateHandle& handle)
     {
         if (handle == 0) return;
@@ -51,7 +55,6 @@ public:
                 return listener.handle == handle;
             });
 
-        // 실제로 삭제된 항목이 있을 때만 erase
         if (iter != listeners.end())
         {
             listeners.erase(iter, listeners.end());
@@ -59,11 +62,13 @@ public:
         }
     }
 
+    // 모든 콜백 제거
     void Clear()
     {
         listeners.clear();
     }
 
+    // 콜백 실행
     void Broadcast(Args... args)
     {
         if (listeners.empty()) 
@@ -78,20 +83,20 @@ public:
             }
         }
     }
-
-    // 연산자 오버로딩 (Broadcast)
+    
     void operator()(Args... args)
     {
         Broadcast(std::forward<Args>(args)...);
     }
 
+    // 바인딩 여부 확인
     bool IsBound() const
     {
         return !listeners.empty();
     }
 };
 
-// 단일 델리게이트 (하나의 콜백만 저장)
+// 단일 델리게이트
 template<typename... Args>
 class Delegate
 {
@@ -110,14 +115,8 @@ public:
     {
         callback = func;
     }
-
-    // 콜백 해제
-    void Unbind()
-    {
-        callback = nullptr;
-    }
-
-    // 콜백 제거 (Unbind와 동일)
+    
+    // 콜백 제거
     void Clear()
     {
         callback = nullptr;
@@ -132,7 +131,6 @@ public:
         }
     }
 
-    // 연산자 오버로딩 (Invoke)
     void operator()(Args... args)
     {
         Invoke(std::forward<Args>(args)...);

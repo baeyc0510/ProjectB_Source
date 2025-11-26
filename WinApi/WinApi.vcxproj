@@ -176,7 +176,7 @@
     <ClInclude Include="Game\Scene\CSceneStage01.h" />
     <ClInclude Include="Game\Scene\CSceneTitle.h" />
     <ClInclude Include="Game\Sound\CSoundController.h" />
-    <ClInclude Include="Game\State\State.h" />
+    <ClInclude Include="Game\Util\AnimEventHelper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -647,7 +647,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
-    <ClCompile Include="Game\State\State.cpp" />
+    <ClCompile Include="Game\Util\AnimEventHelper.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
