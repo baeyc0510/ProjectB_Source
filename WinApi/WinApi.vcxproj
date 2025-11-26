@@ -257,7 +257,7 @@
       <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Source\Project_B\WinApi\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\CGame.cpp">
@@ -333,7 +333,7 @@
       <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Source\Project_B\WinApi\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\Component\CAbilitySystem.cpp" />
@@ -412,7 +412,7 @@
       <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Source\Project_B\WinApi\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\Object\Character\CPlayer.cpp">
@@ -488,7 +488,7 @@
       <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Source\Project_B\WinApi\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\Object\CMissile.cpp" />
@@ -566,7 +566,7 @@
       <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Source\Project_B\WinApi\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\Scene\CSceneStage01.cpp" />
@@ -644,7 +644,7 @@
       <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Source\Project_B\WinApi\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\State\State.cpp" />

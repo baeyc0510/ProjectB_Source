@@ -2,8 +2,26 @@ import pygame
 import json
 import sys
 import os
+import io
 import cv2
 import numpy as np
+
+# Fix Unicode output on Windows
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+
+def cv2_imread_unicode(filepath, flags=cv2.IMREAD_UNCHANGED):
+    """Read image with Unicode path support (Windows)."""
+    try:
+        # Use numpy to read file bytes, then decode with OpenCV
+        with open(filepath, 'rb') as f:
+            data = np.frombuffer(f.read(), dtype=np.uint8)
+        return cv2.imdecode(data, flags)
+    except Exception as e:
+        print(f"Error reading image: {e}")
+        return None
 
 # --- Tool Config ---
 def load_tool_config():
@@ -95,7 +113,7 @@ INPUT_ACTIVE_BORDER_COLOR = (100, 150, 255)
 EDITOR_HELP_LINES = [
     "LMB: Drag=New | Click=Select | RMB: Pan | Wheel: Zoom",
     "N: Save new | D: Delete | P: Preview | T: Snap | V: Pivot | G: Show Pivots",
-    "A: Auto-Detect | R: Grid Split (Arrows: W/H) | S: Save | O: Open | Q/ESC: Quit"
+    "A: Auto-Detect | R: Grid Split | F: Split Frame | X: Export | S: Save | O/Q: Open/Quit"
 ]
 PIVOT_CROSS_COLOR = (255, 100, 100)
 PIVOT_CROSS_SIZE = 8
@@ -309,6 +327,205 @@ def get_snap_coord(mouse_coord, existing_coords, tolerance):
         if abs(mouse_coord - coord) <= tolerance: return coord
     return mouse_coord
 
+
+def clamp_rect_to_image(rect, img_width, img_height):
+    """Clamp a rect to stay within image boundaries.
+
+    Args:
+        rect: pygame.Rect or [x, y, w, h] list
+        img_width: Image width
+        img_height: Image height
+
+    Returns:
+        Clamped [x, y, w, h] list
+    """
+    if isinstance(rect, pygame.Rect):
+        x, y, w, h = rect.x, rect.y, rect.width, rect.height
+    else:
+        x, y, w, h = rect[0], rect[1], rect[2], rect[3]
+
+    # Clamp position to image bounds
+    x = max(0, min(x, img_width - w))
+    y = max(0, min(y, img_height - h))
+
+    # Clamp size if it exceeds image bounds
+    if x + w > img_width:
+        w = img_width - x
+    if y + h > img_height:
+        h = img_height - y
+
+    # Ensure minimum size
+    w = max(1, w)
+    h = max(1, h)
+
+    return [int(x), int(y), int(w), int(h)]
+
+
+def check_rect_overlap(rect1, rect2):
+    """Check if two rects overlap.
+
+    Args:
+        rect1: [x, y, w, h] list
+        rect2: [x, y, w, h] list
+
+    Returns:
+        True if rects overlap, False otherwise
+    """
+    r1 = pygame.Rect(rect1)
+    r2 = pygame.Rect(rect2)
+    return r1.colliderect(r2)
+
+
+def get_non_overlapping_position(rect, other_rects, original_rect, img_width, img_height):
+    """Find a valid position for rect that doesn't overlap with others.
+
+    Args:
+        rect: [x, y, w, h] - the rect being moved/resized
+        other_rects: List of other frame rects to check against
+        original_rect: [x, y, w, h] - original position to fall back to
+        img_width, img_height: Image dimensions
+
+    Returns:
+        [x, y, w, h] - valid position (original if overlap detected)
+    """
+    # First clamp to image bounds
+    clamped = clamp_rect_to_image(rect, img_width, img_height)
+
+    # Check for overlaps with other rects
+    for other in other_rects:
+        if check_rect_overlap(clamped, other):
+            # Return original position if overlap detected
+            return original_rect
+
+    return clamped
+
+
+def adjust_rect_to_avoid_overlap(rect, other_rects, img_width, img_height):
+    """Adjust a rect to avoid overlapping with other rects.
+
+    Tries to shrink the rect from overlapping sides to fit in available space.
+
+    Args:
+        rect: [x, y, w, h] - the rect to adjust
+        other_rects: List of [x, y, w, h] rects to avoid
+        img_width, img_height: Image dimensions
+
+    Returns:
+        Adjusted [x, y, w, h] or None if no valid rect can be created
+    """
+    if not other_rects:
+        return rect
+
+    x, y, w, h = rect
+    new_x, new_y, new_w, new_h = x, y, w, h
+
+    # Iterate through overlapping rects and adjust
+    for other in other_rects:
+        other_rect = pygame.Rect(other)
+        current_rect = pygame.Rect(new_x, new_y, new_w, new_h)
+
+        if not current_rect.colliderect(other_rect):
+            continue
+
+        # Calculate overlap amounts from each side
+        overlap_left = other_rect.right - current_rect.left  # How much to shrink from left
+        overlap_right = current_rect.right - other_rect.left  # How much to shrink from right
+        overlap_top = other_rect.bottom - current_rect.top  # How much to shrink from top
+        overlap_bottom = current_rect.bottom - other_rect.top  # How much to shrink from bottom
+
+        # Find minimum adjustment (smallest change that removes overlap)
+        adjustments = []
+
+        # Can we shrink from left? (move left edge right)
+        if overlap_left > 0 and overlap_left < new_w:
+            adjustments.append(('left', overlap_left))
+
+        # Can we shrink from right? (move right edge left)
+        if overlap_right > 0 and overlap_right < new_w:
+            adjustments.append(('right', overlap_right))
+
+        # Can we shrink from top? (move top edge down)
+        if overlap_top > 0 and overlap_top < new_h:
+            adjustments.append(('top', overlap_top))
+
+        # Can we shrink from bottom? (move bottom edge up)
+        if overlap_bottom > 0 and overlap_bottom < new_h:
+            adjustments.append(('bottom', overlap_bottom))
+
+        if not adjustments:
+            # No valid adjustment possible, rect is fully contained or too small
+            return None
+
+        # Apply the smallest adjustment
+        adjustments.sort(key=lambda a: a[1])
+        adj_type, adj_amount = adjustments[0]
+
+        if adj_type == 'left':
+            new_x = other_rect.right
+            new_w = (x + w) - new_x
+        elif adj_type == 'right':
+            new_w = other_rect.left - new_x
+        elif adj_type == 'top':
+            new_y = other_rect.bottom
+            new_h = (y + h) - new_y
+        elif adj_type == 'bottom':
+            new_h = other_rect.top - new_y
+
+    # Validate final rect
+    if new_w < 1 or new_h < 1:
+        return None
+
+    # Clamp to image bounds
+    return clamp_rect_to_image([new_x, new_y, new_w, new_h], img_width, img_height)
+
+
+def clamp_resize_to_bounds(rect, resize_mode, mx, my, img_width, img_height, other_rects, selected_index):
+    """Clamp resize operation to image bounds and prevent overlap.
+
+    Args:
+        rect: pygame.Rect being resized
+        resize_mode: Which handle is being dragged
+        mx, my: Mouse position in image coordinates
+        img_width, img_height: Image dimensions
+        other_rects: List of all frame rects
+        selected_index: Index of selected frame (to exclude from overlap check)
+
+    Returns:
+        Modified pygame.Rect
+    """
+    # Clamp mouse position to image bounds
+    mx = max(0, min(mx, img_width))
+    my = max(0, min(my, img_height))
+
+    # Store original for overlap fallback
+    original = rect.copy()
+
+    # Apply resize based on handle
+    if 'right' in resize_mode:
+        new_width = mx - rect.x
+        rect.width = max(1, min(new_width, img_width - rect.x))
+    if 'left' in resize_mode:
+        new_x = min(mx, rect.right - 1)
+        new_x = max(0, new_x)
+        rect.width = rect.right - new_x
+        rect.x = new_x
+    if 'bottom' in resize_mode:
+        new_height = my - rect.y
+        rect.height = max(1, min(new_height, img_height - rect.y))
+    if 'top' in resize_mode:
+        new_y = min(my, rect.bottom - 1)
+        new_y = max(0, new_y)
+        rect.height = rect.bottom - new_y
+        rect.y = new_y
+
+    # Check overlap with other frames
+    new_rect = [rect.x, rect.y, rect.width, rect.height]
+    for i, other in enumerate(other_rects):
+        if i != selected_index and check_rect_overlap(new_rect, other["rect"]):
+            return original
+
+    return rect
+
 def get_handles(rect):
     hs = HANDLE_SIZE // 2
     return {'top-left': pygame.Rect(rect.left - hs, rect.top - hs, HANDLE_SIZE, HANDLE_SIZE),'top-middle': pygame.Rect(rect.centerx - hs, rect.top - hs, HANDLE_SIZE, HANDLE_SIZE),'top-right': pygame.Rect(rect.right - hs, rect.top - hs, HANDLE_SIZE, HANDLE_SIZE),'middle-left': pygame.Rect(rect.left - hs, rect.centery - hs, HANDLE_SIZE, HANDLE_SIZE),'middle-right': pygame.Rect(rect.right - hs, rect.centery - hs, HANDLE_SIZE, HANDLE_SIZE),'bottom-left': pygame.Rect(rect.left - hs, rect.bottom - hs, HANDLE_SIZE, HANDLE_SIZE),'bottom-middle': pygame.Rect(rect.centerx - hs, rect.bottom - hs, HANDLE_SIZE, HANDLE_SIZE),'bottom-right': pygame.Rect(rect.right - hs, rect.bottom - hs, HANDLE_SIZE, HANDLE_SIZE)}
@@ -320,37 +537,597 @@ def get_cursor_for_handle(handle_name):
     if 'middle' in handle_name and ('top' in handle_name or 'bottom' in handle_name): return pygame.SYSTEM_CURSOR_SIZENS
     return pygame.SYSTEM_CURSOR_ARROW
 
+def find_split_points(alpha_region, axis, threshold_ratio=0.05):
+    """Find potential split points in a region by analyzing projection.
+
+    CONSERVATIVE: Only splits when there's a very clear gap (near-zero pixels).
+
+    Args:
+        alpha_region: 2D numpy array of alpha values
+        axis: 0 for horizontal splits (analyze vertical projection), 1 for vertical splits
+        threshold_ratio: Ratio of max projection below which is considered a split point
+
+    Returns:
+        List of split positions
+    """
+    # Project alpha values along axis
+    projection = np.sum(alpha_region, axis=axis).astype(float)
+
+    if len(projection) == 0:
+        return []
+
+    max_val = np.max(projection)
+    if max_val == 0:
+        return []
+
+    # Very conservative threshold - only split at near-empty rows/columns
+    threshold = max_val * threshold_ratio
+    split_points = []
+
+    # Find regions below threshold (clear gaps only)
+    below_threshold = projection < threshold
+    in_gap = False
+    gap_start = 0
+
+    for i, is_low in enumerate(below_threshold):
+        if is_low and not in_gap:
+            in_gap = True
+            gap_start = i
+        elif not is_low and in_gap:
+            in_gap = False
+            gap_center = (gap_start + i) // 2
+            # Require at least 3 pixel gap for split
+            if i - gap_start >= 3:
+                split_points.append(gap_center)
+
+    return split_points
+
+
+def split_connected_sprites_morphological(img_alpha, frame_rect, median_h):
+    """Use morphological operations to split connected sprites.
+
+    Args:
+        img_alpha: Full image alpha channel
+        frame_rect: [x, y, w, h] of the oversized frame
+        median_h: Expected single frame height
+
+    Returns:
+        List of frame rects for separated sprites
+    """
+    x, y, w, h = frame_rect
+    img_h, img_w = img_alpha.shape
+
+    x = max(0, int(x))
+    y = max(0, int(y))
+    w = min(int(w), img_w - x)
+    h = min(int(h), img_h - y)
+
+    if w <= 0 or h <= 0:
+        return [frame_rect]
+
+    # Extract region
+    region = img_alpha[y:y+h, x:x+w].copy()
+
+    # Threshold to binary
+    _, binary = cv2.threshold(region, 0, 255, cv2.THRESH_BINARY)
+
+    # Apply horizontal erosion to break vertical connections
+    # Use a wide, short kernel to break horizontal thin connections between stacked sprites
+    kernel_h = np.ones((1, 5), np.uint8)  # Horizontal kernel
+    eroded_h = cv2.erode(binary, kernel_h, iterations=2)
+
+    # Apply vertical erosion to break any remaining connections
+    kernel_v = np.ones((3, 1), np.uint8)  # Vertical kernel
+    eroded = cv2.erode(eroded_h, kernel_v, iterations=1)
+
+    # Find connected components on eroded image
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(eroded, connectivity=8)
+
+    if num_labels <= 2:  # Only background + 1 component (couldn't separate)
+        # Try stronger erosion
+        kernel_strong = np.ones((5, 3), np.uint8)
+        eroded_strong = cv2.erode(binary, kernel_strong, iterations=2)
+        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(eroded_strong, connectivity=8)
+
+    if num_labels <= 2:
+        # Still couldn't separate, fall back to median-based split
+        return None
+
+    # For each component, find its corresponding full region in the original image
+    result_frames = []
+
+    for i in range(1, num_labels):  # Skip background
+        comp_x, comp_y, comp_w, comp_h, comp_area = stats[i]
+
+        if comp_area < MIN_CONTOUR_AREA // 4:  # Skip tiny fragments
+            continue
+
+        # Create a mask for this component
+        comp_mask = (labels == i).astype(np.uint8) * 255
+
+        # Dilate the mask to recover original sprite extent
+        kernel_dilate = np.ones((7, 7), np.uint8)
+        dilated_mask = cv2.dilate(comp_mask, kernel_dilate, iterations=3)
+
+        # Combine with original to get actual sprite pixels
+        sprite_pixels = cv2.bitwise_and(binary, dilated_mask)
+
+        # Find bounds of the recovered sprite
+        non_zero = np.where(sprite_pixels > 0)
+        if len(non_zero[0]) == 0:
+            continue
+
+        min_row = np.min(non_zero[0])
+        max_row = np.max(non_zero[0])
+        min_col = np.min(non_zero[1])
+        max_col = np.max(non_zero[1])
+
+        frame_x = x + min_col
+        frame_y = y + min_row
+        frame_w = max_col - min_col + 1
+        frame_h = max_row - min_row + 1
+
+        # Only add if reasonable size
+        if frame_w > 5 and frame_h > 5:
+            result_frames.append([int(frame_x), int(frame_y), int(frame_w), int(frame_h)])
+
+    if len(result_frames) > 1:
+        return result_frames
+    return None
+
+
+def refine_frame_bounds_strict(img_alpha, frame_rect, padding=1):
+    """Refine frame bounds strictly within the given boundaries.
+
+    Only includes content that is actually within the frame_rect boundaries.
+    This prevents content from adjacent split regions from being included.
+
+    Args:
+        img_alpha: Full image alpha channel
+        frame_rect: [x, y, w, h] strict boundary for this frame
+        padding: Pixels to add around content (but not exceeding original bounds)
+
+    Returns:
+        Refined [x, y, w, h] containing only content within boundaries
+    """
+    x, y, w, h = frame_rect
+    img_h, img_w = img_alpha.shape
+
+    # Clamp to image bounds
+    x = max(0, int(x))
+    y = max(0, int(y))
+    w = min(int(w), img_w - x)
+    h = min(int(h), img_h - y)
+
+    if w <= 0 or h <= 0:
+        return frame_rect
+
+    # Extract region (strict boundary)
+    region = img_alpha[y:y+h, x:x+w]
+
+    # Find non-zero pixels within this strict boundary
+    non_zero = np.where(region > 0)
+
+    if len(non_zero[0]) == 0:
+        return frame_rect
+
+    # Get bounds of content within this region
+    min_row = np.min(non_zero[0])
+    max_row = np.max(non_zero[0])
+    min_col = np.min(non_zero[1])
+    max_col = np.max(non_zero[1])
+
+    # Calculate new bounds with padding, but stay within original frame boundaries
+    new_x = x + max(0, min_col - padding)
+    new_y = y + max(0, min_row - padding)
+    new_right = x + min(w, max_col + 1 + padding)
+    new_bottom = y + min(h, max_row + 1 + padding)
+
+    new_w = new_right - new_x
+    new_h = new_bottom - new_y
+
+    return [int(new_x), int(new_y), int(new_w), int(new_h)]
+
+
+def refine_frame_bounds_with_components(img_alpha, frame_rect, padding=1):
+    """Refine frame bounds using connected component analysis.
+
+    Finds the main connected component in the region and returns its bounds.
+
+    Args:
+        img_alpha: Full image alpha channel
+        frame_rect: [x, y, w, h] initial frame rect
+        padding: Pixels to add around content
+
+    Returns:
+        Refined [x, y, w, h] that contains the main content
+    """
+    x, y, w, h = frame_rect
+    img_h, img_w = img_alpha.shape
+
+    # Clamp to image bounds
+    x = max(0, int(x))
+    y = max(0, int(y))
+    w = min(int(w), img_w - x)
+    h = min(int(h), img_h - y)
+
+    if w <= 0 or h <= 0:
+        return frame_rect
+
+    # Extract region
+    region = img_alpha[y:y+h, x:x+w]
+
+    # Threshold to binary
+    _, binary = cv2.threshold(region, 0, 255, cv2.THRESH_BINARY)
+
+    # Find connected components
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(binary, connectivity=8)
+
+    if num_labels <= 1:  # Only background
+        return frame_rect
+
+    # Find the component that is most centered vertically in this region
+    # (assuming vertical split, the correct frame content should be centered)
+    region_center_y = h / 2
+    region_center_x = w / 2
+
+    best_component = -1
+    best_score = float('inf')
+
+    for i in range(1, num_labels):  # Skip background (0)
+        comp_x, comp_y, comp_w, comp_h, comp_area = stats[i]
+
+        if comp_area < MIN_CONTOUR_AREA:
+            continue
+
+        # Calculate component center
+        comp_center_y = comp_y + comp_h / 2
+        comp_center_x = comp_x + comp_w / 2
+
+        # Score based on how centered the component is (prefer centered components)
+        # Also prefer larger components
+        distance_to_center = abs(comp_center_y - region_center_y) + abs(comp_center_x - region_center_x) * 0.5
+        size_bonus = -np.sqrt(comp_area) * 0.1  # Larger is better
+        score = distance_to_center + size_bonus
+
+        if score < best_score:
+            best_score = score
+            best_component = i
+
+    if best_component == -1:
+        # No suitable component found, use strict bounds
+        return refine_frame_bounds_strict(img_alpha, frame_rect, padding)
+
+    # Get bounds of the best component
+    comp_x, comp_y, comp_w, comp_h, _ = stats[best_component]
+
+    # Calculate new bounds with padding, staying within original frame boundaries
+    new_x = x + max(0, comp_x - padding)
+    new_y = y + max(0, comp_y - padding)
+    new_right = x + min(w, comp_x + comp_w + padding)
+    new_bottom = y + min(h, comp_y + comp_h + padding)
+
+    new_w = new_right - new_x
+    new_h = new_bottom - new_y
+
+    return [int(new_x), int(new_y), int(new_w), int(new_h)]
+
+
+def refine_frame_bounds(img_alpha, frame_rect, padding=1):
+    """Refine frame bounds to tightly fit actual content.
+
+    Args:
+        img_alpha: Full image alpha channel
+        frame_rect: [x, y, w, h] initial frame rect
+        padding: Pixels to add around content
+
+    Returns:
+        Refined [x, y, w, h] that contains all non-transparent pixels
+    """
+    x, y, w, h = frame_rect
+    img_h, img_w = img_alpha.shape
+
+    # Clamp to image bounds
+    x = max(0, int(x))
+    y = max(0, int(y))
+    w = min(int(w), img_w - x)
+    h = min(int(h), img_h - y)
+
+    if w <= 0 or h <= 0:
+        return frame_rect
+
+    # Extract region
+    region = img_alpha[y:y+h, x:x+w]
+
+    # Find non-zero pixels
+    non_zero = np.where(region > 0)
+
+    if len(non_zero[0]) == 0:
+        return frame_rect
+
+    # Get bounds of content
+    min_row = np.min(non_zero[0])
+    max_row = np.max(non_zero[0])
+    min_col = np.min(non_zero[1])
+    max_col = np.max(non_zero[1])
+
+    # Calculate new bounds with padding
+    new_x = max(0, x + min_col - padding)
+    new_y = max(0, y + min_row - padding)
+    new_w = min(img_w - new_x, (max_col - min_col + 1) + padding * 2)
+    new_h = min(img_h - new_y, (max_row - min_row + 1) + padding * 2)
+
+    return [int(new_x), int(new_y), int(new_w), int(new_h)]
+
+
+def split_oversized_frame(img_alpha, frame_rect, median_w, median_h, size_threshold=1.8):
+    """Split an oversized frame into smaller frames using projection analysis.
+
+    Args:
+        img_alpha: Full image alpha channel
+        frame_rect: [x, y, w, h] of the frame to potentially split
+        median_w, median_h: Median frame dimensions for comparison
+        size_threshold: Multiplier above which a frame is considered oversized
+
+    Returns:
+        List of frame rects (original if no split needed, or split frames)
+    """
+    x, y, w, h = frame_rect
+
+    # Check if frame is oversized
+    is_wide = w > median_w * size_threshold
+    is_tall = h > median_h * size_threshold
+
+    if not is_wide and not is_tall:
+        return [frame_rect]
+
+    # Projection-based analysis (more conservative than morphological)
+    # Extract the region
+    region = img_alpha[y:y+h, x:x+w]
+
+    result_frames = []
+
+    if is_tall and not is_wide:
+        # Try horizontal splits (split vertically stacked frames)
+        split_points = find_split_points(region, axis=1)  # Sum along columns -> row profile
+
+        if split_points:
+            # Add boundaries
+            splits = [0] + split_points + [h]
+            for i in range(len(splits) - 1):
+                new_y = y + splits[i]
+                new_h = splits[i + 1] - splits[i]
+                if new_h > MIN_CONTOUR_AREA // 8:  # Minimum height check
+                    # Use connected component analysis to find the main content
+                    refined = refine_frame_bounds_with_components(img_alpha, [x, new_y, w, new_h])
+                    result_frames.append(refined)
+        else:
+            # No good split points, estimate based on median
+            num_splits = round(h / median_h)
+            if num_splits > 1:
+                split_h = h // num_splits
+                for i in range(num_splits):
+                    refined = refine_frame_bounds_with_components(img_alpha, [x, y + i * split_h, w, split_h])
+                    result_frames.append(refined)
+            else:
+                result_frames.append(frame_rect)
+
+    elif is_wide and not is_tall:
+        # Try vertical splits (split horizontally arranged frames)
+        split_points = find_split_points(region, axis=0)  # Sum along rows -> column profile
+
+        if split_points:
+            splits = [0] + split_points + [w]
+            for i in range(len(splits) - 1):
+                new_x = x + splits[i]
+                new_w = splits[i + 1] - splits[i]
+                if new_w > MIN_CONTOUR_AREA // 8:
+                    refined = refine_frame_bounds_with_components(img_alpha, [new_x, y, new_w, h])
+                    result_frames.append(refined)
+        else:
+            num_splits = round(w / median_w)
+            if num_splits > 1:
+                split_w = w // num_splits
+                for i in range(num_splits):
+                    refined = refine_frame_bounds_with_components(img_alpha, [x + i * split_w, y, split_w, h])
+                    result_frames.append(refined)
+            else:
+                result_frames.append(frame_rect)
+
+    else:
+        # Both wide and tall - try both directions
+        # First try horizontal splits
+        h_splits = find_split_points(region, axis=1)
+        v_splits = find_split_points(region, axis=0)
+
+        if h_splits or v_splits:
+            # Use the direction with more split points
+            if len(h_splits) >= len(v_splits) and h_splits:
+                splits = [0] + h_splits + [h]
+                for i in range(len(splits) - 1):
+                    sub_rect = [x, y + splits[i], w, splits[i + 1] - splits[i]]
+                    # Recursively check if sub-frame needs splitting
+                    result_frames.extend(split_oversized_frame(img_alpha, sub_rect, median_w, median_h, size_threshold))
+            elif v_splits:
+                splits = [0] + v_splits + [w]
+                for i in range(len(splits) - 1):
+                    sub_rect = [x + splits[i], y, splits[i + 1] - splits[i], h]
+                    result_frames.extend(split_oversized_frame(img_alpha, sub_rect, median_w, median_h, size_threshold))
+            else:
+                result_frames.append(frame_rect)
+        else:
+            result_frames.append(frame_rect)
+
+    return result_frames if result_frames else [frame_rect]
+
+
 def auto_detect_frames(image_path):
-    """Simple contour-based auto detection"""
+    """Contour-based auto detection with post-correction for oversized frames.
+
+    1st pass: Detect all contours
+    2nd pass: Split frames that are significantly larger than median
+    """
     try:
-        img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+        img = cv2_imread_unicode(image_path)
         if img is None or len(img.shape) < 3 or img.shape[2] < 4:
             print("Info: No alpha channel for auto-detection.")
             return []
+
+        img_height, img_width = img.shape[:2]
         alpha_channel = img[:, :, 3]
         _, thresh = cv2.threshold(alpha_channel, 0, 255, cv2.THRESH_BINARY)
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        # Create frames in the new dictionary format
-        frames = []
+
+        # 1st pass: Detect all frames
+        initial_frames = []
         for c in contours:
             if cv2.contourArea(c) > MIN_CONTOUR_AREA:
                 x, y, w, h = cv2.boundingRect(c)
-                frames.append({"rect": [x, y, w, h], "events": []})
-        
+                initial_frames.append([x, y, w, h])
+
+        if not initial_frames:
+            return []
+
+        # Calculate median size
+        widths = [f[2] for f in initial_frames]
+        heights = [f[3] for f in initial_frames]
+        median_w = np.median(widths)
+        median_h = np.median(heights)
+
+        print(f"Frame statistics: median size {int(median_w)}x{int(median_h)}")
+
+        # 2nd pass: Split oversized frames (height > 1.7x median)
+        SIZE_THRESHOLD = 1.7
+        final_frames = []
+        split_count = 0
+
+        for frame_rect in initial_frames:
+            x, y, w, h = frame_rect
+
+            # Check if frame is significantly taller than median
+            if h > median_h * SIZE_THRESHOLD:
+                # Split into equal parts based on median height
+                split_result = split_frame_by_median(frame_rect, median_h, img_height)
+                if len(split_result) > 1:
+                    split_count += len(split_result) - 1
+                    final_frames.extend(split_result)
+                else:
+                    final_frames.append(frame_rect)
+            else:
+                final_frames.append(frame_rect)
+
+        # Convert to dictionary format
+        frames = [{"rect": rect, "events": []} for rect in final_frames]
+
         # Sort by row then column
-        frames.sort(key=lambda f: (f["rect"][1] // 50, f["rect"][0]))
-        
-        print(f"Auto-detected {len(frames)} frames.")
+        row_height = max(int(median_h * 0.5), 20)
+        frames.sort(key=lambda f: (f["rect"][1] // row_height, f["rect"][0]))
+
+        if split_count > 0:
+            print(f"Auto-detected {len(frames)} frames ({split_count} from splitting oversized).")
+        else:
+            print(f"Auto-detected {len(frames)} frames.")
+
         return frames
     except Exception as e:
         print(f"Error during auto-detection: {e}")
         return []
 
+
+def get_median_frame_size(frames):
+    """Calculate median frame size from existing frames"""
+    if not frames:
+        return 64, 64
+    widths = [f["rect"][2] for f in frames]
+    heights = [f["rect"][3] for f in frames]
+    return int(np.median(widths)), int(np.median(heights))
+
+
+def auto_detect_in_region(image_path, region_rect):
+    """Auto-detect frames within a specific region of the image.
+
+    Args:
+        image_path: Path to the image file
+        region_rect: [x, y, w, h] region to detect within
+
+    Returns:
+        List of frame dictionaries with 'rect' and 'events' keys
+    """
+    try:
+        img = cv2_imread_unicode(image_path)
+        if img is None or len(img.shape) < 3 or img.shape[2] < 4:
+            print("Info: No alpha channel for auto-detection.")
+            return []
+
+        rx, ry, rw, rh = [int(v) for v in region_rect]
+        img_height, img_width = img.shape[:2]
+
+        # Clamp region to image bounds
+        rx = max(0, rx)
+        ry = max(0, ry)
+        rw = min(rw, img_width - rx)
+        rh = min(rh, img_height - ry)
+
+        if rw <= 0 or rh <= 0:
+            return []
+
+        # Extract region's alpha channel
+        alpha_region = img[ry:ry+rh, rx:rx+rw, 3]
+        _, thresh = cv2.threshold(alpha_region, 0, 255, cv2.THRESH_BINARY)
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Create frames (offset by region position)
+        frames = []
+        for c in contours:
+            if cv2.contourArea(c) > MIN_CONTOUR_AREA:
+                x, y, w, h = cv2.boundingRect(c)
+                # Offset to absolute image coordinates
+                frames.append({"rect": [rx + x, ry + y, w, h], "events": []})
+
+        # Sort by row then column
+        frames.sort(key=lambda f: (f["rect"][1] // 50, f["rect"][0]))
+
+        print(f"Detected {len(frames)} frames in region.")
+        return frames
+    except Exception as e:
+        print(f"Error during region detection: {e}")
+        return []
+
+
+def split_frame_by_median(frame_rect, median_h, img_height):
+    """Split a frame into multiple frames based on median height.
+
+    Args:
+        frame_rect: [x, y, w, h] of frame to split
+        median_h: Target height for each split frame
+        img_height: Total image height for bounds checking
+
+    Returns:
+        List of [x, y, w, h] rects
+    """
+    x, y, w, h = frame_rect
+
+    # Calculate how many frames this should be split into
+    num_splits = max(1, round(h / median_h))
+
+    if num_splits <= 1:
+        return [frame_rect]
+
+    split_h = h // num_splits
+    result = []
+
+    for i in range(num_splits):
+        new_y = y + i * split_h
+        # Last frame gets remaining height
+        new_h = split_h if i < num_splits - 1 else (y + h - new_y)
+        result.append([x, new_y, w, new_h])
+
+    return result
+
 def grid_split_frames(image_path, cell_width, cell_height):
     """Split image into grid cells of cell_width x cell_height, skip empty cells"""
     try:
-        img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+        img = cv2_imread_unicode(image_path)
         if img is None:
             return []
 
@@ -381,10 +1158,82 @@ def grid_split_frames(image_path, cell_width, cell_height):
         print(f"Error during grid split: {e}")
         return []
 
+def slice_export_frames(sprite_sheet, frames, output_dir, base_name="frame"):
+    """Export each frame as a separate image file.
+
+    Args:
+        sprite_sheet: pygame.Surface of the sprite sheet
+        frames: List of frame dictionaries with 'rect' key
+        output_dir: Directory to save the exported images
+        base_name: Base name for the exported files (default: 'frame')
+
+    Returns:
+        Number of successfully exported frames
+    """
+    if not frames:
+        print("No frames to export.")
+        return 0
+
+    os.makedirs(output_dir, exist_ok=True)
+    exported_count = 0
+
+    for i, frame_data in enumerate(frames):
+        frame_rect = frame_data["rect"]
+        x, y, w, h = frame_rect
+
+        # Validate frame dimensions
+        if w <= 0 or h <= 0:
+            print(f"Skipping frame {i}: invalid dimensions ({w}x{h})")
+            continue
+
+        try:
+            # Extract frame from sprite sheet
+            frame_surface = sprite_sheet.subsurface(pygame.Rect(x, y, w, h))
+
+            # Generate output filename
+            output_path = os.path.join(output_dir, f"{base_name}_{i:03d}.png")
+
+            # Save the frame
+            pygame.image.save(frame_surface, output_path)
+            exported_count += 1
+        except ValueError as e:
+            print(f"Error extracting frame {i}: {e}")
+        except Exception as e:
+            print(f"Error saving frame {i}: {e}")
+
+    print(f"Exported {exported_count}/{len(frames)} frames to '{output_dir}'")
+    return exported_count
+
+
+def open_folder_dialog(title="Select Output Folder"):
+    """Opens a folder selection dialog and returns the selected path."""
+    import tkinter as tk
+    from tkinter import filedialog
+
+    # Determine default directory from config
+    project_root = TOOL_CONFIG.get("project_root", "")
+    resources_folder = TOOL_CONFIG.get("resources_folder", "Resources")
+    default_dir = os.path.join(project_root, resources_folder)
+
+    if not os.path.exists(default_dir):
+        default_dir = os.getcwd()
+
+    root = tk.Tk()
+    root.withdraw()
+
+    folder_path = filedialog.askdirectory(
+        title=title,
+        initialdir=default_dir
+    )
+
+    root.destroy()
+    return folder_path if folder_path else None
+
+
 def estimate_cell_size(image_path):
     """Estimate optimal cell size based on content analysis"""
     try:
-        img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+        img = cv2_imread_unicode(image_path)
         if img is None or len(img.shape) < 3 or img.shape[2] < 4:
             return 64, 64
 
@@ -552,7 +1401,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
         else: # New format
             frames = loaded_frames
 
-    # Use pre-loaded data if available, otherwise try to load or auto-detect
+    # Use pre-loaded data if available, otherwise try to load existing JSON (no auto-detect on load)
     if loaded_frames is not None:
         pivot_mode = loaded_pivot if loaded_pivot else "bottom-center"
         print(f"Using loaded data: {len(frames)} frames, pivot: {pivot_mode}")
@@ -570,9 +1419,8 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                 print(f"Loaded {len(frames)} frames from '{json_path}'")
             except Exception as e:
                 print(f"Error loading JSON: {e}")
-                frames = auto_detect_frames(image_path)
-        else:
-            frames = auto_detect_frames(image_path)
+                frames = []
+        # No auto-detect on file open - user presses 'A' manually
 
     running = True; snapping_enabled = True; is_previewing = False
     selected_frame_index = -1; show_pivots = True
@@ -620,11 +1468,38 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                 field.text = ""
 
     def apply_input_fields_to_frame():
-        """Apply input field values to selected frame"""
+        """Apply input field values to selected frame with boundary and overlap checks"""
+        nonlocal save_notification
         if selected_frame_index != -1 and selected_frame_index < len(frames):
+            original_rect = frames[selected_frame_index]["rect"].copy()
             w = max(1, input_w.get_value())
             h = max(1, input_h.get_value())
-            frames[selected_frame_index]["rect"] = [input_x.get_value(), input_y.get_value(), w, h]
+            new_rect = [input_x.get_value(), input_y.get_value(), w, h]
+
+            # Clamp to image bounds
+            new_rect = clamp_rect_to_image(new_rect, img_width, img_height)
+
+            # Check for overlaps with other frames
+            has_overlap = False
+            for i, f in enumerate(frames):
+                if i != selected_frame_index and check_rect_overlap(new_rect, f["rect"]):
+                    has_overlap = True
+                    break
+
+            if has_overlap:
+                save_notification = ("Cannot move: overlaps with another frame!", pygame.time.get_ticks())
+                # Restore original values in input fields
+                input_x.set_value(original_rect[0])
+                input_y.set_value(original_rect[1])
+                input_w.set_value(original_rect[2])
+                input_h.set_value(original_rect[3])
+            else:
+                frames[selected_frame_index]["rect"] = new_rect
+                # Update input fields to show clamped values
+                input_x.set_value(new_rect[0])
+                input_y.set_value(new_rect[1])
+                input_w.set_value(new_rect[2])
+                input_h.set_value(new_rect[3])
 
     def set_active_input(index):
         nonlocal active_input_index
@@ -798,22 +1673,79 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                     elif active_input_index == -1:
                         running = False
                 elif event.key == pygame.K_a and not is_previewing:
-                    frames = auto_detect_frames(image_path)
-                    selected_frame_index = -1
+                    if current_rect and current_rect.width > 5 and current_rect.height > 5:
+                        # Auto-detect within currently drawn region
+                        current_rect.normalize()
+                        region_rect = [current_rect.x, current_rect.y, current_rect.width, current_rect.height]
+                        detected = auto_detect_in_region(image_path, region_rect)
+                        if detected:
+                            frames.extend(detected)
+                            save_notification = (f"Detected {len(detected)} frames in region", pygame.time.get_ticks())
+                        else:
+                            save_notification = ("No frames detected in region", pygame.time.get_ticks())
+                        current_rect, start_pos = None, None
+                    elif selected_frame_index != -1:
+                        # Auto-detect within selected frame's region
+                        region_rect = frames[selected_frame_index]["rect"]
+                        detected = auto_detect_in_region(image_path, region_rect)
+                        if detected:
+                            # Remove selected frame and insert detected frames
+                            frames.pop(selected_frame_index)
+                            for i, new_frame in enumerate(detected):
+                                frames.insert(selected_frame_index + i, new_frame)
+                            save_notification = (f"Detected {len(detected)} frames in region", pygame.time.get_ticks())
+                        else:
+                            save_notification = ("No frames detected in region", pygame.time.get_ticks())
+                        selected_frame_index = -1
+                    else:
+                        # Auto-detect on entire image
+                        frames = auto_detect_frames(image_path)
+                        save_notification = (f"Detected {len(frames)} frames", pygame.time.get_ticks())
                     update_input_fields_from_frame()
                 elif event.key == pygame.K_v: pivot_mode = "center" if pivot_mode == "bottom-center" else "bottom-center"; print(f"Pivot mode set to: {pivot_mode}")
                 elif event.key == pygame.K_n and not is_previewing:
                     if current_rect and current_rect.width > 0 and current_rect.height > 0:
                         current_rect.normalize()
-                        frames.append({"rect": [current_rect.x, current_rect.y, current_rect.width, current_rect.height], "events": []})
-                        selected_frame_index = len(frames) - 1
-                        current_rect, start_pos = None, None
-                        update_input_fields_from_frame()
+                        new_rect = [current_rect.x, current_rect.y, current_rect.width, current_rect.height]
+                        # Clamp to image bounds
+                        new_rect = clamp_rect_to_image(new_rect, img_width, img_height)
+                        # Get existing frame rects
+                        existing_rects = [f["rect"] for f in frames]
+                        # Auto-adjust to avoid overlaps
+                        adjusted_rect = adjust_rect_to_avoid_overlap(new_rect, existing_rects, img_width, img_height)
+                        if adjusted_rect is None:
+                            save_notification = ("Cannot add: no valid space available!", pygame.time.get_ticks())
+                        else:
+                            frames.append({"rect": adjusted_rect, "events": []})
+                            selected_frame_index = len(frames) - 1
+                            current_rect, start_pos = None, None
+                            update_input_fields_from_frame()
+                            # Notify if rect was adjusted
+                            if adjusted_rect != new_rect:
+                                save_notification = ("Frame adjusted to avoid overlap", pygame.time.get_ticks())
                 elif event.key == pygame.K_d and not is_previewing:
                     if selected_frame_index != -1:
                         frames.pop(selected_frame_index)
                         selected_frame_index = -1
                         update_input_fields_from_frame()
+                elif event.key == pygame.K_f and not is_previewing:
+                    # Manual split: split selected frame by median height
+                    if selected_frame_index != -1 and len(frames) > 1:
+                        median_w, median_h = get_median_frame_size(frames)
+                        frame_rect = frames[selected_frame_index]["rect"]
+                        split_result = split_frame_by_median(frame_rect, median_h, img_height)
+                        if len(split_result) > 1:
+                            # Remove original frame and insert split frames
+                            frames.pop(selected_frame_index)
+                            for i, new_rect in enumerate(split_result):
+                                frames.insert(selected_frame_index + i, {"rect": new_rect, "events": []})
+                            save_notification = (f"Split into {len(split_result)} frames", pygame.time.get_ticks())
+                            selected_frame_index = -1
+                            update_input_fields_from_frame()
+                        else:
+                            save_notification = ("Frame too small to split", pygame.time.get_ticks())
+                    elif selected_frame_index != -1:
+                        save_notification = ("Need more frames for median calculation", pygame.time.get_ticks())
                 elif event.key == pygame.K_t: snapping_enabled = not snapping_enabled; print(f"Snapping: {'ON' if snapping_enabled else 'OFF'}")
                 elif event.key == pygame.K_g: show_pivots = not show_pivots; print(f"Show Pivots: {'ON' if show_pivots else 'OFF'}")
                 elif event.key == pygame.K_r and not is_previewing:
@@ -842,6 +1774,22 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                     grid_cell_w = min(img_width, grid_cell_w + 1)
                     update_grid_input_fields()
                 elif event.key == pygame.K_p and frames: is_previewing = not is_previewing
+                elif event.key == pygame.K_x and not is_previewing:
+                    # Slice export - export each frame as separate image
+                    if frames:
+                        output_dir = open_folder_dialog("Select Output Folder for Slice Export")
+                        if output_dir:
+                            # Use image name as base name for exported files
+                            base_name = os.path.splitext(os.path.basename(image_path))[0]
+                            exported = slice_export_frames(sprite_sheet, frames, output_dir, base_name)
+                            if exported > 0:
+                                save_notification = (f"Exported {exported} frames to folder", pygame.time.get_ticks())
+                            else:
+                                save_notification = ("Export failed!", pygame.time.get_ticks())
+                        else:
+                            save_notification = ("Export cancelled", pygame.time.get_ticks())
+                    else:
+                        save_notification = ("No frames to export!", pygame.time.get_ticks())
                 # Frame reorder: , key moves frame earlier, . key moves frame later
                 elif event.key == pygame.K_COMMA and not is_previewing:
                     if selected_frame_index > 0:
@@ -989,35 +1937,46 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                             snap_coords_y = [f["rect"][1] for i, f in enumerate(frames) if i != selected_frame_index] + [f["rect"][1] + f["rect"][3] for i, f in enumerate(frames) if i != selected_frame_index]
                             mx = get_snap_coord(mx, snap_coords_x, SNAP_TOLERANCE)
                             my = get_snap_coord(my, snap_coords_y, SNAP_TOLERANCE)
-                        if 'right' in resize_mode: rect.width = mx - rect.x
-                        if 'left' in resize_mode: rect.width += rect.x - mx; rect.x = mx
-                        if 'bottom' in resize_mode: rect.height = my - rect.y
-                        if 'top' in resize_mode: rect.height += rect.y - my; rect.y = my
-                        if rect.width < 1: rect.width = 1
-                        if rect.height < 1: rect.height = 1
+                        # Use clamped resize with boundary and overlap checks
+                        rect = clamp_resize_to_bounds(rect, resize_mode, mx, my, img_width, img_height, frames, selected_frame_index)
                         frames[selected_frame_index]["rect"] = [rect.x, rect.y, rect.width, rect.height]
                     elif start_pos and is_moving and selected_frame_index != -1:
                         dx, dy = translated_mouse_pos[0] - start_pos[0], translated_mouse_pos[1] - start_pos[1]
-                        
+
                         rect_data = frames[selected_frame_index]["rect"]
+                        original_rect = rect_data.copy()
                         new_x = rect_data[0] + dx
                         new_y = rect_data[1] + dy
-                        
+
                         # Apply snapping
                         if snapping_enabled:
                             snap_coords_x = [f["rect"][0] for i, f in enumerate(frames) if i != selected_frame_index] + [f["rect"][0] + f["rect"][2] for i, f in enumerate(frames) if i != selected_frame_index]
                             snap_coords_y = [f["rect"][1] for i, f in enumerate(frames) if i != selected_frame_index] + [f["rect"][1] + f["rect"][3] for i, f in enumerate(frames) if i != selected_frame_index]
                             snapped_x = get_snap_coord(new_x, snap_coords_x, SNAP_TOLERANCE)
                             snapped_y = get_snap_coord(new_y, snap_coords_y, SNAP_TOLERANCE)
-                            if snapped_x != new_x: dx = snapped_x - rect_data[0]
-                            if snapped_y != new_y: dy = snapped_y - rect_data[1]
+                            if snapped_x != new_x: new_x = snapped_x
+                            if snapped_y != new_y: new_y = snapped_y
 
-                        rect_data[0] += dx
-                        rect_data[1] += dy
+                        # Create new rect with proposed position
+                        new_rect = [new_x, new_y, rect_data[2], rect_data[3]]
+
+                        # Get other rects for overlap check
+                        other_rects = [f["rect"] for i, f in enumerate(frames) if i != selected_frame_index]
+
+                        # Apply boundary and overlap checks
+                        final_rect = get_non_overlapping_position(new_rect, other_rects, original_rect, img_width, img_height)
+
+                        # Update position
+                        frames[selected_frame_index]["rect"] = final_rect
                         start_pos = translated_mouse_pos
                     elif start_pos and current_rect is not None:
                         x1, y1 = start_pos
                         x2, y2 = translated_mouse_pos
+                        # Clamp coordinates to image bounds
+                        x1 = max(0, min(x1, img_width))
+                        y1 = max(0, min(y1, img_height))
+                        x2 = max(0, min(x2, img_width))
+                        y2 = max(0, min(y2, img_height))
                         current_rect.x = min(x1, x2)
                         current_rect.y = min(y1, y2)
                         current_rect.width = abs(x1 - x2)
