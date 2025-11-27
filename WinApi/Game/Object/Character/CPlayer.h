@@ -1,4 +1,5 @@
 #pragma once
+#include "CCharacter.h"
 #include "Game/Enum.h"
 
 class CRigidbody;
@@ -7,39 +8,38 @@ class CCollider;
 class CStateSystem;
 class CAbilitySystem;
 
-class CPlayer : public CGameObject
+class CPlayer : public CCharacter
 {
 public:
 	CPlayer();
-	virtual ~CPlayer();
-
+	~CPlayer() override;
+	
 	CCollider* GetCollider() { return collider; }
 
-private:
+protected:
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
 	void Render() override;
 	void OnDisable() override;
 	void Release() override; 
+	
 	void OnCollisionEnter(CCollider* other) override;
 	void OnCollisionStay(CCollider* other) override;
 	void OnCollisionExit(CCollider* other) override;
 
+
 private:
 	void HandleInput();
 	void UpdateState();
-
+	
+private:
 	// 컴포넌트
-	CAnimator* animator;
 	CRigidbody* rigidbody;
 	CCollider* collider;
-	CStateSystem* stateSystem;
-	CAbilitySystem* abilitySystem;
 
 	// 속성
 	float speed;
 	float jumpForce;
-	int direction;
 	bool bIsGrounded;
 };

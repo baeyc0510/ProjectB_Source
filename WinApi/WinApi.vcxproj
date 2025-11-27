@@ -162,15 +162,20 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="Game\Ability\Ability.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Attack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Jump.h" />
     <ClInclude Include="Game\Camera\CCameraController.h" />
     <ClInclude Include="Game\CGame.h" />
     <ClInclude Include="Game\Component\CAbilitySystem.h" />
     <ClInclude Include="Game\Component\CRigidbody.h" />
     <ClInclude Include="Game\Component\CStateSystem.h" />
     <ClInclude Include="Game\Enum.h" />
+    <ClInclude Include="Game\Manager\CVFXManager.h" />
+    <ClInclude Include="Game\Object\Character\CCharacter.h" />
     <ClInclude Include="Game\Object\Character\CMonster.h" />
     <ClInclude Include="Game\Object\Character\CPlayer.h" />
     <ClInclude Include="Game\Object\CMissile.h" />
+    <ClInclude Include="Game\Object\CVFX.h" />
     <ClInclude Include="Game\Object\CWeapon.h" />
     <ClInclude Include="Game\Object\World\CGround.h" />
     <ClInclude Include="Game\Scene\CSceneStage01.h" />
@@ -184,6 +189,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Ability\Ability.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Attack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Jump.cpp" />
     <ClCompile Include="Game\Camera\CCameraController.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -339,6 +346,8 @@
     <ClCompile Include="Game\Component\CAbilitySystem.cpp" />
     <ClCompile Include="Game\Component\CRigidbody.cpp" />
     <ClCompile Include="Game\Component\CStateSystem.cpp" />
+    <ClCompile Include="Game\Manager\CVFXManager.cpp" />
+    <ClCompile Include="Game\Object\Character\CCharacter.cpp" />
     <ClCompile Include="Game\Object\Character\CMonster.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -492,6 +501,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\Object\CMissile.cpp" />
+    <ClCompile Include="Game\Object\CVFX.cpp" />
     <ClCompile Include="Game\Object\CWeapon.cpp" />
     <ClCompile Include="Game\Object\World\CGround.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>

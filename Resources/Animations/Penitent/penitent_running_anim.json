@@ -1,0 +1,21 @@
+{
+    "image": "Image/Penitent/penitent_running_anim.bmp",
+    "pivot": [52,0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 78, 72], "events": []},
+        {"rect": [78, 0, 78, 72], "events": []},
+        {"rect": [156, 0, 78, 72], "events": []},
+        {"rect": [234, 0, 78, 72], "events": []},
+        {"rect": [312, 0, 78, 72], "events": []},
+        {"rect": [390, 0, 78, 72], "events": []},
+        {"rect": [468, 0, 78, 72], "events": []},
+        {"rect": [546, 0, 78, 72], "events": []},
+        {"rect": [624, 0, 78, 72], "events": []},
+        {"rect": [702, 0, 78, 72], "events": []},
+        {"rect": [780, 0, 78, 72], "events": []},
+        {"rect": [858, 0, 78, 72], "events": []},
+        {"rect": [936, 0, 78, 72], "events": []},
+        {"rect": [1014, 0, 78, 72], "events": []}
+    ]
+}

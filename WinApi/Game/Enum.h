@@ -23,7 +23,6 @@ enum Layer
 	Monster,
 	Missile,
 	Ground,
-
 	LayerSize,
 };
 
@@ -45,7 +44,8 @@ enum StateTag
 	Tag_Sliding			= 1 << 8,	// 슬라이딩
 	Tag_Parrying		= 1 << 9,	// 패리 중
 	Tag_Jumping			= 1 << 10,	// 점프 중
-	Tag_AbilityPlaying	= 1 << 11,	// Ability가 애니메이션 제어 중
+	Tag_AbilityAnimation	= 1 << 11,	// Ability가 애니메이션 제어 중
+	Tag_BlockMovement	= 1 << 12,
 };
 
 inline StateTag operator|(StateTag a, StateTag b)
@@ -70,9 +70,7 @@ inline StateTag operator~(StateTag a)
 enum class EAbility
 {
 	None,
-	Attack1,
-	Attack2,
-	Attack3,
+	Attack,
 	AirAttack,
 	DownAttack,
 	Jump,
@@ -98,4 +96,7 @@ enum class EGameEvent
 	InvincibleEnd,
 	Landed,
 	// 게임플레이 이벤트 (추후 확장)
+	
+	// Input
+	Input_Attack,
 };

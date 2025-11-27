@@ -1,24 +1,18 @@
 ﻿#include "pch.h"
 #include "CPlayer.h"
-
+#include "Game/Ability/Player/Ability_Attack.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 #include "Game/Component/CAbilitySystem.h"
-#include "Game/Util/AnimEventHelper.h"
 
 CPlayer::CPlayer()
 	: rigidbody(nullptr)
-	, animator(nullptr)
 	, collider(nullptr)
-	, stateSystem(nullptr)
-	, abilitySystem(nullptr)
 	, speed(300.f)
 	, jumpForce(500.f)
-	, direction(1)
 	, bIsGrounded(false)
 {
 	name = TEXT("플레이어");
-	scale = Vec2(100, 100);
 }
 
 CPlayer::~CPlayer()
@@ -27,77 +21,74 @@ CPlayer::~CPlayer()
 
 void CPlayer::Init()
 {
+	CCharacter::Init();
+	
 	// Rigidbody
 	rigidbody = new CRigidbody();
 	AddChild(rigidbody);
 
 	// Collider
 	collider = new CCollider();
-	collider->SetScale(Vec2(90, 90));
+	collider->SetScale(Vec2(42, 72));
+	collider->SetOffset(Vec2(0,-36));
 	collider->SetLayer(Layer::Player);
 	AddChild(collider);
-
-	// StateSystem
-	stateSystem = new CStateSystem();
-	AddChild(stateSystem);
-	stateSystem->AddTag(Tag_Grounded);
-
-	// AbilitySystem
-	abilitySystem = new CAbilitySystem();
-	AddChild(abilitySystem);
 	
-	// Animator
-	CAnimation* idleAnimation = LOADANIMATION(TEXT("PlayerIdle"), TEXT("Animations/Player_Idle.json"));
-	idleAnimation->SetRepeat(true);
-
-	CAnimation* runAnimation = LOADANIMATION(TEXT("PlayerRun"), TEXT("Animations/Player_Run.json"));
-	runAnimation->SetRepeat(true);
-
-	CAnimation* jumpAnimation = LOADANIMATION(TEXT("PlayerJump"), TEXT("Animations/Player_StartJump.json"));
-	jumpAnimation->SetRepeat(false);
-
-	CAnimation* fallAnimation = LOADANIMATION(TEXT("PlayerFall"), TEXT("Animations/Player_Fall.json"));
-	fallAnimation->SetRepeat(true);
-
-	animator = new CAnimator();
-	animator->AddAnimation(TEXT("Idle"), idleAnimation);
-	animator->AddAnimation(TEXT("Run"), runAnimation);
-	animator->AddAnimation(TEXT("Jump"), jumpAnimation);
-	animator->AddAnimation(TEXT("Fall"), fallAnimation);
-	AddChild(animator);
+	// Abilities
+	AddAbility<Ability_Attack>(EAbility::Attack);
 	
-	// Animator -> AbilitySystem 이벤트 연결
-	AnimEventHelper::ConnectAbilitySystem(animator, abilitySystem);
+	// Animations
+	AddAnimation(TEXT("Idle"), TEXT("Animations/Penitent/penitent_idle_anim.json"),true);
+	AddAnimation(TEXT("Run"), TEXT("Animations/Penitent/penitent_running_anim.json"),true);
+	AddAnimation(TEXT("Jump"), TEXT("Animations/Penitent/penitent_jump_anim.json"),false);
+	AddAnimation(TEXT("Fall"), TEXT("Animations/Penitent/penitent_falling_loop.json"),true);
+	AddAnimation(TEXT("Combo1"), TEXT("Animations/Penitent/penitent_attack_combo_1.json"),false);
+	AddAnimation(TEXT("Combo2"), TEXT("Animations/Penitent/penitent_attack_combo_2.json"),false);
+	AddAnimation(TEXT("Combo3"), TEXT("Animations/Penitent/penitent_attack_combo_3.json"),false);
 }
 
 void CPlayer::OnEnable()
 {
+	CCharacter::OnEnable();
+	animator->Play(L"Idle", false);
 }
 
 void CPlayer::Update()
 {
+	CCharacter::Update();
 	HandleInput();
 	UpdateState();
-
-	// Grounded 플래그 매 프레임 초기화
-	bIsGrounded = false;
 }
 
 void CPlayer::HandleInput()
 {
-	Vec2 velocity = rigidbody->GetVelocity();
+	if (INPUT->ButtonDown('A'))
+	{
+		abilitySystem->TriggerEvent(EGameEvent::Input_Attack);
+		abilitySystem->TryActivateAbility(EAbility::Attack);
+	}
+	
+	// 이동 불가
+	if (stateSystem->HasTag(Tag_BlockMovement)) 
+	{
+		rigidbody->SetVelocity(Vec2(0.0f,0.0f));
+		return;
+	}
 
+	// 이동
+	Vec2 velocity = rigidbody->GetVelocity();
+	
 	// 이동 입력
 	if (INPUT->ButtonStay(VK_LEFT))
 	{
 		velocity.x = -speed;
-		direction = -1;
+		SetForward(-1);
 		stateSystem->AddTag(Tag_Moving);
 	}
 	else if (INPUT->ButtonStay(VK_RIGHT))
 	{
 		velocity.x = speed;
-		direction = 1;
+		SetForward(1);
 		stateSystem->AddTag(Tag_Moving);
 	}
 	else
@@ -115,7 +106,7 @@ void CPlayer::HandleInput()
 	}
 
 	rigidbody->SetVelocity(velocity);
-	animator->SetDirection(direction);
+	animator->SetDirection(GetForward());
 }
 
 void CPlayer::UpdateState()
@@ -126,9 +117,14 @@ void CPlayer::UpdateState()
 		stateSystem->RemoveTag(Tag_Airborne);
 		stateSystem->AddTag(Tag_Grounded);
 	}
+	if (!bIsGrounded)
+	{
+		stateSystem->RemoveTag(Tag_Grounded);
+		stateSystem->AddTag(Tag_Airborne);
+	}
 
 	// Ability가 애니메이션을 제어 중이면 기본 애니메이션 로직 스킵
-	if (stateSystem->HasTag(Tag_AbilityPlaying))
+	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
 
 	// 애니메이션 결정
@@ -148,14 +144,17 @@ void CPlayer::UpdateState()
 
 void CPlayer::Render()
 {
+	CCharacter::Render();
 }
 
 void CPlayer::OnDisable()
 {
+	CCharacter::OnDisable();
 }
 
 void CPlayer::Release()
 {
+	CCharacter::Release();
 }
 
 void CPlayer::OnCollisionEnter(CCollider* other)
@@ -193,9 +192,9 @@ void CPlayer::OnCollisionStay(CCollider* other)
 		float overlap = playerBottom - groundTop;
 		if (overlap > 0)
 		{
-			Vec2 vPlayerPos = GetPos();
-			vPlayerPos.y -= overlap;
-			SetPos(vPlayerPos);
+			Vec2 playerPos = GetPos();
+			playerPos.y -= overlap;
+			SetPos(playerPos);
 		}
 
 		// 땅을 뚫고 올라가는 것을 방지
@@ -210,4 +209,8 @@ void CPlayer::OnCollisionStay(CCollider* other)
 
 void CPlayer::OnCollisionExit(CCollider* other)
 {
+	if (other->GetLayer() == Layer::Ground)
+	{
+		bIsGrounded = false;
+	}
 }

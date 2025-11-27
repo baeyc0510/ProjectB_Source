@@ -16,7 +16,7 @@ CAbilitySystem::~CAbilitySystem()
 // Ability 관리
 //========================================
 
-void CAbilitySystem::RegisterAbility(EAbility abilityType, Ability* ability)
+void CAbilitySystem::AddAbility(EAbility abilityType, Ability* ability)
 {
 	abilities[abilityType] = unique_ptr<Ability>(ability);
 	ability->Init(GetOwner(), this);
@@ -91,7 +91,7 @@ void CAbilitySystem::CancelAbility(EAbility abilityType)
 {
 	Ability* ability = GetAbility(abilityType);
 	if (ability && ability->IsActive())
-		ability->Cancel();
+		ability->CancelAbility();
 }
 
 void CAbilitySystem::CancelAllAbilities()
@@ -101,7 +101,7 @@ void CAbilitySystem::CancelAllAbilities()
 	for (Ability* ability : abilitiesToCancel)
 	{
 		if (ability->IsActive())
-			ability->Cancel();
+			ability->CancelAbility();
 	}
 }
 
@@ -121,7 +121,7 @@ void CAbilitySystem::CancelAbilitiesWithTag(StateTag tag)
 
 	for (Ability* ability : abilitiesToCancel)
 	{
-		ability->Cancel();
+		ability->CancelAbility();
 	}
 }
 
@@ -167,7 +167,7 @@ void CAbilitySystem::ComponentRelease()
 void CAbilitySystem::ComponentUpdate()
 {
 	// 모든 Ability 쿨다운 업데이트
-	float deltaTime = fDT;
+	float deltaTime = DT;
 	for (auto& pair : abilities)
 	{
 		pair.second->UpdateCooldown(deltaTime);

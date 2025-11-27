@@ -10,7 +10,7 @@ public:
 	CAbilitySystem();
 	virtual ~CAbilitySystem();
 	
-	void RegisterAbility(EAbility abilityType, Ability* ability);
+	void AddAbility(EAbility abilityType, Ability* ability);
 	Ability* GetAbility(EAbility abilityType) const;
 	bool TryActivateAbility(EAbility abilityType);
 	void CancelAbility(EAbility abilityType);

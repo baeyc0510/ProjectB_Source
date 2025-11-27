@@ -1,0 +1,14 @@
+{
+    "image": "Image/Penitent/penitent_attack_combo_2.bmp",
+    "pivot": [54.0, 0.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 141, 68], "events": []},
+        {"rect": [141, 0, 141, 68], "events": ["HitCheck"]},
+        {"rect": [282, 0, 141, 68], "events": ["ComboWindowOpen"]},
+        {"rect": [423, 0, 141, 68], "events": []},
+        {"rect": [564, 0, 141, 68], "events": []},
+        {"rect": [705, 0, 141, 68], "events": ["ComboWindowClose"]},
+        {"rect": [846, 0, 141, 68], "events": []}
+    ]
+}

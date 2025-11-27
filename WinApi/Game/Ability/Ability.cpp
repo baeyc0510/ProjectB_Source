@@ -30,9 +30,15 @@ void Ability::UpdateCooldown(float deltaTime)
 void Ability::Activate()
 {
 	isActive = true;
+	OnActivate();
 }
 
-void Ability::End()
+void Ability::OnActivate()
+{
+	
+}
+
+void Ability::EndAbility()
 {
 	if (!isActive)
 		return;
@@ -40,10 +46,15 @@ void Ability::End()
 	isActive = false;
 	cooldownRemaining = GetCooldown();
 	ClearEventHandles();
+	OnEnd();
 	OnEnded.Invoke();
 }
 
-void Ability::Cancel()
+void Ability::OnEnd()
+{
+}
+
+void Ability::CancelAbility()
 {
 	if (!isActive)
 		return;

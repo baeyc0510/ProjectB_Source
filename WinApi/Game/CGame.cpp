@@ -3,6 +3,7 @@
 
 #include "Enum.h"
 #include "Resource.h"
+#include "Manager/CVFXManager.h"
 #include "Scene/CSceneStage01.h"
 #include "Scene/CSceneTitle.h"
 
@@ -82,7 +83,11 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CCollisionManager)->CheckLayer(Layer::Player, Layer::Monster);
 	SINGLE(CCollisionManager)->CheckLayer(Layer::Monster, Layer::Missile);
 	SINGLE(CCollisionManager)->CheckLayer(Layer::Player, Layer::Ground);
+	SINGLE(CCollisionManager)->CheckLayer(Layer::Monster, Layer::Ground);
 
+	// TODO : 오브젝트 풀링
+	SINGLE(CVFXManager)->PreLoad();
+	
 	// 씬 시작
 	SINGLE(CSceneManager)->SetStartScene(SceneType::Title);
 }
@@ -146,6 +151,9 @@ void CGame::Render()
 	// 게임의 표현 진행
 	SINGLE(CSceneManager)->Render();
 	SINGLE(CCameraManager)->Render();
+
+	// 디버그 드로우
+	SINGLE(CCollisionManager)->RenderDebug();
 
 	// 게임의 우상단에 게임 FPS 출력 (60프레임 이상을 목표로 최적화 해야함)
 	wstring frame = to_wstring(FPS);
