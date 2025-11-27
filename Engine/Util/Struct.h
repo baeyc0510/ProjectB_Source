@@ -120,3 +120,10 @@ struct Vec2
 	}
 };
 
+class CCollider;
+
+struct HitResult
+{
+	CCollider* collider;
+	Vec2 hitCenter;
+};

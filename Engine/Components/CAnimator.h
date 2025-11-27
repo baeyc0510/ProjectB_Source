@@ -10,6 +10,7 @@ public:
 	CAnimator();
 	virtual ~CAnimator();
 
+	void			Reset();
 	void			AddAnimation(const wstring& aniName, CAnimation* animation);
 	void			RemoveAnimation(const wstring& aniName);
 	CAnimation*		FindAnimation(const wstring& aniName);
@@ -22,10 +23,11 @@ public:
 						Delegate<>::EventFunc onInterrupted = nullptr);
 	void			Stop();
 
-	bool			IsFinished() const { return isFinished; }
+	bool			IsFinished() const		{ return isFinished; }
 	float			GetRatio()				{ return ratio; }
 	void			SetRatio(float ratio)	{ this->ratio = ratio; }
-	void			SetDirection(int dir)	{ direction = dir; }
+	void			SetDirection(int dir)	{ flipX =  dir <= 0; }
+
 
 	// 프레임 이벤트 (AbilitySystem 연동용)
 	MulticastDelegate<const wstring&> OnFrameEvent;
@@ -36,6 +38,7 @@ private:
 	void			ComponentUpdate()		override;
 	void			ComponentRender()		override;
 	void			ComponentOnDisable()	override;
+	void ReleaseAnimations();
 	void			ComponentRelease()		override;
 
 	map<wstring, CAnimation*>		animationMap;
@@ -45,7 +48,7 @@ private:
 
 	UINT							curFrame;
 	float							curTime;
-	int								direction;
+	bool							flipX;
 	bool							isFinished;
 
 	// 현재 애니메이션에 대한 콜백

@@ -194,6 +194,7 @@
     <ClInclude Include="UI\CUI.h" />
     <ClInclude Include="Util\Delegate.h" />
     <ClInclude Include="Util\Logger.h" />
+    <ClInclude Include="Util\Math.h" />
     <ClInclude Include="Util\SingleTon.h" />
     <ClInclude Include="Util\StringHelper.h" />
     <ClInclude Include="Util\Struct.h" />
@@ -739,6 +740,7 @@
     <ClCompile Include="UI\CButton.cpp" />
     <ClCompile Include="UI\CPanel.cpp" />
     <ClCompile Include="UI\CUI.cpp" />
+    <ClCompile Include="Util\Math.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

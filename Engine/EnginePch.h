@@ -32,4 +32,6 @@ using namespace std;
 #include "Util/Struct.h"
 #include "Util/Logger.h"
 #include "Util/StringHelper.h"
+#include "Util/Math.h"
+
 #include "Core/Component.h"
