@@ -32,10 +32,6 @@ protected:
 protected:
     int comboCnt = 0;
     int maxComboCnt = 3;
-    
     bool bCanCombo = false;
     bool bSavedCombo = false;
-    
-private:
-    vector<DelegateHandle> eventHandles;
 };

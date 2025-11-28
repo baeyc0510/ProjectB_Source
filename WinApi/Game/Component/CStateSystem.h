@@ -42,6 +42,6 @@ public:
 
 private:
 	StateTag currentTags;
-	// tag stack counts
-	map<StateTag, int> tagCountMap;
+	// 단일 비트 태그별 참조 카운트 (Tag_Grounded, Tag_Airborne 등 -> 카운트)
+	map<StateTag, int> bitCountMap;
 };

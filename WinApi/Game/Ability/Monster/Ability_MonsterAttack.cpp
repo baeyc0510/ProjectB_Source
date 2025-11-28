@@ -1,6 +1,7 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Ability_MonsterAttack.h"
 
+#include "Game/AnimKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
 void Ability_MonsterAttack::OnActivate()
@@ -8,7 +9,7 @@ void Ability_MonsterAttack::OnActivate()
     Ability::OnActivate();
     
     CAnimator* animator = owner->GetComponent<CAnimator>();
-    animator->Play(TEXT("Attack"),true,BIND(this, EndAbility),BIND(this, EndAbility));
+    animator->Play(Anim::Attack,true,BIND(this, EndAbility),BIND(this, EndAbility));
     
     WaitEvent(EGameEvent::HitCheck,BIND(this, OnHitCheck));
 }

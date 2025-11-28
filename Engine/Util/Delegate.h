@@ -10,13 +10,13 @@ struct DelegateHandle
     {
     }
 
-    DelegateHandle(int id) : handle(id)
-    { 
+    DelegateHandle(unsigned long long id) : handle(id)
+    {
     }
-    
+
     bool IsValid() const { return handle > 0;}
-    
-    bool operator==(const DelegateHandle& other) const 
+
+    bool operator==(const DelegateHandle& other) const
     {
         return (handle == other.handle);
     }

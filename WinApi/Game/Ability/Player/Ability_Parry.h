@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Game/Ability/Ability.h"
 
 class Ability_Parry : public Ability
@@ -25,10 +25,11 @@ private:
     void OnCounterHitCheck();
     
 private:
+    // 상태
     bool bParryWindowOpen;
     bool bParrySuccess;
     bool bShouldCounter;
-    
+
     DelegateHandle onCounterOpenHandle;
     DelegateHandle onCounterCloseHandle;
     DelegateHandle onCounterInputHandle;

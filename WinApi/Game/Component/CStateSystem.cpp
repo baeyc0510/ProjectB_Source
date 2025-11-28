@@ -20,13 +20,25 @@ void CStateSystem::AddTag(StateTag tag)
 
 	// 상호 배타적 태그 처리: Grounded <-> Airborne
 	if (tag & Tag_Grounded)
+	{
+		bitCountMap[Tag_Airborne] = 0;
 		currentTags = currentTags & ~Tag_Airborne;
+	}
 
 	if (tag & Tag_Airborne)
+	{
+		bitCountMap[Tag_Grounded] = 0;
 		currentTags = currentTags & ~Tag_Grounded;
+	}
 
-	// 태그 추가
-	tagCountMap[tag]++;
+	// 복합 비트를 개별 비트로 분리하여 각각 카운팅
+	StateTag remaining = tag;
+	while (remaining != Tag_None)
+	{
+		StateTag singleBit = static_cast<StateTag>(remaining & -static_cast<int>(remaining));
+		bitCountMap[singleBit]++;
+		remaining = static_cast<StateTag>(remaining & ~singleBit);
+	}
 	currentTags = currentTags | tag;
 
 	// 변경 이벤트
@@ -44,15 +56,22 @@ void CStateSystem::AddTagUnique(StateTag tag)
 
 void CStateSystem::RemoveTag(StateTag tag)
 {
-	if (!HasTag(tag))
-		return;
-	
 	StateTag oldTags = currentTags;
-	
-	tagCountMap[tag]--;
-	if (tagCountMap[tag] == 0)
+
+	// 복합 비트를 개별 비트로 분리하여 각각 카운트 감소
+	StateTag remaining = tag;
+	while (remaining != Tag_None)
 	{
-		currentTags = currentTags & ~tag;	
+		StateTag singleBit = static_cast<StateTag>(remaining & -static_cast<int>(remaining));
+		if (bitCountMap[singleBit] > 0)
+		{
+			bitCountMap[singleBit]--;
+			if (bitCountMap[singleBit] == 0)
+			{
+				currentTags = currentTags & ~singleBit;
+			}
+		}
+		remaining = static_cast<StateTag>(remaining & ~singleBit);
 	}
 
 	if (oldTags != currentTags)
@@ -63,7 +82,7 @@ void CStateSystem::ClearTags()
 {
 	StateTag oldTags = currentTags;
 	currentTags = Tag_None;
-	tagCountMap.clear();
+	bitCountMap.clear();
 
 	if (oldTags != currentTags)
 		OnStateChanged.Broadcast(oldTags, currentTags);

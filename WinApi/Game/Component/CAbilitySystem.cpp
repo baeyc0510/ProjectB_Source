@@ -36,29 +36,41 @@ bool CAbilitySystem::TryActivateAbility(EAbility abilityType)
 	if (!ability)
 		return false;
 
-	// 이미 활성화된 경우
+	if (!CanActivateAbility(ability))
+		return false;
+
+	ActivateAbility(ability);
+	return true;
+}
+
+bool CAbilitySystem::CanActivateAbility(Ability* ability) const
+{
+	if (!ability)
+		return false;
+
 	if (ability->IsActive())
 		return false;
 
-	// 쿨다운 체크
 	if (ability->IsOnCooldown())
 		return false;
 
-	// State 조건 체크
 	if (stateSystem)
 	{
 		StateTag required = ability->GetRequiredTags();
 		StateTag blocked = ability->GetBlockedTags();
 
-		// 필요 태그 확인
 		if (required != Tag_None && !stateSystem->HasAllTags(required))
 			return false;
 
-		// 금지 태그 확인
 		if (blocked != Tag_None && stateSystem->HasAnyTag(blocked))
 			return false;
 	}
 
+	return true;
+}
+
+void CAbilitySystem::ActivateAbility(Ability* ability)
+{
 	// CancelTags에 해당하는 Ability들 취소
 	StateTag cancelTags = ability->GetCancelTags();
 	if (cancelTags != Tag_None)
@@ -83,8 +95,6 @@ bool CAbilitySystem::TryActivateAbility(EAbility abilityType)
 
 	// 종료 이벤트 구독
 	ability->OnEnded.Bind([this, ability]() { OnAbilityEnded(ability); });
-
-	return true;
 }
 
 void CAbilitySystem::CancelAbility(EAbility abilityType)

@@ -171,6 +171,7 @@
     <ClInclude Include="Game\Ability\Player\Ability_Jump.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Parry.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Slide.h" />
+    <ClInclude Include="Game\AnimKeys.h" />
     <ClInclude Include="Game\Camera\CCameraController.h" />
     <ClInclude Include="Game\CGame.h" />
     <ClInclude Include="Game\Component\CAbilitySystem.h" />

@@ -49,6 +49,7 @@ enum StateTag
 	Tag_BlockMovement		= 1 << 13,
 	Tag_StopVelocity 		= 1 << 14,
 	Tag_Crouching			= 1 << 15,
+	Tag_AirAttackExhausted	= 1 << 16,	// 공중 공격 소진
 };
 
 inline StateTag operator|(StateTag a, StateTag b)
@@ -64,6 +65,27 @@ inline StateTag operator&(StateTag a, StateTag b)
 inline StateTag operator~(StateTag a)
 {
 	return static_cast<StateTag>(~static_cast<int>(a));
+}
+
+// StateTag 헬퍼 함수
+inline bool HasTag(StateTag tags, StateTag check)
+{
+	return (tags & check) == check;
+}
+
+inline bool HasAnyTag(StateTag tags, StateTag check)
+{
+	return (tags & check) != Tag_None;
+}
+
+inline bool TagAdded(StateTag oldTags, StateTag newTags, StateTag tag)
+{
+	return !HasTag(oldTags, tag) && HasTag(newTags, tag);
+}
+
+inline bool TagRemoved(StateTag oldTags, StateTag newTags, StateTag tag)
+{
+	return HasTag(oldTags, tag) && !HasTag(newTags, tag);
 }
 
 //========================================

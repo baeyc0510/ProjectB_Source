@@ -1,6 +1,7 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Ability_HitReaction.h"
 
+#include "Game/AnimKeys.h"
 #include "Game/Component/CRigidbody.h"
 
 void Ability_HitReaction::OnActivate()
@@ -8,7 +9,7 @@ void Ability_HitReaction::OnActivate()
     Ability::OnActivate();
     
     CAnimator* animator =  owner->GetComponent<CAnimator>();
-    animator->Play(TEXT("Hit"),true, BIND(this,EndAbility), BIND(this, EndAbility));
+    animator->Play(Anim::Hit,true, BIND(this,EndAbility), BIND(this, EndAbility));
     
     WaitEvent(EGameEvent::Recover, BIND(this,StopKnockback));
 }

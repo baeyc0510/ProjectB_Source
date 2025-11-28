@@ -12,7 +12,11 @@ public:
 	
 	void AddAbility(EAbility abilityType, Ability* ability);
 	Ability* GetAbility(EAbility abilityType) const;
+
 	bool TryActivateAbility(EAbility abilityType);
+	bool CanActivateAbility(Ability* ability) const;
+	void ActivateAbility(Ability* ability);
+
 	void CancelAbility(EAbility abilityType);
 	void CancelAllAbilities();
 	void CancelAbilitiesWithTag(StateTag tag);

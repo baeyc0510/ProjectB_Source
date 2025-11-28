@@ -60,7 +60,6 @@ void Ability::CancelAbility()
 
 	cooldownRemaining = GetCooldown();
 	EndAbility();
-	OnEnded.Invoke();
 }
 
 DelegateHandle Ability::WaitEvent(EGameEvent eventType, function<void()> callback)

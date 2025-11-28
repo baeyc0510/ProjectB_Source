@@ -1,5 +1,6 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Ability_ComboAttack.h"
+#include "Game/AnimKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
 Ability_ComboAttack::Ability_ComboAttack()
@@ -9,24 +10,22 @@ Ability_ComboAttack::Ability_ComboAttack()
 void Ability_ComboAttack::OnActivate()
 {
     Ability::OnActivate();
-    
-    eventHandles.push_back(WaitEvent(EGameEvent::Input_Attack_Pressed, BIND(this, OnInputAttack)));
-    eventHandles.push_back(WaitEvent(EGameEvent::HitCheck, BIND(this, OnHitCheck)));
-    eventHandles.push_back(WaitEvent(EGameEvent::ComboWindowOpen, BIND(this, OnComboWindowOpen)));
-    eventHandles.push_back(WaitEvent(EGameEvent::ComboWindowClose, BIND(this, OnComboWindowClose)));
-    
+
+    // 이벤트 바인딩
+    WaitEvent(EGameEvent::Input_Attack_Pressed, BIND(this, OnInputAttack));
+    WaitEvent(EGameEvent::HitCheck, BIND(this, OnHitCheck));
+    WaitEvent(EGameEvent::ComboWindowOpen, BIND(this, OnComboWindowOpen));
+    WaitEvent(EGameEvent::ComboWindowClose, BIND(this, OnComboWindowClose));
+
+    // 공격 1타 시작
     Attack();
 }
 
 void Ability_ComboAttack::OnEnd()
 {
     Ability::OnEnd();
-    
-    for (auto& handle : eventHandles)
-    {
-        EndWaitEvent(handle);
-    }
-    
+    ClearEventHandles();
+
     comboCnt = 0;
     bCanCombo = false;
     bSavedCombo = false;
@@ -73,6 +72,8 @@ void Ability_ComboAttack::OnFinishedAnim()
 
 void Ability_ComboAttack::OnHitCheck()
 {
+    const float BASE_DAMAGE = 10.f;
+
     // Box Trace
     Vec2 offset = GetTraceOffset();
     Vec2 center = owner->GetWorldPos() + offset;
@@ -88,9 +89,9 @@ void Ability_ComboAttack::OnHitCheck()
             CombatContext context;
             context.damageType = EDamageType::Slash;
             context.hitResult = result;
-            context.value = 10.0f; // TODO: 데미지 공식 처리
+            context.value = BASE_DAMAGE;
             context.vfxKey = GetVFXName();
-            combat->OnDamage(owner,context);
+            combat->OnDamage(owner, context);
         }
     }
     
@@ -127,11 +128,11 @@ Vec2 Ability_ComboAttack::GetTraceSize()
 
 wstring Ability_ComboAttack::GetAnimationName()
 {
-    if (comboCnt == 0)  return TEXT("Combo1");
-    if (comboCnt == 1)  return TEXT("Combo2");
-    if (comboCnt == 2)  return TEXT("Combo3");
-    
-    return TEXT("Combo1");
+    if (comboCnt == 0)  return Anim::Combo1;
+    if (comboCnt == 1)  return Anim::Combo2;
+    if (comboCnt == 2)  return Anim::Combo3;
+
+    return Anim::Combo1;
 }
 
 wstring Ability_ComboAttack::GetVFXName()
