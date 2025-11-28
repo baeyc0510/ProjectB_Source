@@ -11,8 +11,8 @@ public:
 	// 태그 관리
 	//========================================
 	void AddTag(StateTag tag);
+	void AddTagUnique(StateTag tag);
 	void RemoveTag(StateTag tag);
-	void SetTags(StateTag tags);
 	void ClearTags();
 
 	//========================================
@@ -42,4 +42,6 @@ public:
 
 private:
 	StateTag currentTags;
+	// tag stack counts
+	map<StateTag, int> tagCountMap;
 };

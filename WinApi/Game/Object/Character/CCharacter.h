@@ -10,6 +10,7 @@ public:
     CCharacter();
     ~CCharacter() override;
     
+    virtual wstring GetRandomBloodVfxKey() const;
 protected:
     void Init() override;
     void OnEnable() override;

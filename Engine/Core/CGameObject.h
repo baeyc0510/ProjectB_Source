@@ -23,7 +23,7 @@ public:
 	void			SetPos(const Vec2& pos)			{ this->pos = pos; }
 	void			SetScale(const Vec2& scale)		{ this->scale = scale; }
 	
-	int				GetForward()					{ return forward; }
+	float			GetForward()					{ return forward; }
 	void			SetForward(int forward)			{ this->forward = forward > 0 ? 1 : -1; }
 	
 protected:

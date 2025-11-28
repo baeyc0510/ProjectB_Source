@@ -26,6 +26,7 @@ public:
     void UseGravity(bool use) { bUseGravity = use; }
     void SetGravityScale(float scale) { gravityScale = scale; }
 
+    void AddVelocity(Vec2 inVelocity) { velocity += inVelocity; }
 private:
     Vec2 velocity;
     float gravityScale;

@@ -38,6 +38,7 @@ void CSceneStage01::Init()
 	player->SetPos(Vec2(CGame::WINSIZE.x * 0.5f, CGame::WINSIZE.y * 0.5f));
 	AddGameObject(player);
 	
+	// Dummy Monster
 	CMonster* monster = new CMonster();
 	monster->SetPos(Vec2(CGame::WINSIZE.x * 0.5f, CGame::WINSIZE.y * 0.5f) + Vec2(200.f,0.f));
 	monster->SetForward(-1);

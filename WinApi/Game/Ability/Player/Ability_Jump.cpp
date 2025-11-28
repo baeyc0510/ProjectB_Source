@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "Ability_Jump.h"
 
+Ability_Jump::Ability_Jump()
+{
+}
+
 void Ability_Jump::OnActivate()
 {
     Ability::OnActivate();

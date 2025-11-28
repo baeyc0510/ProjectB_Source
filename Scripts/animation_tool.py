@@ -1302,16 +1302,15 @@ def open_file_dialog():
 
 def load_animation_json(json_path):
     """Load animation data from JSON file. Returns (image_path, frames, pivot, frame_interval) or None on error.
-    pivot is returned as [x, y] where x and y are floats (0.0=left/top, 0.5=center, 1.0=right/bottom)"""
+    pivot is returned as [x, y] where x and y are pixel coordinates from bottom-left origin (Y increases upward)"""
     try:
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         image_rel_path = data.get("image", "")
         loaded_frames = data.get("frames", [])
-        # Handle pivot: convert legacy values to [x, y] format
-        # Legacy: string "center" or "bottom-center", or single float (Y-axis only)
-        # New format: [x, y] where x and y are floats (0.0=left/top, 0.5=center, 1.0=right/bottom)
+        # Handle pivot: [x, y] format
+        # x: pixels from left edge, y: pixels from bottom edge (bottom-left origin, Y increases upward)
         pivot_raw = data.get("pivot", [0.5, 1.0])  # Default: center-bottom
         if isinstance(pivot_raw, str):
             # Legacy string conversion
@@ -2179,10 +2178,12 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                         preview_img = sprite_sheet.subsurface(pygame.Rect(frame_rect))
                         w, h = preview_img.get_size()
                         anchor_pos = (screen.get_width() // 2, screen.get_height() // 2)
-                        # pivot_x: 0.0=left, 0.5=center, 1.0=right
-                        # pivot_y: 0.0=top, 0.5=center, 1.0=bottom
-                        draw_x = anchor_pos[0] - int(w * pivot_x)
-                        draw_y = anchor_pos[1] - int(h * pivot_y)
+                        # pivot is pixel coordinate from bottom-left origin
+                        # pivot_x: pixels from left edge
+                        # pivot_y: pixels from bottom edge (Y increases upward)
+                        # Convert to screen coords (top-left origin, Y increases downward)
+                        draw_x = anchor_pos[0] - int(pivot_x)
+                        draw_y = anchor_pos[1] - int(h - pivot_y)
                         screen.blit(preview_img, (draw_x, draw_y))
                     except ValueError: pass
             preview_text_surf = font_help.render(f"PREVIEW MODE (pivot=[{pivot_x:.2f}, {pivot_y:.2f}]) - P to exit", True, HELP_TEXT_COLOR)
@@ -2197,10 +2198,12 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                 # Draw pivot point cross
                 if show_pivots:
                     fx, fy, fw, fh = frame_rect
-                    # pivot_x: 0.0=left, 0.5=center, 1.0=right
-                    # pivot_y: 0.0=top, 0.5=center, 1.0=bottom
-                    cross_px = fx + fw * pivot_x
-                    cross_py = fy + fh * pivot_y
+                    # pivot is pixel coordinate from bottom-left origin
+                    # pivot_x: pixels from left edge
+                    # pivot_y: pixels from bottom edge (Y increases upward)
+                    # Convert to image coords (top-left origin)
+                    cross_px = fx + pivot_x
+                    cross_py = fy + (fh - pivot_y)
                     # Convert to screen coords
                     screen_pivot = to_screen_coords((cross_px, cross_py))
                     cross_size = int(PIVOT_CROSS_SIZE * zoom) if zoom > 0.5 else PIVOT_CROSS_SIZE
@@ -2306,7 +2309,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
             input_pivot_y.draw(screen, panel_x)
 
             # Pivot hint
-            pivot_hint = font_detail.render("(0=left/top, 0.5=center, 1=right/bottom)", True, (100, 100, 100))
+            pivot_hint = font_detail.render("(pixel coords, Y from bottom)", True, (100, 100, 100))
             screen.blit(pivot_hint, (panel_x + 10, help_area_height + 135))
 
         # --- Draw Save Notification ---

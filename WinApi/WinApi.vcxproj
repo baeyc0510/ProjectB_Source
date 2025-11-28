@@ -162,14 +162,22 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="Game\Ability\Ability.h" />
-    <ClInclude Include="Game\Ability\Player\Ability_Attack.h" />
+    <ClInclude Include="Game\Ability\Ability_HitReaction.h" />
+    <ClInclude Include="Game\Ability\Monster\Ability_MonsterAttack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_AirAttack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_ComboAttack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Crouch.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_CrouchAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Jump.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Parry.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Slide.h" />
     <ClInclude Include="Game\Camera\CCameraController.h" />
     <ClInclude Include="Game\CGame.h" />
     <ClInclude Include="Game\Component\CAbilitySystem.h" />
     <ClInclude Include="Game\Component\CRigidbody.h" />
     <ClInclude Include="Game\Component\CStateSystem.h" />
     <ClInclude Include="Game\Enum.h" />
+    <ClInclude Include="Game\Interface\CombatInterface.h" />
     <ClInclude Include="Game\Manager\CVFXManager.h" />
     <ClInclude Include="Game\Object\Character\CCharacter.h" />
     <ClInclude Include="Game\Object\Character\CMonster.h" />
@@ -189,8 +197,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Ability\Ability.cpp" />
-    <ClCompile Include="Game\Ability\Player\Ability_Attack.cpp" />
+    <ClCompile Include="Game\Ability\Ability_HitReaction.cpp" />
+    <ClCompile Include="Game\Ability\Monster\Ability_MonsterAttack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_AirAttack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_ComboAttack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Crouch.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_CrouchAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Jump.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Parry.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Slide.cpp" />
     <ClCompile Include="Game\Camera\CCameraController.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -346,6 +361,7 @@
     <ClCompile Include="Game\Component\CAbilitySystem.cpp" />
     <ClCompile Include="Game\Component\CRigidbody.cpp" />
     <ClCompile Include="Game\Component\CStateSystem.cpp" />
+    <ClCompile Include="Game\Interface\CombatInterface.cpp" />
     <ClCompile Include="Game\Manager\CVFXManager.cpp" />
     <ClCompile Include="Game\Object\Character\CCharacter.cpp" />
     <ClCompile Include="Game\Object\Character\CMonster.cpp">

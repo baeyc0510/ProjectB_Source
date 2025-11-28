@@ -1,7 +1,7 @@
 {
     "image": "Image/Penitent/penitent_attack_combo_1.bmp",
     "pivot": [47.0, 0.0],
-    "frame_interval": 0.0833,
+    "frame_interval": 0.06,
     "frames": [
         {"rect": [0, 0, 136, 72], "events": []},
         {"rect": [136, 0, 136, 72], "events": []},

@@ -1,0 +1,26 @@
+{
+    "image": "Image/Penitent/penitent_pushback_anim.bmp",
+    "pivot": [68.0, 8.0],
+    "frame_interval": 0.06,
+    "frames": [
+        {"rect": [0, 0, 92, 76], "events": []},
+        {"rect": [92, 0, 92, 76], "events": []},
+        {"rect": [184, 0, 92, 76], "events": []},
+        {"rect": [276, 0, 92, 76], "events": []},
+        {"rect": [368, 0, 92, 76], "events": []},
+        {"rect": [460, 0, 92, 76], "events": []},
+        {"rect": [552, 0, 92, 76], "events": []},
+        {"rect": [644, 0, 92, 76], "events": []},
+        {"rect": [736, 0, 92, 76], "events": []},
+        {"rect": [828, 0, 92, 76], "events": []},
+        {"rect": [920, 0, 92, 76], "events": []},
+        {"rect": [1012, 0, 92, 76], "events": []},
+        {"rect": [1104, 0, 92, 76], "events": []},
+        {"rect": [1196, 0, 92, 76], "events": []},
+        {"rect": [1288, 0, 92, 76], "events": []},
+        {"rect": [1380, 0, 92, 76], "events": []},
+        {"rect": [1472, 0, 92, 76], "events": []},
+        {"rect": [1564, 0, 92, 76], "events": []},
+        {"rect": [1656, 0, 92, 76], "events": []}
+    ]
+}

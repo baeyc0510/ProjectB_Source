@@ -1,0 +1,19 @@
+{
+    "image": "Image/Enemy/acolyte_get_hit_anim.bmp",
+    "pivot": [76.0, 1.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 98, 118], "events": []},
+        {"rect": [98, 0, 98, 118], "events": []},
+        {"rect": [196, 0, 98, 118], "events": []},
+        {"rect": [294, 0, 98, 118], "events": ["Recover"]},
+        {"rect": [392, 0, 98, 118], "events": []},
+        {"rect": [490, 0, 98, 118], "events": []},
+        {"rect": [588, 0, 98, 118], "events": []},
+        {"rect": [686, 0, 98, 118], "events": []},
+        {"rect": [784, 0, 98, 118], "events": []},
+        {"rect": [882, 0, 98, 118], "events": []},
+        {"rect": [980, 0, 98, 118], "events": []},
+        {"rect": [1078, 0, 98, 118], "events": []}
+    ]
+}

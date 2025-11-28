@@ -36,7 +36,7 @@ public:
 
 	// 이벤트 시스템
 	DelegateHandle WaitEvent(EGameEvent eventType, function<void()> callback);
-	void StopWaitingEvent(DelegateHandle handle);
+	void EndWaitEvent(DelegateHandle& handle);
 	void ClearEventHandles();
 
 	bool IsActive() const { return isActive; }

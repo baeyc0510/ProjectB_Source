@@ -1,0 +1,12 @@
+{
+    "image": "Image/Penitent/penitent_jumping_attack1.bmp",
+    "pivot": [63.0, 0.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 129, 94], "events": []},
+        {"rect": [129, 0, 129, 94], "events": ["ComboWindowOpen"]},
+        {"rect": [258, 0, 129, 94], "events": []},
+        {"rect": [387, 0, 129, 94], "events": ["HitCheck"]},
+        {"rect": [516, 0, 129, 94], "events": ["ComboWindowClose"]}
+    ]
+}

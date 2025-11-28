@@ -1,0 +1,12 @@
+{
+    "image": "Image/Penitent/penitent_crouch_up_anim.bmp",
+    "pivot": [56.0, 0.0],
+    "frame_interval": 0.0333,
+    "frames": [
+        {"rect": [0, 0, 81, 72], "events": []},
+        {"rect": [81, 0, 81, 72], "events": []},
+        {"rect": [162, 0, 81, 72], "events": []},
+        {"rect": [243, 0, 81, 72], "events": []},
+        {"rect": [324, 0, 81, 72], "events": []}
+    ]
+}

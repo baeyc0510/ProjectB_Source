@@ -26,6 +26,7 @@ void CStateSystem::AddTag(StateTag tag)
 		currentTags = currentTags & ~Tag_Grounded;
 
 	// 태그 추가
+	tagCountMap[tag]++;
 	currentTags = currentTags | tag;
 
 	// 변경 이벤트
@@ -33,19 +34,26 @@ void CStateSystem::AddTag(StateTag tag)
 		OnStateChanged.Broadcast(oldTags, currentTags);
 }
 
-void CStateSystem::RemoveTag(StateTag tag)
+void CStateSystem::AddTagUnique(StateTag tag)
 {
-	StateTag oldTags = currentTags;
-	currentTags = currentTags & ~tag;
-
-	if (oldTags != currentTags)
-		OnStateChanged.Broadcast(oldTags, currentTags);
+	if (HasTag(tag))
+		return;
+	
+	AddTag(tag);
 }
 
-void CStateSystem::SetTags(StateTag tags)
+void CStateSystem::RemoveTag(StateTag tag)
 {
+	if (!HasTag(tag))
+		return;
+	
 	StateTag oldTags = currentTags;
-	currentTags = tags;
+	
+	tagCountMap[tag]--;
+	if (tagCountMap[tag] == 0)
+	{
+		currentTags = currentTags & ~tag;	
+	}
 
 	if (oldTags != currentTags)
 		OnStateChanged.Broadcast(oldTags, currentTags);
@@ -53,7 +61,12 @@ void CStateSystem::SetTags(StateTag tags)
 
 void CStateSystem::ClearTags()
 {
-	SetTags(Tag_None);
+	StateTag oldTags = currentTags;
+	currentTags = Tag_None;
+	tagCountMap.clear();
+
+	if (oldTags != currentTags)
+		OnStateChanged.Broadcast(oldTags, currentTags);
 }
 
 //========================================

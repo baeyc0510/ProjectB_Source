@@ -1,0 +1,19 @@
+{
+    "image": "Image/Penitent/penitent_crouch_attack_anim.bmp",
+    "pivot": [54.0, 4.0],
+    "frame_interval": 0.06,
+    "frames": [
+        {"rect": [0, 0, 119, 66], "events": []},
+        {"rect": [119, 0, 119, 66], "events": []},
+        {"rect": [238, 0, 119, 66], "events": []},
+        {"rect": [357, 0, 119, 66], "events": []},
+        {"rect": [476, 0, 119, 66], "events": []},
+        {"rect": [595, 0, 119, 66], "events": []},
+        {"rect": [714, 0, 119, 66], "events": ["HitCheck"]},
+        {"rect": [833, 0, 119, 66], "events": []},
+        {"rect": [952, 0, 119, 66], "events": []},
+        {"rect": [1071, 0, 119, 66], "events": []},
+        {"rect": [1190, 0, 119, 66], "events": []},
+        {"rect": [1309, 0, 119, 66], "events": []}
+    ]
+}

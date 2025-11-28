@@ -14,6 +14,11 @@ CCharacter::~CCharacter()
 {
 }
 
+wstring CCharacter::GetRandomBloodVfxKey() const
+{
+    return TEXT("VFX_Blood1");
+}
+
 void CCharacter::Init()
 {
     // StateSystem
