@@ -1,0 +1,13 @@
+{
+    "image": "Image/Effect/attack_spark3.bmp",
+    "pivot": [48.0, 50.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 137, 102], "events": []},
+        {"rect": [137, 0, 137, 102], "events": []},
+        {"rect": [274, 0, 137, 102], "events": []},
+        {"rect": [411, 0, 137, 102], "events": []},
+        {"rect": [548, 0, 137, 102], "events": []},
+        {"rect": [685, 0, 137, 102], "events": []}
+    ]
+}

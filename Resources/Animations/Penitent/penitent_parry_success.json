@@ -1,0 +1,18 @@
+{
+    "image": "Image/Penitent/penitent_parry_success.bmp",
+    "pivot": [54.0, 3.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 147, 108], "events": ["ComboWindowOpen"]},
+        {"rect": [147, 0, 147, 108], "events": []},
+        {"rect": [294, 0, 147, 108], "events": []},
+        {"rect": [441, 0, 147, 108], "events": []},
+        {"rect": [588, 0, 147, 108], "events": []},
+        {"rect": [735, 0, 147, 108], "events": []},
+        {"rect": [882, 0, 147, 108], "events": []},
+        {"rect": [1029, 0, 147, 108], "events": ["ComboWindowClose"]},
+        {"rect": [1176, 0, 147, 108], "events": []},
+        {"rect": [1323, 0, 147, 108], "events": []},
+        {"rect": [1470, 0, 147, 108], "events": []}
+    ]
+}

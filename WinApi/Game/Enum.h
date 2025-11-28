@@ -23,7 +23,6 @@ enum Layer
 	Monster,
 	Missile,
 	Ground,
-
 	LayerSize,
 };
 
@@ -33,19 +32,23 @@ enum Layer
 
 enum StateTag
 {
-	Tag_None			= 0,
-	Tag_Grounded		= 1 << 0,	// 지상
-	Tag_Airborne		= 1 << 1,	// 공중
-	Tag_Attacking		= 1 << 2,	// 공격 중
-	Tag_Moving			= 1 << 3,	// 이동 중
-	Tag_Invincible		= 1 << 4,	// 무적
-	Tag_Stunned			= 1 << 5,	// 스턴
-	Tag_CanCombo		= 1 << 6,	// 콤보 가능
-	Tag_Hit				= 1 << 7,	// 피격
-	Tag_Sliding			= 1 << 8,	// 슬라이딩
-	Tag_Parrying		= 1 << 9,	// 패리 중
-	Tag_Jumping			= 1 << 10,	// 점프 중
-	Tag_AbilityPlaying	= 1 << 11,	// Ability가 애니메이션 제어 중
+	Tag_None				= 0,
+	Tag_Grounded			= 1 << 0,	// 지상
+	Tag_Airborne			= 1 << 1,	// 공중
+	Tag_Attacking			= 1 << 2,	// 공격 중
+	Tag_Moving				= 1 << 3,	// 이동 중
+	Tag_SpecialAction		= 1 << 4,
+	Tag_Invincible			= 1 << 5,	// 무적
+	Tag_Stunned				= 1 << 6,	// 스턴
+	Tag_CanCombo			= 1 << 7,	// 콤보 가능
+	Tag_Hit					= 1 << 8,	// 피격
+	Tag_Sliding				= 1 << 9,	// 슬라이딩
+	Tag_Parrying			= 1 << 10,	// 패리 중
+	Tag_Jumping				= 1 << 11,	// 점프 중
+	Tag_AbilityAnimation	= 1 << 12,	// Ability가 애니메이션 제어 중
+	Tag_BlockMovement		= 1 << 13,
+	Tag_StopVelocity 		= 1 << 14,
+	Tag_Crouching			= 1 << 15,
 };
 
 inline StateTag operator|(StateTag a, StateTag b)
@@ -70,13 +73,12 @@ inline StateTag operator~(StateTag a)
 enum class EAbility
 {
 	None,
-	Attack1,
-	Attack2,
-	Attack3,
+	Attack,
 	AirAttack,
-	DownAttack,
+	CrouchAttack,
 	Jump,
 	Slide,
+	Crouch,
 	Parry,
 	CounterAttack,
 	Hit,
@@ -90,6 +92,7 @@ enum class EAbility
 enum class EGameEvent
 {
 	None,
+	
 	// 애니메이션 이벤트
 	HitCheck,
 	ComboWindowOpen,
@@ -97,5 +100,23 @@ enum class EGameEvent
 	InvincibleStart,
 	InvincibleEnd,
 	Landed,
-	// 게임플레이 이벤트 (추후 확장)
+	ParryWindowOpen,
+	ParryWindowClose,
+	Recover,
+	// 게임플레이 이벤트
+	Hit,
+	EndCrouch,
+	// Input
+	Input_Attack_Pressed,
+	Input_Crouch_Released,
+};
+
+//========================================
+//##			Damage Types			##
+//========================================
+
+enum class EDamageType
+{
+	None,
+	Slash,
 };

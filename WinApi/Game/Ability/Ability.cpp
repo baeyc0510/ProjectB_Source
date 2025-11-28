@@ -30,27 +30,36 @@ void Ability::UpdateCooldown(float deltaTime)
 void Ability::Activate()
 {
 	isActive = true;
+	OnActivate();
 }
 
-void Ability::End()
+void Ability::OnActivate()
+{
+	
+}
+
+void Ability::EndAbility()
 {
 	if (!isActive)
 		return;
 
 	isActive = false;
 	cooldownRemaining = GetCooldown();
-	ClearEventHandles();
+	OnEnd();
 	OnEnded.Invoke();
 }
 
-void Ability::Cancel()
+void Ability::OnEnd()
+{
+}
+
+void Ability::CancelAbility()
 {
 	if (!isActive)
 		return;
 
-	isActive = false;
 	cooldownRemaining = GetCooldown();
-	ClearEventHandles();
+	EndAbility();
 	OnEnded.Invoke();
 }
 
@@ -67,14 +76,18 @@ DelegateHandle Ability::WaitEvent(EGameEvent eventType, function<void()> callbac
 		}
 	);
 
-	eventHandles.push_back(handle);
+	eventHandles.push_back(handle);	
+	
 	return handle;
 }
 
-void Ability::StopWaitingEvent(DelegateHandle handle)
+void Ability::EndWaitEvent(DelegateHandle& handle)
 {
-	if (!abilitySystem || handle == 0)
+	if (!abilitySystem || !handle.IsValid())
+	{
+		handle = DelegateHandle(); // 핸들 무효화
 		return;
+	}
 
 	auto iter = find(eventHandles.begin(), eventHandles.end(), handle);
 	if (iter != eventHandles.end())
@@ -82,6 +95,8 @@ void Ability::StopWaitingEvent(DelegateHandle handle)
 		abilitySystem->OnEvent.Remove(*iter);
 		eventHandles.erase(iter);
 	}
+	
+	handle = DelegateHandle(); // 핸들 무효화
 }
 
 void Ability::ClearEventHandles()

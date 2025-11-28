@@ -44,6 +44,11 @@ struct Vec2
 	{
 		return Vec2(x * num, y * num);
 	}
+	
+	Vec2 operator*(const Vec2& other) const
+	{
+		return Vec2(x * other.x, y * other.y);
+	}
 
 	template <typename T>
 	Vec2& operator*=(const T& num)
@@ -51,6 +56,13 @@ struct Vec2
 		x *= num;
 		y *= num;
 
+		return *this;
+	}
+	
+	Vec2 operator*=(const Vec2& other)
+	{
+		x *= other.x;
+		y *= other.y;
 		return *this;
 	}
 
@@ -120,3 +132,10 @@ struct Vec2
 	}
 };
 
+class CCollider;
+
+struct HitResult
+{
+	CCollider* collider;
+	Vec2 hitCenter;
+};

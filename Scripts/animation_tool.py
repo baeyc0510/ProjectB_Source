@@ -1301,14 +1301,29 @@ def open_file_dialog():
 
 
 def load_animation_json(json_path):
-    """Load animation data from JSON file. Returns (image_path, frames, pivot_mode, frame_interval) or None on error."""
+    """Load animation data from JSON file. Returns (image_path, frames, pivot, frame_interval) or None on error.
+    pivot is returned as [x, y] where x and y are pixel coordinates from bottom-left origin (Y increases upward)"""
     try:
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         image_rel_path = data.get("image", "")
         loaded_frames = data.get("frames", [])
-        pivot_mode = data.get("pivot", "bottom-center")
+        # Handle pivot: [x, y] format
+        # x: pixels from left edge, y: pixels from bottom edge (bottom-left origin, Y increases upward)
+        pivot_raw = data.get("pivot", [0.5, 1.0])  # Default: center-bottom
+        if isinstance(pivot_raw, str):
+            # Legacy string conversion
+            if pivot_raw == "center":
+                pivot = [0.5, 0.5]
+            else:  # "bottom-center" or any other legacy value
+                pivot = [0.5, 1.0]
+        elif isinstance(pivot_raw, list) and len(pivot_raw) == 2:
+            # New format: [x, y]
+            pivot = [float(pivot_raw[0]), float(pivot_raw[1])]
+        else:
+            # Legacy single float (Y-axis only, X defaults to center)
+            pivot = [0.5, float(pivot_raw)]
         frame_interval = data.get("frame_interval", 1.0 / PREVIEW_FPS) # Default to PREVIEW_FPS if not found
 
         # --- Data Structure Migration ---
@@ -1351,8 +1366,8 @@ def load_animation_json(json_path):
             print(f"Error: Image file not found: {image_rel_path}")
             return None
 
-        print(f"Loaded animation: {len(frames)} frames, pivot: {pivot_mode}, interval: {frame_interval:.3f}s")
-        return (image_path, frames, pivot_mode, frame_interval)
+        print(f"Loaded animation: {len(frames)} frames, pivot: {pivot}, interval: {frame_interval:.3f}s")
+        return (image_path, frames, pivot, frame_interval)
     except Exception as e:
         print(f"Error loading animation JSON: {e}")
         return None
@@ -1403,19 +1418,24 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
 
     # Use pre-loaded data if available, otherwise try to load existing JSON (no auto-detect on load)
     if loaded_frames is not None:
-        pivot_mode = loaded_pivot if loaded_pivot else "bottom-center"
-        print(f"Using loaded data: {len(frames)} frames, pivot: {pivot_mode}")
+        # loaded_pivot is [x, y] or None
+        pivot_x = loaded_pivot[0] if loaded_pivot is not None else 0.5
+        pivot_y = loaded_pivot[1] if loaded_pivot is not None else 1.0
+        print(f"Using loaded data: {len(frames)} frames, pivot: [{pivot_x}, {pivot_y}]")
     else:
         # Try to load existing JSON data first
         json_path = os.path.splitext(image_path)[0] + ".json"
         frames = []
-        pivot_mode = "bottom-center"
+        pivot_x = 0.5  # Default: center (X-axis ratio: 0.0=left, 0.5=center, 1.0=right)
+        pivot_y = 1.0  # Default: bottom (Y-axis ratio: 0.0=top, 0.5=center, 1.0=bottom)
         if os.path.exists(json_path):
             try:
                 # Use load_animation_json which handles migration
-                _image_path, loaded_data, loaded_pivot_mode, _ = load_animation_json(json_path)
+                _image_path, loaded_data, loaded_pivot, _ = load_animation_json(json_path)
                 frames = loaded_data if loaded_data else []
-                pivot_mode = loaded_pivot_mode if loaded_pivot_mode else "bottom-center"
+                if loaded_pivot is not None:
+                    pivot_x = loaded_pivot[0]
+                    pivot_y = loaded_pivot[1]
                 print(f"Loaded {len(frames)} frames from '{json_path}'")
             except Exception as e:
                 print(f"Error loading JSON: {e}")
@@ -1449,13 +1469,25 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
     input_interval.set_value(frame_interval)
     active_interval_input = False
 
+    # --- Pivot Input Fields (for no selection mode) ---
+    input_pivot_x = FloatInputField(110, help_area_height + 80, 60, 24, "Pivot X", font_detail)
+    input_pivot_y = FloatInputField(110, help_area_height + 110, 60, 24, "Pivot Y", font_detail)
+    input_pivot_x.set_value(pivot_x)
+    input_pivot_y.set_value(pivot_y)
+    active_pivot_x_input = False
+    active_pivot_y_input = False
+
     # --- Grid Mode Input Fields ---
     input_grid_w = InputField(90, help_area_height + 80, 80, 24, "Cell W", font_detail)
     input_grid_h = InputField(90, help_area_height + 110, 80, 24, "Cell H", font_detail)
     grid_input_fields = [input_grid_w, input_grid_h]
     active_grid_input_index = -1
 
-    def update_input_fields_from_frame():
+    # --- Event Editor for selected frame ---
+    event_editor = EventEditor(10, help_area_height + 220, font_detail)
+    event_editor_active = False
+
+    def update_input_fields_from_frame(force_update_events=True):
         """Update input field values from selected frame"""
         if selected_frame_index != -1 and selected_frame_index < len(frames):
             frame = frames[selected_frame_index]
@@ -1463,9 +1495,14 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
             input_y.set_value(frame["rect"][1])
             input_w.set_value(frame["rect"][2])
             input_h.set_value(frame["rect"][3])
+            # Update event editor with frame's events (skip if event editor is active to preserve focus)
+            if force_update_events and not event_editor_active:
+                event_editor.set_events(frame.get("events", []))
         else:
             for field in input_fields:
                 field.text = ""
+            if force_update_events:
+                event_editor.set_events([])
 
     def apply_input_fields_to_frame():
         """Apply input field values to selected frame with boundary and overlap checks"""
@@ -1508,15 +1545,24 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
         active_input_index = index
 
     def deactivate_all_inputs():
-        nonlocal active_input_index, active_grid_input_index, active_interval_input
+        nonlocal active_input_index, active_grid_input_index, active_interval_input, active_pivot_x_input, active_pivot_y_input, event_editor_active
         for field in input_fields:
             field.active = False
         for field in grid_input_fields:
             field.active = False
         input_interval.active = False
+        input_pivot_x.active = False
+        input_pivot_y.active = False
         active_input_index = -1
         active_grid_input_index = -1
         active_interval_input = False
+        active_pivot_x_input = False
+        active_pivot_y_input = False
+        # Deactivate event editor fields
+        for field in event_editor.event_fields:
+            field.active = False
+        event_editor.active_field_idx = -1
+        event_editor_active = False
 
     def update_grid_input_fields():
         """Update grid input field values from grid_cell_w/h"""
@@ -1575,6 +1621,8 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
         for field in grid_input_fields:
             field.update(dt)
         input_interval.update(dt)
+        input_pivot_x.update(dt)
+        input_pivot_y.update(dt)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: running = False
@@ -1642,6 +1690,61 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                         input_interval.set_value(frame_interval)
                         continue
 
+                # Handle pivot X input field events
+                if active_pivot_x_input:
+                    handled = input_pivot_x.handle_event(event)
+                    if handled:
+                        pivot_x = input_pivot_x.get_value()
+                        continue
+                    if event.key == pygame.K_TAB:
+                        pivot_x = input_pivot_x.get_value()
+                        deactivate_all_inputs()
+                        active_pivot_y_input = True
+                        input_pivot_y.active = True
+                        continue
+                    if event.key == pygame.K_RETURN:
+                        pivot_x = input_pivot_x.get_value()
+                        deactivate_all_inputs()
+                        continue
+                    if event.key == pygame.K_ESCAPE:
+                        deactivate_all_inputs()
+                        input_pivot_x.set_value(pivot_x)
+                        continue
+
+                # Handle pivot Y input field events
+                if active_pivot_y_input:
+                    handled = input_pivot_y.handle_event(event)
+                    if handled:
+                        pivot_y = input_pivot_y.get_value()
+                        continue
+                    if event.key == pygame.K_TAB:
+                        pivot_y = input_pivot_y.get_value()
+                        deactivate_all_inputs()
+                        active_pivot_x_input = True
+                        input_pivot_x.active = True
+                        continue
+                    if event.key == pygame.K_RETURN:
+                        pivot_y = input_pivot_y.get_value()
+                        deactivate_all_inputs()
+                        continue
+                    if event.key == pygame.K_ESCAPE:
+                        deactivate_all_inputs()
+                        input_pivot_y.set_value(pivot_y)
+                        continue
+
+                # Handle event editor input field events
+                if event_editor_active and event_editor.active_field_idx != -1:
+                    handled = event_editor.handle_event(event, screen_width - DETAIL_PANEL_WIDTH)
+                    if handled:
+                        # Save events to frame immediately
+                        if selected_frame_index != -1 and selected_frame_index < len(frames):
+                            frames[selected_frame_index]["events"] = event_editor.get_events()
+                        continue
+                    if event.key == pygame.K_ESCAPE:
+                        deactivate_all_inputs()
+                        update_input_fields_from_frame()
+                        continue
+
                 # Handle grid input field events
                 if active_grid_input_index != -1:
                     handled = grid_input_fields[active_grid_input_index].handle_event(event)
@@ -1702,7 +1805,11 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                         frames = auto_detect_frames(image_path)
                         save_notification = (f"Detected {len(frames)} frames", pygame.time.get_ticks())
                     update_input_fields_from_frame()
-                elif event.key == pygame.K_v: pivot_mode = "center" if pivot_mode == "bottom-center" else "bottom-center"; print(f"Pivot mode set to: {pivot_mode}")
+                elif event.key == pygame.K_v:
+                    # Toggle pivot Y between common values: 0.5 (center) and 1.0 (bottom)
+                    pivot_y = 0.5 if pivot_y == 1.0 else 1.0
+                    input_pivot_y.set_value(pivot_y)
+                    print(f"Pivot set to: [{pivot_x}, {pivot_y}]")
                 elif event.key == pygame.K_n and not is_previewing:
                     if current_rect and current_rect.width > 0 and current_rect.height > 0:
                         current_rect.normalize()
@@ -1856,7 +1963,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                             with open(output_path, 'w') as f:
                                 f.write('{\n')
                                 f.write(f'    "image": "{image_rel_path}",\n')
-                                f.write(f'    "pivot": "{pivot_mode}",\n')
+                                f.write(f'    "pivot": [{round(pivot_x, 4)}, {round(pivot_y, 4)}],\n')
                                 f.write(f'    "frame_interval": {round(frame_interval, 4)},\n')
                                 f.write('    "frames": [\n')
                                 for i, frame in enumerate(frames):
@@ -1864,7 +1971,7 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                                     f.write(f'        {json.dumps(frame)}{comma}\n')
                                 f.write('    ]\n')
                                 f.write('}\n')
-                            print(f"Saved {len(frames)} frames and pivot '{pivot_mode}' to '{output_path}'")
+                            print(f"Saved {len(frames)} frames and pivot [{pivot_x}, {pivot_y}] to '{output_path}'")
                             save_notification = (f"Saved {len(frames)} frames!", pygame.time.get_ticks())
                     else:
                         print("No frames to save.")
@@ -1886,12 +1993,29 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                             clicked_on_input = True
                             break
                 if not clicked_on_input and mouse_pos[0] >= panel_x and selected_frame_index == -1 and not grid_mode:
+                    # Check interval input
                     actual_rect = pygame.Rect(panel_x + input_interval.rect.x, input_interval.rect.y, input_interval.rect.width, input_interval.rect.height)
                     if actual_rect.collidepoint(mouse_pos):
                         deactivate_all_inputs()
                         active_interval_input = True
                         input_interval.active = True
                         clicked_on_input = True
+                    # Check pivot X input
+                    if not clicked_on_input:
+                        actual_rect = pygame.Rect(panel_x + input_pivot_x.rect.x, input_pivot_x.rect.y, input_pivot_x.rect.width, input_pivot_x.rect.height)
+                        if actual_rect.collidepoint(mouse_pos):
+                            deactivate_all_inputs()
+                            active_pivot_x_input = True
+                            input_pivot_x.active = True
+                            clicked_on_input = True
+                    # Check pivot Y input
+                    if not clicked_on_input:
+                        actual_rect = pygame.Rect(panel_x + input_pivot_y.rect.x, input_pivot_y.rect.y, input_pivot_y.rect.width, input_pivot_y.rect.height)
+                        if actual_rect.collidepoint(mouse_pos):
+                            deactivate_all_inputs()
+                            active_pivot_y_input = True
+                            input_pivot_y.active = True
+                            clicked_on_input = True
 
                 # Check frame input fields (when frame is selected and not in grid mode)
                 if not clicked_on_input and mouse_pos[0] >= panel_x and selected_frame_index != -1 and not grid_mode:
@@ -1901,7 +2025,19 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                             set_active_input(i)
                             clicked_on_input = True
                             break
+                    # Check event editor clicks (when frame is selected)
+                    if not clicked_on_input:
+                        if event_editor.handle_event(event, panel_x):
+                            clicked_on_input = True
+                            event_editor_active = True
+                            # Save events to frame when clicking on event editor
+                            if selected_frame_index != -1 and selected_frame_index < len(frames):
+                                frames[selected_frame_index]["events"] = event_editor.get_events()
+
                 if not clicked_on_input and mouse_pos[0] < panel_x:
+                    # Save events before deactivating if a frame is selected
+                    if selected_frame_index != -1 and selected_frame_index < len(frames):
+                        frames[selected_frame_index]["events"] = event_editor.get_events()
                     deactivate_all_inputs()
 
             if not is_previewing and translated_mouse_pos[1] >= 0:
@@ -1918,9 +2054,15 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                         for i in range(len(frames) - 1, -1, -1):
                             if pygame.Rect(frames[i]["rect"]).collidepoint(translated_mouse_pos): clicked_idx = i; break
                         if clicked_idx != -1:
+                            # Save events from previous selection before switching
+                            if selected_frame_index != -1 and selected_frame_index < len(frames):
+                                frames[selected_frame_index]["events"] = event_editor.get_events()
                             selected_frame_index, is_moving = clicked_idx, True
                             update_input_fields_from_frame()
                         else:
+                            # Save events from previous selection before deselecting
+                            if selected_frame_index != -1 and selected_frame_index < len(frames):
+                                frames[selected_frame_index]["events"] = event_editor.get_events()
                             selected_frame_index, current_rect = -1, pygame.Rect(start_pos, (0,0))
                             update_input_fields_from_frame()
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
@@ -2028,17 +2170,23 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                     preview_frame_index = int(pygame.time.get_ticks() / (frame_interval * 1000)) % len(frames)
                 else:
                     preview_frame_index = 0
-                
+
                 frame_data = frames[preview_frame_index]
                 frame_rect = frame_data["rect"]
                 if frame_rect[2] > 0 and frame_rect[3] > 0:
                     try:
                         preview_img = sprite_sheet.subsurface(pygame.Rect(frame_rect))
+                        w, h = preview_img.get_size()
                         anchor_pos = (screen.get_width() // 2, screen.get_height() // 2)
-                        if pivot_mode == 'bottom-center': w, h = preview_img.get_size(); draw_pos = (anchor_pos[0] - w // 2, anchor_pos[1] - h); screen.blit(preview_img, draw_pos)
-                        else: screen.blit(preview_img, preview_img.get_rect(center=anchor_pos))
+                        # pivot is pixel coordinate from bottom-left origin
+                        # pivot_x: pixels from left edge
+                        # pivot_y: pixels from bottom edge (Y increases upward)
+                        # Convert to screen coords (top-left origin, Y increases downward)
+                        draw_x = anchor_pos[0] - int(pivot_x)
+                        draw_y = anchor_pos[1] - int(h - pivot_y)
+                        screen.blit(preview_img, (draw_x, draw_y))
                     except ValueError: pass
-            preview_text_surf = font_help.render(f"PREVIEW MODE ({pivot_mode}) - P to exit", True, HELP_TEXT_COLOR)
+            preview_text_surf = font_help.render(f"PREVIEW MODE (pivot=[{pivot_x:.2f}, {pivot_y:.2f}]) - P to exit", True, HELP_TEXT_COLOR)
             screen.blit(preview_text_surf, (5, screen.get_height() - FONT_SIZE - 5))
         else:
             for i, frame_data in enumerate(frames):
@@ -2050,14 +2198,14 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                 # Draw pivot point cross
                 if show_pivots:
                     fx, fy, fw, fh = frame_rect
-                    if pivot_mode == "bottom-center":
-                        pivot_x = fx + fw / 2
-                        pivot_y = fy + fh
-                    else:  # center
-                        pivot_x = fx + fw / 2
-                        pivot_y = fy + fh / 2
+                    # pivot is pixel coordinate from bottom-left origin
+                    # pivot_x: pixels from left edge
+                    # pivot_y: pixels from bottom edge (Y increases upward)
+                    # Convert to image coords (top-left origin)
+                    cross_px = fx + pivot_x
+                    cross_py = fy + (fh - pivot_y)
                     # Convert to screen coords
-                    screen_pivot = to_screen_coords((pivot_x, pivot_y))
+                    screen_pivot = to_screen_coords((cross_px, cross_py))
                     cross_size = int(PIVOT_CROSS_SIZE * zoom) if zoom > 0.5 else PIVOT_CROSS_SIZE
                     pygame.draw.line(screen, PIVOT_CROSS_COLOR, (screen_pivot[0] - cross_size, screen_pivot[1]), (screen_pivot[0] + cross_size, screen_pivot[1]), 2)
                     pygame.draw.line(screen, PIVOT_CROSS_COLOR, (screen_pivot[0], screen_pivot[1] - cross_size), (screen_pivot[0], screen_pivot[1] + cross_size), 2)
@@ -2074,12 +2222,16 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
         pygame.draw.rect(screen, HELP_BG_COLOR, (0, 0, screen.get_width() - DETAIL_PANEL_WIDTH, help_area_height))
         for i, line in enumerate(EDITOR_HELP_LINES): screen.blit(font_help.render(line, True, HELP_TEXT_COLOR), (5, 5 + i * (FONT_SIZE - 5)))
         status_line_y = 5
+        # Show mouse position (image coordinates)
+        mouse_img_x, mouse_img_y = translated_mouse_pos
+        mouse_text = f"XY: ({int(mouse_img_x)}, {int(mouse_img_y)})"; mouse_surf = font_help.render(mouse_text, True, HELP_TEXT_COLOR)
+        screen.blit(mouse_surf, (screen.get_width() - DETAIL_PANEL_WIDTH - mouse_surf.get_width() - 10, status_line_y))
         zoom_text = f"Zoom: {int(zoom * 100)}%"; zoom_surf = font_help.render(zoom_text, True, HELP_TEXT_COLOR)
-        screen.blit(zoom_surf, (screen.get_width() - DETAIL_PANEL_WIDTH - zoom_surf.get_width() - 10, status_line_y))
+        screen.blit(zoom_surf, (screen.get_width() - DETAIL_PANEL_WIDTH - mouse_surf.get_width() - zoom_surf.get_width() - 20, status_line_y))
         snap_text = f"Snap: {'ON' if snapping_enabled else 'OFF'}"; snap_surf = font_help.render(snap_text, True, HELP_TEXT_COLOR)
-        screen.blit(snap_surf, (screen.get_width() - DETAIL_PANEL_WIDTH - zoom_surf.get_width() - snap_surf.get_width() - 20, status_line_y))
-        pivot_text = f"Pivot: {pivot_mode}"; pivot_surf = font_help.render(pivot_text, True, HELP_TEXT_COLOR)
-        screen.blit(pivot_surf, (screen.get_width() - DETAIL_PANEL_WIDTH - zoom_surf.get_width() - snap_surf.get_width() - pivot_surf.get_width() - 30, status_line_y))
+        screen.blit(snap_surf, (screen.get_width() - DETAIL_PANEL_WIDTH - mouse_surf.get_width() - zoom_surf.get_width() - snap_surf.get_width() - 30, status_line_y))
+        pivot_text = f"Pivot: [{pivot_x:.2f}, {pivot_y:.2f}]"; pivot_surf = font_help.render(pivot_text, True, HELP_TEXT_COLOR)
+        screen.blit(pivot_surf, (screen.get_width() - DETAIL_PANEL_WIDTH - mouse_surf.get_width() - zoom_surf.get_width() - snap_surf.get_width() - pivot_surf.get_width() - 40, status_line_y))
 
         # --- Draw Detail Panel ---
         panel_x = screen.get_width() - DETAIL_PANEL_WIDTH
@@ -2127,13 +2279,18 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
             for field in input_fields:
                 field.draw(screen, panel_x)
 
-            # Frame count info
+            # Draw event editor
+            event_editor.draw(screen, panel_x)
+            event_editor.update(clock.get_time())
+
+            # Frame count info (below event editor)
+            event_editor_bottom = event_editor.y + len(event_editor.event_fields) * 28 + 40
             count_text = f"Total: {len(frames)} frames"
             count_surf = font_detail.render(count_text, True, DETAIL_LABEL_COLOR)
-            screen.blit(count_surf, (panel_x + 10, help_area_height + 210))
+            screen.blit(count_surf, (panel_x + 10, event_editor_bottom))
         else:
             # Panel title
-            title_surf = font_help.render("Frame Details", True, DETAIL_VALUE_COLOR)
+            title_surf = font_help.render("Animation Settings", True, DETAIL_VALUE_COLOR)
             screen.blit(title_surf, (panel_x + 10, 10))
 
             # No selection message
@@ -2147,9 +2304,13 @@ def run_editor(image_path, loaded_frames=None, loaded_pivot=None, loaded_interva
                 screen.blit(count_surf, (panel_x + 10, 70))
 
             # --- Animation Settings ---
-            anim_set_surf = font_detail.render("Animation Settings", True, DETAIL_LABEL_COLOR)
-            screen.blit(anim_set_surf, (panel_x + 10, help_area_height + 20))
             input_interval.draw(screen, panel_x)
+            input_pivot_x.draw(screen, panel_x)
+            input_pivot_y.draw(screen, panel_x)
+
+            # Pivot hint
+            pivot_hint = font_detail.render("(pixel coords, Y from bottom)", True, (100, 100, 100))
+            screen.blit(pivot_hint, (panel_x + 10, help_area_height + 135))
 
         # --- Draw Save Notification ---
         if save_notification:

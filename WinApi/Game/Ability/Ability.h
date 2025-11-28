@@ -28,13 +28,15 @@ public:
 	void UpdateCooldown(float deltaTime);
 
 	// Ability 생명주기
-	virtual void Activate();
-	virtual void End();
-	virtual void Cancel();
+	void Activate();
+	virtual void OnActivate();
+	void EndAbility();
+	virtual void OnEnd();
+	virtual void CancelAbility();
 
 	// 이벤트 시스템
 	DelegateHandle WaitEvent(EGameEvent eventType, function<void()> callback);
-	void StopWaitingEvent(DelegateHandle handle);
+	void EndWaitEvent(DelegateHandle& handle);
 	void ClearEventHandles();
 
 	bool IsActive() const { return isActive; }

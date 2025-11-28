@@ -9,6 +9,7 @@ struct AniFrame
 {
 	Vec2	pos;
 	Vec2	scale;
+	Vec2	pivot;
 	float	time;
 	vector<wstring> events;
 };
@@ -27,10 +28,13 @@ public:
 	void				SetRepeat(bool repeat) { this->repeat = repeat; }
 	void				Create(CImage* image, float stepTime, UINT count, bool repeat,
 							Vec2 pos, Vec2 scale, Vec2 step);	// 일정 간격으로 프레임 생성
-
+	bool				IsCached() const { return this->cached; }
+	void				SetCached(bool value) { this->cached = value; }
+	
 private:
 	CImage*				image;		// 애니메이션 이미지
 	vector<AniFrame>	frames;		// 애니메이션 프레임들
 	bool				repeat;		// 애니메이션 반복여부
+	bool				cached;		// 매니저 캐시 여부
 };
 

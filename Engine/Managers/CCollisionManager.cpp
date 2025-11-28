@@ -147,3 +147,81 @@ UINT64 CCollisionManager::CollisionID(UINT leftID, UINT rightID)
 		return result;
 	}
 }
+
+vector<HitResult> CCollisionManager::BoxTrace(const Vec2& center, const Vec2& halfSize, UINT targetLayer, bool bDrawDebug)
+{
+	vector<HitResult> results;
+
+	for (CCollider* collider : colliderList[targetLayer])
+	{
+		if (collider->IsReservedDelete())
+			continue;
+
+		// AABB 충돌 체크
+		Vec2 colPos = collider->GetPos();
+		Vec2 colHalf = collider->GetScale() * 0.5f;
+
+		if (abs(center.x - colPos.x) < halfSize.x + colHalf.x &&
+			abs(center.y - colPos.y) < halfSize.y + colHalf.y)
+		{
+			HitResult result;
+			result.collider = collider;
+
+			// 각 AABB의 Min/Max 계산
+			Vec2 minA = center - halfSize;
+			Vec2 maxA = center + halfSize;
+			Vec2 minB = colPos - colHalf;
+			Vec2 maxB = colPos + colHalf;
+
+			// 겹친 영역(Intersection)의 Min/Max 도출
+			float interMinX = max(minA.x, minB.x);
+			float interMinY = max(minA.y, minB.y);
+			float interMaxX = min(maxA.x, maxB.x);
+			float interMaxY = min(maxA.y, maxB.y);
+
+			// 중심점 계산
+			result.hitCenter = Vec2((interMinX + interMaxX) * 0.5f, (interMinY + interMaxY) * 0.5f);
+			
+			results.push_back(result);
+		}
+	}
+	
+	if (bDrawDebug)
+	{
+		bool bHit = !results.empty();
+		COLORREF color = bHit ?    RGB(0, 255, 0) : RGB(255, 0, 0);
+		DrawDebugBox(center,halfSize, color, 0.1f );
+	}
+	
+	return results;
+}
+
+void CCollisionManager::DrawDebugBox(const Vec2& center, const Vec2& halfSize, COLORREF color, float duration)
+{
+	debugBoxes.push_back({ center, halfSize, color, duration });
+}
+
+void CCollisionManager::RenderDebug()
+{
+	float dt = DT;
+
+	for (auto it = debugBoxes.begin(); it != debugBoxes.end();)
+	{
+		Vec2 screenPos = CAMERA->WorldToScreenPoint(it->center);
+		RENDER->SetPen(PenType::Solid, it->color);
+		RENDER->SetBrush(BrushType::Null);
+		RENDER->Rect(
+			screenPos.x - it->halfSize.x,
+			screenPos.y - it->halfSize.y,
+			screenPos.x + it->halfSize.x,
+			screenPos.y + it->halfSize.y);
+		RENDER->SetPen();
+		RENDER->SetBrush();
+
+		it->duration -= dt;
+		if (it->duration <= 0)
+			it = debugBoxes.erase(it);
+		else
+			++it;
+	}
+}

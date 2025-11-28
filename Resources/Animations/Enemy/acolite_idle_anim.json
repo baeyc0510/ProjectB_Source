@@ -1,0 +1,20 @@
+{
+    "image": "Image/Enemy/acolite_idle_anim.bmp",
+    "pivot": [10.0, 0.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 45, 124], "events": []},
+        {"rect": [45, 0, 45, 124], "events": []},
+        {"rect": [90, 0, 45, 124], "events": []},
+        {"rect": [135, 0, 45, 124], "events": []},
+        {"rect": [180, 0, 45, 124], "events": []},
+        {"rect": [225, 0, 45, 124], "events": []},
+        {"rect": [270, 0, 45, 124], "events": []},
+        {"rect": [315, 0, 45, 124], "events": []},
+        {"rect": [360, 0, 45, 124], "events": []},
+        {"rect": [405, 0, 45, 124], "events": []},
+        {"rect": [450, 0, 45, 124], "events": []},
+        {"rect": [495, 0, 45, 124], "events": []},
+        {"rect": [540, 0, 45, 124], "events": []}
+    ]
+}

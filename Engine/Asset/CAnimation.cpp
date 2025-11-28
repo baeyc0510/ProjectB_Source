@@ -19,14 +19,24 @@ CAnimation::~CAnimation()
 void CAnimation::Load(const wstring& key, const wstring& path)
 {
     filesystem::path filePath(path);
-    if (!filesystem::exists(filePath)) return;
+    if (!filesystem::exists(filePath))
+    {
+    	Logger::Error(TEXT("file not exists: ") + path);
+	    return;
+    }
 
     ifstream file(filePath);
     if (!file.is_open()) return;
 
     json data;
-    try { file >> data; }
-    catch (const json::parse_error&) { file.close(); return; }
+    try
+    {
+	    file >> data;
+    }
+    catch (const json::parse_error&)
+    {
+	    file.close(); return;
+    }
     file.close();
 
     // 1. 이미지 로드
@@ -34,9 +44,17 @@ void CAnimation::Load(const wstring& key, const wstring& path)
     this->image = LOADIMAGE(key, filesystem::path(imgPathStr));
 
     // 2. 옵션 설정
+	Vec2 pivot = Vec2(0.0f, 0.0f);
+	if (data.contains("pivot"))
+	{
+		pivot = Vec2(data["pivot"][0],data["pivot"][1]);
+	}
+	
     float interval = 0.1f;
-    if (data.contains("frame_interval")) interval = data["frame_interval"];
-
+    if (data.contains("frame_interval")) 
+    	interval = data["frame_interval"];
+	
+	
     // 3. 프레임 데이터 파싱
     const auto& jsonFrames = data["frames"];
 
@@ -50,7 +68,8 @@ void CAnimation::Load(const wstring& key, const wstring& path)
         AniFrame frame;
         frame.pos = Vec2(r[0], r[1]);
         frame.scale = Vec2(r[2], r[3]);
-        frame.time = interval;
+    	frame.pivot = pivot;
+    	frame.time = interval;
 
         // 이벤트 (추후 구현)
         if (f.contains("events"))

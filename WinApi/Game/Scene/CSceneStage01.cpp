@@ -5,6 +5,7 @@
 #include "Game/Object/World/CGround.h"
 #include "Game/Object/Character/CPlayer.h"
 #include "Game/Camera/CCameraController.h"
+#include "Game/Object/Character/CMonster.h"
 #include "Game/Sound/CSoundController.h"
 
 class CCameraController;
@@ -36,9 +37,15 @@ void CSceneStage01::Init()
 	CPlayer* player = new CPlayer();
 	player->SetPos(Vec2(CGame::WINSIZE.x * 0.5f, CGame::WINSIZE.y * 0.5f));
 	AddGameObject(player);
-
-	CCameraController* controller = new CCameraController();
-	AddGameObject(controller);
+	
+	// Dummy Monster
+	CMonster* monster = new CMonster();
+	monster->SetPos(Vec2(CGame::WINSIZE.x * 0.5f, CGame::WINSIZE.y * 0.5f) + Vec2(200.f,0.f));
+	monster->SetForward(-1);
+	AddGameObject(monster);
+	
+	// CCameraController* controller = new CCameraController();
+	// AddGameObject(controller);
 
 	CSoundController* sound = new CSoundController();
 	AddGameObject(sound);

@@ -417,3 +417,7 @@ FodyWeavers.xsd
 *.msm
 *.msp
 .idea
+package-lock.json
+package.json
+.idea
+.idea

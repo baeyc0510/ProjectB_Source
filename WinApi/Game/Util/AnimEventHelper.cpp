@@ -10,7 +10,9 @@ EGameEvent AnimEventHelper::ToGameEvent(const wstring& str)
 	if (str == L"InvincibleStart")	return EGameEvent::InvincibleStart;
 	if (str == L"InvincibleEnd")	return EGameEvent::InvincibleEnd;
 	if (str == L"Landed")			return EGameEvent::Landed;
-
+	if (str == L"ParryWindowOpen")  return EGameEvent::ParryWindowOpen;
+	if (str == L"ParryWindowClose") return EGameEvent::ParryWindowClose;
+	if (str == L"Recover")			return EGameEvent::Recover;
 	// 정의되지 않은 이벤트 이름
 	assert(false && "Unknown animation event name");
 	return EGameEvent::None;

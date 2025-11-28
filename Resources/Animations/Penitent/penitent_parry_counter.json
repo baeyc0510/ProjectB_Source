@@ -1,0 +1,26 @@
+{
+    "image": "Image/Penitent/penitent_parry_counter.bmp",
+    "pivot": [47.0, 1.0],
+    "frame_interval": 0.06,
+    "frames": [
+        {"rect": [0, 0, 166, 106], "events": []},
+        {"rect": [166, 0, 166, 106], "events": []},
+        {"rect": [332, 0, 166, 106], "events": []},
+        {"rect": [498, 0, 166, 106], "events": []},
+        {"rect": [664, 0, 166, 106], "events": []},
+        {"rect": [830, 0, 166, 106], "events": []},
+        {"rect": [996, 0, 166, 106], "events": []},
+        {"rect": [1162, 0, 166, 106], "events": []},
+        {"rect": [1328, 0, 166, 106], "events": []},
+        {"rect": [1494, 0, 166, 106], "events": ["HitCheck"]},
+        {"rect": [1660, 0, 166, 106], "events": []},
+        {"rect": [1826, 0, 166, 106], "events": []},
+        {"rect": [1992, 0, 166, 106], "events": []},
+        {"rect": [2158, 0, 166, 106], "events": []},
+        {"rect": [2324, 0, 166, 106], "events": []},
+        {"rect": [2490, 0, 166, 106], "events": []},
+        {"rect": [2656, 0, 166, 106], "events": []},
+        {"rect": [2822, 0, 166, 106], "events": []},
+        {"rect": [2988, 0, 166, 106], "events": []}
+    ]
+}

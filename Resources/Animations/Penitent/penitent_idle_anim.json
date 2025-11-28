@@ -1,0 +1,20 @@
+{
+    "image": "Image/Penitent/penitent_idle_anim.bmp",
+    "pivot": [47,0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 67, 73], "events": []},
+        {"rect": [67, 0, 67, 73], "events": []},
+        {"rect": [134, 0, 67, 73], "events": []},
+        {"rect": [201, 0, 67, 73], "events": []},
+        {"rect": [268, 0, 67, 73], "events": []},
+        {"rect": [335, 0, 67, 73], "events": []},
+        {"rect": [402, 0, 67, 73], "events": []},
+        {"rect": [469, 0, 67, 73], "events": []},
+        {"rect": [536, 0, 67, 73], "events": []},
+        {"rect": [603, 0, 67, 73], "events": []},
+        {"rect": [670, 0, 67, 73], "events": []},
+        {"rect": [737, 0, 67, 73], "events": []},
+        {"rect": [804, 0, 67, 73], "events": []}
+    ]
+}

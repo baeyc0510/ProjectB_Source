@@ -75,10 +75,12 @@ CAnimation* CResourceManager::AnimationLoad(const wstring& key, const wstring fi
 		return pAnimation;
 
 	wstring filePath = resourceFolder + file;
-	pAnimation = new CAnimation;
+ 	pAnimation = new CAnimation;
 	pAnimation->Load(key, filePath);
+	
 	animations.insert(make_pair(key, pAnimation));
-
+	pAnimation->SetCached(true);
+	
 	return pAnimation;
 }
 

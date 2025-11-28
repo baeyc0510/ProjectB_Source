@@ -1,0 +1,19 @@
+{
+    "image": "Image/Effect/blood.bmp",
+    "pivot": [18.0, 16.0],
+    "frame_interval": 0.02,
+    "frames": [
+        {"rect": [0, 0, 38, 34], "events": []},
+        {"rect": [38, 0, 38, 34], "events": []},
+        {"rect": [76, 0, 38, 34], "events": []},
+        {"rect": [114, 0, 38, 34], "events": []},
+        {"rect": [152, 0, 38, 34], "events": []},
+        {"rect": [190, 0, 38, 34], "events": []},
+        {"rect": [228, 0, 38, 34], "events": []},
+        {"rect": [266, 0, 38, 34], "events": []},
+        {"rect": [304, 0, 38, 34], "events": []},
+        {"rect": [342, 0, 38, 34], "events": []},
+        {"rect": [380, 0, 38, 34], "events": []},
+        {"rect": [418, 0, 38, 34], "events": []}
+    ]
+}

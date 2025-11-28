@@ -8,12 +8,27 @@ CAnimator::CAnimator()
 	ratio			= 1;
 	curFrame		= 0;
 	curTime			= 0;
-	direction		= 1;
+	flipX			= false;
 	isFinished		= false;
 }
 
 CAnimator::~CAnimator()
 {
+}
+
+void CAnimator::Reset()
+{
+	curAnimation	= nullptr;
+	playing			= false;
+	ratio			= 1;
+	curFrame		= 0;
+	curTime			= 0;
+	flipX			= false;
+	isFinished		= false;
+	
+	ReleaseAnimations();
+	onFinished.Clear();
+	onInterrupted.Clear();
 }
 
 void CAnimator::AddAnimation(const wstring& aniName, CAnimation* animation)
@@ -33,7 +48,10 @@ void CAnimator::RemoveAnimation(const wstring& aniName)
 	if (nullptr != ani)
 	{
 		animationMap.erase(aniName);
-		delete ani;
+		if (!ani->IsCached())
+		{
+			delete ani;
+		}
 	}
 }
 
@@ -89,12 +107,12 @@ void CAnimator::Play(const wstring& aniName, bool reset,
 	if (onFinishedCallback)
 		onFinished.Bind(onFinishedCallback);
 	else
-		onFinished.Unbind();
+		onFinished.Clear();
 
 	if (onInterruptedCallback)
 		onInterrupted.Bind(onInterruptedCallback);
 	else
-		onInterrupted.Unbind();
+		onInterrupted.Clear();
 
 	curAnimation = animation;
 	playing = true;
@@ -122,9 +140,14 @@ void CAnimator::ComponentOnEnable()
 
 void CAnimator::ComponentUpdate()
 {
+	if (curAnimation == nullptr)
+	{
+		return;
+	}
+	
 	// 현재 플레이중인 프레임의 누적시간
 	curTime += DT;
-
+	
 	// 누적시간이 현재 플레이중인 프레임의 지속시간보다 커졌을 경우
 	// -> 다음 프레임을 보여줘야 하는 경우
 	if (curAnimation->frames[curFrame].time < curTime)
@@ -152,6 +175,12 @@ void CAnimator::ComponentUpdate()
 			else
 			{
 				curFrame--;
+				
+				if (isFinished)
+				{
+					return;
+				}
+				
 				isFinished = true;
 
 				// 애니메이션 완료 이벤트 호출
@@ -166,21 +195,30 @@ void CAnimator::ComponentUpdate()
 
 void CAnimator::ComponentRender()
 {
+	if (curAnimation == nullptr)
+	{
+		return;
+	}
+	
 	Vec2 pos = GetOwner()->GetRenderPos();				// 애니메이션이 그려질 위치 확인
 	AniFrame frame = curAnimation->frames[curFrame];	// 애니메이션이 그려질 프레임 확인
-
-	// 프레임 이미지 그리기
+	
+	float pivotX = !flipX ?  frame.pivot.x : frame.scale.x - frame.pivot.x;
+	float pivotY = frame.pivot.y;
+	float startX = pos.x - pivotX;
+	float startY = pos.y - frame.scale.y + pivotY;
+	
 	RENDER->FrameImage(
 		curAnimation->image,
-		pos.x - frame.scale.x * 0.5f * ratio,
-		pos.y - frame.scale.y * 0.5f * ratio,
-		pos.x + frame.scale.x * 0.5f * ratio,
-		pos.y + frame.scale.y * 0.5f * ratio,
+		startX,
+		startY,
+		startX + frame.scale.x * ratio,
+		startY + frame.scale.y * ratio,
 		frame.pos.x,
 		frame.pos.y,
 		frame.pos.x + frame.scale.x,
 		frame.pos.y + frame.scale.y,
-		direction == -1
+		flipX
 	);
 }
 
@@ -189,11 +227,20 @@ void CAnimator::ComponentOnDisable()
 	Component::ComponentOnDisable();
 }
 
-void CAnimator::ComponentRelease()
+void CAnimator::ReleaseAnimations()
 {
-	for (pair<wstring, CAnimation*> animation : animationMap)
+	for (pair<wstring, CAnimation*> kvp : animationMap)
 	{
-		delete animation.second;
+		auto ani = kvp.second;
+		if (ani != nullptr && !ani->IsCached())
+		{
+			delete ani;
+		}
 	}
 	animationMap.clear();
+}
+
+void CAnimator::ComponentRelease()
+{
+	ReleaseAnimations();
 }
