@@ -34,6 +34,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_ LPWSTR    lpCmdLine,
 	_In_ int       nCmdShow)
 {
+	// DPI 스케일링 무시 (픽셀 단위로 정확하게 렌더링)
+	SetProcessDPIAware();
+
 	// 사용하지 않은 매개변수 정의
 	// 불필요한 매개변수이지만 구버전 윈도우를 지원하기 위해 그대로 둠
 	UNREFERENCED_PARAMETER(hPrevInstance);

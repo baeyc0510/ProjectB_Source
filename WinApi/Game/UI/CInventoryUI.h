@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "UI/CUI.h"
+#include "COverlayUI.h"
 
 class CImage;
 
-class CInventoryUI : public CUI
+class CInventoryUI : public COverlayUI
 {
 public:
 	CInventoryUI();

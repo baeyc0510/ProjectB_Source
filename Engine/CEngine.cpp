@@ -20,7 +20,11 @@ void CEngine::Init(HINSTANCE hInst, HWND hWnd, Vec2 winSize)
 {
     this->hInst = hInst;
     this->hWnd = hWnd;
-    this->winSize = winSize;
+
+    // 실제 클라이언트 영역 크기 사용
+    RECT clientRect;
+    GetClientRect(hWnd, &clientRect);
+    this->winSize = Vec2((float)clientRect.right, (float)clientRect.bottom);
 }
 
 

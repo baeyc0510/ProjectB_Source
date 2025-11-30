@@ -192,6 +192,7 @@
     <ClInclude Include="Game\Scene\CSceneTitle.h" />
     <ClInclude Include="Game\Sound\CSoundController.h" />
     <ClInclude Include="Game\UI\CInventoryUI.h" />
+    <ClInclude Include="Game\UI\COverlayUI.h" />
     <ClInclude Include="Game\UI\CPlayerStatusHUD.h" />
     <ClInclude Include="Game\Util\AnimEventHelper.h" />
     <ClInclude Include="pch.h" />
@@ -679,6 +680,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\UI\CInventoryUI.cpp" />
+    <ClCompile Include="Game\UI\COverlayUI.cpp" />
     <ClCompile Include="Game\UI\CPlayerStatusHUD.cpp" />
     <ClCompile Include="Game\Util\AnimEventHelper.cpp" />
     <ClCompile Include="pch.cpp">
