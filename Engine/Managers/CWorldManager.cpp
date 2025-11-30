@@ -1,20 +1,20 @@
 ﻿#include "pch.h"
-#include "CEventManager.h"
+#include "CWorldManager.h"
 
-CEventManager::CEventManager()
+CWorldManager::CWorldManager()
 {
 	changeSceneEvent = nullptr;
 }
 
-CEventManager::~CEventManager()
+CWorldManager::~CWorldManager()
 {
 }
 
-void CEventManager::Init()
+void CWorldManager::Init()
 {
 }
 
-void CEventManager::Update()
+void CWorldManager::Update()
 {
 	ProgressAddGameObject();
 	ProgressDeleteObject();
@@ -28,46 +28,46 @@ void CEventManager::Update()
 	ProgressChangeScene();
 }
 
-void CEventManager::Release()
+void CWorldManager::Release()
 {
 }
 
-void CEventManager::AddGameObject(CScene* scene, CGameObject* obj)
+void CWorldManager::AddGameObject(CScene* scene, CGameObject* obj)
 {
 	addGameObjectQueue.push(make_pair(scene, obj));
 }
 
-void CEventManager::AddChild(CGameObject* parent, Component<CGameObject>* child)
+void CWorldManager::AddChild(CGameObject* parent, Component<CGameObject>* child)
 {
 	addChildQueue.push(make_pair(parent, child));
 }
 
-void CEventManager::Delete(CScene* scene, Component<CGameObject>* obj)
+void CWorldManager::Delete(CScene* scene, Component<CGameObject>* obj)
 {
 	deleteObjectQueue.push(make_pair(scene, obj));
 }
 
-void CEventManager::AddUI(CScene* scene, CUI* ui)
+void CWorldManager::AddUI(CScene* scene, CUI* ui)
 {
 	addUIQueue.push(make_pair(scene, ui));
 }
 
-void CEventManager::AddChild(CUI* parent, CUI* child)
+void CWorldManager::AddChild(CUI* parent, CUI* child)
 {
 	addChildUIQueue.push(make_pair(parent, child));
 }
 
-void CEventManager::Delete(CScene* scene, CUI* ui)
+void CWorldManager::Delete(CScene* scene, CUI* ui)
 {
 	deleteUIQueue.push(make_pair(scene, ui));
 }
 
-void CEventManager::ShowUI(CUI* ui, bool show)
+void CWorldManager::ShowUI(CUI* ui, bool show)
 {
 	showUIQueue.push(make_pair(ui, show));
 }
 
-void CEventManager::ChangeScene(int sceneType, float delay)
+void CWorldManager::ChangeScene(int sceneType, float delay)
 {
 	// 씬 전환 이벤트를 자료구조에 보관
 	if (nullptr == changeSceneEvent)
@@ -85,7 +85,7 @@ void CEventManager::ChangeScene(int sceneType, float delay)
 	}
 }
 
-void CEventManager::ProgressAddGameObject()
+void CWorldManager::ProgressAddGameObject()
 {
 	while (!addGameObjectQueue.empty())
 	{
@@ -96,7 +96,7 @@ void CEventManager::ProgressAddGameObject()
 	}
 }
 
-void CEventManager::ProgressAddComponent()
+void CWorldManager::ProgressAddComponent()
 {
 	while (!addChildQueue.empty())
 	{
@@ -107,7 +107,7 @@ void CEventManager::ProgressAddComponent()
 	}
 }
 
-void CEventManager::ProgressDeleteObject()
+void CWorldManager::ProgressDeleteObject()
 {
 	// 삭제 예정 표시된 게임오브젝트를 삭제 진행
 	CScene* curScene = SINGLE(CSceneManager)->GetCurScene();
@@ -138,7 +138,7 @@ void CEventManager::ProgressDeleteObject()
 	}
 }
 
-void CEventManager::ProgressAddUI()
+void CWorldManager::ProgressAddUI()
 {
 	while (!addUIQueue.empty())
 	{
@@ -149,7 +149,7 @@ void CEventManager::ProgressAddUI()
 	}
 }
 
-void CEventManager::ProgressAddChildUI()
+void CWorldManager::ProgressAddChildUI()
 {
 	while (!addChildUIQueue.empty())
 	{
@@ -160,7 +160,7 @@ void CEventManager::ProgressAddChildUI()
 	}
 }
 
-void CEventManager::ProgressDeleteUI()
+void CWorldManager::ProgressDeleteUI()
 {
 	// 삭제 예정 표시된 UI를 삭제 진행
 	CScene* curScene = SINGLE(CSceneManager)->GetCurScene();
@@ -191,7 +191,7 @@ void CEventManager::ProgressDeleteUI()
 	}
 }
 
-void CEventManager::ProgressShowUI()
+void CWorldManager::ProgressShowUI()
 {
 	while (!showUIQueue.empty())
 	{
@@ -202,7 +202,7 @@ void CEventManager::ProgressShowUI()
 	}
 }
 
-void CEventManager::ProgressChangeScene()
+void CWorldManager::ProgressChangeScene()
 {
 	if (nullptr == changeSceneEvent)
 		return;

@@ -1,13 +1,13 @@
 ﻿#pragma once
 
 class CUIManager;
-class CEventManager;
+class CWorldManager;
 class CScene;
 
 class CUI : public Composite<CUI>
 {
 	friend CUIManager;
-	friend CEventManager;
+	friend CWorldManager;
 	friend CScene;
 public:
 	CUI();

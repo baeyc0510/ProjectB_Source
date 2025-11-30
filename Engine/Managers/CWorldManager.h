@@ -4,12 +4,12 @@ class CScene;
 class CGameObject;
 class CUI;
 
-class CEventManager : public SingleTon<CEventManager>
+class CWorldManager : public SingleTon<CWorldManager>
 {
-	friend SingleTon<CEventManager>;
+	friend SingleTon<CWorldManager>;
 private:
-	CEventManager();
-	virtual ~CEventManager();
+	CWorldManager();
+	virtual ~CWorldManager();
 
 public:
 	void Init();
@@ -52,5 +52,5 @@ private:
 	pair<int, float>*									changeSceneEvent;			// 씬 전환 이벤트 보관 변수
 };
 
-#define EVENT		CEventManager::GetInstance()
+#define WORLD		CWorldManager::GetInstance()
 

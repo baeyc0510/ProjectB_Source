@@ -1,13 +1,13 @@
 ﻿#pragma once
 class CSceneManager;
-class CEventManager;
+class CWorldManager;
 class CUIManager;
 class CGameObject;
 class CUI;
 
 class CScene
 {
-	friend CEventManager;
+	friend CWorldManager;
 	friend CSceneManager;
 	friend CUIManager;
 public:

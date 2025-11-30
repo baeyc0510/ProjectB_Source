@@ -12,7 +12,7 @@
 // 상속의 경우 모든 상속하는 자식에게 반드시 기능이 포함되지만
 // 컴포넌트의 경우 필요한 객체에만 조립식으로 붙일 수 있음
 
-class CEventManager;
+class CWorldManager;
 template <typename T>
 class Composite;
 class CScene;
@@ -20,7 +20,7 @@ class CScene;
 template <typename T>
 class Component
 {
-	friend CEventManager;
+	friend CWorldManager;
 	friend Composite<T>;
 public:
 	Component() {}

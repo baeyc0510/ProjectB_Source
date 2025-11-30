@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "Component.h"
-class CEventManager;
+class CWorldManager;
 class CScene;
 
 class CGameObject : public Composite<CGameObject>, public IRender
 {
-	friend CEventManager;
+	friend CWorldManager;
 	friend CScene;
 	friend CCollider;
 public:

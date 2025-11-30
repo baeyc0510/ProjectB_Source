@@ -6,7 +6,7 @@
 // Manager
 #include "Managers/CCameraManager.h"
 #include "Managers/CCollisionManager.h"
-#include "Managers/CEventManager.h"
+#include "Managers/CWorldManager.h"
 #include "Managers/CInputManager.h"
 #include "Managers/CPathManager.h"
 #include "Managers/CRenderManager.h"

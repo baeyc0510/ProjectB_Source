@@ -179,7 +179,7 @@
     <ClInclude Include="Interface\IRender.h" />
     <ClInclude Include="Managers\CCameraManager.h" />
     <ClInclude Include="Managers\CCollisionManager.h" />
-    <ClInclude Include="Managers\CEventManager.h" />
+    <ClInclude Include="Managers\CWorldManager.h" />
     <ClInclude Include="Managers\CInputManager.h" />
     <ClInclude Include="Managers\CPathManager.h" />
     <ClInclude Include="Managers\CRenderManager.h" />
@@ -722,7 +722,7 @@
     </ClCompile>
     <ClCompile Include="Managers\CCameraManager.cpp" />
     <ClCompile Include="Managers\CCollisionManager.cpp" />
-    <ClCompile Include="Managers\CEventManager.cpp" />
+    <ClCompile Include="Managers\CWorldManager.cpp" />
     <ClCompile Include="Managers\CInputManager.cpp" />
     <ClCompile Include="Managers\CPathManager.cpp" />
     <ClCompile Include="Managers\CRenderManager.cpp" />
