@@ -32,7 +32,7 @@ void CMissile::Update()
 
 	if (worldPos.x < 0 || worldPos.x > CGame::WINSIZE.x ||
 		worldPos.y < 0 || worldPos.y > CGame::WINSIZE.y)
-		EVENT->Delete(GetScene(), this);
+		WORLD->Delete(GetScene(), this);
 }
 
 void CMissile::Render()
@@ -54,5 +54,5 @@ void CMissile::Release()
 
 void CMissile::OnCollisionEnter(CCollider* other)
 {
-	EVENT->Delete(GetScene(), this);
+	WORLD->Delete(GetScene(), this);
 }

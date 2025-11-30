@@ -91,7 +91,7 @@ void CPlayer::Update()
 
 void CPlayer::HandleCombatInput()
 {
-	if (INPUT->ButtonDown('A'))
+	if (INPUT->ButtonDown('K'))
 	{
 		abilitySystem->TriggerEvent(EGameEvent::Input_Attack_Pressed);
 
@@ -109,7 +109,7 @@ void CPlayer::HandleCombatInput()
 		}
 	}
 
-	if (INPUT->ButtonDown('D'))
+	if (INPUT->ButtonDown('J'))
 	{
 		abilitySystem->TryActivateAbility(EAbility::Parry);
 	}
@@ -122,11 +122,11 @@ void CPlayer::HandleActionInput()
 		abilitySystem->TryActivateAbility(EAbility::Slide);
 	}
 
-	if (INPUT->ButtonDown(VK_DOWN))
+	if (INPUT->ButtonDown('S'))
 	{
 		abilitySystem->TryActivateAbility(EAbility::Crouch);
 	}
-	if (INPUT->ButtonUp(VK_DOWN))
+	if (INPUT->ButtonUp('S'))
 	{
 		abilitySystem->TriggerEvent(EGameEvent::Input_Crouch_Released);
 	}
@@ -141,13 +141,13 @@ void CPlayer::HandleMovementInput()
 
 	Vec2 velocity = rigidbody->GetVelocity();
 
-	if (INPUT->ButtonStay(VK_LEFT))
+	if (INPUT->ButtonStay('A'))
 	{
 		velocity.x = -MOVE_SPEED;
 		SetForward(-1);
 		stateSystem->AddTagUnique(Tag_Moving);
 	}
-	else if (INPUT->ButtonStay(VK_RIGHT))
+	else if (INPUT->ButtonStay('D'))
 	{
 		velocity.x = MOVE_SPEED;
 		SetForward(1);

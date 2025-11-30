@@ -30,7 +30,7 @@ void CVFX::Update()
     
     if (bHasLifetime && IsNearlyEqual(remainingLifetime, 0.0f))
     {
-        EVENT->Delete(GetScene(), this);
+        WORLD->Delete(GetScene(), this);
         return;
     }
 }
@@ -86,7 +86,7 @@ void CVFX::OnFinishedAnimation()
 {
     if (!bHasLifetime)
     {
-        EVENT->Delete(GetScene(), this);
+        WORLD->Delete(GetScene(), this);
     }
 }
 

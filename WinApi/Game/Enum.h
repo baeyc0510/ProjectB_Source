@@ -142,3 +142,13 @@ enum class EDamageType
 	None,
 	Slash,
 };
+
+//========================================
+//##			Overlay UI Types		##
+//========================================
+
+enum class EOverlayUI
+{
+	None,
+	Inventory,
+};

@@ -64,7 +64,7 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CRenderManager)->Init();
 	SINGLE(CInputManager)->Init();
 	SINGLE(CSceneManager)->Init();
-	SINGLE(CEventManager)->Init();
+	SINGLE(CWorldManager)->Init();
 	SINGLE(CCollisionManager)->Init();
 	SINGLE(CPathManager)->Init();
 	SINGLE(CResourceManager)->Init();
@@ -111,7 +111,7 @@ void CGame::Release()
 	SINGLE(CRenderManager)->Release();
 	SINGLE(CInputManager)->Release();
 	SINGLE(CSceneManager)->Release();
-	SINGLE(CEventManager)->Release();
+	SINGLE(CWorldManager)->Release();
 	SINGLE(CCollisionManager)->Release();
 	SINGLE(CPathManager)->Release();
 	SINGLE(CResourceManager)->Release();
@@ -131,7 +131,7 @@ void CGame::Update()
 	// 게임의 처리 진행
 	// 순서 주의! : 이벤트 매니저는 업데이트 가장 초기에 진행
 	// 같은 프레임내에 모든 게임 오브젝트가 동일한 상황을 기준으로 처리하기 위해
-	SINGLE(CEventManager)->Update();
+	SINGLE(CWorldManager)->Update();
 
 	SINGLE(CTimeManager)->Update();
 	SINGLE(CUIManager)->Update();

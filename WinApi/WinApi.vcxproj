@@ -179,6 +179,7 @@
     <ClInclude Include="Game\Component\CStateSystem.h" />
     <ClInclude Include="Game\Enum.h" />
     <ClInclude Include="Game\Interface\CombatInterface.h" />
+    <ClInclude Include="Game\Manager\CGameUIManager.h" />
     <ClInclude Include="Game\Manager\CVFXManager.h" />
     <ClInclude Include="Game\Object\Character\CCharacter.h" />
     <ClInclude Include="Game\Object\Character\CMonster.h" />
@@ -190,6 +191,8 @@
     <ClInclude Include="Game\Scene\CSceneStage01.h" />
     <ClInclude Include="Game\Scene\CSceneTitle.h" />
     <ClInclude Include="Game\Sound\CSoundController.h" />
+    <ClInclude Include="Game\UI\CInventoryUI.h" />
+    <ClInclude Include="Game\UI\CPlayerStatusHUD.h" />
     <ClInclude Include="Game\Util\AnimEventHelper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
@@ -363,6 +366,7 @@
     <ClCompile Include="Game\Component\CRigidbody.cpp" />
     <ClCompile Include="Game\Component\CStateSystem.cpp" />
     <ClCompile Include="Game\Interface\CombatInterface.cpp" />
+    <ClCompile Include="Game\Manager\CGameUIManager.cpp" />
     <ClCompile Include="Game\Manager\CVFXManager.cpp" />
     <ClCompile Include="Game\Object\Character\CCharacter.cpp" />
     <ClCompile Include="Game\Object\Character\CMonster.cpp">
@@ -674,6 +678,8 @@
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Game\UI\CInventoryUI.cpp" />
+    <ClCompile Include="Game\UI\CPlayerStatusHUD.cpp" />
     <ClCompile Include="Game\Util\AnimEventHelper.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
