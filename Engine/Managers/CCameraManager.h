@@ -41,6 +41,11 @@ public:
 	// 부드러운 따라가기 (0 = 즉시, 값이 클수록 부드럽게)
 	void				SetSmoothSpeed(float speed)			{ smoothSpeed = speed; }
 
+	// 카메라 이동 제한 영역 (월드 좌표)
+	void				SetBounds(const Rect& bounds)		{ this->bounds = bounds; hasBounds = true; }
+	void				ClearBounds()						{ hasBounds = false; }
+	const Rect&			GetBounds() const					{ return bounds; }
+
 	const Vec2&			GetLookAt()							{ return lookAt; }
 	const Vec2&			GetTargetPos()						{ return targetPos; }
 	const CGameObject*	GetTargetObj()						{ return targetObj; }
@@ -74,6 +79,10 @@ private:
 
 	// 부드러운 따라가기 속도 (0 = 즉시, 값이 클수록 부드럽게)
 	float				smoothSpeed;
+
+	// 카메라 이동 제한 영역
+	Rect				bounds;
+	bool				hasBounds;
 };
 
 #define CAMERA	CCameraManager::GetInstance()

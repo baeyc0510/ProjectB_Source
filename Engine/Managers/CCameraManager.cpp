@@ -20,6 +20,9 @@ CCameraManager::CCameraManager()
 	offset			= Vec2(0, 0);
 	deadZone		= Vec2(0, 0);
 	smoothSpeed		= 0;
+
+	bounds			= Rect();
+	hasBounds		= false;
 }
 
 CCameraManager::~CCameraManager()
@@ -76,6 +79,27 @@ void CCameraManager::Update()
 	MoveToTarget();
 	BrightToTarget();
 	// ZoomToTarget(); // 줌 기능 비활성화 (나중에 제대로 구현 필요)
+
+	// 바운딩 영역 클램핑
+	if (hasBounds)
+	{
+		Vec2 virtualSize = SINGLE(CEngine)->GetVirtualSize();
+		Vec2 halfScreen = virtualSize * 0.5f;
+
+		// 카메라 lookAt이 바운딩 영역 내에 있도록 클램핑
+		// lookAt은 화면 중앙이 보는 월드 좌표
+		float minX = bounds.x + halfScreen.x;
+		float maxX = bounds.x + bounds.w - halfScreen.x;
+		float minY = bounds.y + halfScreen.y;
+		float maxY = bounds.y + bounds.h - halfScreen.y;
+
+		// 맵이 화면보다 작으면 중앙에 고정
+		if (minX > maxX) lookAt.x = bounds.x + bounds.w * 0.5f;
+		else lookAt.x = max(minX, min(maxX, lookAt.x));
+
+		if (minY > maxY) lookAt.y = bounds.y + bounds.h * 0.5f;
+		else lookAt.y = max(minY, min(maxY, lookAt.y));
+	}
 }
 
 void CCameraManager::Render()

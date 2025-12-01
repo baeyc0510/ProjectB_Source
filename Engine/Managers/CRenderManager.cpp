@@ -17,6 +17,11 @@ CRenderManager::CRenderManager()
 	hCompositeDC = 0;
 	hCompositeBMP = 0;
 
+	hFlipDC = 0;
+	hFlipBMP = 0;
+	flipBufWidth = 0;
+	flipBufHeight = 0;
+
 	hCurPen = 0;
 	penType = PenType::Solid;
 	penWidth = 1;
@@ -62,6 +67,14 @@ void CRenderManager::Init()
 	hCompositeBMP = CreateCompatibleBitmap(hDC, (int)winSize.x, (int)winSize.y);
 	HBITMAP hOldCompBitmap = static_cast<HBITMAP>(SelectObject(hCompositeDC, hCompositeBMP));
 	DeleteObject(hOldCompBitmap);
+
+	// Flip용 버퍼 생성 (가상 해상도 크기면 충분)
+	flipBufWidth = (int)virtualSize.x;
+	flipBufHeight = (int)virtualSize.y;
+	hFlipDC = CreateCompatibleDC(hDC);
+	hFlipBMP = CreateCompatibleBitmap(hDC, flipBufWidth, flipBufHeight);
+	HBITMAP hOldFlipBitmap = static_cast<HBITMAP>(SelectObject(hFlipDC, hFlipBMP));
+	DeleteObject(hOldFlipBitmap);
 
 	// 기본 렌더링 대상은 게임 버퍼
 	hCurrentDC = hMemDC;
@@ -126,6 +139,8 @@ void CRenderManager::Release()
 	DeleteObject(hUIBMP);
 	DeleteObject(hCompositeDC);
 	DeleteObject(hCompositeBMP);
+	DeleteDC(hFlipDC);
+	DeleteObject(hFlipBMP);
 	ReleaseDC(hWnd, hDC);
 
 	DeleteObject(hCurPen);
@@ -138,6 +153,8 @@ void CRenderManager::Release()
 	hUIBMP = 0;
 	hCompositeDC = 0;
 	hCompositeBMP = 0;
+	hFlipDC = 0;
+	hFlipBMP = 0;
 }
 
 void CRenderManager::Pixel(float x, float y, COLORREF color)
@@ -224,19 +241,12 @@ void CRenderManager::FrameImage(CImage* pImg, float dstStartX, float dstStartY, 
 
 	if (flipX)
 	{
-		HDC hTempDC = CreateCompatibleDC(hImgDC);
-		HBITMAP hTempBitmap = CreateCompatibleBitmap(hImgDC, iSrcWidth, iSrcHeight);
-		HBITMAP hOldBitmap = (HBITMAP)SelectObject(hTempDC, hTempBitmap);
-
-		StretchBlt(hTempDC, iSrcWidth - 1, 0, -iSrcWidth, iSrcHeight,
+		// 미리 생성된 flip 버퍼 재사용 (성능 향상)
+		StretchBlt(hFlipDC, iSrcWidth - 1, 0, -iSrcWidth, iSrcHeight,
 			hImgDC, (int)srcStartX, (int)srcStartY, iSrcWidth, iSrcHeight, SRCCOPY);
 
 		TransparentBlt(hCurrentDC, (int)dstStartX, (int)dstStartY, iDstWidth, iDstHeight,
-			hTempDC, 0, 0, iSrcWidth, iSrcHeight, transparent);
-
-		SelectObject(hTempDC, hOldBitmap);
-		DeleteObject(hTempBitmap);
-		DeleteDC(hTempDC);
+			hFlipDC, 0, 0, iSrcWidth, iSrcHeight, transparent);
 	}
 	else
 	{

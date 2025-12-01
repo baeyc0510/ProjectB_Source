@@ -70,6 +70,12 @@ private:
 	HDC				hCompositeDC;	// 최종 합성 버퍼 DC
 	HBITMAP			hCompositeBMP;	// 최종 합성 버퍼 비트맵
 
+	// Flip용 임시 버퍼 (재사용하여 성능 향상)
+	HDC				hFlipDC;
+	HBITMAP			hFlipBMP;
+	int				flipBufWidth;
+	int				flipBufHeight;
+
 	// 펜
 	HPEN			hCurPen;
 	PenType			penType;
