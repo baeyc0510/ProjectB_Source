@@ -10,7 +10,7 @@ void Ability_HitReaction::OnActivate()
     CAnimator* animator =  owner->GetComponent<CAnimator>();
     animator->Play(GetHitAnimKey(),true, BIND(this,EndAbility), BIND(this, EndAbility));
     
-    WaitEvent(EGameEvent::Recover, BIND(this,StopKnockback));
+    WaitEvent(EGameEvent::Recover, BIND_EVENT(this,StopKnockback));
 }
 
 void Ability_HitReaction::OnEnd()

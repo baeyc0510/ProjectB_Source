@@ -11,7 +11,7 @@ void Ability_MonsterAttack::OnActivate()
     CAnimator* animator = owner->GetComponent<CAnimator>();
     animator->Play(AnimKey::Attack,true,BIND(this, EndAbility),BIND(this, EndAbility));
     
-    WaitEvent(EGameEvent::HitCheck,BIND(this, OnHitCheck));
+    WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));
 }
 
 void Ability_MonsterAttack::OnEnd()

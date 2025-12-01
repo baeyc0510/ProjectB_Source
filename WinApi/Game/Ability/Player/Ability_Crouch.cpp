@@ -14,8 +14,8 @@ void Ability_Crouch::OnActivate()
     auto animator = owner->GetComponent<CAnimator>();
     animator->Play(L"Crouch",true, nullptr, BIND(this, EndAbility));
 
-    WaitEvent(EGameEvent::Input_Crouch_Released,BIND(this,OnCrouchReleased));
-    WaitEvent(EGameEvent::EndCrouch,BIND(this,OnEndCrouch));
+    WaitEvent(EGameEvent::Input_Crouch_Released, BIND_EVENT(this,OnCrouchReleased));
+    WaitEvent(EGameEvent::EndCrouch, BIND_EVENT(this,OnEndCrouch));
 }
 
 void Ability_Crouch::OnEnd()

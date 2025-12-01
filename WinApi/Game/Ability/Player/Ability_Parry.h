@@ -19,7 +19,7 @@ private:
     void OnInterruptedParryAnim();
     void OnParryWindowOpen();
     void OnParryWindowClose();
-    void OnHit();
+    void OnHit(CGameObject* source);
     void OnCounterInput();
     void OnCounterOpen();
     void OnCounterClose();

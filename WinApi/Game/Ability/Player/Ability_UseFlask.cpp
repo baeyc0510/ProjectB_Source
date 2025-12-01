@@ -15,7 +15,7 @@ void Ability_UseFlask::OnActivate()
     auto animator = owner->GetComponent<CAnimator>();
     animator->Play(AnimKey::UseFlask,true, BIND(this,EndAbility), BIND(this,EndAbility));
     
-    WaitEvent(EGameEvent::DoAction, BIND(this, UseFlask));
+    WaitEvent(EGameEvent::DoAction, BIND_EVENT(this, UseFlask));
 }
 
 void Ability_UseFlask::OnEnd()

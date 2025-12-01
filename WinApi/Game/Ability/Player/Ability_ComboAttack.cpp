@@ -13,10 +13,10 @@ void Ability_ComboAttack::OnActivate()
     Ability::OnActivate();
 
     // 이벤트 바인딩
-    WaitEvent(EGameEvent::Input_Attack_Pressed, BIND_ARGS(this, OnInputAttack));
-    WaitEvent(EGameEvent::HitCheck, BIND_ARGS(this, OnHitCheck));
-    WaitEvent(EGameEvent::ComboWindowOpen, BIND_ARGS(this, OnComboWindowOpen));
-    WaitEvent(EGameEvent::ComboWindowClose, BIND_ARGS(this, OnComboWindowClose));
+    WaitEvent(EGameEvent::Input_Attack_Pressed, BIND_EVENT(this, OnInputAttack));
+    WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));
+    WaitEvent(EGameEvent::ComboWindowOpen, BIND_EVENT(this, OnComboWindowOpen));
+    WaitEvent(EGameEvent::ComboWindowClose, BIND_EVENT(this, OnComboWindowClose));
 
     // 공격 1타 시작
     Attack();

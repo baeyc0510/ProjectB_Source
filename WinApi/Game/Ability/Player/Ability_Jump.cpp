@@ -35,8 +35,8 @@ void Ability_Jump::OnActivate()
     }
     
     animator->Play(aniName,true, BIND(this, OnFinishedAnim));
-    WaitEvent(EGameEvent::VelocityChanged, BIND(this, OnVelocityChanged));
-    WaitEvent(EGameEvent::Landed, BIND(this, EndAbility));
+    WaitEvent(EGameEvent::VelocityChanged, BIND_EVENT(this, OnVelocityChanged));
+    WaitEvent(EGameEvent::Landed, BIND_EVENT(this, EndAbility));
 }
 
 void Ability_Jump::OnEnd()
