@@ -104,7 +104,6 @@ void CPlayer::Update()
 	UpdateGroundState();
 	UpdateAnimation();
 	CheckVelocityChanged();
-	
 }
 
 void CPlayer::HandleCombatInput()
@@ -252,7 +251,7 @@ void CPlayer::Release()
 
 void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 {
-	abilitySystem->TriggerEvent(EGameEvent::Hit);
+	abilitySystem->TriggerEvent(EGameEvent::Hit,source);
 	
 	// Spawn VFX
 	Vec2 spawnPos = context.hitResult.hitCenter;

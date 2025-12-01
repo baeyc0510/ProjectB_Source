@@ -63,6 +63,7 @@ void CMonster::Update()
 		attackTimer = 0.0f;
 	}
 
+	UpdateMetaCollision();	// 메타맵 기반 충돌 처리
 	UpdateGroundState();
 	UpdateAnimation();
 	animator->SetDirection(GetForward());
@@ -103,7 +104,7 @@ void CMonster::OnDamage(CGameObject* source, const CombatContext& context)
 	Logger::Debug(name + TEXT(" Hit!"));
 	
 	// Trigger Event
-	abilitySystem->TriggerEvent(EGameEvent::Hit);
+	abilitySystem->TriggerEvent(EGameEvent::Hit,source);
 	
 	// Spawn VFX
 	Vec2 spawnPos = context.hitResult.hitCenter;

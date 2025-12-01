@@ -181,7 +181,11 @@
     <ClInclude Include="Game\Enum.h" />
     <ClInclude Include="Game\Interface\CombatInterface.h" />
     <ClInclude Include="Game\Manager\CGameUIManager.h" />
+    <ClInclude Include="Game\Manager\CMapManager.h" />
     <ClInclude Include="Game\Manager\CVFXManager.h" />
+    <ClInclude Include="Game\Map\CMap.h" />
+    <ClInclude Include="Game\Map\CMapLayer.h" />
+    <ClInclude Include="Game\Map\CMetaMap.h" />
     <ClInclude Include="Game\Object\Character\CCharacter.h" />
     <ClInclude Include="Game\Object\Character\CMonster.h" />
     <ClInclude Include="Game\Object\Character\CPlayer.h" />
@@ -369,7 +373,11 @@
     <ClCompile Include="Game\Component\CStateSystem.cpp" />
     <ClCompile Include="Game\Interface\CombatInterface.cpp" />
     <ClCompile Include="Game\Manager\CGameUIManager.cpp" />
+    <ClCompile Include="Game\Manager\CMapManager.cpp" />
     <ClCompile Include="Game\Manager\CVFXManager.cpp" />
+    <ClCompile Include="Game\Map\CMap.cpp" />
+    <ClCompile Include="Game\Map\CMapLayer.cpp" />
+    <ClCompile Include="Game\Map\CMetaMap.cpp" />
     <ClCompile Include="Game\Object\Character\CCharacter.cpp" />
     <ClCompile Include="Game\Object\Character\CMonster.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
