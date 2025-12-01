@@ -20,6 +20,11 @@ public:
 	void		EndDraw();
 	void		Release();
 
+	// UI 레이어 (윈도우 해상도에 직접 렌더링)
+	void		BeginUI();
+	void		EndUI();
+	HDC			GetUIDC() { return hUIMemDC; }
+
 	void		Pixel(float x, float y, COLORREF color);						// 픽셀 그리기
 	void		Line(float startX, float startY, float endX, float endY);		// 선 그리기
 	void		Rect(float startX, float startY, float endX, float endY);		// 사각형 그리기
@@ -53,7 +58,17 @@ private:
 	HDC				hDC;			// 프론트버퍼(결과 게임화면)에 그릴 dc
 	HDC				hMemDC;			// 백버퍼(그리는중 게임화면)에 그릴 dc
 	HBITMAP			hBMP;			// 백버퍼용 비트맵(이미지)
-	Vec2			winSize;		// 윈도우 사이즈
+	Vec2			winSize;		// 실제 윈도우 사이즈 (1280x720)
+	Vec2			virtualSize;	// 가상 해상도 (640x360) - 백버퍼 크기
+
+	// UI 레이어 (윈도우 해상도)
+	HDC				hUIMemDC;		// UI 백버퍼 DC
+	HBITMAP			hUIBMP;			// UI 백버퍼 비트맵
+	HDC				hCurrentDC;		// 현재 렌더링 대상 DC
+
+	// 합성용 버퍼 (윈도우 해상도) - 더블 버퍼링
+	HDC				hCompositeDC;	// 최종 합성 버퍼 DC
+	HBITMAP			hCompositeBMP;	// 최종 합성 버퍼 비트맵
 
 	// 펜
 	HPEN			hCurPen;

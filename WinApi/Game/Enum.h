@@ -49,6 +49,7 @@ enum StateTag
 	Tag_StopVelocity 		= 1 << 14,
 	Tag_Crouching			= 1 << 15,
 	Tag_AirAttackExhausted	= 1 << 16,	// 공중 공격 소진
+	Tag_FlaskRemaining		= 1 << 17, // 잔여 플라스크 있음
 };
 
 inline StateTag operator|(StateTag a, StateTag b)
@@ -97,12 +98,14 @@ enum class EAbility
 	Attack,
 	AirAttack,
 	CrouchAttack,
+	UseFlask,
 	Jump,
 	Slide,
 	Crouch,
 	Parry,
 	CounterAttack,
 	Hit,
+	ParryHit,
 	Death,
 };
 
@@ -124,9 +127,11 @@ enum class EGameEvent
 	ParryWindowOpen,
 	ParryWindowClose,
 	Recover,
+	DoAction,
 	// 게임플레이 이벤트
 	Hit,
 	EndCrouch,
+	VelocityChanged,
 	// Input
 	Input_Attack_Pressed,
 	Input_Crouch_Released,
@@ -140,6 +145,7 @@ enum class EDamageType
 {
 	None,
 	Slash,
+	Parry,
 };
 
 //========================================

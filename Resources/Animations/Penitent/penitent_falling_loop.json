@@ -1,7 +1,7 @@
 {
     "image": "Image/Penitent/penitent_falling_loop.bmp",
-    "pivot": [36,0],
-    "frame_interval": 0.0833,
+    "pivot": [34.0, 0.0],
+    "frame_interval": 0.1,
     "frames": [
         {"rect": [0, 0, 59, 76], "events": []},
         {"rect": [59, 0, 59, 76], "events": []},

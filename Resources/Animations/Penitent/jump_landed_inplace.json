@@ -1,0 +1,10 @@
+{
+    "image": "Image/Penitent/penitent_jump_motions.bmp",
+    "pivot": [47.0, 0.0],
+    "frame_interval": 0.1,
+    "frames": [
+        {"rect": [720, 0, 90, 90], "events": []},
+        {"rect": [810, 0, 90, 90], "events": []},
+        {"rect": [900, 0, 90, 90], "events": []}
+    ]
+}

@@ -22,7 +22,7 @@ public:
 	void CancelAbilitiesWithTag(StateTag tag);
 	
 	// 이벤트 중계
-	void TriggerEvent(EGameEvent eventType);
+	void TriggerEvent(EGameEvent eventType, CGameObject* source = nullptr);
 	
 	// 상태 조회
 	bool IsAbilityActive(EAbility abilityType) const;
@@ -43,7 +43,7 @@ private:
 
 public:
 	// AbilitySystem 이벤트
-	MulticastDelegate<EGameEvent> OnEvent;
+	MulticastDelegate<EGameEvent, CGameObject*> OnEvent;
 	
 private:
 	map<EAbility, unique_ptr<Ability>>	abilities;

@@ -27,6 +27,9 @@ public:
 	float			GetRatio()				{ return ratio; }
 	void			SetRatio(float ratio)	{ this->ratio = ratio; }
 	void			SetDirection(int dir)	{ flipX =  dir <= 0; }
+	
+	UINT			GetCurrentFrame()			{ return curFrame; }
+	void			SetCurrentFrame(UINT inFrame);
 
 
 	// 프레임 이벤트 (AbilitySystem 연동용)

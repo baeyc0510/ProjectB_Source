@@ -113,6 +113,7 @@ void CScene::SceneUpdate()
 
 void CScene::SceneRender()
 {
+	// 1. 게임 오브젝트 렌더링 (가상 해상도)
 	for (CGameObject* obj : objList)
 	{
 		obj->ComponentRender();
@@ -125,10 +126,13 @@ void CScene::SceneRender()
 		top.second->Render();
 	}
 
+	// 2. UI 렌더링 (윈도우 해상도 - 별도 레이어)
+	RENDER->BeginUI();
 	for (CUI* ui : uiList)
 	{
 		ui->ComponentRender();
 	}
+	RENDER->EndUI();
 
 	Render();
 }

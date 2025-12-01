@@ -31,8 +31,8 @@ void CSceneTitle::Update()
 
 void CSceneTitle::Render()
 {
-	RENDER->SetText(20);
-	RENDER->Text(CGame::WINSIZE.x * 0.5f, CGame::WINSIZE.y * 0.5f, TEXT("press space to start"));
+	RENDER->SetText(10);
+	RENDER->Text(CGame::VIRTUALSIZE.x * 0.5f, CGame::VIRTUALSIZE.y * 0.5f, TEXT("press space to start"));
 	RENDER->SetText();
 }
 

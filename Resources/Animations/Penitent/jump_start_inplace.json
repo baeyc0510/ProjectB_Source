@@ -1,0 +1,15 @@
+{
+    "image": "Image/Penitent/penitent_jump_motions.bmp",
+    "pivot": [47.0, 0.0],
+    "frame_interval": 0.1,
+    "frames": [
+        {"rect": [0, 0, 90, 90], "events": []},
+        {"rect": [90, 0, 90, 90], "events": []},
+        {"rect": [180, 0, 90, 90], "events": []},
+        {"rect": [270, 0, 90, 90], "events": []},
+        {"rect": [360, 0, 90, 90], "events": []},
+        {"rect": [450, 0, 90, 90], "events": []},
+        {"rect": [540, 0, 90, 90], "events": []},
+        {"rect": [630, 0, 90, 90], "events": []}
+    ]
+}

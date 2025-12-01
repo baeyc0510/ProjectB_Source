@@ -9,6 +9,23 @@ public:
 	CPlayer();
 	~CPlayer() override;
 
+	/*~ Player Interface ~*/
+	void SetCurrentHP(float value);
+	void SetMaxHP(float value);
+	void SetCurrentMP(float value);
+	void SetMaxMP(float value);
+	void SetCurrentFlask(int value);
+	void SetMaxFlask(int value);
+	void SetJumpForce(float value) { jumpForce = value; }
+	
+	float GetCurrentHP() const {return currentHP;}
+	float GetMaxHP() const {return maxHP;}
+	float GetCurrentMP() const {return currentMP;}
+	float GetMaxMP() const {return maxMP;}
+	int GetCurrentFlask() const {return currentFlask;}
+	int GetMaxFlask() const {return maxFlask;}
+	float GetJumpForce() const {return jumpForce;}
+	
 protected:
 	void Init() override;
 	void OnEnable() override;
@@ -21,20 +38,12 @@ protected:
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 
 	/*~ Player Interface ~*/
-	Vec2 GetKnockbackVelocity(CGameObject* source, const CombatContext& context);
-	wstring GetPlayerHitVfxKey(EDamageType damageType);
-
-	void SetCurrentHP(float value);
-	void SetMaxHP(float value);
-	void SetCurrentMP(float value);
-	void SetMaxMP(float value);
+	void InitStartupStats();
 	void UpdateHP(float& attribute, float value) const;
 	void UpdateMP(float& attribute, float value) const;
 	
-	float GetCurrentHP() const {return currentHP;}
-	float GetMaxHP() const {return maxHP;}
-	float GetCurrentMP() const {return currentMP;}
-	float GetMaxMP() const {return maxMP;}
+	Vec2 GetKnockbackVelocity(CGameObject* source, const CombatContext& context);
+	wstring GetPlayerHitVfxKey(EDamageType damageType);
 	
 private:
 	// 입력 처리
@@ -45,14 +54,16 @@ private:
 	// 상태 처리
 	void UpdateAnimation();
 	void OnStateChanged(StateTag oldTags, StateTag newTags);
+	void CheckVelocityChanged();
 
 private:
 	// 상수
 	static constexpr float MOVE_SPEED = 300.f;
-	static constexpr float JUMP_FORCE = 600.f;
+	static constexpr float JUMP_FORCE = 700.f;
 	static constexpr float KNOCKBACK_POWER = 100.f;
 	static constexpr float MAX_HP = 100.f;
 	static constexpr float MAX_MP = 100.f;
+	static constexpr int MAX_FLASK = 2;
 
 	// Crouch collider 설정
 	Vec2 standingColScale;
@@ -64,4 +75,12 @@ private:
 	
 	float currentMP;
 	float maxMP;
+	
+	int currentFlask;
+	int maxFlask;
+	
+	float jumpForce;
+
+	// velocity 변경 감지용
+	Vec2 prevVelocity;
 };

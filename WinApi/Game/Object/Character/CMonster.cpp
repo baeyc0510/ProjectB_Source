@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "CMonster.h"
 
-#include "Game/AnimKeys.h"
+#include "Game/AnimKey.h"
 #include "Game/Enum.h"
 #include "Game/Ability/Ability_HitReaction.h"
 #include "Game/Ability/Monster/Ability_MonsterAttack.h"
@@ -36,17 +36,20 @@ void CMonster::Init()
 	// Abilities
 	AddAbility<Ability_MonsterAttack>(EAbility::Attack);
 	AddAbility<Ability_HitReaction>(EAbility::Hit);
+	AddAbility<Ability_ParryHitReaction>(EAbility::ParryHit);
 	
 	// Animations
-	AddAnimation(Anim::Idle, TEXT("Animations/Enemy/acolite_idle_anim.json"), true);
-	AddAnimation(Anim::Attack, TEXT("Animations/Enemy/acolyte_attack_anim.json"), false);
-	AddAnimation(Anim::Hit, TEXT("Animations/Enemy/acolyte_get_hit_anim.json"), false);
+	AddAnimation(AnimKey::Idle, TEXT("Animations/Enemy/acolite_idle_anim.json"), true);
+	AddAnimation(AnimKey::Attack, TEXT("Animations/Enemy/acolyte_attack_anim.json"), false);
+	AddAnimation(AnimKey::Hit, TEXT("Animations/Enemy/acolyte_get_hit_anim.json"), false);
+	AddAnimation(AnimKey::ParryHit, TEXT("Animations/Enemy/acolyte_parry_reaction_anim.json"), false);
+	AddAnimation(AnimKey::Walking, TEXT("Animations/Enemy/acolite_walking_anim.json"), true);
 }
 
 void CMonster::OnEnable()
 {
 	CCharacter::OnEnable();
-	animator->Play(Anim::Idle);
+	animator->Play(AnimKey::Idle);
 }
 
 void CMonster::Update()
@@ -91,7 +94,7 @@ void CMonster::UpdateAnimation()
 	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
 
-	animator->Play(Anim::Idle);
+	animator->Play(AnimKey::Idle);
 }
 
 void CMonster::OnDamage(CGameObject* source, const CombatContext& context)
@@ -124,14 +127,8 @@ void CMonster::OnDamage(CGameObject* source, const CombatContext& context)
 		}
 		
 		// Hit Reaction
-		abilitySystem->CancelAbility(EAbility::Hit);
-		if (abilitySystem->TryActivateAbility(EAbility::Hit))
-		{
-			// Knockback
-			Vec2 velocity = GetKnockbackVelocity(source, context);
-			rigidbody->SetVelocity(velocity);
-			SetForward(velocity.x * -1.0f); // 날아가는 방향 반대를 바라보게 하기
-		}
+		abilitySystem->CancelAbilitiesWithTag(Tag_Hit);
+		abilitySystem->TryActivateAbility(EAbility::Hit);
 	}
 }
 

@@ -62,16 +62,16 @@ void Ability::CancelAbility()
 	EndAbility();
 }
 
-DelegateHandle Ability::WaitEvent(EGameEvent eventType, function<void()> callback)
+DelegateHandle Ability::WaitEvent(EGameEvent eventType, function<void(CGameObject*)> callback)
 {
 	if (!abilitySystem)
 		return 0;
 
 	DelegateHandle handle = abilitySystem->OnEvent.Add(
-		[eventType, callback](EGameEvent triggeredEvent)
+		[eventType, callback](EGameEvent triggeredEvent, CGameObject* source)
 		{
 			if (triggeredEvent == eventType)
-				callback();
+				callback(source);
 		}
 	);
 

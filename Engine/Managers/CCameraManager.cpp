@@ -12,6 +12,14 @@ CCameraManager::CCameraManager()
 	targetBright	= 1;
 	curBright		= 1;
 	timeToBright	= 0;
+
+	curZoom			= 1.0f;
+	targetZoom		= 1.0f;
+	timeToZoom		= 0;
+
+	offset			= Vec2(0, 0);
+	deadZone		= Vec2(0, 0);
+	smoothSpeed		= 0;
 }
 
 CCameraManager::~CCameraManager()
@@ -20,8 +28,10 @@ CCameraManager::~CCameraManager()
 
 void CCameraManager::Init()
 {
+	// fadeImage는 가상 해상도 크기로 생성
+	Vec2 virtualSize = SINGLE(CEngine)->GetVirtualSize();
 	fadeImage = new CImage();
-	fadeImage->Create((UINT)SINGLE(CEngine)->GetWinSize().x, (UINT)SINGLE(CEngine)->GetWinSize().y);
+	fadeImage->Create((UINT)virtualSize.x, (UINT)virtualSize.y);
 	PatBlt(fadeImage->GetImageDC(), 0, 0, fadeImage->GetBmpWidth(), fadeImage->GetBmpHeight(), BLACKNESS);
 }
 
@@ -37,13 +47,35 @@ void CCameraManager::Update()
 		}
 		else
 		{
-			// 추적할 게임오브젝트가 있을 경우 게임오브젝트의 위치를 목표위치로 지정
-			targetPos = targetObj->GetPos();
+			// 타겟의 실제 위치 (오프셋 적용)
+			Vec2 targetWorldPos = targetObj->GetPos() + offset;
+
+			// 데드존 적용: 타겟이 데드존 밖으로 나간 만큼만 카메라 이동
+			Vec2 diff = targetWorldPos - lookAt;
+			float halfDeadX = deadZone.x * 0.5f;
+			float halfDeadY = deadZone.y * 0.5f;
+
+			// X축 데드존 체크
+			if (diff.x > halfDeadX)
+				targetPos.x = lookAt.x + (diff.x - halfDeadX);
+			else if (diff.x < -halfDeadX)
+				targetPos.x = lookAt.x + (diff.x + halfDeadX);
+			else
+				targetPos.x = lookAt.x;
+
+			// Y축 데드존 체크
+			if (diff.y > halfDeadY)
+				targetPos.y = lookAt.y + (diff.y - halfDeadY);
+			else if (diff.y < -halfDeadY)
+				targetPos.y = lookAt.y + (diff.y + halfDeadY);
+			else
+				targetPos.y = lookAt.y;
 		}
 	}
 
 	MoveToTarget();
 	BrightToTarget();
+	// ZoomToTarget(); // 줌 기능 비활성화 (나중에 제대로 구현 필요)
 }
 
 void CCameraManager::Render()
@@ -51,11 +83,13 @@ void CCameraManager::Render()
 	if (curBright >= 1)
 		return;
 
+	// 가상 해상도 기준으로 페이드 이미지 렌더링
+	Vec2 virtualSize = SINGLE(CEngine)->GetVirtualSize();
 	RENDER->BlendImage(
 		fadeImage,
 		0, 0,
-		SINGLE(CEngine)->GetWinSize().x,
-		SINGLE(CEngine)->GetWinSize().y,
+		virtualSize.x,
+		virtualSize.y,
 		0, 0,
 		(float)(fadeImage->GetBmpWidth()),
 		(float)(fadeImage->GetBmpHeight()),
@@ -70,13 +104,22 @@ void CCameraManager::Release()
 
 Vec2 CCameraManager::WorldToScreenPoint(Vec2 worldPoint)
 {
-	Vec2 center = SINGLE(CEngine)->GetWinSize() * 0.5f;
-	return worldPoint - (lookAt - center);
+	// 가상 해상도 기준으로 좌표 변환
+	Vec2 virtualSize = SINGLE(CEngine)->GetVirtualSize();
+	Vec2 center = virtualSize * 0.5f;
+	Vec2 screenPos = worldPoint - (lookAt - center);
+
+	// 픽셀 스내핑: 지터링 방지를 위해 정수로 반올림
+	screenPos.x = floorf(screenPos.x + 0.5f);
+	screenPos.y = floorf(screenPos.y + 0.5f);
+	return screenPos;
 }
 
 Vec2 CCameraManager::ScreenToWorldPoint(Vec2 screenPoint)
 {
-	Vec2 center = SINGLE(CEngine)->GetWinSize() * 0.5f;
+	// 가상 해상도 기준으로 좌표 변환
+	Vec2 virtualSize = SINGLE(CEngine)->GetVirtualSize();
+	Vec2 center = virtualSize * 0.5f;
 	return screenPoint + (lookAt - center);
 }
 
@@ -113,26 +156,36 @@ void CCameraManager::SetTargetPos(const Vec2& targetPos, float timeToTarget)
 void CCameraManager::SetTargetObj(CGameObject* targetObj)
 {
 	this->targetObj = targetObj;
+
+	// 타겟 설정 시 즉시 카메라를 타겟 위치로 이동 (오프셋 적용)
+	if (targetObj != nullptr)
+	{
+		lookAt = targetObj->GetPos() + offset;
+		targetPos = lookAt;
+	}
 }
 
 void CCameraManager::MoveToTarget()
 {
-	timeToTarget -= DT;
-
-	if (timeToTarget <= 0)
+	// timeToTarget이 있으면 시간 기반 이동 (연출용)
+	if (timeToTarget > 0)
 	{
-		// 목표위치까지 남은 시간이 없을 경우 목적지로 현재위치 고정
-		lookAt = targetPos;
-	}
-	else
-	{
-		// 목표위치까지 남은 시간이 있을 경우
-		// 목적지까지 남은시간만큼의 속도로 이동
-		// 이동거리 = 속력 * 시간
-		// 속력 = (도착지 - 출발지) / 소요시간
-		// 시간 = 프레임단위시간
+		timeToTarget -= DT;
 		lookAt += (targetPos - lookAt) / timeToTarget * DT;
+		return;
 	}
+
+	// smoothSpeed가 0이면 즉시 이동
+	if (smoothSpeed <= 0)
+	{
+		lookAt = targetPos;
+		return;
+	}
+
+	// 부드러운 따라가기 (lerp)
+	float t = 1.0f - expf(-smoothSpeed * DT);
+	lookAt.x += (targetPos.x - lookAt.x) * t;
+	lookAt.y += (targetPos.y - lookAt.y) * t;
 }
 
 void CCameraManager::BrightToTarget()
@@ -154,5 +207,30 @@ void CCameraManager::BrightToTarget()
 		curBright += (targetBright - curBright) / timeToBright * DT;
 		if		(curBright > 1) curBright = 1;
 		else if (curBright < 0) curBright = 0;
+	}
+}
+
+void CCameraManager::SetZoom(float zoom, float duration)
+{
+	targetZoom = zoom;
+	timeToZoom = duration;
+
+	// duration이 0이면 즉시 적용
+	if (duration <= 0)
+		curZoom = zoom;
+}
+
+void CCameraManager::ZoomToTarget()
+{
+	timeToZoom -= DT;
+
+	if (timeToZoom <= 0)
+	{
+		curZoom = targetZoom;
+	}
+	else
+	{
+		// 부드러운 줌 전환
+		curZoom += (targetZoom - curZoom) / timeToZoom * DT;
 	}
 }

@@ -1,0 +1,22 @@
+{
+    "image": "Image/Enemy/acolite_walking_anim.bmp",
+    "pivot": [9.0, 0.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 47, 130], "events": []},
+        {"rect": [47, 0, 47, 130], "events": []},
+        {"rect": [94, 0, 47, 130], "events": []},
+        {"rect": [141, 0, 47, 130], "events": []},
+        {"rect": [188, 0, 47, 130], "events": []},
+        {"rect": [235, 0, 47, 130], "events": []},
+        {"rect": [282, 0, 47, 130], "events": []},
+        {"rect": [329, 0, 47, 130], "events": []},
+        {"rect": [376, 0, 47, 130], "events": []},
+        {"rect": [423, 0, 47, 130], "events": []},
+        {"rect": [470, 0, 47, 130], "events": []},
+        {"rect": [517, 0, 47, 130], "events": []},
+        {"rect": [564, 0, 47, 130], "events": []},
+        {"rect": [611, 0, 47, 130], "events": []},
+        {"rect": [658, 0, 47, 130], "events": []}
+    ]
+}

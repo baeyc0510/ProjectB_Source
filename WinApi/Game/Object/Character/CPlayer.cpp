@@ -1,13 +1,16 @@
 ﻿#include "pch.h"
 #include "CPlayer.h"
 
-#include "Game/AnimKeys.h"
+#include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/Ability/Player/Ability_AirAttack.h"
 #include "Game/Ability/Player/Ability_ComboAttack.h"
+#include "Game/Ability/Player/Ability_Crouch.h"
 #include "Game/Ability/Player/Ability_CrouchAttack.h"
+#include "Game/Ability/Player/Ability_Jump.h"
 #include "Game/Ability/Player/Ability_Parry.h"
 #include "Game/Ability/Player/Ability_Slide.h"
+#include "Game/Ability/Player/Ability_UseFlask.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 #include "Game/Component/CAbilitySystem.h"
@@ -15,9 +18,10 @@
 #include "Game/Manager/CVFXManager.h"
 #include "Game/Object/CVFX.h"
 
-CPlayer::CPlayer()
+CPlayer::CPlayer() : currentHP(0), maxHP(0), currentMP(0), maxMP(0), currentFlask(0), maxFlask(0), prevVelocity(0, 0)
 {
 	name = TEXT("플레이어");
+	jumpForce = JUMP_FORCE;
 }
 
 CPlayer::~CPlayer()
@@ -27,12 +31,6 @@ CPlayer::~CPlayer()
 void CPlayer::Init()
 {
 	CCharacter::Init();
-	
-	// HP, MP
-	SetMaxHP(MAX_HP);
-	SetCurrentHP(MAX_HP);
-	SetMaxMP(MAX_MP);
-	SetCurrentMP(MAX_MP);
 	
 	// Rigidbody
 	rigidbody = new CRigidbody();
@@ -53,34 +51,46 @@ void CPlayer::Init()
 	AddAbility<Ability_AirAttack>(EAbility::AirAttack);
 	AddAbility<Ability_Slide>(EAbility::Slide);
 	AddAbility<Ability_Parry>(EAbility::Parry);
+	AddAbility<Ability_Crouch>(EAbility::Crouch);
 	AddAbility<Ability_CrouchAttack>(EAbility::CrouchAttack);
+	AddAbility<Ability_UseFlask>(EAbility::UseFlask);
+	AddAbility<Ability_Jump>(EAbility::Jump);
 	
 	// Animations
-	AddAnimation(Anim::Idle, TEXT("Animations/Penitent/penitent_idle_anim.json"), true);
-	AddAnimation(Anim::Run, TEXT("Animations/Penitent/penitent_running_anim.json"), true);
-	AddAnimation(Anim::Jump, TEXT("Animations/Penitent/penitent_jump_anim.json"), false);
-	AddAnimation(Anim::Fall, TEXT("Animations/Penitent/penitent_falling_loop.json"), true);
-	AddAnimation(Anim::Combo1, TEXT("Animations/Penitent/penitent_attack_combo_1.json"), false);
-	AddAnimation(Anim::Combo2, TEXT("Animations/Penitent/penitent_attack_combo_2.json"), false);
-	AddAnimation(Anim::Combo3, TEXT("Animations/Penitent/penitent_attack_combo_3.json"), false);
-	AddAnimation(Anim::AirCombo1, TEXT("Animations/Penitent/penitent_jumping_attack1.json"), false);
-	AddAnimation(Anim::AirCombo2, TEXT("Animations/Penitent/penitent_jumping_attack2.json"), false);
-	AddAnimation(Anim::Slide, TEXT("Animations/Penitent/penitent_dodge_anim.json"), false);
-	AddAnimation(Anim::Parry, TEXT("Animations/Penitent/penitent_parry.json"), false);
-	AddAnimation(Anim::ParrySuccess, TEXT("Animations/Penitent/penitent_parry_success.json"), false);
-	AddAnimation(Anim::ParryCounter, TEXT("Animations/Penitent/penitent_parry_counter.json"), false);
-	AddAnimation(Anim::Crouch, TEXT("Animations/Penitent/penitent_crouch_anim.json"), false);
-	AddAnimation(Anim::CrouchUp, TEXT("Animations/Penitent/penitent_crouch_up_anim.json"), false);
-	AddAnimation(Anim::CrouchAttack, TEXT("Animations/Penitent/penitent_crouch_attack_anim.json"), false);
+	AddAnimation(AnimKey::Idle, TEXT("Animations/Penitent/penitent_idle_anim.json"), true);
+	AddAnimation(AnimKey::Run, TEXT("Animations/Penitent/penitent_running_anim.json"), true);
+	AddAnimation(AnimKey::JumpStart_Inplace, TEXT("Animations/Penitent/jump_start_inplace.json"), false);
+	AddAnimation(AnimKey::JumpStart_Moving, TEXT("Animations/Penitent/jump_start_moving.json"), false);
+	AddAnimation(AnimKey::Fall_Inplace, TEXT("Animations/Penitent/penitent_falling_loop.json"), true);
+	AddAnimation(AnimKey::Fall_Moving, TEXT("Animations/Penitent/falling_moving.json"), true);
+	AddAnimation(AnimKey::Landed_Inplace, TEXT("Animations/Penitent/jump_landed_inplace.json"), false);
+	AddAnimation(AnimKey::Landed_Moving, TEXT("Animations/Penitent/jump_landed_moving.json"), false);
+	AddAnimation(AnimKey::Combo1, TEXT("Animations/Penitent/penitent_attack_combo_1.json"), false);
+	AddAnimation(AnimKey::Combo2, TEXT("Animations/Penitent/penitent_attack_combo_2.json"), false);
+	AddAnimation(AnimKey::Combo3, TEXT("Animations/Penitent/penitent_attack_combo_3.json"), false);
+	AddAnimation(AnimKey::AirCombo1, TEXT("Animations/Penitent/penitent_jumping_attack1.json"), false);
+	AddAnimation(AnimKey::AirCombo2, TEXT("Animations/Penitent/penitent_jumping_attack2.json"), false);
+	AddAnimation(AnimKey::Slide, TEXT("Animations/Penitent/penitent_dodge_anim.json"), false);
+	AddAnimation(AnimKey::Parry, TEXT("Animations/Penitent/penitent_parry.json"), false);
+	AddAnimation(AnimKey::ParrySuccess, TEXT("Animations/Penitent/penitent_parry_success.json"), false);
+	AddAnimation(AnimKey::ParryCounter, TEXT("Animations/Penitent/penitent_parry_counter.json"), false);
+	AddAnimation(AnimKey::Crouch, TEXT("Animations/Penitent/penitent_crouch_anim.json"), false);
+	AddAnimation(AnimKey::CrouchUp, TEXT("Animations/Penitent/penitent_crouch_up_anim.json"), false);
+	AddAnimation(AnimKey::CrouchAttack, TEXT("Animations/Penitent/penitent_crouch_attack_anim.json"), false);
+	AddAnimation(AnimKey::UseFlask,TEXT("Animations/Penitent/penitent_healthposion_anim.json"), false);
+	
+	// 초기 스탯값 적용
+	InitStartupStats();
 }
 
 void CPlayer::OnEnable()
 {
 	CCharacter::OnEnable();
-	animator->Play(Anim::Idle, false);
+	animator->Play(AnimKey::Idle, false);
 
 	// StateSystem 이벤트 구독
-	stateSystem->OnStateChanged.Add([this](StateTag oldTags, StateTag newTags) {
+	stateSystem->OnStateChanged.Add([this](StateTag oldTags, StateTag newTags)
+	{
 		OnStateChanged(oldTags, newTags);
 	});
 }
@@ -93,6 +103,8 @@ void CPlayer::Update()
 	UpdateMovement();
 	UpdateGroundState();
 	UpdateAnimation();
+	CheckVelocityChanged();
+	
 }
 
 void CPlayer::HandleCombatInput()
@@ -128,15 +140,27 @@ void CPlayer::HandleActionInput()
 	{
 		abilitySystem->TryActivateAbility(EAbility::Slide);
 	}
+	
+	// Use Flask
+	if (INPUT->ButtonDown('F'))
+	{
+		abilitySystem->TryActivateAbility(EAbility::UseFlask);
+	}
 
 	// Crouch
 	if (INPUT->ButtonDown('S'))
 	{
-		stateSystem->AddTagUnique(Tag_Crouching);
+		abilitySystem->TryActivateAbility(EAbility::Crouch);
 	}
 	if (INPUT->ButtonUp('S'))
 	{
-		stateSystem->RemoveTag(Tag_Crouching);
+		abilitySystem->CancelAbility(EAbility::Crouch);
+	}
+	
+	// JUMP
+	if (INPUT->ButtonDown(VK_SPACE))
+	{
+		abilitySystem->TryActivateAbility(EAbility::Jump);
 	}
 }
 
@@ -155,7 +179,7 @@ void CPlayer::UpdateMovement()
 	}
 
 	Vec2 velocity = rigidbody->GetVelocity();
-
+	
 	if (INPUT->ButtonStay('A'))
 	{
 		velocity.x = -MOVE_SPEED;
@@ -174,14 +198,6 @@ void CPlayer::UpdateMovement()
 		stateSystem->RemoveTag(Tag_Moving);
 	}
 
-	// TODO: 점프 어빌리티로 이동
-	if (INPUT->ButtonDown(VK_SPACE) && stateSystem->HasTag(Tag_Grounded))
-	{
-		velocity.y = -JUMP_FORCE;
-		stateSystem->RemoveTag(Tag_Grounded);
-		stateSystem->AddTagUnique(Tag_Airborne);
-	}
-
 	rigidbody->SetVelocity(velocity);
 }
 
@@ -196,19 +212,26 @@ void CPlayer::UpdateAnimation()
 	// locomotion
 	if (stateSystem->HasTag(Tag_Airborne))
 	{
-		animator->Play(Anim::Fall, false);
+		if (IsNearlyEqual(rigidbody->GetVelocity().x, 0))
+		{
+			animator->Play(AnimKey::Fall_Inplace, false);
+		}
+		else
+		{
+			animator->Play(AnimKey::Fall_Moving, false);
+		}
 	}
 	else if (stateSystem->HasTag(Tag_Moving))
 	{
-		animator->Play(Anim::Run, false);
+		animator->Play(AnimKey::Run, false);
 	}
 	else if (stateSystem->HasTag(Tag_Crouching))
 	{
-		animator->Play(Anim::Crouch,false);
+		animator->Play(AnimKey::Crouch,false);
 	}
 	else
 	{
-		animator->Play(Anim::Idle, false);
+		animator->Play(AnimKey::Idle, false);
 	}
 }
 
@@ -226,7 +249,6 @@ void CPlayer::Release()
 {
 	CCharacter::Release();
 }
-
 
 void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 {
@@ -254,6 +276,16 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 		float newHP = currentHP - context.value;
 		SetCurrentHP(newHP);
 	}
+}
+
+void CPlayer::InitStartupStats()
+{
+	SetMaxHP(MAX_HP);
+	SetCurrentHP(MAX_HP);
+	SetMaxMP(MAX_MP);
+	SetCurrentMP(MAX_MP);
+	SetMaxFlask(MAX_FLASK);
+	SetCurrentFlask(MAX_FLASK);
 }
 
 Vec2 CPlayer::GetKnockbackVelocity(CGameObject* source, const CombatContext& context)
@@ -290,6 +322,38 @@ void CPlayer::SetMaxMP(float value)
 	UpdateMP(maxMP, value);
 }
 
+void CPlayer::SetCurrentFlask(int value)
+{
+	int oldValue = currentFlask;
+	currentFlask = max(value, 0);
+	currentFlask = min(currentFlask, maxFlask);
+	
+	if (oldValue != currentFlask)
+	{
+		GAMEUI->SetPlayerFlask(currentFlask,maxFlask);
+	}
+	
+	if (currentFlask > 0)
+	{
+		stateSystem->AddTagUnique(Tag_FlaskRemaining);
+	}
+	else
+	{
+		stateSystem->RemoveTag(Tag_FlaskRemaining);
+	}
+}
+
+void CPlayer::SetMaxFlask(int value)
+{
+	int oldValue = maxFlask;
+	maxFlask = max(0,value);
+	
+	if (oldValue != maxFlask)
+	{
+		GAMEUI->SetPlayerFlask(currentFlask,maxFlask);
+	}
+}
+
 void CPlayer::UpdateHP(float& attribute, float value) const
 {
 	value = max(value, 0.0f);
@@ -319,7 +383,7 @@ void CPlayer::UpdateMP(float& attribute, float value) const
 void CPlayer::OnStateChanged(StateTag oldTags, StateTag newTags)
 {
 	// 앉기
-	if (TagAdded(oldTags, newTags, Tag_Crouching))
+	if (TagAdded(oldTags, newTags, Tag_Crouching) || TagAdded(oldTags, newTags, Tag_Sliding))
 	{
 		Vec2 crouchScale = standingColScale * Vec2(1.0f, 0.5f);
 		Vec2 crouchOffset = standingColOffset + crouchScale * Vec2(0.0f, 0.5f);
@@ -327,7 +391,7 @@ void CPlayer::OnStateChanged(StateTag oldTags, StateTag newTags)
 		collider->SetOffset(crouchOffset);
 	}
 	// 앉기 해제
-	else if (TagRemoved(oldTags, newTags, Tag_Crouching))
+	else if (TagRemoved(oldTags, newTags, Tag_Crouching) || TagRemoved(oldTags, newTags, Tag_Sliding))
 	{
 		collider->SetScale(standingColScale);
 		collider->SetOffset(standingColOffset);
@@ -341,4 +405,20 @@ void CPlayer::OnStateChanged(StateTag oldTags, StateTag newTags)
 		// 착지 시 점프 공격 소진 태그 리셋
 		stateSystem->RemoveTag(Tag_AirAttackExhausted);
 	}
+}
+
+void CPlayer::CheckVelocityChanged()
+{
+	Vec2 curVelocity = rigidbody->GetVelocity();
+
+	// x 또는 y 부호가 바뀌었는지 체크
+	bool xSignChanged = (prevVelocity.x * curVelocity.x) < 0;
+	bool ySignChanged = (prevVelocity.y * curVelocity.y) < 0;
+
+	if (xSignChanged || ySignChanged)
+	{
+		abilitySystem->TriggerEvent(EGameEvent::VelocityChanged);
+	}
+
+	prevVelocity = curVelocity;
 }

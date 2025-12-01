@@ -50,5 +50,5 @@ void COverlayUI::SetFullscreen(CImage* img)
 	}
 
 	pos = Vec2(0.f, 0.f);
-	scale = SINGLE(CEngine)->GetWinSize();  // 실제 클라이언트 크기 사용
+	scale = SINGLE(CEngine)->GetWinSize();  // UI는 윈도우 해상도 기준
 }

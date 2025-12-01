@@ -25,7 +25,7 @@ void CAnimator::Reset()
 	curTime			= 0;
 	flipX			= false;
 	isFinished		= false;
-	
+
 	ReleaseAnimations();
 	onFinished.Clear();
 	onInterrupted.Clear();
@@ -129,6 +129,17 @@ void CAnimator::Stop()
 	playing = false;
 }
 
+void CAnimator::SetCurrentFrame(UINT inFrame)
+{
+	if (curAnimation == nullptr)
+	{
+		return;
+	}
+	
+	UINT maxFrame = static_cast<UINT>(curAnimation->frames.size() - 1);
+	curFrame = max(inFrame, maxFrame);
+}
+
 void CAnimator::ComponentInit()
 {
 }
@@ -144,10 +155,10 @@ void CAnimator::ComponentUpdate()
 	{
 		return;
 	}
-	
+
 	// 현재 플레이중인 프레임의 누적시간
 	curTime += DT;
-	
+
 	// 누적시간이 현재 플레이중인 프레임의 지속시간보다 커졌을 경우
 	// -> 다음 프레임을 보여줘야 하는 경우
 	if (curAnimation->frames[curFrame].time < curTime)
@@ -175,12 +186,12 @@ void CAnimator::ComponentUpdate()
 			else
 			{
 				curFrame--;
-				
+
 				if (isFinished)
 				{
 					return;
 				}
-				
+
 				isFinished = true;
 
 				// 애니메이션 완료 이벤트 호출

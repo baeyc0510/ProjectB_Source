@@ -12,5 +12,9 @@ public:
 	void Render()	override;
 	void Exit()		override;
 	void Release()	override;
+	
+private:
+	class CPlayer* _player;
+	class CStateSystem* _stateSystem;
 };
 

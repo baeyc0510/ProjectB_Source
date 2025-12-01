@@ -127,6 +127,12 @@ wstring CStateSystem::GetStateTagString() const
 	if (currentTags & Tag_Parrying)			result += L"Parrying|";
 	if (currentTags & Tag_Jumping)			result += L"Jumping|";
 	if (currentTags & Tag_AbilityAnimation)	result += L"AbilityPlaying|";
+	if (currentTags & Tag_BlockMovement)	result += L"BlockMovement|";
+	if (currentTags & Tag_StopVelocity)		result += L"StopVelocity|";
+	if (currentTags & Tag_Crouching)		result += L"Crouching|";
+	if (currentTags & Tag_AirAttackExhausted)	result += L"AirAttackExhausted|";
+	if (currentTags & Tag_FlaskRemaining)		result += L"FlaskRemaining|";
+	
 
 	if (!result.empty())
 		result.pop_back();  // 마지막 '|' 제거

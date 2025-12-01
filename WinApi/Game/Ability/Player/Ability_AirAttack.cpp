@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Ability_AirAttack.h"
-#include "Game/AnimKeys.h"
+#include "Game/AnimKey.h"
 #include "Game/Component/CStateSystem.h"
 
 Ability_AirAttack::Ability_AirAttack()
@@ -12,7 +12,7 @@ void Ability_AirAttack::OnActivate()
 {
     Ability_ComboAttack::OnActivate();
     
-    WaitEvent(EGameEvent::Landed,BIND(this,EndAbility));
+    WaitEvent(EGameEvent::Landed,BIND_ARGS(this,OnLanded));
 }
 
 void Ability_AirAttack::OnInputAttack()
@@ -37,10 +37,10 @@ void Ability_AirAttack::OnComboCountUpdated(int oldCnt, int newCnt)
 
 wstring Ability_AirAttack::GetAnimationName()
 {
-    if (comboCnt == 0)  return Anim::AirCombo1;
-    if (comboCnt == 1)  return Anim::AirCombo2;
+    if (comboCnt == 0)  return AnimKey::AirCombo1;
+    if (comboCnt == 1)  return AnimKey::AirCombo2;
 
-    return Anim::AirCombo1;
+    return AnimKey::AirCombo1;
 }
 
 Vec2 Ability_AirAttack::GetTraceOffset()
@@ -63,4 +63,9 @@ Vec2 Ability_AirAttack::GetTraceSize()
         return {50.f,25.f};
 
     return {0,0};
+}
+
+void Ability_AirAttack::OnLanded(CGameObject* source)
+{
+    EndAbility();
 }

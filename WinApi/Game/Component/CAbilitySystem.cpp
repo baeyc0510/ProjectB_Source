@@ -139,9 +139,9 @@ void CAbilitySystem::CancelAbilitiesWithTag(StateTag tag)
 // 이벤트 중계
 //========================================
 
-void CAbilitySystem::TriggerEvent(EGameEvent eventType)
+void CAbilitySystem::TriggerEvent(EGameEvent eventType, CGameObject* source)
 {
-	OnEvent.Broadcast(eventType);
+	OnEvent.Broadcast(eventType, source);
 }
 
 //========================================

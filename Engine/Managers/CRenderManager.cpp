@@ -8,6 +8,14 @@ CRenderManager::CRenderManager()
 	hMemDC	= 0;
 	hBMP	= 0;
 	winSize	= Vec2(0.f, 0.f);
+	virtualSize = Vec2(0.f, 0.f);
+
+	hUIMemDC = 0;
+	hUIBMP = 0;
+	hCurrentDC = 0;
+
+	hCompositeDC = 0;
+	hCompositeBMP = 0;
 
 	hCurPen = 0;
 	penType = PenType::Solid;
@@ -34,13 +42,29 @@ void CRenderManager::Init()
 {
 	hWnd	= SINGLE(CEngine)->GetHWnd();
 	winSize = SINGLE(CEngine)->GetWinSize();
+	virtualSize = SINGLE(CEngine)->GetVirtualSize();
 	hDC		= GetDC(SINGLE(CEngine)->GetHWnd());
 
+	// 게임 백버퍼는 가상 해상도 크기로 생성 (스케일업은 EndDraw에서)
 	hMemDC = CreateCompatibleDC(hDC);
-	hBMP = CreateCompatibleBitmap(hDC, (int)winSize.x, (int)winSize.y);
-
+	hBMP = CreateCompatibleBitmap(hDC, (int)virtualSize.x, (int)virtualSize.y);
 	HBITMAP hOldBitmap = static_cast<HBITMAP>(SelectObject(hMemDC, hBMP));
 	DeleteObject(hOldBitmap);
+
+	// UI 백버퍼는 윈도우 해상도 크기로 생성
+	hUIMemDC = CreateCompatibleDC(hDC);
+	hUIBMP = CreateCompatibleBitmap(hDC, (int)winSize.x, (int)winSize.y);
+	HBITMAP hOldUIBitmap = static_cast<HBITMAP>(SelectObject(hUIMemDC, hUIBMP));
+	DeleteObject(hOldUIBitmap);
+
+	// 합성용 버퍼는 윈도우 해상도 크기로 생성 (더블 버퍼링)
+	hCompositeDC = CreateCompatibleDC(hDC);
+	hCompositeBMP = CreateCompatibleBitmap(hDC, (int)winSize.x, (int)winSize.y);
+	HBITMAP hOldCompBitmap = static_cast<HBITMAP>(SelectObject(hCompositeDC, hCompositeBMP));
+	DeleteObject(hOldCompBitmap);
+
+	// 기본 렌더링 대상은 게임 버퍼
+	hCurrentDC = hMemDC;
 
 	SetPen();
 	SetBrush();
@@ -50,18 +74,58 @@ void CRenderManager::Init()
 
 void CRenderManager::BeginDraw()
 {
-	PatBlt(hMemDC, 0, 0, (int)winSize.x, (int)winSize.y, WHITENESS);
+	// 게임 버퍼로 렌더링 시작
+	hCurrentDC = hMemDC;
+
+	// 백버퍼(가상 해상도 크기)를 회색으로 클리어
+	RECT rect = { 0, 0, (int)virtualSize.x, (int)virtualSize.y };
+	HBRUSH hBrush = CreateSolidBrush(RGB(50, 50, 50));  // 어두운 회색
+	FillRect(hMemDC, &rect, hBrush);
+	DeleteObject(hBrush);
 }
 
 void CRenderManager::EndDraw()
 {
-	BitBlt(hDC, 0, 0, (int)winSize.x, (int)winSize.y, hMemDC, 0, 0, SRCCOPY);
+	// 1. 게임 백버퍼(가상 해상도)를 합성 버퍼로 스케일업
+	SetStretchBltMode(hCompositeDC, COLORONCOLOR);
+	StretchBlt(hCompositeDC, 0, 0, (int)winSize.x, (int)winSize.y,
+		hMemDC, 0, 0, (int)virtualSize.x, (int)virtualSize.y, SRCCOPY);
+
+	// 2. UI 버퍼를 합성 버퍼 위에 투명 복사 (마젠타 투명색)
+	TransparentBlt(hCompositeDC, 0, 0, (int)winSize.x, (int)winSize.y,
+		hUIMemDC, 0, 0, (int)winSize.x, (int)winSize.y, RGB(255, 0, 255));
+
+	// 3. 합성 버퍼를 프론트버퍼로 한 번에 복사 (더블 버퍼링)
+	BitBlt(hDC, 0, 0, (int)winSize.x, (int)winSize.y,
+		hCompositeDC, 0, 0, SRCCOPY);
+}
+
+void CRenderManager::BeginUI()
+{
+	// UI 버퍼로 렌더링 대상 전환
+	hCurrentDC = hUIMemDC;
+
+	// UI 버퍼를 투명색(마젠타)으로 클리어
+	RECT rect = { 0, 0, (int)winSize.x, (int)winSize.y };
+	HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 255));
+	FillRect(hUIMemDC, &rect, hBrush);
+	DeleteObject(hBrush);
+}
+
+void CRenderManager::EndUI()
+{
+	// 게임 버퍼로 렌더링 대상 복귀
+	hCurrentDC = hMemDC;
 }
 
 void CRenderManager::Release()
 {
 	DeleteObject(hMemDC);
 	DeleteObject(hBMP);
+	DeleteObject(hUIMemDC);
+	DeleteObject(hUIBMP);
+	DeleteObject(hCompositeDC);
+	DeleteObject(hCompositeBMP);
 	ReleaseDC(hWnd, hDC);
 
 	DeleteObject(hCurPen);
@@ -70,77 +134,81 @@ void CRenderManager::Release()
 	hDC = 0;
 	hMemDC = 0;
 	hBMP = 0;
+	hUIMemDC = 0;
+	hUIBMP = 0;
+	hCompositeDC = 0;
+	hCompositeBMP = 0;
 }
 
 void CRenderManager::Pixel(float x, float y, COLORREF color)
 {
-	SetPixel(hMemDC, (int)x, (int)y, color);
+	SetPixel(hCurrentDC, (int)x, (int)y, color);
 }
 
 void CRenderManager::Line(float startX, float startY, float endX, float endY)
 {
-	HPEN prevPen = static_cast<HPEN>(SelectObject(hMemDC, hCurPen));
-	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hMemDC, hCurBrush));
+	HPEN prevPen = static_cast<HPEN>(SelectObject(hCurrentDC, hCurPen));
+	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hCurrentDC, hCurBrush));
 
-	MoveToEx(hMemDC, (int)startX, (int)startY, NULL);
-	LineTo(hMemDC, (int)endX, (int)endY);
+	MoveToEx(hCurrentDC, (int)startX, (int)startY, NULL);
+	LineTo(hCurrentDC, (int)endX, (int)endY);
 
-	SelectObject(hMemDC, prevPen);
-	SelectObject(hMemDC, prevBrush);
+	SelectObject(hCurrentDC, prevPen);
+	SelectObject(hCurrentDC, prevBrush);
 }
 
 void CRenderManager::Rect(float startX, float startY, float endX, float endY)
 {
-	HPEN prevPen = static_cast<HPEN>(SelectObject(hMemDC, hCurPen));
-	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hMemDC, hCurBrush));
+	HPEN prevPen = static_cast<HPEN>(SelectObject(hCurrentDC, hCurPen));
+	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hCurrentDC, hCurBrush));
 
-	Rectangle(hMemDC, (int)startX, (int)startY, (int)endX, (int)endY);
+	Rectangle(hCurrentDC, (int)startX, (int)startY, (int)endX, (int)endY);
 
-	SelectObject(hMemDC, prevPen);
-	SelectObject(hMemDC, prevBrush);
+	SelectObject(hCurrentDC, prevPen);
+	SelectObject(hCurrentDC, prevBrush);
 }
 
 void CRenderManager::Circle(float x, float y, float radius)
 {
-	HPEN prevPen = static_cast<HPEN>(SelectObject(hMemDC, hCurPen));
-	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hMemDC, hCurBrush));
+	HPEN prevPen = static_cast<HPEN>(SelectObject(hCurrentDC, hCurPen));
+	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hCurrentDC, hCurBrush));
 
-	::Ellipse(hMemDC, (int)(x - radius), (int)(y - radius), (int)(x + radius), (int)(y + radius));
+	::Ellipse(hCurrentDC, (int)(x - radius), (int)(y - radius), (int)(x + radius), (int)(y + radius));
 
-	SelectObject(hMemDC, prevPen);
-	SelectObject(hMemDC, prevBrush);
+	SelectObject(hCurrentDC, prevPen);
+	SelectObject(hCurrentDC, prevBrush);
 }
 
 void CRenderManager::Ellipse(float startX, float startY, float endX, float endY)
 {
-	HPEN prevPen = static_cast<HPEN>(SelectObject(hMemDC, hCurPen));
-	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hMemDC, hCurBrush));
+	HPEN prevPen = static_cast<HPEN>(SelectObject(hCurrentDC, hCurPen));
+	HBRUSH prevBrush = static_cast<HBRUSH>(SelectObject(hCurrentDC, hCurBrush));
 
-	::Ellipse(hMemDC, (int)startX, (int)startY, (int)endX, (int)endY);
+	::Ellipse(hCurrentDC, (int)startX, (int)startY, (int)endX, (int)endY);
 
-	SelectObject(hMemDC, prevPen);
-	SelectObject(hMemDC, prevBrush);
+	SelectObject(hCurrentDC, prevPen);
+	SelectObject(hCurrentDC, prevBrush);
 }
 
 void CRenderManager::Text(float x, float y, wstring str)
 {
-	TextOut(hMemDC, (int)x, (int)y, str.c_str(), (int)str.size());
+	TextOut(hCurrentDC, (int)x, (int)y, str.c_str(), (int)str.size());
 }
 
 void CRenderManager::BitImage(CImage* pImg, float startX, float startY, float endX, float endY)
 {
-	BitBlt(hMemDC, (int)startX, (int)startY, (int)endX, (int)endY, pImg->GetImageDC(), 0, 0, SRCCOPY);
+	BitBlt(hCurrentDC, (int)startX, (int)startY, (int)endX, (int)endY, pImg->GetImageDC(), 0, 0, SRCCOPY);
 }
 
 void CRenderManager::StrectchImage(CImage* pImg, float startX, float startY, float endX, float endY)
 {
-	StretchBlt(hMemDC, (int)startX, (int)startY, (int)(endX - startX), (int)(endY - startY),
+	StretchBlt(hCurrentDC, (int)startX, (int)startY, (int)(endX - startX), (int)(endY - startY),
 		pImg->GetImageDC(), 0, 0, pImg->GetBmpWidth(), pImg->GetBmpHeight(), SRCCOPY);
 }
 
 void CRenderManager::TransparentImage(CImage* pImg, float startX, float startY, float endX, float endY, COLORREF transparent)
 {
-	TransparentBlt(hMemDC, (int)startX, (int)startY, (int)(endX - startX), (int)(endY - startY),
+	TransparentBlt(hCurrentDC, (int)startX, (int)startY, (int)(endX - startX), (int)(endY - startY),
 		pImg->GetImageDC(), 0, 0, pImg->GetBmpWidth(), pImg->GetBmpHeight(), transparent);
 }
 
@@ -163,16 +231,16 @@ void CRenderManager::FrameImage(CImage* pImg, float dstStartX, float dstStartY, 
 		StretchBlt(hTempDC, iSrcWidth - 1, 0, -iSrcWidth, iSrcHeight,
 			hImgDC, (int)srcStartX, (int)srcStartY, iSrcWidth, iSrcHeight, SRCCOPY);
 
-		TransparentBlt(hMemDC, (int)dstStartX, (int)dstStartY, iDstWidth, iDstHeight,
+		TransparentBlt(hCurrentDC, (int)dstStartX, (int)dstStartY, iDstWidth, iDstHeight,
 			hTempDC, 0, 0, iSrcWidth, iSrcHeight, transparent);
-		
+
 		SelectObject(hTempDC, hOldBitmap);
 		DeleteObject(hTempBitmap);
 		DeleteDC(hTempDC);
 	}
 	else
 	{
-		TransparentBlt(hMemDC, (int)dstStartX, (int)dstStartY, iDstWidth, iDstHeight,
+		TransparentBlt(hCurrentDC, (int)dstStartX, (int)dstStartY, iDstWidth, iDstHeight,
 			hImgDC, (int)srcStartX, (int)srcStartY, iSrcWidth, iSrcHeight, transparent);
 	}
 }
@@ -186,7 +254,7 @@ void CRenderManager::BlendImage(CImage* pImg, float dstStartX, float dstStartY, 
 	bf.AlphaFormat = 0;
 	bf.SourceConstantAlpha = (BYTE)(ratio * 255);
 
-	AlphaBlend(hMemDC, (int)dstStartX, (int)dstStartY, (int)(dstEndX - dstStartX), (int)(dstEndY - dstStartY),
+	AlphaBlend(hCurrentDC, (int)dstStartX, (int)dstStartY, (int)(dstEndX - dstStartX), (int)(dstEndY - dstStartY),
 		pImg->GetImageDC(), (int)srcStartX, (int)srcStartY, (int)(srcEndX - srcStartX), (int)(srcEndY - srcStartY), bf);
 }
 
@@ -257,29 +325,29 @@ void CRenderManager::SetText(int size, COLORREF color, TextAlign align)
 	DeleteObject(hFont);
 	hFont = CreateFont(size, 0, 0, 0, 0, 0, 0, 0, HANGEUL_CHARSET,
 		0, 0, 0, VARIABLE_PITCH | FF_ROMAN, TEXT("굴림"));
-	SelectObject(hMemDC, hFont);
+	SelectObject(hCurrentDC, hFont);
 
-	SetTextColor(hMemDC, color);
+	SetTextColor(hCurrentDC, color);
 
 	switch (align)
 	{
 	case TextAlign::Top:
-		SetTextAlign(hMemDC, TA_TOP);
+		SetTextAlign(hCurrentDC, TA_TOP);
 		break;
 	case TextAlign::Bottom:
-		SetTextAlign(hMemDC, TA_BOTTOM);
+		SetTextAlign(hCurrentDC, TA_BOTTOM);
 		break;
 	case TextAlign::Left:
-		SetTextAlign(hMemDC, TA_LEFT);
+		SetTextAlign(hCurrentDC, TA_LEFT);
 		break;
 	case TextAlign::Right:
-		SetTextAlign(hMemDC, TA_RIGHT);
+		SetTextAlign(hCurrentDC, TA_RIGHT);
 		break;
 	case TextAlign::Center:
-		SetTextAlign(hMemDC, TA_CENTER);
+		SetTextAlign(hCurrentDC, TA_CENTER);
 		break;
 	default:
-		SetTextAlign(hMemDC, TA_TOP);
+		SetTextAlign(hCurrentDC, TA_TOP);
 		break;
 	}
 
@@ -293,14 +361,14 @@ void CRenderManager::SetTextBackMode(TextBackMode mode, COLORREF backColor)
 	switch (mode)
 	{
 	case TextBackMode::Null:
-		SetBkMode(hMemDC, TRANSPARENT);
+		SetBkMode(hCurrentDC, TRANSPARENT);
 		break;
 	case TextBackMode::Solid:
-		SetBkMode(hMemDC, OPAQUE);
+		SetBkMode(hCurrentDC, OPAQUE);
 		break;
 
 	default:
-		SetBkMode(hMemDC, TRANSPARENT);
+		SetBkMode(hCurrentDC, TRANSPARENT);
 		break;
 	}
 }

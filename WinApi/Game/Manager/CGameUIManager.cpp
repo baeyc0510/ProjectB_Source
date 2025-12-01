@@ -62,6 +62,12 @@ void CGameUIManager::SetPlayerMP(float current, float max)
 		statusHUD->SetMP(current, max);
 }
 
+void CGameUIManager::SetPlayerFlask(int current, int max)
+{
+	if (statusHUD)
+		statusHUD->SetFlask(current, max);
+}
+
 void CGameUIManager::OpenUI(EOverlayUI type)
 {
 	if (!currentScene)

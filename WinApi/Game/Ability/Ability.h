@@ -35,7 +35,7 @@ public:
 	virtual void CancelAbility();
 
 	// 이벤트 시스템
-	DelegateHandle WaitEvent(EGameEvent eventType, function<void()> callback);
+	DelegateHandle WaitEvent(EGameEvent eventType, function<void(CGameObject*)> callback);
 	void EndWaitEvent(DelegateHandle& handle);
 	void ClearEventHandles();
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Ability_Slide.h"
 
-#include "Game/AnimKeys.h"
+#include "Game/AnimKey.h"
 #include "Game/Component/CRigidbody.h"
 
 Ability_Slide::Ability_Slide()
@@ -25,7 +25,7 @@ void Ability_Slide::OnActivate()
 
 wstring Ability_Slide::GetAnimationName()
 {
-    return Anim::Slide;
+    return AnimKey::Slide;
 }
 
 void Ability_Slide::OnFinishedAnim()

@@ -13,6 +13,7 @@ EGameEvent AnimEventHelper::ToGameEvent(const wstring& str)
 	if (str == L"ParryWindowOpen")  return EGameEvent::ParryWindowOpen;
 	if (str == L"ParryWindowClose") return EGameEvent::ParryWindowClose;
 	if (str == L"Recover")			return EGameEvent::Recover;
+	if (str == L"DoAction")			return EGameEvent::DoAction;
 	// 정의되지 않은 이벤트 이름
 	assert(false && "Unknown animation event name");
 	return EGameEvent::None;

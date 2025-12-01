@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Ability.h"
+#include "Game/AnimKey.h"
 
 class Ability_HitReaction : public Ability
 {
@@ -14,6 +15,19 @@ public:
     void OnActivate() override;
     void OnEnd() override;
 
+protected:
+    virtual wstring GetHitAnimKey() const; 
+    
 private:
     void StopKnockback();
+};
+
+class Ability_ParryHitReaction : public Ability_HitReaction
+{
+public:
+    Ability_ParryHitReaction() 
+    {}
+    
+protected:
+    wstring GetHitAnimKey() const override {return AnimKey::ParryHit;}
 };

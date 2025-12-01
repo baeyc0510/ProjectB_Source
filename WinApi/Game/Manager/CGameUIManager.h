@@ -22,7 +22,8 @@ public:
 	// Player 상태 업데이트
 	void SetPlayerHP(float current, float max);
 	void SetPlayerMP(float current, float max);
-
+	void SetPlayerFlask(int current, int max);
+	
 	// Overlay UI 관리
 	void OpenUI(EOverlayUI type);
 	void CloseUI();

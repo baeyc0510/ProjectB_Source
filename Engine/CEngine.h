@@ -7,16 +7,20 @@ private:
 	virtual ~CEngine();
 
 public:
-	void		Init(HINSTANCE hInst, HWND hWnd, Vec2 winSize);
+	void		Init(HINSTANCE hInst, HWND hWnd, Vec2 winSize, Vec2 virtualSize = Vec2(0, 0));
 	void		Release();
 
-	HINSTANCE	GetHInst()		{ return hInst; }
-	HWND		GetHWnd()		{ return hWnd; }
-	Vec2		GetWinSize()	{ return winSize; }
+	HINSTANCE	GetHInst()			{ return hInst; }
+	HWND		GetHWnd()			{ return hWnd; }
+	Vec2		GetWinSize()		{ return winSize; }
+	Vec2		GetVirtualSize()	{ return virtualSize; }
+	float		GetRenderScale()	{ return renderScale; }
 
 private:
 	HINSTANCE	hInst;
 	HWND		hWnd;
-	Vec2		winSize;
+	Vec2		winSize;		// 실제 윈도우 크기 (1280x720)
+	Vec2		virtualSize;	// 가상 해상도 (640x360) - 게임 로직 기준
+	float		renderScale;	// 렌더 스케일 (winSize / virtualSize)
 };
 

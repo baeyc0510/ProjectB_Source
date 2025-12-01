@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "Ability_ComboAttack.h"
-#include "Game/AnimKeys.h"
+#include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
@@ -13,10 +13,10 @@ void Ability_ComboAttack::OnActivate()
     Ability::OnActivate();
 
     // 이벤트 바인딩
-    WaitEvent(EGameEvent::Input_Attack_Pressed, BIND(this, OnInputAttack));
-    WaitEvent(EGameEvent::HitCheck, BIND(this, OnHitCheck));
-    WaitEvent(EGameEvent::ComboWindowOpen, BIND(this, OnComboWindowOpen));
-    WaitEvent(EGameEvent::ComboWindowClose, BIND(this, OnComboWindowClose));
+    WaitEvent(EGameEvent::Input_Attack_Pressed, BIND_ARGS(this, OnInputAttack));
+    WaitEvent(EGameEvent::HitCheck, BIND_ARGS(this, OnHitCheck));
+    WaitEvent(EGameEvent::ComboWindowOpen, BIND_ARGS(this, OnComboWindowOpen));
+    WaitEvent(EGameEvent::ComboWindowClose, BIND_ARGS(this, OnComboWindowClose));
 
     // 공격 1타 시작
     Attack();
@@ -133,11 +133,11 @@ Vec2 Ability_ComboAttack::GetTraceSize()
 
 wstring Ability_ComboAttack::GetAnimationName()
 {
-    if (comboCnt == 0)  return Anim::Combo1;
-    if (comboCnt == 1)  return Anim::Combo2;
-    if (comboCnt == 2)  return Anim::Combo3;
+    if (comboCnt == 0)  return AnimKey::Combo1;
+    if (comboCnt == 1)  return AnimKey::Combo2;
+    if (comboCnt == 2)  return AnimKey::Combo3;
 
-    return Anim::Combo1;
+    return AnimKey::Combo1;
 }
 
 wstring Ability_ComboAttack::GetVFXName()

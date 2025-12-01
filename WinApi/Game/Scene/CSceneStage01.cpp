@@ -5,6 +5,7 @@
 #include "Game/Object/World/CGround.h"
 #include "Game/Object/Character/CPlayer.h"
 #include "Game/Camera/CCameraController.h"
+#include "Game/Component/CStateSystem.h"
 #include "Game/Object/Character/CMonster.h"
 #include "Game/Sound/CSoundController.h"
 #include "Game/Manager/CGameUIManager.h"
@@ -22,11 +23,14 @@ CSceneStage01::~CSceneStage01()
 
 void CSceneStage01::Init()
 {
-	// Ground
+	// Game UI
+	GAMEUI->Init(this);
+	
+	// Ground (월드 좌표 0, 0 기준)
 	CGround* pGround = new CGround();
 	pGround->SetName(L"Ground");
-	pGround->SetPos(Vec2(CGame::WINSIZE.x / 2.f, CGame::WINSIZE.y - 50.f));
-	pGround->SetScale(Vec2(CGame::WINSIZE.x, 100.f));
+	pGround->SetPos(Vec2(0.f, 0.f));
+	pGround->SetScale(Vec2(2000.f, 100.f));
 
 	CCollider* pGroundCollider = new CCollider();
 	pGroundCollider->SetScale(pGround->GetScale());
@@ -34,14 +38,16 @@ void CSceneStage01::Init()
 	pGround->AddChild(pGroundCollider);
 	AddGameObject(pGround);
 
-	// Player
+	// Player (Ground 위)
 	CPlayer* player = new CPlayer();
-	player->SetPos(Vec2(CGame::WINSIZE.x * 0.5f, CGame::WINSIZE.y * 0.5f));
+	player->SetPos(Vec2(0.f, -100.f));
 	AddGameObject(player);
-	
-	// Dummy Monster
+
+	_player = player;
+
+	// Dummy Monster (Player 오른쪽)
 	CMonster* monster = new CMonster();
-	monster->SetPos(Vec2(CGame::WINSIZE.x * 0.5f, CGame::WINSIZE.y * 0.5f) + Vec2(200.f,0.f));
+	monster->SetPos(Vec2(150.f, -100.f));
 	monster->SetForward(-1);
 	AddGameObject(monster);
 	
@@ -50,14 +56,16 @@ void CSceneStage01::Init()
 
 	// CSoundController* sound = new CSoundController();
 	// AddGameObject(sound);
-
-	// Game UI
-	GAMEUI->Init(this);
 }
 
 void CSceneStage01::Enter()
 {
-	CAMERA->FadeIn(0.5f);
+	// 카메라가 플레이어를 따라가도록 설정 (SceneEnter 이후에 호출해야 함)
+	CAMERA->SetTargetObj(_player);
+	CAMERA->SetOffset(Vec2(0.f,-100.f));
+	CAMERA->SetDeadZone(Vec2(100.f,100.f));
+	
+	_stateSystem = _player->GetComponent<CStateSystem>();
 }
 
 void CSceneStage01::Update()
@@ -74,8 +82,34 @@ void CSceneStage01::Update()
 
 void CSceneStage01::Render()
 {
-	Vec2 startPos = CAMERA->WorldToScreenPoint(Vec2(0, 0));
-	Vec2 endPos = CAMERA->WorldToScreenPoint(Vec2(CGame::WINSIZE.x, CGame::WINSIZE.y));
+	RENDER->SetText(10, RGB(255, 0, 0), TextAlign::Left);
+
+	// // 디버그: 카메라 lookAt 위치 출력
+	// Vec2 camPos = CAMERA->GetLookAt();
+	// wstring debugCam = L"Camera: " + to_wstring((int)camPos.x) + L", " + to_wstring((int)camPos.y);
+	// RENDER->Text(10, 10, debugCam);
+	//
+	// // 디버그: 플레이어 pos 출력
+	wstring debugPlayer = _stateSystem->GetStateTagString();
+	RENDER->Text(40, 55, debugPlayer);
+	//
+	// // 디버그: 카메라 targetObj 확인
+	// const CGameObject* camTarget = CAMERA->GetTargetObj();
+	// wstring debugTarget = L"TargetObj: ";
+	// if (camTarget == nullptr)
+	// 	debugTarget += L"NULL";
+	// else if (camTarget == _player)
+	// 	debugTarget += L"Player (OK)";
+	// else
+	// 	debugTarget += L"OTHER";
+	// RENDER->Text(10, 40, debugTarget);
+	//
+	// // 디버그: (0,0) 월드좌표가 화면 어디에 그려지는지
+	// Vec2 originScreen = CAMERA->WorldToScreenPoint(Vec2(0, 0));
+	// wstring debugOrigin = L"Origin(0,0)->Screen: " + to_wstring((int)originScreen.x) + L", " + to_wstring((int)originScreen.y);
+	// RENDER->Text(10, 55, debugOrigin);
+	//
+	// RENDER->SetText();
 }
 
 void CSceneStage01::Exit()

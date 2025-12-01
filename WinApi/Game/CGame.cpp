@@ -7,8 +7,9 @@
 #include "Scene/CSceneStage01.h"
 #include "Scene/CSceneTitle.h"
 
-const Vec2 CGame::WINSTART	= Vec2(100, 100);
-const Vec2 CGame::WINSIZE	= Vec2(1280, 720);
+const Vec2 CGame::WINSTART		= Vec2(100, 100);
+const Vec2 CGame::WINSIZE		= Vec2(1920, 1080);	// 실제 윈도우 크기
+const Vec2 CGame::VIRTUALSIZE	= Vec2(640, 360);	// 가상 해상도
 
 CGame::CGame()
 {
@@ -58,8 +59,8 @@ void CGame::Init(HINSTANCE hInstance)
 	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd);
 
-	// 게임엔진 초기화
-	SINGLE(CEngine)->Init(hInst, hWnd, WINSIZE);
+	// 게임엔진 초기화 (가상 해상도 적용)
+	SINGLE(CEngine)->Init(hInst, hWnd, WINSIZE, VIRTUALSIZE);
 	SINGLE(CTimeManager)->Init();
 	SINGLE(CRenderManager)->Init();
 	SINGLE(CInputManager)->Init();
@@ -134,8 +135,10 @@ void CGame::Update()
 
 	SINGLE(CTimeManager)->Update();
 	SINGLE(CUIManager)->Update();
-	SINGLE(CSceneManager)->Update();
+	// 순서 주의! : 카메라는 씬 업데이트 전에 진행
+	// 오브젝트의 renderPos 계산 시 최신 카메라 위치를 사용하기 위해
 	SINGLE(CCameraManager)->Update();
+	SINGLE(CSceneManager)->Update();
 	SINGLE(CSoundManager)->Update();
 
 	// 순서 주의! : 충돌 매니저는 업데이트 가장 마지막에 진행
@@ -156,8 +159,8 @@ void CGame::Render()
 
 	// 게임의 우상단에 게임 FPS 출력 (60프레임 이상을 목표로 최적화 해야함)
 	wstring frame = to_wstring(FPS);
-	RENDER->SetText(20, RGB(0, 255, 0), TextAlign::Right);
-	RENDER->Text(WINSIZE.x - 30, 10, frame);
+	RENDER->SetText(10, RGB(0, 255, 0), TextAlign::Right);
+	RENDER->Text(VIRTUALSIZE.x - 15, 5, frame);
 	RENDER->SetText();
 
 	SINGLE(CRenderManager)->EndDraw();

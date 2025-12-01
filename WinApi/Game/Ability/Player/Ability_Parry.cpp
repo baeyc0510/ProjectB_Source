@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Ability_Parry.h"
-#include "Game/AnimKeys.h"
+#include "Game/AnimKey.h"
+#include "Game/VFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
 Ability_Parry::Ability_Parry()
@@ -15,7 +16,7 @@ void Ability_Parry::OnActivate()
     Ability::OnActivate();
     
     CAnimator* animator =  owner->GetComponent<CAnimator>();
-    animator->Play(Anim::Parry, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
+    animator->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
     
     WaitEvent(EGameEvent::Hit, BIND(this,OnHit));
     WaitEvent(EGameEvent::ParryWindowOpen, BIND(this,OnParryWindowOpen));
@@ -39,7 +40,7 @@ void Ability_Parry::OnEndParryAnim()
         bShouldCounter = false;
         
         CAnimator* animator =  owner->GetComponent<CAnimator>();
-        animator->Play(Anim::ParryCounter, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
+        animator->Play(AnimKey::ParryCounter, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
         
         WaitEvent(EGameEvent::HitCheck,BIND(this,OnCounterHitCheck));
         return;
@@ -73,7 +74,7 @@ void Ability_Parry::OnHit()
         bParrySuccess = true;
         
         CAnimator* animator =  owner->GetComponent<CAnimator>();
-        animator->Play(Anim::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
+        animator->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
         
         onCounterOpenHandle = WaitEvent(EGameEvent::ComboWindowOpen, BIND(this, OnCounterOpen));
         onCounterCloseHandle = WaitEvent(EGameEvent::ComboWindowClose, BIND(this, OnCounterClose));
@@ -124,7 +125,7 @@ void Ability_Parry::OnCounterHitCheck()
             context.damageType = EDamageType::Slash;
             context.hitResult = result;
             context.value = COUNTER_DAMAGE;
-            context.vfxKey = TEXT("VFX_Attack1");
+            context.vfxKey = VFXKey::AttackHit1;
             combat->OnDamage(owner, context);
         }
     }

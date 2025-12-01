@@ -10,6 +10,7 @@ public:
 public:
 	static const Vec2		WINSTART;
 	static const Vec2		WINSIZE;
+	static const Vec2		VIRTUALSIZE;	// 가상 해상도 (게임 로직 기준)
 	static const DWORD		WINSTYLE = WS_SYSMENU | WS_MINIMIZEBOX;
 
 public:

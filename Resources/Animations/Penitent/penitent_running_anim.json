@@ -1,7 +1,7 @@
 {
     "image": "Image/Penitent/penitent_running_anim.bmp",
-    "pivot": [52,0],
-    "frame_interval": 0.0833,
+    "pivot": [52.0, 0.0],
+    "frame_interval": 0.04,
     "frames": [
         {"rect": [0, 0, 78, 72], "events": []},
         {"rect": [78, 0, 78, 72], "events": []},
