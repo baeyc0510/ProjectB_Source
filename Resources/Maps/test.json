@@ -1,0 +1,49 @@
+{
+  "layers": [
+    {
+      "image": "Sub/Scene01/stage_01_bg.bmp",
+      "parallax": 0.0,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": false
+    },
+    {
+      "image": "Sub/Scene01/stage_01_mid.bmp",
+      "parallax": 0.21,
+      "scale": 1.2,
+      "offsetX": -89,
+      "offsetY": 148,
+      "isMain": false
+    },
+    {
+      "image": "Sub/Scene01/stage_01_main.bmp",
+      "parallax": 1.0,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": true,
+      "meta": "Sub/Scene01/stage01_meta.bmp"
+    },
+    {
+      "image": "Sub/Scene01/stage_01_fg.bmp",
+      "parallax": 1.0,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": false
+    }
+  ],
+  "playerSpawn": [
+    490.0,
+    343.0
+  ],
+  "bounds": [
+    -0.9198015401591704,
+    1.0837411726255368,
+    1695.8715854460188,
+    855.7951358069507
+  ],
+  "checkpoints": [],
+  "transitions": []
+}
