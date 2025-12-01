@@ -5,7 +5,6 @@
 #include "Game/VFXKeys.h"
 #include "Game/Ability/Player/Ability_AirAttack.h"
 #include "Game/Ability/Player/Ability_ComboAttack.h"
-#include "Game/Ability/Player/Ability_Crouch.h"
 #include "Game/Ability/Player/Ability_CrouchAttack.h"
 #include "Game/Ability/Player/Ability_Parry.h"
 #include "Game/Ability/Player/Ability_Slide.h"
@@ -54,7 +53,6 @@ void CPlayer::Init()
 	AddAbility<Ability_AirAttack>(EAbility::AirAttack);
 	AddAbility<Ability_Slide>(EAbility::Slide);
 	AddAbility<Ability_Parry>(EAbility::Parry);
-	AddAbility<Ability_Crouch>(EAbility::Crouch);
 	AddAbility<Ability_CrouchAttack>(EAbility::CrouchAttack);
 	
 	// Animations
