@@ -2,6 +2,7 @@
 #include "CPlayer.h"
 
 #include "Game/AnimKeys.h"
+#include "Game/VFXKeys.h"
 #include "Game/Ability/Player/Ability_AirAttack.h"
 #include "Game/Ability/Player/Ability_ComboAttack.h"
 #include "Game/Ability/Player/Ability_Crouch.h"
@@ -11,6 +12,7 @@
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 #include "Game/Component/CAbilitySystem.h"
+#include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CVFXManager.h"
 #include "Game/Object/CVFX.h"
 
@@ -27,8 +29,15 @@ void CPlayer::Init()
 {
 	CCharacter::Init();
 	
+	// HP, MP
+	SetMaxHP(MAX_HP);
+	SetCurrentHP(MAX_HP);
+	SetMaxMP(MAX_MP);
+	SetCurrentMP(MAX_MP);
+	
 	// Rigidbody
 	rigidbody = new CRigidbody();
+	rigidbody->SetGravityScale(1.6f);
 	AddChild(rigidbody);
 
 	// Collider
@@ -83,10 +92,9 @@ void CPlayer::Update()
 	CCharacter::Update();
 	HandleCombatInput();
 	HandleActionInput();
-	HandleMovementInput();
+	UpdateMovement();
 	UpdateGroundState();
 	UpdateAnimation();
-	animator->SetDirection(GetForward());
 }
 
 void CPlayer::HandleCombatInput()
@@ -117,23 +125,32 @@ void CPlayer::HandleCombatInput()
 
 void CPlayer::HandleActionInput()
 {
+	// Slide
 	if (INPUT->ButtonDown(VK_SHIFT))
 	{
 		abilitySystem->TryActivateAbility(EAbility::Slide);
 	}
 
+	// Crouch
 	if (INPUT->ButtonDown('S'))
 	{
-		abilitySystem->TryActivateAbility(EAbility::Crouch);
+		stateSystem->AddTagUnique(Tag_Crouching);
 	}
 	if (INPUT->ButtonUp('S'))
 	{
-		abilitySystem->TriggerEvent(EGameEvent::Input_Crouch_Released);
+		stateSystem->RemoveTag(Tag_Crouching);
 	}
 }
 
-void CPlayer::HandleMovementInput()
+void CPlayer::UpdateMovement()
 {
+	// 정지
+	if (stateSystem->HasTag(Tag_StopVelocity))
+	{
+		rigidbody->SetVelocity(Vec2(0.0f, 0.0f));
+		return;
+	}
+	
 	if (stateSystem->HasTag(Tag_BlockMovement))
 	{
 		return;
@@ -172,18 +189,13 @@ void CPlayer::HandleMovementInput()
 
 void CPlayer::UpdateAnimation()
 {
-	// 정지
-	if (stateSystem->HasTag(Tag_StopVelocity))
-	{
-		rigidbody->SetVelocity(Vec2(0.0f, 0.0f));
-		return;
-	}
+	animator->SetDirection(GetForward());
 
-	// Ability가 애니메이션을 제어 중이면 기본 애니메이션 로직 스킵
+	// Ability가 애니메이션을 제어 중이면 스킵
 	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
 
-	// 애니메이션 결정
+	// locomotion
 	if (stateSystem->HasTag(Tag_Airborne))
 	{
 		animator->Play(Anim::Fall, false);
@@ -191,6 +203,10 @@ void CPlayer::UpdateAnimation()
 	else if (stateSystem->HasTag(Tag_Moving))
 	{
 		animator->Play(Anim::Run, false);
+	}
+	else if (stateSystem->HasTag(Tag_Crouching))
+	{
+		animator->Play(Anim::Crouch,false);
 	}
 	else
 	{
@@ -222,19 +238,23 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 	Vec2 spawnPos = context.hitResult.hitCenter;
 	int spawnDirection = source->GetForward();
 	
-	// // Spawn Hit VFX
-	// if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
-	// {
-	// 	vfx->PlayVFX();	
-	// }
-	
-	// Spawn Blood VFX
 	if (context.value > 0.0001f)
 	{
+		// // Spawn Hit VFX
+		if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
+		{
+			vfx->PlayVFX();	
+		}
+		
+		// Spawn Blood VFX
 		if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
 		{
 			vfx->PlayVFX();
 		}
+		
+		// Apply damage
+		float newHP = currentHP - context.value;
+		SetCurrentHP(newHP);
 	}
 }
 
@@ -247,7 +267,55 @@ Vec2 CPlayer::GetKnockbackVelocity(CGameObject* source, const CombatContext& con
 
 wstring CPlayer::GetPlayerHitVfxKey(EDamageType damageType)
 {
-	return TEXT("VFX_Attack1");
+	return VFXKey::PlayerHit;
+}
+
+void CPlayer::SetCurrentHP(float value)
+{
+	value = min(value,maxHP);
+	UpdateHP(currentHP, value);
+}
+
+void CPlayer::SetMaxHP(float value)
+{
+	UpdateHP(maxHP, value);
+}
+
+void CPlayer::SetCurrentMP(float value)
+{
+	value = min(value, maxMP);
+	UpdateMP(currentMP, value);
+}
+
+void CPlayer::SetMaxMP(float value)
+{
+	UpdateMP(maxMP, value);
+}
+
+void CPlayer::UpdateHP(float& attribute, float value) const
+{
+	value = max(value, 0.0f);
+	
+	float oldValue = attribute;
+	attribute = value;
+	
+	if (!IsNearlyEqual(attribute, oldValue))
+	{
+		GAMEUI->SetPlayerHP(currentHP,maxHP);
+	}
+}
+
+void CPlayer::UpdateMP(float& attribute, float value) const
+{
+	value = max(value, 0.0f);
+	
+	float oldValue = attribute;
+	attribute = value;
+	
+	if (!IsNearlyEqual(attribute, oldValue))
+	{
+		GAMEUI->SetPlayerHP(currentMP,maxMP);
+	}
 }
 
 void CPlayer::OnStateChanged(StateTag oldTags, StateTag newTags)
@@ -266,10 +334,13 @@ void CPlayer::OnStateChanged(StateTag oldTags, StateTag newTags)
 		collider->SetScale(standingColScale);
 		collider->SetOffset(standingColOffset);
 	}
-
-	// 착지 시 점프 공격 소진 태그 리셋
+	
+	// 착지
 	if (TagAdded(oldTags, newTags, Tag_Grounded))
 	{
+		// 착지 이벤트 트리거
+		abilitySystem->TriggerEvent(EGameEvent::Landed);
+		// 착지 시 점프 공격 소진 태그 리셋
 		stateSystem->RemoveTag(Tag_AirAttackExhausted);
 	}
 }

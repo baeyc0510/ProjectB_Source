@@ -1,15 +1,16 @@
 #include "pch.h"
 #include "CVFXManager.h"
-
 #include "Game/Object/CVFX.h"
+#include "Game/VFXKeys.h"
 
 void CVFXManager::PreLoad()
 {
-    LOADANIMATION(TEXT("VFX_Attack1"),TEXT("Animations/Effects/attack_spark1.json"));
-    LOADANIMATION(TEXT("VFX_Attack2"),TEXT("Animations/Effects/attack_spark2.json"));
-    LOADANIMATION(TEXT("VFX_Attack3"),TEXT("Animations/Effects/attack_spark3.json"));
-    LOADANIMATION(TEXT("VFX_Blood1"),TEXT("Animations/Effects/blood1.json"));
-    LOADANIMATION(TEXT("VFX_Blood2"),TEXT("Animations/Effects/blood2.json"));
+    LOADANIMATION(VFXKey::AttackHit1,TEXT("Animations/Effects/attack_spark1.json"));
+    LOADANIMATION(VFXKey::AttackHit2,TEXT("Animations/Effects/attack_spark2.json"));
+    LOADANIMATION(VFXKey::AttackHit3,TEXT("Animations/Effects/attack_spark3.json"));
+    LOADANIMATION(VFXKey::PlayerHit,TEXT("Animations/Effects/playerhitspark.json"));
+    LOADANIMATION(VFXKey::Blood1,TEXT("Animations/Effects/blood1.json"));
+    LOADANIMATION(VFXKey::Blood2,TEXT("Animations/Effects/blood2.json"));
 }
 
 CVFX* CVFXManager::CreateVFX(const wstring& key)

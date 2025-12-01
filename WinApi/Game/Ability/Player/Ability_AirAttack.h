@@ -8,9 +8,10 @@ public:
     
     StateTag GetRequiredTags() const override { return Tag_Airborne; }
     StateTag GetBlockedTags() const override { return Tag_Grounded | Tag_Hit | Tag_SpecialAction | Tag_AirAttackExhausted; }
-    StateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
+    StateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_AbilityAnimation; }
 
 protected:
+    void OnActivate() override;
     void OnInputAttack() override;
     void OnComboCountUpdated(int oldCnt, int newCnt) override;
 

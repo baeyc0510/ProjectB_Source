@@ -53,8 +53,6 @@ void CSceneStage01::Init()
 
 	// Game UI
 	GAMEUI->Init(this);
-	// TEMP
-	GAMEUI->SetPlayerHP(50,100);
 }
 
 void CSceneStage01::Enter()

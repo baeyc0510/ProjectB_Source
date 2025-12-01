@@ -166,7 +166,6 @@
     <ClInclude Include="Game\Ability\Monster\Ability_MonsterAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_AirAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_ComboAttack.h" />
-    <ClInclude Include="Game\Ability\Player\Ability_Crouch.h" />
     <ClInclude Include="Game\Ability\Player\Ability_CrouchAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Jump.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Parry.h" />
@@ -184,9 +183,7 @@
     <ClInclude Include="Game\Object\Character\CCharacter.h" />
     <ClInclude Include="Game\Object\Character\CMonster.h" />
     <ClInclude Include="Game\Object\Character\CPlayer.h" />
-    <ClInclude Include="Game\Object\CMissile.h" />
     <ClInclude Include="Game\Object\CVFX.h" />
-    <ClInclude Include="Game\Object\CWeapon.h" />
     <ClInclude Include="Game\Object\World\CGround.h" />
     <ClInclude Include="Game\Scene\CSceneStage01.h" />
     <ClInclude Include="Game\Scene\CSceneTitle.h" />
@@ -195,6 +192,7 @@
     <ClInclude Include="Game\UI\COverlayUI.h" />
     <ClInclude Include="Game\UI\CPlayerStatusHUD.h" />
     <ClInclude Include="Game\Util\AnimEventHelper.h" />
+    <ClInclude Include="Game\VFXKeys.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -206,7 +204,6 @@
     <ClCompile Include="Game\Ability\Monster\Ability_MonsterAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_AirAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_ComboAttack.cpp" />
-    <ClCompile Include="Game\Ability\Player\Ability_Crouch.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_CrouchAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Jump.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Parry.cpp" />
@@ -522,9 +519,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
-    <ClCompile Include="Game\Object\CMissile.cpp" />
     <ClCompile Include="Game\Object\CVFX.cpp" />
-    <ClCompile Include="Game\Object\CWeapon.cpp" />
     <ClCompile Include="Game\Object\World\CGround.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>

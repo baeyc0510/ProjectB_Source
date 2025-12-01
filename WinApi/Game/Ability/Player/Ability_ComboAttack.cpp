@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Ability_ComboAttack.h"
 #include "Game/AnimKeys.h"
+#include "Game/VFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
 Ability_ComboAttack::Ability_ComboAttack()
@@ -95,9 +96,13 @@ void Ability_ComboAttack::OnHitCheck()
         }
     }
     
-    int oldComboCnt = comboCnt;
-    comboCnt = (comboCnt + 1) % maxComboCnt;  // 콤보 업데이트
-    OnComboCountUpdated(oldComboCnt, comboCnt);
+    const bool bHit = !results.empty();
+    if (bHit)
+    {
+        int oldComboCnt = comboCnt;
+        comboCnt = (comboCnt + 1) % maxComboCnt;  // 콤보 업데이트
+        OnComboCountUpdated(oldComboCnt, comboCnt);
+    }
 }
 
 Vec2 Ability_ComboAttack::GetTraceOffset()
@@ -137,9 +142,9 @@ wstring Ability_ComboAttack::GetAnimationName()
 
 wstring Ability_ComboAttack::GetVFXName()
 {
-    if (comboCnt == 0)  return TEXT("VFX_Attack1");
-    if (comboCnt == 1)  return TEXT("VFX_Attack2");
-    if (comboCnt == 2)  return TEXT("VFX_Attack3");
+    if (comboCnt == 0)  return VFXKey::AttackHit1;
+    if (comboCnt == 1)  return VFXKey::AttackHit2;
+    if (comboCnt == 2)  return VFXKey::AttackHit3;
     
-    return TEXT("VFX_Attack1");
+    return VFXKey::AttackHit1;
 }

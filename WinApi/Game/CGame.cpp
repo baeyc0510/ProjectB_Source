@@ -81,7 +81,6 @@ void CGame::Init(HINSTANCE hInstance)
 
 	// TODO : 충돌 레이어 설정
 	SINGLE(CCollisionManager)->CheckLayer(Layer::Player, Layer::Monster);
-	SINGLE(CCollisionManager)->CheckLayer(Layer::Monster, Layer::Missile);
 	SINGLE(CCollisionManager)->CheckLayer(Layer::Player, Layer::Ground);
 	SINGLE(CCollisionManager)->CheckLayer(Layer::Monster, Layer::Ground);
 

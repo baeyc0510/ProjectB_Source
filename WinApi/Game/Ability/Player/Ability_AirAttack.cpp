@@ -8,6 +8,13 @@ Ability_AirAttack::Ability_AirAttack()
     maxComboCnt = 2;
 }
 
+void Ability_AirAttack::OnActivate()
+{
+    Ability_ComboAttack::OnActivate();
+    
+    WaitEvent(EGameEvent::Landed,BIND(this,EndAbility));
+}
+
 void Ability_AirAttack::OnInputAttack()
 {
     auto stateSystem = owner->GetComponent<CStateSystem>();

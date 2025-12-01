@@ -21,7 +21,6 @@ enum Layer
 	Default,
 	Player,
 	Monster,
-	Missile,
 	Ground,
 	LayerSize,
 };

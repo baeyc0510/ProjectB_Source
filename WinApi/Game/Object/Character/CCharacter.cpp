@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "CCharacter.h"
 
+#include "Game/VFXKeys.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
@@ -23,7 +24,7 @@ CCharacter::~CCharacter()
 
 wstring CCharacter::GetRandomBloodVfxKey() const
 {
-    return TEXT("VFX_Blood1");
+    return VFXKey::Blood1;
 }
 
 void CCharacter::Init()
@@ -107,7 +108,6 @@ void CCharacter::UpdateGroundState()
     {
         stateSystem->RemoveTag(Tag_Airborne);
         stateSystem->AddTagUnique(Tag_Grounded);
-        abilitySystem->TriggerEvent(EGameEvent::Landed);
     }
     if (!bIsGrounded)
     {
