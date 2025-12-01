@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 class CSceneStage01 : public CScene
 {
 public:
@@ -12,7 +13,10 @@ public:
 	void Render()	override;
 	void Exit()		override;
 	void Release()	override;
-	
+
+	void RenderBackground() override;
+	void RenderForeground() override;
+
 private:
 	class CPlayer* _player;
 	class CStateSystem* _stateSystem;

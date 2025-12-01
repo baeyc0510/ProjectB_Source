@@ -4,11 +4,12 @@
 #include "Enum.h"
 #include "Resource.h"
 #include "Manager/CVFXManager.h"
+#include "Manager/CMapManager.h"
 #include "Scene/CSceneStage01.h"
 #include "Scene/CSceneTitle.h"
 
 const Vec2 CGame::WINSTART		= Vec2(100, 100);
-const Vec2 CGame::WINSIZE		= Vec2(1920, 1080);	// 실제 윈도우 크기
+const Vec2 CGame::WINSIZE		= Vec2(1280, 720);	// 실제 윈도우 크기
 const Vec2 CGame::VIRTUALSIZE	= Vec2(640, 360);	// 가상 해상도
 
 CGame::CGame()
@@ -72,6 +73,7 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CCameraManager)->Init();
 	SINGLE(CSoundManager)->Init();
 	SINGLE(CUIManager)->Init();
+	SINGLE(CMapManager)->Init();
 
 	// TODO : 리소스 경로 설정
 	SINGLE(CResourceManager)->SetResourceFolder(PATH + TEXT("\\..\\Resources\\"));
@@ -118,6 +120,7 @@ void CGame::Release()
 	SINGLE(CCameraManager)->Release();
 	SINGLE(CSoundManager)->Release();
 	SINGLE(CUIManager)->Release();
+	SINGLE(CMapManager)->Release();
 }
 
 void CGame::Input()

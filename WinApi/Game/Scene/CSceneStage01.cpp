@@ -9,6 +9,7 @@
 #include "Game/Object/Character/CMonster.h"
 #include "Game/Sound/CSoundController.h"
 #include "Game/Manager/CGameUIManager.h"
+#include "Game/Manager/CMapManager.h"
 
 class CCameraController;
 class CPlayer;
@@ -25,37 +26,22 @@ void CSceneStage01::Init()
 {
 	// Game UI
 	GAMEUI->Init(this);
-	
-	// Ground (월드 좌표 0, 0 기준)
-	CGround* pGround = new CGround();
-	pGround->SetName(L"Ground");
-	pGround->SetPos(Vec2(0.f, 0.f));
-	pGround->SetScale(Vec2(2000.f, 100.f));
 
-	CCollider* pGroundCollider = new CCollider();
-	pGroundCollider->SetScale(pGround->GetScale());
-	pGroundCollider->SetLayer(Layer::Ground);
-	pGround->AddChild(pGroundCollider);
-	AddGameObject(pGround);
+	// Map 로드
+	MAP->LoadMap(L"Maps/test.json");
 
-	// Player (Ground 위)
+	// Player (맵의 스폰 위치 사용)
 	CPlayer* player = new CPlayer();
-	player->SetPos(Vec2(0.f, -100.f));
+	player->SetPos(MAP->GetPlayerSpawn());
 	AddGameObject(player);
 
 	_player = player;
 
-	// Dummy Monster (Player 오른쪽)
-	CMonster* monster = new CMonster();
-	monster->SetPos(Vec2(150.f, -100.f));
-	monster->SetForward(-1);
-	AddGameObject(monster);
-	
-	// CCameraController* controller = new CCameraController();
-	// AddGameObject(controller);
-
-	// CSoundController* sound = new CSoundController();
-	// AddGameObject(sound);
+	// // Dummy Monster (Player 오른쪽)
+	// CMonster* monster = new CMonster();
+	// monster->SetPos(MAP->GetPlayerSpawn() + Vec2(200.f, 0.f));
+	// monster->SetForward(-1);
+	// AddGameObject(monster);
 }
 
 void CSceneStage01::Enter()
@@ -64,7 +50,8 @@ void CSceneStage01::Enter()
 	CAMERA->SetTargetObj(_player);
 	CAMERA->SetOffset(Vec2(0.f,-100.f));
 	CAMERA->SetDeadZone(Vec2(100.f,100.f));
-	
+	CAMERA->SetBounds(MAP->GetBounds());
+
 	_stateSystem = _player->GetComponent<CStateSystem>();
 }
 
@@ -82,16 +69,16 @@ void CSceneStage01::Update()
 
 void CSceneStage01::Render()
 {
-	RENDER->SetText(10, RGB(255, 0, 0), TextAlign::Left);
-
-	// // 디버그: 카메라 lookAt 위치 출력
-	// Vec2 camPos = CAMERA->GetLookAt();
-	// wstring debugCam = L"Camera: " + to_wstring((int)camPos.x) + L", " + to_wstring((int)camPos.y);
-	// RENDER->Text(10, 10, debugCam);
+	// RENDER->SetText(10, RGB(255, 0, 0), TextAlign::Left);
 	//
-	// // 디버그: 플레이어 pos 출력
-	wstring debugPlayer = _stateSystem->GetStateTagString();
-	RENDER->Text(40, 55, debugPlayer);
+	// // // 디버그: 카메라 lookAt 위치 출력
+	// // Vec2 camPos = CAMERA->GetLookAt();
+	// // wstring debugCam = L"Camera: " + to_wstring((int)camPos.x) + L", " + to_wstring((int)camPos.y);
+	// // RENDER->Text(10, 10, debugCam);
+	// //
+	// // // 디버그: 플레이어 pos 출력
+	// wstring debugPlayer = _stateSystem->GetStateTagString();
+	// RENDER->Text(40, 55, debugPlayer);
 	//
 	// // 디버그: 카메라 targetObj 확인
 	// const CGameObject* camTarget = CAMERA->GetTargetObj();
@@ -118,4 +105,14 @@ void CSceneStage01::Exit()
 
 void CSceneStage01::Release()
 {
+}
+
+void CSceneStage01::RenderBackground()
+{
+	MAP->RenderBackground();
+}
+
+void CSceneStage01::RenderForeground()
+{
+	MAP->RenderForeground();
 }

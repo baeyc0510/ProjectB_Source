@@ -36,6 +36,10 @@ private:
 	virtual void		Exit()		= 0;	// 탈출
 	virtual void		Release()	= 0;	// 마무리
 
+	// 맵 레이어 렌더링 (선택적 오버라이드)
+	virtual void		RenderBackground() {}	// 배경 레이어 (오브젝트 전)
+	virtual void		RenderForeground() {}	// 전경 레이어 (오브젝트 후)
+
 	// 씬 부모 전용 함수들 :
 	// 씬에 있는 모든 게임오브젝트들을 갱신
 	void				SceneInit();		

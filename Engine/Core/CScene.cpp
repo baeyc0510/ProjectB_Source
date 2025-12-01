@@ -113,6 +113,9 @@ void CScene::SceneUpdate()
 
 void CScene::SceneRender()
 {
+	// 0. 배경 레이어 렌더링 (맵 배경)
+	RenderBackground();
+
 	// 1. 게임 오브젝트 렌더링 (가상 해상도)
 	for (CGameObject* obj : objList)
 	{
@@ -125,6 +128,9 @@ void CScene::SceneRender()
 		renderPQueue.pop();
 		top.second->Render();
 	}
+
+	// 1.5. 전경 레이어 렌더링 (맵 전경)
+	RenderForeground();
 
 	// 2. UI 렌더링 (윈도우 해상도 - 별도 레이어)
 	RENDER->BeginUI();
