@@ -27,7 +27,9 @@ public:
 	float			GetRatio()				{ return ratio; }
 	void			SetRatio(float ratio)	{ this->ratio = ratio; }
 	void			SetDirection(int dir)	{ flipX =  dir <= 0; }
-	
+	void			SetReverse(bool reverse){ this->reverse = reverse; }
+	bool			IsReverse() const		{ return reverse; }
+
 	UINT			GetCurrentFrame()			{ return curFrame; }
 	void			SetCurrentFrame(UINT inFrame);
 
@@ -52,6 +54,7 @@ private:
 	UINT							curFrame;
 	float							curTime;
 	bool							flipX;
+	bool							reverse;
 	bool							isFinished;
 
 	// 현재 애니메이션에 대한 콜백

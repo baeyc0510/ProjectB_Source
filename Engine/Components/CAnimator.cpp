@@ -9,6 +9,7 @@ CAnimator::CAnimator()
 	curFrame		= 0;
 	curTime			= 0;
 	flipX			= false;
+	reverse			= false;
 	isFinished		= false;
 }
 
@@ -24,6 +25,7 @@ void CAnimator::Reset()
 	curFrame		= 0;
 	curTime			= 0;
 	flipX			= false;
+	reverse			= false;
 	isFinished		= false;
 
 	ReleaseAnimations();
@@ -95,10 +97,10 @@ void CAnimator::Play(const wstring& aniName, bool reset,
 		}
 	}
 
-	// reset 일 경우 처음부터 재생
+	// reset 일 경우 처음부터 재생 (역재생이면 마지막 프레임에서 시작)
 	if (reset || curAnimation != animation)
 	{
-		curFrame = 0;
+		curFrame = reverse ? static_cast<UINT>(animation->frames.size() - 1) : 0;
 		curTime = 0;
 		isFinished = false;
 	}
@@ -155,6 +157,10 @@ void CAnimator::ComponentUpdate()
 	{
 		return;
 	}
+	if (!playing)
+	{
+		return;
+	}
 
 	// 현재 플레이중인 프레임의 누적시간
 	curTime += DT;
@@ -163,41 +169,78 @@ void CAnimator::ComponentUpdate()
 	// -> 다음 프레임을 보여줘야 하는 경우
 	if (curAnimation->frames[curFrame].time < curTime)
 	{
-		curFrame++;	// 현재 플레이중인 프레임의 인덱스를 하나 증가
 		curTime = 0;	// 현재 플레이중인 프레임의 누적시간 초기화
 
-		if (!isFinished)
+		// 역재생
+		if (reverse)
 		{
-			// 프레임 이벤트 실행
-			for (const wstring& eventName : curAnimation->frames[curFrame - 1].events)
+			if (curFrame == 0)
 			{
-				OnFrameEvent.Broadcast(eventName);
-			}
-		}
+				// 첫 프레임에 도달
+				if (curAnimation->repeat)
+				{
+					curFrame = static_cast<UINT>(curAnimation->frames.size() - 1);
+				}
+				else
+				{
+					// 반복 아니면 0에서 멈춤
+					if (isFinished)
+					{
+						return;
+					}
 
-		// 만약 플레이중인 프레임이 마지막 프레임이었을 경우
-		if (curFrame == curAnimation->frames.size())
-		{
-			// 반복 애니메이션이라면 처음부터, 아니라면 마지막을 다시 재생
-			if (curAnimation->repeat)
-			{
-				curFrame = 0;
+					isFinished = true;
+
+					if (onFinished.IsBound())
+					{
+						onFinished.Invoke();
+					}
+				}
 			}
 			else
 			{
 				curFrame--;
+			}
+		}
+		// 정방향 재생
+		else
+		{
+			UINT prevFrame = curFrame;
+			curFrame++;
 
-				if (isFinished)
+			if (!isFinished)
+			{
+				// 프레임 이벤트 실행
+				for (const wstring& eventName : curAnimation->frames[prevFrame].events)
 				{
-					return;
+					OnFrameEvent.Broadcast(eventName);
 				}
+			}
 
-				isFinished = true;
-
-				// 애니메이션 완료 이벤트 호출
-				if (onFinished.IsBound())
+			// 만약 플레이중인 프레임이 마지막 프레임이었을 경우
+			if (curFrame == curAnimation->frames.size())
+			{
+				// 반복 애니메이션이라면 처음부터, 아니라면 마지막을 다시 재생
+				if (curAnimation->repeat)
 				{
-					onFinished.Invoke();
+					curFrame = 0;
+				}
+				else
+				{
+					curFrame--;
+
+					if (isFinished)
+					{
+						return;
+					}
+
+					isFinished = true;
+
+					// 애니메이션 완료 이벤트 호출
+					if (onFinished.IsBound())
+					{
+						onFinished.Invoke();
+					}
 				}
 			}
 		}
