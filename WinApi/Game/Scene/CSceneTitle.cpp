@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "CSceneTitle.h"
 #include "Game/CGame.h"
+#include "Game/Manager/CGameUIManager.h"
 
 
 CSceneTitle::CSceneTitle()
@@ -25,7 +26,7 @@ void CSceneTitle::Update()
 	if (INPUT->ButtonDown(VK_SPACE))
 	{
 		CAMERA->FadeOut(0.5f);
-		WORLD->ChangeScene(SceneType::Stage01, 0.5f);
+		WORLD->ChangeScene(ESceneType::Stage02, 0.5f);
 	}
 }
 
