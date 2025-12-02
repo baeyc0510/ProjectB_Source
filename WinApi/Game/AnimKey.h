@@ -21,6 +21,7 @@ namespace AnimKey
 	constexpr const wchar_t* Slide			= L"Slide";
 	constexpr const wchar_t* Crouch			= L"Crouch";
 	constexpr const wchar_t* CrouchUp		= L"CrouchUp";
+	constexpr const wchar_t* Climbing		= L"Climbing";
 
 	// Player Attack
 	constexpr const wchar_t* Combo1			= L"Combo1";

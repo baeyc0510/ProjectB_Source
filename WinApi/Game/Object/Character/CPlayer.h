@@ -34,6 +34,9 @@ protected:
 	void OnDisable() override;
 	void Release() override;
 
+	/*~ CCharacter Interface ~*/
+	void ProcessMetaCollision(CollisionContext& ctx) override;
+	
 	/*~ ICombatInterface ~*/
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 
@@ -53,17 +56,19 @@ private:
 
 	// 상태 처리
 	void UpdateAnimation();
-	void OnStateChanged(StateTag oldTags, StateTag newTags);
+	void OnStateChanged(EStateTag oldTags, EStateTag newTags);
 	void CheckVelocityChanged();
-
+	void ProcessLadderOverlap(CollisionContext& ctx);
+	
 private:
 	// 상수
 	static constexpr float MOVE_SPEED = 300.f;
-	static constexpr float JUMP_FORCE = 700.f;
+	static constexpr float JUMP_FORCE = 550.f;
 	static constexpr float KNOCKBACK_POWER = 100.f;
 	static constexpr float MAX_HP = 100.f;
 	static constexpr float MAX_MP = 100.f;
 	static constexpr int MAX_FLASK = 2;
+	static constexpr float CLIMB_SPEED = 150.f;
 
 	// Crouch collider 설정
 	Vec2 standingColScale;
@@ -83,4 +88,7 @@ private:
 
 	// velocity 변경 감지용
 	Vec2 prevVelocity;
+	
+	// 사다리 좌표
+	float ladderX;
 };

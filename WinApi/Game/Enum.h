@@ -4,24 +4,26 @@
 //##				게임씬				##
 //========================================
 
-enum SceneType
+enum ESceneType
 {
 	Title,
 	Stage01,
-
-	SceneSize,
+	Stage02,
+	Stage03,
+	Stage04,
 };
 
 //========================================
 //##				레이어				##
 //========================================
 
-enum Layer
+enum ELayer
 {
 	Default,
 	Player,
 	Monster,
 	Ground,
+	Transition,
 	LayerSize,
 };
 
@@ -29,7 +31,7 @@ enum Layer
 //##			StateTag (비트필드)		##
 //========================================
 
-enum StateTag
+enum EStateTag
 {
 	Tag_None				= 0,
 	Tag_Grounded			= 1 << 0,	// 지상
@@ -49,41 +51,43 @@ enum StateTag
 	Tag_StopVelocity 		= 1 << 14,
 	Tag_Crouching			= 1 << 15,
 	Tag_AirAttackExhausted	= 1 << 16,	// 공중 공격 소진
-	Tag_FlaskRemaining		= 1 << 17, // 잔여 플라스크 있음
+	Tag_FlaskRemaining		= 1 << 17,	// 잔여 플라스크 있음
+	Tag_Climbing			= 1 << 18,	// 사다리 타는 중
+	Tag_CanClimb			= 1 << 19,	// 사다리 진입 가능
 };
 
-inline StateTag operator|(StateTag a, StateTag b)
+inline EStateTag operator|(EStateTag a, EStateTag b)
 {
-	return static_cast<StateTag>(static_cast<int>(a) | static_cast<int>(b));
+	return static_cast<EStateTag>(static_cast<int>(a) | static_cast<int>(b));
 }
 
-inline StateTag operator&(StateTag a, StateTag b)
+inline EStateTag operator&(EStateTag a, EStateTag b)
 {
-	return static_cast<StateTag>(static_cast<int>(a) & static_cast<int>(b));
+	return static_cast<EStateTag>(static_cast<int>(a) & static_cast<int>(b));
 }
 
-inline StateTag operator~(StateTag a)
+inline EStateTag operator~(EStateTag a)
 {
-	return static_cast<StateTag>(~static_cast<int>(a));
+	return static_cast<EStateTag>(~static_cast<int>(a));
 }
 
 // StateTag 헬퍼 함수
-inline bool HasTag(StateTag tags, StateTag check)
+inline bool HasTag(EStateTag tags, EStateTag check)
 {
 	return (tags & check) == check;
 }
 
-inline bool HasAnyTag(StateTag tags, StateTag check)
+inline bool HasAnyTag(EStateTag tags, EStateTag check)
 {
 	return (tags & check) != Tag_None;
 }
 
-inline bool TagAdded(StateTag oldTags, StateTag newTags, StateTag tag)
+inline bool TagAdded(EStateTag oldTags, EStateTag newTags, EStateTag tag)
 {
 	return !HasTag(oldTags, tag) && HasTag(newTags, tag);
 }
 
-inline bool TagRemoved(StateTag oldTags, StateTag newTags, StateTag tag)
+inline bool TagRemoved(EStateTag oldTags, EStateTag newTags, EStateTag tag)
 {
 	return HasTag(oldTags, tag) && !HasTag(newTags, tag);
 }

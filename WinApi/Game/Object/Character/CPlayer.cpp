@@ -15,13 +15,16 @@
 #include "Game/Component/CStateSystem.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Manager/CGameUIManager.h"
+#include "Game/Manager/CMapManager.h"
 #include "Game/Manager/CVFXManager.h"
+#include "Game/Map/CMetaMap.h"
 #include "Game/Object/CVFX.h"
 
 CPlayer::CPlayer() : currentHP(0), maxHP(0), currentMP(0), maxMP(0), currentFlask(0), maxFlask(0), prevVelocity(0, 0)
 {
 	name = TEXT("플레이어");
 	jumpForce = JUMP_FORCE;
+	isPersistent = true;
 }
 
 CPlayer::~CPlayer()
@@ -43,7 +46,7 @@ void CPlayer::Init()
 	standingColOffset = Vec2(0, -36);
 	collider->SetScale(standingColScale);
 	collider->SetOffset(standingColOffset);
-	collider->SetLayer(Layer::Player);
+	collider->SetLayer(ELayer::Player);
 	AddChild(collider);
 	
 	// Abilities
@@ -78,6 +81,7 @@ void CPlayer::Init()
 	AddAnimation(AnimKey::CrouchUp, TEXT("Animations/Penitent/penitent_crouch_up_anim.json"), false);
 	AddAnimation(AnimKey::CrouchAttack, TEXT("Animations/Penitent/penitent_crouch_attack_anim.json"), false);
 	AddAnimation(AnimKey::UseFlask,TEXT("Animations/Penitent/penitent_healthposion_anim.json"), false);
+	AddAnimation(AnimKey::Climbing,TEXT("Animations/Penitent/penitent_ladder_climb_loop_anim.json"), true);
 	
 	// 초기 스탯값 적용
 	InitStartupStats();
@@ -89,7 +93,7 @@ void CPlayer::OnEnable()
 	animator->Play(AnimKey::Idle, false);
 
 	// StateSystem 이벤트 구독
-	stateSystem->OnStateChanged.Add([this](StateTag oldTags, StateTag newTags)
+	stateSystem->OnStateChanged.Add([this](EStateTag oldTags, EStateTag newTags)
 	{
 		OnStateChanged(oldTags, newTags);
 	});
@@ -101,9 +105,10 @@ void CPlayer::Update()
 	HandleCombatInput();
 	HandleActionInput();
 	UpdateMovement();
-	UpdateGroundState();
-	UpdateAnimation();
+	UpdateMetaCollision();
+	UpdateStates();
 	CheckVelocityChanged();
+	UpdateAnimation();
 }
 
 void CPlayer::HandleCombatInput()
@@ -134,12 +139,38 @@ void CPlayer::HandleCombatInput()
 
 void CPlayer::HandleActionInput()
 {
+	// 사다리 타기 중일 때
+	if (stateSystem->HasTag(Tag_Climbing))
+	{
+		// 점프로 사다리 이탈
+		if (INPUT->ButtonDown(VK_SPACE))
+		{
+			stateSystem->RemoveTag(Tag_Climbing);
+			rigidbody->UseGravity(true);
+			abilitySystem->TryActivateAbility(EAbility::Jump);
+		}
+		return;
+	}
+
+	// 사다리 진입 (W/S 키로 사다리 영역에서 시작)
+	if (stateSystem->HasTag(Tag_CanClimb) && !stateSystem->HasTag(Tag_Climbing))
+	{
+		if (INPUT->ButtonDown('W') || INPUT->ButtonDown('S'))
+		{
+			abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
+			stateSystem->AddTagUnique(Tag_Climbing);
+			rigidbody->UseGravity(false);
+			rigidbody->SetVelocity(Vec2(0.f, 0.f));
+			return;
+		}
+	}
+
 	// Slide
 	if (INPUT->ButtonDown(VK_SHIFT))
 	{
 		abilitySystem->TryActivateAbility(EAbility::Slide);
 	}
-	
+
 	// Use Flask
 	if (INPUT->ButtonDown('F'))
 	{
@@ -155,7 +186,7 @@ void CPlayer::HandleActionInput()
 	{
 		abilitySystem->CancelAbility(EAbility::Crouch);
 	}
-	
+
 	// JUMP
 	if (INPUT->ButtonDown(VK_SPACE))
 	{
@@ -171,14 +202,37 @@ void CPlayer::UpdateMovement()
 		rigidbody->SetVelocity(Vec2(0.0f, 0.0f));
 		return;
 	}
-	
+
 	if (stateSystem->HasTag(Tag_BlockMovement))
 	{
 		return;
 	}
 
 	Vec2 velocity = rigidbody->GetVelocity();
-	
+
+	// 사다리 타기 중
+	if (stateSystem->HasTag(Tag_Climbing))
+	{
+		velocity.x = 0.f;
+		velocity.y = 0.f;
+		SetPos(Vec2(ladderX,pos.y));
+
+		// 상하 이동
+		if (INPUT->ButtonStay('W'))
+		{
+			velocity.y = -CLIMB_SPEED;
+		}
+		else if (INPUT->ButtonStay('S'))
+		{
+			velocity.y = CLIMB_SPEED;
+		}
+
+		rigidbody->SetVelocity(velocity);
+		animator->SetReverse(velocity.y > 0.f); // 하강시 역재생
+		return;
+	}
+
+	// 일반 이동
 	if (INPUT->ButtonStay('A'))
 	{
 		velocity.x = -MOVE_SPEED;
@@ -207,6 +261,23 @@ void CPlayer::UpdateAnimation()
 	// Ability가 애니메이션을 제어 중이면 스킵
 	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
+
+	// 사다리 타기 중
+	if (stateSystem->HasTag(Tag_Climbing))
+	{
+		if (INPUT->ButtonStay('W') || INPUT->ButtonStay('S'))
+		{
+			animator->Play(AnimKey::Climbing, false, nullptr, [this]()
+			{
+				animator->SetReverse(false);
+			});	
+		}
+		else
+		{
+			animator->Stop();
+		}
+		return;
+	}
 
 	// locomotion
 	if (stateSystem->HasTag(Tag_Airborne))
@@ -247,6 +318,12 @@ void CPlayer::OnDisable()
 void CPlayer::Release()
 {
 	CCharacter::Release();
+}
+
+void CPlayer::ProcessMetaCollision(CollisionContext& ctx)
+{
+	CCharacter::ProcessMetaCollision(ctx);
+	ProcessLadderOverlap(ctx);
 }
 
 void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
@@ -379,7 +456,7 @@ void CPlayer::UpdateMP(float& attribute, float value) const
 	}
 }
 
-void CPlayer::OnStateChanged(StateTag oldTags, StateTag newTags)
+void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 {
 	// 앉기
 	if (TagAdded(oldTags, newTags, Tag_Crouching) || TagAdded(oldTags, newTags, Tag_Sliding))
@@ -403,6 +480,8 @@ void CPlayer::OnStateChanged(StateTag oldTags, StateTag newTags)
 		abilitySystem->TriggerEvent(EGameEvent::Landed);
 		// 착지 시 점프 공격 소진 태그 리셋
 		stateSystem->RemoveTag(Tag_AirAttackExhausted);
+		// 착지 시 사다리 타기 해제
+		stateSystem->RemoveTag(Tag_Climbing);
 	}
 }
 
@@ -420,4 +499,75 @@ void CPlayer::CheckVelocityChanged()
 	}
 
 	prevVelocity = curVelocity;
+}
+
+void CPlayer::ProcessLadderOverlap(CollisionContext& ctx)
+{
+	static constexpr int OVERLAP_WIDTH = 20;
+	
+	int centerX = (int)ctx.pixelCenter.x;
+	int centerY = (int)ctx.pixelCenter.y;
+	int feetY = (int)(ctx.pixelCenter.y + ctx.halfHeight);
+
+	// 캐릭터 중심에 사다리가 있는지 체크
+	bool bOverlapCenter = false;
+	bool bOverlapFeet = false;
+	bool bOverlap = false;
+	
+	int checkX = centerX - OVERLAP_WIDTH / 2;
+	int checkY = (centerY + feetY) / 2;
+	
+	for (int i = 0; i < OVERLAP_WIDTH; i++)
+	{
+		bOverlapCenter = bOverlapCenter || ctx.metaMap->IsLadder(checkX,centerY);
+		bOverlapFeet = bOverlapFeet || ctx.metaMap->IsLadder(checkX,feetY);
+		
+		if (stateSystem->HasTag(Tag_Climbing))
+		{
+			bOverlap = ctx.metaMap->IsLadder(checkX,checkY);
+		}
+		else
+		{
+			bOverlap = bOverlapCenter ||  bOverlapFeet;
+		}
+		
+		if (bOverlap)
+		{
+			ladderX = MAP->PixelToWorld(Vec2(checkX,centerY)).x;
+			break;
+		}
+		checkX ++;
+	}
+	
+	if (bOverlap)
+	{
+		stateSystem->AddTagUnique(Tag_CanClimb);
+	}
+	else
+	{
+		stateSystem->RemoveTag(Tag_CanClimb);
+
+		// 사다리 밖으로 나가면 타기 상태 해제
+		if (stateSystem->HasTag(Tag_Climbing))
+		{
+			stateSystem->RemoveTag(Tag_Climbing);
+			rigidbody->UseGravity(true);
+			
+			if (bOverlapFeet)
+			{
+				Vec2 worldPos = MAP->PixelToWorld(Vec2(checkX,checkY));
+				SetPos(Vec2(ladderX, worldPos.y));
+				
+				stateSystem->AddTag(Tag_AbilityAnimation);
+				stateSystem->AddTag(Tag_BlockMovement);
+				stateSystem->AddTag(Tag_StopVelocity);
+				animator->Play(AnimKey::CrouchUp, true, [this]()
+				{
+					stateSystem->RemoveTag(Tag_AbilityAnimation);
+					stateSystem->RemoveTag(Tag_BlockMovement);
+					stateSystem->RemoveTag(Tag_StopVelocity);
+				});
+			}
+		}
+	}
 }
