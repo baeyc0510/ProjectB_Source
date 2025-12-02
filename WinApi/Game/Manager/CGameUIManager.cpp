@@ -4,8 +4,8 @@
 #include "Game/UI/CInventoryUI.h"
 
 CGameUIManager::CGameUIManager()
-	: currentScene(nullptr)
-	, statusHUD(nullptr)
+	: statusHUD(nullptr)
+	, hudVisible(true)
 {
 }
 
@@ -13,14 +13,13 @@ CGameUIManager::~CGameUIManager()
 {
 }
 
-void CGameUIManager::Init(CScene* scene)
+void CGameUIManager::Init()
 {
-	currentScene = scene;
-
 	statusHUD = new CPlayerStatusHUD();
 	statusHUD->SetPos(Vec2(STATUS_HUD_X, STATUS_HUD_Y));
 	statusHUD->SetScreenFixed(true);
-	scene->AddUI(statusHUD);
+	AddUI(statusHUD);
+	statusHUD->SetVisibility(false);
 }
 
 void CGameUIManager::Update()
@@ -30,6 +29,21 @@ void CGameUIManager::Update()
 	{
 		ToggleUI(EOverlayUI::Inventory);
 	}
+
+	for (CUI* ui : uiList)
+	{
+		ui->ComponentUpdate();
+	}
+}
+
+void CGameUIManager::Render()
+{
+	RENDER->BeginUI();
+	for (CUI* ui : uiList)
+	{
+		ui->ComponentRender();
+	}
+	RENDER->EndUI();
 }
 
 bool CGameUIManager::ConsumeEscapeInput()
@@ -44,8 +58,14 @@ bool CGameUIManager::ConsumeEscapeInput()
 
 void CGameUIManager::Release()
 {
-	currentScene = nullptr;
+	for (CUI* ui : uiList)
+	{
+		ui->ComponentRelease();
+		delete ui;
+	}
+	uiList.clear();
 	statusHUD = nullptr;
+
 	while (!overlayStack.empty())
 		overlayStack.pop();
 }
@@ -68,28 +88,47 @@ void CGameUIManager::SetPlayerFlask(int current, int max)
 		statusHUD->SetFlask(current, max);
 }
 
+void CGameUIManager::ShowHUD(bool show)
+{
+	hudVisible = show;
+	if (statusHUD)
+		statusHUD->SetVisibility(show);
+}
+
+void CGameUIManager::AddUI(CUI* ui)
+{
+	uiList.push_back(ui);
+	ui->ComponentInit();
+	ui->ComponentOnEnable();
+}
+
+void CGameUIManager::DeleteUI(CUI* ui)
+{
+	ui->ComponentOnDisable();
+	ui->ComponentRelease();
+	uiList.remove(ui);
+	delete ui;
+}
+
 void CGameUIManager::OpenUI(EOverlayUI type)
 {
-	if (!currentScene)
-		return;
-
 	CUI* overlay = CreateOverlay(type);
 	if (overlay)
 	{
 		overlay->SetScreenFixed(true);
-		currentScene->AddUI(overlay);
+		AddUI(overlay);
 		overlayStack.push({ type, overlay });
 	}
 }
 
 void CGameUIManager::CloseUI()
 {
-	if (overlayStack.empty() || !currentScene)
+	if (overlayStack.empty())
 		return;
 
 	auto& top = overlayStack.top();
 	CUI* overlay = top.second;
-	WORLD->Delete(currentScene, overlay);
+	DeleteUI(overlay);
 	overlayStack.pop();
 }
 

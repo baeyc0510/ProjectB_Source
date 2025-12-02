@@ -5,8 +5,10 @@
 #include "Resource.h"
 #include "Manager/CVFXManager.h"
 #include "Manager/CMapManager.h"
-#include "Scene/CSceneStage01.h"
+#include "Manager/CGameUIManager.h"
+#include "Scene/CStage01.h"
 #include "Scene/CSceneTitle.h"
+#include "Scene/CStage02.h"
 
 const Vec2 CGame::WINSTART		= Vec2(100, 100);
 const Vec2 CGame::WINSIZE		= Vec2(1280, 720);	// 실제 윈도우 크기
@@ -70,28 +72,31 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CCollisionManager)->Init();
 	SINGLE(CPathManager)->Init();
 	SINGLE(CResourceManager)->Init();
+	// 리소스 경로 설정 (리소스 로드 전에 반드시 먼저 설정)
+	SINGLE(CResourceManager)->SetResourceFolder(PATH + TEXT("\\..\\Resources\\"));
+
 	SINGLE(CCameraManager)->Init();
 	SINGLE(CSoundManager)->Init();
 	SINGLE(CUIManager)->Init();
 	SINGLE(CMapManager)->Init();
-
-	// TODO : 리소스 경로 설정
-	SINGLE(CResourceManager)->SetResourceFolder(PATH + TEXT("\\..\\Resources\\"));
+	SINGLE(CGameUIManager)->Init();
 
 	// TODO : 씬 추가
-	SINGLE(CSceneManager)->AddScene(SceneType::Title,	new CSceneTitle());
-	SINGLE(CSceneManager)->AddScene(SceneType::Stage01,	new CSceneStage01());
+	SINGLE(CSceneManager)->AddScene(ESceneType::Title,	new CSceneTitle());
+	SINGLE(CSceneManager)->AddScene(ESceneType::Stage01,	new CStage01());
+	SINGLE(CSceneManager)->AddScene(ESceneType::Stage02,	new CStage02());
 
 	// TODO : 충돌 레이어 설정
-	SINGLE(CCollisionManager)->CheckLayer(Layer::Player, Layer::Monster);
-	SINGLE(CCollisionManager)->CheckLayer(Layer::Player, Layer::Ground);
-	SINGLE(CCollisionManager)->CheckLayer(Layer::Monster, Layer::Ground);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Monster);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ground);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Ground);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Transition);
 
 	// TODO : 오브젝트 풀링
 	SINGLE(CVFXManager)->PreLoad();
 	
 	// 씬 시작
-	SINGLE(CSceneManager)->SetStartScene(SceneType::Title);
+	SINGLE(CSceneManager)->SetStartScene(ESceneType::Title);
 }
 
 void CGame::Run()
@@ -121,6 +126,7 @@ void CGame::Release()
 	SINGLE(CSoundManager)->Release();
 	SINGLE(CUIManager)->Release();
 	SINGLE(CMapManager)->Release();
+	SINGLE(CGameUIManager)->Release();
 }
 
 void CGame::Input()
@@ -138,6 +144,7 @@ void CGame::Update()
 
 	SINGLE(CTimeManager)->Update();
 	SINGLE(CUIManager)->Update();
+	SINGLE(CGameUIManager)->Update();
 	// 순서 주의! : 카메라는 씬 업데이트 전에 진행
 	// 오브젝트의 renderPos 계산 시 최신 카메라 위치를 사용하기 위해
 	SINGLE(CCameraManager)->Update();
@@ -159,6 +166,9 @@ void CGame::Render()
 
 	// 디버그 드로우
 	SINGLE(CCollisionManager)->RenderDebug();
+
+	// Game UI
+	SINGLE(CGameUIManager)->Render();
 
 	// 게임의 우상단에 게임 FPS 출력 (60프레임 이상을 목표로 최적화 해야함)
 	wstring frame = to_wstring(FPS);
