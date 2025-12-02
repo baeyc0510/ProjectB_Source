@@ -6,11 +6,11 @@ class Ability_ComboAttack : public Ability
 public:
     Ability_ComboAttack();
     
-    StateTag GetRequiredTags() const override { return Tag_Grounded; }
-    StateTag GetBlockedTags() const override { return Tag_Airborne | Tag_Hit | Tag_SpecialAction; }
-    StateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity |  Tag_AbilityAnimation; }
-    StateTag GetTagsToRemove() const override  { return Tag_None; }
-    StateTag GetCancelTags() const override {return Tag_Crouching;}
+    EStateTag GetRequiredTags() const override { return Tag_Grounded; }
+    EStateTag GetBlockedTags() const override { return Tag_Airborne | Tag_Hit | Tag_SpecialAction; }
+    EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity |  Tag_AbilityAnimation; }
+    EStateTag GetTagsToRemove() const override  { return Tag_None; }
+    EStateTag GetCancelTags() const override {return Tag_Crouching;}
     
     void OnActivate() override;
     void OnEnd() override;

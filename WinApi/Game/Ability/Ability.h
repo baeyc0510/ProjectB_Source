@@ -18,13 +18,13 @@ public:
 	void Init(CGameObject* inOwner, CAbilitySystem* inAbilitySystem);
 
 	// Ability 조건
-	virtual StateTag GetRequiredTags() const { return Tag_None; }
-	virtual StateTag GetBlockedTags() const { return Tag_None; }
-	virtual StateTag GetTagsToAdd() const { return Tag_None; }
-	virtual StateTag GetTagsToRemove() const { return Tag_None; }
+	virtual EStateTag GetRequiredTags() const { return Tag_None; }
+	virtual EStateTag GetBlockedTags() const { return Tag_None; }
+	virtual EStateTag GetTagsToAdd() const { return Tag_None; }
+	virtual EStateTag GetTagsToRemove() const { return Tag_None; }
 
 	// Cancel 시 다른 Ability 취소 (이 태그를 가진 Ability들을 취소)
-	virtual StateTag GetCancelTags() const { return Tag_None; }
+	virtual EStateTag GetCancelTags() const { return Tag_None; }
 
 	// 쿨다운
 	virtual float GetCooldown() const { return 0.f; }

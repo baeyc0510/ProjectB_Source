@@ -80,7 +80,7 @@ void Ability_ComboAttack::OnHitCheck()
     Vec2 center = owner->GetWorldPos() + offset;
     Vec2 size = GetTraceSize();
     
-    auto results = COLLISION->BoxTrace(center,size,Layer::Monster, true);
+    auto results = COLLISION->BoxTrace(center,size,ELayer::Monster, true);
     for (auto& result : results)
     {
         CGameObject* target = result.collider->GetOwner();

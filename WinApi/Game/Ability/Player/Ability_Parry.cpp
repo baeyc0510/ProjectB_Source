@@ -17,7 +17,7 @@ void Ability_Parry::OnActivate()
     Ability::OnActivate();
     
     CAnimator* animator =  owner->GetComponent<CAnimator>();
-    animator->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
+    animator->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim));
     
     WaitEvent(EGameEvent::Hit, BIND_ARGS(this,OnHit));
     WaitEvent(EGameEvent::ParryWindowOpen, BIND_EVENT(this,OnParryWindowOpen));
@@ -41,7 +41,7 @@ void Ability_Parry::OnEndParryAnim()
         bShouldCounter = false;
         
         CAnimator* animator =  owner->GetComponent<CAnimator>();
-        animator->Play(AnimKey::ParryCounter, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
+        animator->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
         
         WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this,OnCounterHitCheck));
         return;
@@ -124,7 +124,7 @@ void Ability_Parry::OnCounterHitCheck()
     offset.x *= owner->GetForward();
     Vec2 center = owner->GetWorldPos() + offset;
 
-    auto results = COLLISION->BoxTrace(center, TRACE_SIZE, Layer::Monster, true);
+    auto results = COLLISION->BoxTrace(center, TRACE_SIZE, ELayer::Monster, true);
     for (auto& result : results)
     {
         CGameObject* target = result.collider->GetOwner();

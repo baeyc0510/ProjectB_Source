@@ -19,7 +19,7 @@ public:
 
 	void CancelAbility(EAbility abilityType);
 	void CancelAllAbilities();
-	void CancelAbilitiesWithTag(StateTag tag);
+	void CancelAbilitiesWithTag(EStateTag tag);
 	
 	// 이벤트 중계
 	void TriggerEvent(EGameEvent eventType, CGameObject* source = nullptr);

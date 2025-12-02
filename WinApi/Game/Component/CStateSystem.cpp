@@ -14,9 +14,9 @@ CStateSystem::~CStateSystem()
 // 태그 관리
 //========================================
 
-void CStateSystem::AddTag(StateTag tag)
+void CStateSystem::AddTag(EStateTag tag)
 {
-	StateTag oldTags = currentTags;
+	EStateTag oldTags = currentTags;
 
 	// 상호 배타적 태그 처리: Grounded <-> Airborne
 	if (tag & Tag_Grounded)
@@ -32,12 +32,12 @@ void CStateSystem::AddTag(StateTag tag)
 	}
 
 	// 복합 비트를 개별 비트로 분리하여 각각 카운팅
-	StateTag remaining = tag;
+	EStateTag remaining = tag;
 	while (remaining != Tag_None)
 	{
-		StateTag singleBit = static_cast<StateTag>(remaining & -static_cast<int>(remaining));
+		EStateTag singleBit = static_cast<EStateTag>(remaining & -static_cast<int>(remaining));
 		bitCountMap[singleBit]++;
-		remaining = static_cast<StateTag>(remaining & ~singleBit);
+		remaining = static_cast<EStateTag>(remaining & ~singleBit);
 	}
 	currentTags = currentTags | tag;
 
@@ -46,7 +46,7 @@ void CStateSystem::AddTag(StateTag tag)
 		OnStateChanged.Broadcast(oldTags, currentTags);
 }
 
-void CStateSystem::AddTagUnique(StateTag tag)
+void CStateSystem::AddTagUnique(EStateTag tag)
 {
 	if (HasTag(tag))
 		return;
@@ -54,15 +54,15 @@ void CStateSystem::AddTagUnique(StateTag tag)
 	AddTag(tag);
 }
 
-void CStateSystem::RemoveTag(StateTag tag)
+void CStateSystem::RemoveTag(EStateTag tag)
 {
-	StateTag oldTags = currentTags;
+	EStateTag oldTags = currentTags;
 
 	// 복합 비트를 개별 비트로 분리하여 각각 카운트 감소
-	StateTag remaining = tag;
+	EStateTag remaining = tag;
 	while (remaining != Tag_None)
 	{
-		StateTag singleBit = static_cast<StateTag>(remaining & -static_cast<int>(remaining));
+		EStateTag singleBit = static_cast<EStateTag>(remaining & -static_cast<int>(remaining));
 		if (bitCountMap[singleBit] > 0)
 		{
 			bitCountMap[singleBit]--;
@@ -71,7 +71,7 @@ void CStateSystem::RemoveTag(StateTag tag)
 				currentTags = currentTags & ~singleBit;
 			}
 		}
-		remaining = static_cast<StateTag>(remaining & ~singleBit);
+		remaining = static_cast<EStateTag>(remaining & ~singleBit);
 	}
 
 	if (oldTags != currentTags)
@@ -80,7 +80,7 @@ void CStateSystem::RemoveTag(StateTag tag)
 
 void CStateSystem::ClearTags()
 {
-	StateTag oldTags = currentTags;
+	EStateTag oldTags = currentTags;
 	currentTags = Tag_None;
 	bitCountMap.clear();
 
@@ -92,17 +92,17 @@ void CStateSystem::ClearTags()
 // 태그 검사
 //========================================
 
-bool CStateSystem::HasTag(StateTag tag) const
+bool CStateSystem::HasTag(EStateTag tag) const
 {
 	return (currentTags & tag) == tag;
 }
 
-bool CStateSystem::HasAllTags(StateTag tags) const
+bool CStateSystem::HasAllTags(EStateTag tags) const
 {
 	return (currentTags & tags) == tags;
 }
 
-bool CStateSystem::HasAnyTag(StateTag tags) const
+bool CStateSystem::HasAnyTag(EStateTag tags) const
 {
 	return (currentTags & tags) != Tag_None;
 }

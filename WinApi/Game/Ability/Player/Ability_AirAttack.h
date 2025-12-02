@@ -6,10 +6,10 @@ class Ability_AirAttack : public Ability_ComboAttack
 public:
     Ability_AirAttack();
     
-    StateTag GetRequiredTags() const override { return Tag_Airborne; }
-    StateTag GetBlockedTags() const override { return Tag_Grounded | Tag_Hit | Tag_SpecialAction | Tag_AirAttackExhausted; }
-    StateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_AbilityAnimation; }
-    StateTag GetCancelTags() const override {return Tag_Jumping;}
+    EStateTag GetRequiredTags() const override { return Tag_Airborne; }
+    EStateTag GetBlockedTags() const override { return Tag_Grounded | Tag_Hit | Tag_SpecialAction | Tag_AirAttackExhausted; }
+    EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_AbilityAnimation; }
+    EStateTag GetCancelTags() const override {return Tag_Jumping;}
 
 protected:
     void OnActivate() override;

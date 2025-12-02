@@ -27,7 +27,7 @@ void Ability_MonsterAttack::OnHitCheck()
     Vec2 center = owner->GetWorldPos() + offset;
     Vec2 size = GetTraceSize();
     
-    auto results = COLLISION->BoxTrace(center,size,Layer::Player, true);
+    auto results = COLLISION->BoxTrace(center,size,ELayer::Player, true);
     for (auto& result : results)
     {
         CGameObject* target = result.collider->GetOwner();

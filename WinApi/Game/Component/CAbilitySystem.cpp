@@ -56,8 +56,8 @@ bool CAbilitySystem::CanActivateAbility(Ability* ability) const
 
 	if (stateSystem)
 	{
-		StateTag required = ability->GetRequiredTags();
-		StateTag blocked = ability->GetBlockedTags();
+		EStateTag required = ability->GetRequiredTags();
+		EStateTag blocked = ability->GetBlockedTags();
 
 		if (required != Tag_None && !stateSystem->HasAllTags(required))
 			return false;
@@ -72,15 +72,15 @@ bool CAbilitySystem::CanActivateAbility(Ability* ability) const
 void CAbilitySystem::ActivateAbility(Ability* ability)
 {
 	// CancelTags에 해당하는 Ability들 취소
-	StateTag cancelTags = ability->GetCancelTags();
+	EStateTag cancelTags = ability->GetCancelTags();
 	if (cancelTags != Tag_None)
 		CancelAbilitiesWithTag(cancelTags);
 
 	// 태그 조작
 	if (stateSystem)
 	{
-		StateTag toRemove = ability->GetTagsToRemove();
-		StateTag toAdd = ability->GetTagsToAdd();
+		EStateTag toRemove = ability->GetTagsToRemove();
+		EStateTag toAdd = ability->GetTagsToAdd();
 
 		if (toRemove != Tag_None)
 			stateSystem->RemoveTag(toRemove);
@@ -115,7 +115,7 @@ void CAbilitySystem::CancelAllAbilities()
 	}
 }
 
-void CAbilitySystem::CancelAbilitiesWithTag(StateTag tag)
+void CAbilitySystem::CancelAbilitiesWithTag(EStateTag tag)
 {
 	vector<Ability*> abilitiesToCancel;
 
@@ -123,7 +123,7 @@ void CAbilitySystem::CancelAbilitiesWithTag(StateTag tag)
 	{
 		if (ability->IsActive())
 		{
-			StateTag abilityTags = ability->GetTagsToAdd();
+			EStateTag abilityTags = ability->GetTagsToAdd();
 			if ((abilityTags & tag) != Tag_None)
 				abilitiesToCancel.push_back(ability);
 		}
@@ -193,7 +193,7 @@ void CAbilitySystem::OnAbilityEnded(Ability* ability)
 	// 태그 자동 제거
 	if (stateSystem)
 	{
-		StateTag tagsToRemove = ability->GetTagsToAdd();
+		EStateTag tagsToRemove = ability->GetTagsToAdd();
 		if (tagsToRemove != Tag_None)
 			stateSystem->RemoveTag(tagsToRemove);
 	}

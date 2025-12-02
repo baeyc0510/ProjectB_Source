@@ -6,10 +6,10 @@ class Ability_Slide : public Ability
 public:
     Ability_Slide();
     
-    StateTag GetRequiredTags() const override { return Tag_Grounded; }
-    StateTag GetBlockedTags() const override { return Tag_Airborne | Tag_Hit; }
-    StateTag GetTagsToAdd() const override { return Tag_Sliding | Tag_BlockMovement | Tag_SpecialAction | Tag_AbilityAnimation; }
-    StateTag GetCancelTags() const override {return Tag_AbilityAnimation;}
+    EStateTag GetRequiredTags() const override { return Tag_Grounded; }
+    EStateTag GetBlockedTags() const override { return Tag_Airborne | Tag_Hit; }
+    EStateTag GetTagsToAdd() const override { return Tag_Sliding | Tag_Moving | Tag_BlockMovement | Tag_SpecialAction | Tag_AbilityAnimation; }
+    EStateTag GetCancelTags() const override {return Tag_AbilityAnimation;}
     
     void OnActivate() override;
     

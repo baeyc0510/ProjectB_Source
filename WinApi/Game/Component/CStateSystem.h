@@ -10,18 +10,18 @@ public:
 	//========================================
 	// 태그 관리
 	//========================================
-	void AddTag(StateTag tag);
-	void AddTagUnique(StateTag tag);
-	void RemoveTag(StateTag tag);
+	void AddTag(EStateTag tag);
+	void AddTagUnique(EStateTag tag);
+	void RemoveTag(EStateTag tag);
 	void ClearTags();
 
 	//========================================
 	// 태그 검사
 	//========================================
-	bool HasTag(StateTag tag) const;
-	bool HasAllTags(StateTag tags) const;
-	bool HasAnyTag(StateTag tags) const;
-	StateTag GetTags() const { return currentTags; }
+	bool HasTag(EStateTag tag) const;
+	bool HasAllTags(EStateTag tags) const;
+	bool HasAnyTag(EStateTag tags) const;
+	EStateTag GetTags() const { return currentTags; }
 
 	//========================================
 	// 디버그
@@ -38,10 +38,10 @@ private:
 
 public:
 	// 상태 변경 이벤트 (oldTags, newTags)
-	MulticastDelegate<StateTag, StateTag> OnStateChanged;
+	MulticastDelegate<EStateTag, EStateTag> OnStateChanged;
 
 private:
-	StateTag currentTags;
+	EStateTag currentTags;
 	// 단일 비트 태그별 참조 카운트 (Tag_Grounded, Tag_Airborne 등 -> 카운트)
-	map<StateTag, int> bitCountMap;
+	map<EStateTag, int> bitCountMap;
 };
