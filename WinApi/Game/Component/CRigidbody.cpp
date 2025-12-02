@@ -32,11 +32,11 @@ void CRigidbody::ComponentUpdate()
         velocity.y += GRAVITY_CONSTANT * gravityScale * DT;
     }
 
-    // Update owner's position
+    // Update position
     Vec2 vPos = GetOwner()->GetPos();
     vPos.x += velocity.x * DT;
 
-    // y 방향 이동: 땅에 있을 때는 상승(점프)만 허용, 하강은 무시
+    // 땅에 있을 때는 하강은 무시
     if (!bGrounded || velocity.y < 0)
     {
         vPos.y += velocity.y * DT;

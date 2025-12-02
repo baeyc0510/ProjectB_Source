@@ -8,17 +8,6 @@
 #include "Game/Util/AnimEventHelper.h"
 #include "Game/Manager/CMapManager.h"
 
-// 충돌 처리에 필요한 데이터
-struct CCharacter::CollisionContext
-{
-    CMetaMap* metaMap;
-    Vec2 pos;               // 캐릭터 위치 (수정 가능)
-    Vec2 pixelCenter;       // 콜라이더 중심 (픽셀 좌표)
-    Vec2 colliderOffset;
-    float halfWidth;
-    float halfHeight;
-    bool wasGrounded;
-};
 
 CCharacter::CCharacter()
     : animator(nullptr)
@@ -64,7 +53,6 @@ void CCharacter::OnEnable()
 
 void CCharacter::Update()
 {
-    UpdateMetaCollision();
 }
 
 void CCharacter::Render()
@@ -81,41 +69,17 @@ void CCharacter::Release()
 
 void CCharacter::OnCollisionEnter(CCollider* other)
 {
-    if (other->GetLayer() == Layer::Ground)
-    {
-        HandleGroundCollision(other);
-    }
 }
 
 void CCharacter::OnCollisionStay(CCollider* other)
 {
-    if (other->GetLayer() == Layer::Ground)
-    {
-        bIsGrounded = true;
-        HandleGroundCollision(other);
-
-        // 아래로 떨어지는 속도 제거
-        if (rigidbody)
-        {
-            Vec2 velocity = rigidbody->GetVelocity();
-            if (velocity.y > 0)
-            {
-                velocity.y = 0.f;
-                rigidbody->SetVelocity(velocity);
-            }
-        }
-    }
 }
 
 void CCharacter::OnCollisionExit(CCollider* other)
 {
-    if (other->GetLayer() == Layer::Ground)
-    {
-        bIsGrounded = false;
-    }
 }
 
-void CCharacter::UpdateGroundState()
+void CCharacter::UpdateStates()
 {
     // 착지 체크
     if (bIsGrounded && stateSystem->HasTag(Tag_Airborne))
@@ -130,23 +94,6 @@ void CCharacter::UpdateGroundState()
     }
 }
 
-void CCharacter::HandleGroundCollision(CCollider* ground)
-{
-    if (!collider || !rigidbody)
-        return;
-
-    // 땅을 뚫고 내려가는 것을 방지하기 위해 위치 보정
-    float characterBottom = collider->GetPos().y + collider->GetScale().y / 2.f;
-    float groundTop = ground->GetPos().y - ground->GetScale().y / 2.f;
-
-    float overlap = characterBottom - groundTop;
-    if (overlap > 0)
-    {
-        Vec2 characterPos = GetPos();
-        characterPos.y -= overlap;
-        SetPos(characterPos);
-    }
-}
 
 void CCharacter::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
@@ -160,7 +107,7 @@ void CCharacter::AddAnimation(const wstring& aniName, const wstring& path, bool 
 // 바닥 충돌 처리
 void CCharacter::ProcessGroundCollision(CollisionContext& ctx)
 {
-    constexpr int SLOPE_CHECK_DEPTH = 16;
+    constexpr int SLOPE_CHECK_DEPTH = 4;
 
     int feetY = (int)(ctx.pixelCenter.y + ctx.halfHeight + 1);
     int leftX = (int)(ctx.pixelCenter.x - ctx.halfWidth * 0.5f);
@@ -172,10 +119,11 @@ void CCharacter::ProcessGroundCollision(CollisionContext& ctx)
                   ctx.metaMap->IsGroundAt(centerX, feetY) ||
                   ctx.metaMap->IsGroundAt(rightX, feetY);
 
-    // 2. 내리막길 스냅 (이전에 grounded였고 지금 아닐 때, 상승 중이 아닐 때)
+    // 2. 내리막길 스냅
     int slopeGroundY = -1;
     Vec2 velocity = rigidbody->GetVelocity();
 
+    //이전에 grounded였고 지금 아닐 때, 상승 중이 아닐 때
     if (ctx.wasGrounded && !bIsGrounded && velocity.y >= 0)
     {
         for (int checkY = feetY; checkY < feetY + SLOPE_CHECK_DEPTH; ++checkY)
@@ -203,9 +151,22 @@ void CCharacter::ProcessGroundCollision(CollisionContext& ctx)
     // 4. 위치 보정 필요 여부 판단
     // - 하강 중 (velocity.y > 0)
     // - 내리막 스냅 발생 (slopeGroundY > 0)
-    // - 수평 이동 중 오르막 파묻힘 (velocity.x != 0 && isInsideGround)
+    // - 수평 이동 중 오르막 파묻힘 (velocity.x != 0 && isInsideGround && 전방에 벽 없음)
     bool isInsideGround = ctx.metaMap->IsGroundAt(centerX, feetY - 1);
-    bool isMovingOnSlope = !IsNearlyZero(velocity.x) && isInsideGround;
+
+    // 전방에 수직 벽이 있는지 체크 (경사면과 구분)
+    bool hasWallAhead = false;
+    if (!IsNearlyZero(velocity.x) && isInsideGround)
+    {
+        int moveDir = (velocity.x > 0) ? 1 : -1;
+        int wallCheckX = (int)(ctx.pixelCenter.x + (ctx.halfWidth + 1) * moveDir);
+        int bodyMidY = (int)ctx.pixelCenter.y;
+
+        // 몸통 중앙 높이에 벽이 있으면 수직 벽
+        hasWallAhead = ctx.metaMap->IsSolid(wallCheckX, bodyMidY);
+    }
+
+    bool isMovingOnSlope = !IsNearlyZero(velocity.x) && isInsideGround && !hasWallAhead;
     bool needsCorrection = velocity.y > 0 || slopeGroundY > 0 || isMovingOnSlope;
 
     if (needsCorrection)
@@ -231,33 +192,44 @@ void CCharacter::ProcessGroundCollision(CollisionContext& ctx)
 // 벽 충돌 처리 (direction: -1 = 왼쪽, 1 = 오른쪽)
 void CCharacter::ProcessWallCollision(CollisionContext& ctx, int direction)
 {
-    int bodyTopY = (int)(ctx.pixelCenter.y - ctx.halfHeight * 0.5f);
     int bodyCenterY = (int)ctx.pixelCenter.y;
-    int bodyBottomY = (int)(ctx.pixelCenter.y + ctx.halfHeight * 0.5f);
 
-    int wallX = (int)(ctx.pixelCenter.x + (ctx.halfWidth + 1) * direction);
+    // 1. 벽 바로 앞에 있는지 체크 (1픽셀 앞)
+    int aheadX = (int)(ctx.pixelCenter.x + (ctx.halfWidth + 1) * direction);
+    bool wallAhead = ctx.metaMap->IsSolid(aheadX, bodyCenterY);
 
-    // grounded 상태에서는 하단 포인트 제외 (경사면을 벽으로 인식하지 않도록)
-    bool hitWall = ctx.metaMap->IsSolid(wallX, bodyTopY) ||
-                   ctx.metaMap->IsSolid(wallX, bodyCenterY) ||
-                   (!bIsGrounded && ctx.metaMap->IsSolid(wallX, bodyBottomY));
+    // 2. 벽 안에 있는지 체크 (콜라이더 가장자리)
+    int edgeX = (int)(ctx.pixelCenter.x + ctx.halfWidth * direction);
+    bool insideWall = ctx.metaMap->IsSolid(edgeX, bodyCenterY);
 
-    if (!hitWall)
+    if (!wallAhead && !insideWall)
         return;
 
+    // 벽 방향으로 이동 중이면 속도 정지
     Vec2 velocity = rigidbody->GetVelocity();
     bool movingIntoWall = (direction < 0) ? velocity.x < 0 : velocity.x > 0;
+    if (movingIntoWall)
+    {
+        velocity.x = 0.f;
+        rigidbody->SetVelocity(velocity);
+    }
 
-    if (!movingIntoWall)
-        return;
+    // 벽 안에 있을 때만 밖으로 밀어냄
+    if (insideWall)
+    {
+        int safeX = edgeX;
+        constexpr int MAX_SEARCH = 20;
+        for (int i = 0; i < MAX_SEARCH; ++i)
+        {
+            if (!ctx.metaMap->IsSolid(safeX, bodyCenterY))
+                break;
+            safeX -= direction;
+        }
 
-    velocity.x = 0.f;
-    rigidbody->SetVelocity(velocity);
-
-    // 위치 보정
-    int safeX = wallX - 2 * direction;  // 벽에서 2픽셀 떨어진 위치
-    ctx.pos.x = MAP->PixelToWorld((float)safeX, 0).x - ctx.halfWidth * direction - ctx.colliderOffset.x;
-    SetPos(ctx.pos);
+        ctx.pos.x = MAP->PixelToWorld((float)safeX, 0).x - ctx.halfWidth * direction - ctx.colliderOffset.x;
+        ctx.pixelCenter.x = MAP->WorldToPixel(ctx.pos + ctx.colliderOffset).x;
+        SetPos(ctx.pos);
+    }
 }
 
 // 천장 충돌 처리
@@ -321,4 +293,5 @@ void CCharacter::UpdateMetaCollision()
     ProcessWallCollision(ctx, -1);  // 왼쪽
     ProcessWallCollision(ctx, 1);   // 오른쪽
     ProcessCeilingCollision(ctx);   // 천장
+    ProcessMetaCollision(ctx);
 }
