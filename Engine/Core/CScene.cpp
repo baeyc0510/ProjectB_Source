@@ -18,6 +18,22 @@ void CScene::AddGameObject(CGameObject* obj)
 	if (active) obj->ComponentOnEnable();
 }
 
+void CScene::AddGameObjectWithoutInit(CGameObject* obj)
+{
+	// Init 없이 추가 (이미 초기화된 persistent 오브젝트 이동용)
+	objList.push_back(obj);
+	obj->SetScene(this);
+	if (active) obj->ComponentOnEnable();
+}
+
+void CScene::RemoveGameObject(CGameObject* obj)
+{
+	// 삭제 없이 리스트에서만 제거 (persistent 오브젝트 이동용)
+	if (active) obj->ComponentOnDisable();
+	obj->SetScene(nullptr);
+	objList.remove(obj);
+}
+
 void CScene::DeleteGameObject(CGameObject* obj)
 {
 	if (active) obj->ComponentOnDisable();
@@ -113,10 +129,10 @@ void CScene::SceneUpdate()
 
 void CScene::SceneRender()
 {
-	// 0. 배경 레이어 렌더링 (맵 배경)
+	// 1. 배경 레이어 렌더링
 	RenderBackground();
 
-	// 1. 게임 오브젝트 렌더링 (가상 해상도)
+	// 2. 게임 오브젝트 렌더링
 	for (CGameObject* obj : objList)
 	{
 		obj->ComponentRender();
@@ -129,10 +145,10 @@ void CScene::SceneRender()
 		top.second->Render();
 	}
 
-	// 1.5. 전경 레이어 렌더링 (맵 전경)
+	// 3. 전경 레이어 렌더링
 	RenderForeground();
 
-	// 2. UI 렌더링 (윈도우 해상도 - 별도 레이어)
+	// 4. UI 렌더링
 	RENDER->BeginUI();
 	for (CUI* ui : uiList)
 	{

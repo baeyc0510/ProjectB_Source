@@ -16,8 +16,22 @@ public:
 
 public:
 	void				AddGameObject(CGameObject* obj);
+	void				AddGameObjectWithoutInit(CGameObject* obj);	// Init 없이 추가 (persistent 이동용)
+	void				RemoveGameObject(CGameObject* obj);		// 삭제 없이 리스트에서만 제거
 	void				DeleteGameObject(CGameObject* obj);
 	void				DeleteAllObject();
+
+	// 타입으로 오브젝트 검색
+	template <typename T>
+	T* FindObjectByType()
+	{
+		for (CGameObject* obj : objList)
+		{
+			T* casted = dynamic_cast<T*>(obj);
+			if (casted) return casted;
+		}
+		return nullptr;
+	}
 
 	void				AddRenderer(IRender* renderer);
 
@@ -36,9 +50,9 @@ private:
 	virtual void		Exit()		= 0;	// 탈출
 	virtual void		Release()	= 0;	// 마무리
 
-	// 맵 레이어 렌더링 (선택적 오버라이드)
-	virtual void		RenderBackground() {}	// 배경 레이어 (오브젝트 전)
-	virtual void		RenderForeground() {}	// 전경 레이어 (오브젝트 후)
+	// 배경, 전경 렌더링
+	virtual void		RenderBackground() {}	// 배경 레이어
+	virtual void		RenderForeground() {}	// 전경 레이어
 
 	// 씬 부모 전용 함수들 :
 	// 씬에 있는 모든 게임오브젝트들을 갱신

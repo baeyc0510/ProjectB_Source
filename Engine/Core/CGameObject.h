@@ -22,10 +22,14 @@ public:
 	void			SetName(const wstring& name)	{ this->name = name; }
 	void			SetPos(const Vec2& pos)			{ this->pos = pos; }
 	void			SetScale(const Vec2& scale)		{ this->scale = scale; }
-	
+
 	int				GetForward()					{ return forward; }
 	void			SetForward(int inForward)		{ this->forward = inForward > 0 ? 1 : -1; }
 	void			SetForward(float inForward)		{ this->forward = inForward > 0 ? 1 : -1; }
+
+	// Persistent: 씬 전환 시에도 유지되는 오브젝트
+	bool			IsPersistent() const			{ return isPersistent; }
+	void			SetPersistent(bool value)		{ isPersistent = value; }
 	
 protected:
 	wstring			name;
@@ -34,16 +38,17 @@ protected:
 	Vec2			renderPos;
 	Vec2			scale;
 	int				forward;
+	bool			isPersistent = false;
 	// float		zOrder;
 
 private:
 	virtual void	Init()		= 0;
 	virtual void	OnEnable()	= 0;
 	virtual void	Update()	= 0;
-	//virtual void	Render()	= 0;
 	virtual void	OnDisable()	= 0;
 	virtual void	Release()	= 0;
-
+	//virtual void	Render()	= 0;
+	
 	void			ComponentInit()			override;
 	void			ComponentOnEnable()		override;
 	void			ComponentUpdate()		override;

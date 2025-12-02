@@ -69,9 +69,33 @@ void CSceneManager::ChangeScene(int key)
 	CScene* scene = FindScene(key);
 	assert(nullptr != scene && "Scene do not exist");
 
-	// 이전 씬을 Exit, 다음 씬을 Enter
+	// Persistent 오브젝트 추출 (씬 전환 전에)
+	list<CGameObject*> persistentObjs;
+	for (CGameObject* obj : curScene->objList)
+	{
+		if (obj->IsPersistent())
+		{
+			persistentObjs.push_back(obj);
+		}
+	}
+
+	// 이전 씬에서 persistent 오브젝트 제거 (삭제 없이)
+	for (CGameObject* obj : persistentObjs)
+	{
+		curScene->RemoveGameObject(obj);
+	}
+
+	// 이전 씬을 Exit
 	curScene->SceneExit();
 	curScene = scene;
+
+	// 새 씬에 persistent 오브젝트 추가 (SceneEnter 전에, Init 없이)
+	for (CGameObject* obj : persistentObjs)
+	{
+		curScene->AddGameObjectWithoutInit(obj);
+	}
+
+	// 다음 씬을 Enter
 	curScene->SceneEnter();
 }
 
