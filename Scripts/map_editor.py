@@ -103,6 +103,18 @@ class Layer:
     is_main: bool = False  # 메인 레이어 여부 (메타데이터 포함)
 
 @dataclass
+class SpawnPoint:
+    spawn_id: int
+    x: float
+    y: float
+
+@dataclass
+class ObjectPoint:
+    name: str
+    x: float
+    y: float
+
+@dataclass
 class Checkpoint:
     id: int
     x: float
@@ -120,11 +132,31 @@ class Transition:
 @dataclass
 class MapData:
     layers: List[Layer] = field(default_factory=list)
-    player_spawn: List[float] = field(default_factory=lambda: [100, 500])
+    spawn_points: List[SpawnPoint] = field(default_factory=lambda: [SpawnPoint(0, 100, 500)])
     bounds: List[float] = field(default_factory=lambda: [0, 0, 2000, 1080])
     checkpoints: List[Checkpoint] = field(default_factory=list)
     transitions: List[Transition] = field(default_factory=list)
+    object_points: List[ObjectPoint] = field(default_factory=list)
     map_directory: str = ""
+
+    def get_next_spawn_id(self) -> int:
+        """사용 가능한 다음 spawnId 반환 (중복 방지)"""
+        if not self.spawn_points:
+            return 0
+        used_ids = {sp.spawn_id for sp in self.spawn_points}
+        next_id = 0
+        while next_id in used_ids:
+            next_id += 1
+        return next_id
+
+    def is_spawn_id_unique(self, spawn_id: int, exclude_spawn: Optional[SpawnPoint] = None) -> bool:
+        """spawnId가 고유한지 확인"""
+        for sp in self.spawn_points:
+            if sp is exclude_spawn:
+                continue
+            if sp.spawn_id == spawn_id:
+                return False
+        return True
 
 class Button:
     def __init__(self, x, y, w, h, text, callback=None, font_size=14):
@@ -237,6 +269,11 @@ class MapEditor:
         self.placing_transition = None
         self.placing_bounds = None
 
+        # 선택된 오브젝트 추적
+        self.selected_object = None  # (type, object) 튜플 - type: 'spawn', 'checkpoint', 'transition'
+        self.dragging_object = False
+        self.drag_offset = (0, 0)
+
         self.running = True
         self.clock = pygame.time.Clock()
 
@@ -279,7 +316,7 @@ class MapEditor:
         y = 20
         w = SIDEBAR_WIDTH - 30
 
-        tools = [('select', 'Select'), ('spawn', 'Set Spawn'), ('checkpoint', 'Checkpoint'), ('transition', 'Transition'), ('bounds', 'Set Bounds')]
+        tools = [('select', 'Select'), ('spawn', 'Spawn'), ('object', 'Object'), ('checkpoint', 'Checkpoint'), ('transition', 'Transition'), ('bounds', 'Bounds')]
         for i, (tool_id, tool_name) in enumerate(tools):
             btn = Button(x + (i % 2) * (w//2 + 5), y + (i // 2) * 32, w//2 - 5, 28, tool_name,
                         lambda t=tool_id: self._set_tool(t))
@@ -329,6 +366,7 @@ class MapEditor:
 
     def _select_layer(self, index):
         self.selected_layer_index = index
+        self.selected_object = None  # 레이어 선택 시 오브젝트 선택 해제
         if 0 <= index < len(self.map_data.layers):
             layer = self.map_data.layers[index]
             self.parallax_slider.value = layer.parallax
@@ -354,7 +392,17 @@ class MapEditor:
 
     def _new_map(self):
         self.map_data = MapData()
+        # 명시적으로 새 리스트들로 초기화
+        self.map_data.layers = []
+        self.map_data.spawn_points = [SpawnPoint(0, 100, 500)]
+        self.map_data.checkpoints = []
+        self.map_data.transitions = []
+        self.map_data.object_points = []
+        self.map_data.bounds = [0, 0, 2000, 1080]
+        self.map_data.map_directory = ""
+
         self.selected_layer_index = -1
+        self.selected_object = None
         self.camera_x = 0
         self.camera_y = 0
         self.zoom = 1.0
@@ -375,6 +423,7 @@ class MapEditor:
                 data = json.load(f)
 
             self.map_data = MapData()
+            self.map_data.spawn_points = []  # 초기화
             self.map_data.map_directory = os.path.dirname(filepath)
 
             for i, layer_data in enumerate(data.get('layers', [])):
@@ -402,12 +451,29 @@ class MapEditor:
 
                 self.map_data.layers.append(layer)
 
-            self.map_data.player_spawn = data.get('playerSpawn', [100, 500])
+            # 스폰 포인트 로드 (새 형식 또는 기존 형식 지원)
+            if 'spawnPoints' in data:
+                # 새 형식: 여러 개의 스폰 포인트
+                for sp_data in data['spawnPoints']:
+                    sp = SpawnPoint(sp_data['spawnId'], sp_data['pos'][0], sp_data['pos'][1])
+                    self.map_data.spawn_points.append(sp)
+            elif 'playerSpawn' in data:
+                # 기존 형식: 단일 스폰 포인트 -> spawnId 0으로 변환
+                pos = data['playerSpawn']
+                self.map_data.spawn_points.append(SpawnPoint(0, pos[0], pos[1]))
+            else:
+                # 기본값
+                self.map_data.spawn_points.append(SpawnPoint(0, 100, 500))
+
             self.map_data.bounds = data.get('bounds', [0, 0, 2000, 1080])
 
             for cp_data in data.get('checkpoints', []):
                 cp = Checkpoint(cp_data['id'], cp_data['pos'][0], cp_data['pos'][1])
                 self.map_data.checkpoints.append(cp)
+
+            for obj_data in data.get('objects', []):
+                op = ObjectPoint(obj_data['name'], obj_data['pos'][0], obj_data['pos'][1])
+                self.map_data.object_points.append(op)
 
             for trans_data in data.get('transitions', []):
                 trans = Transition(
@@ -418,6 +484,7 @@ class MapEditor:
                 self.map_data.transitions.append(trans)
 
             self.selected_layer_index = 0 if self.map_data.layers else -1
+            self.selected_object = None
             self._update_layer_tabs()
             if self.selected_layer_index >= 0:
                 layer = self.map_data.layers[0]
@@ -443,9 +510,10 @@ class MapEditor:
 
         data = {
             'layers': [],
-            'playerSpawn': self.map_data.player_spawn,
+            'spawnPoints': [],
             'bounds': self.map_data.bounds,
             'checkpoints': [],
+            'objects': [],
             'transitions': []
         }
 
@@ -462,10 +530,22 @@ class MapEditor:
                 layer_data['meta'] = layer.meta_path
             data['layers'].append(layer_data)
 
-        for cp in self.map_data.checkpoints:
+        for sp in sorted(self.map_data.spawn_points, key=lambda s: s.spawn_id):
+            data['spawnPoints'].append({
+                'spawnId': sp.spawn_id,
+                'pos': [sp.x, sp.y]
+            })
+
+        for cp in sorted(self.map_data.checkpoints, key=lambda c: c.id):
             data['checkpoints'].append({
                 'id': cp.id,
                 'pos': [cp.x, cp.y]
+            })
+
+        for op in sorted(self.map_data.object_points, key=lambda o: o.name):
+            data['objects'].append({
+                'name': op.name,
+                'pos': [op.x, op.y]
             })
 
         for trans in self.map_data.transitions:
@@ -594,6 +674,9 @@ class MapEditor:
         self.current_tool = tool
         self.placing_transition = None
         self.placing_bounds = None
+        # 툴 변경 시 오브젝트 선택 해제
+        if tool != 'select':
+            self.selected_object = None
 
     def _world_to_screen(self, world_x, world_y):
         """월드 좌표를 스크린 좌표로 변환"""
@@ -607,16 +690,68 @@ class MapEditor:
         world_y = (screen_y - TOOLBAR_HEIGHT - LAYER_TAB_HEIGHT) / self.zoom + self.camera_y
         return world_x, world_y
 
+    def _find_object_at(self, world_x, world_y):
+        """주어진 월드 좌표에서 오브젝트 찾기 (type, object) 반환"""
+        hit_radius = 20 / self.zoom
+
+        # 스폰 포인트 체크
+        for sp in self.map_data.spawn_points:
+            if abs(sp.x - world_x) < hit_radius and abs(sp.y - world_y) < hit_radius:
+                return ('spawn', sp)
+
+        # 오브젝트 포인트 체크
+        for op in self.map_data.object_points:
+            if abs(op.x - world_x) < hit_radius and abs(op.y - world_y) < hit_radius:
+                return ('object', op)
+
+        # 체크포인트 체크
+        for cp in self.map_data.checkpoints:
+            if abs(cp.x - world_x) < hit_radius and abs(cp.y - world_y) < hit_radius:
+                return ('checkpoint', cp)
+
+        # 트랜지션 체크
+        for trans in self.map_data.transitions:
+            if trans.x <= world_x <= trans.x + trans.w and trans.y <= world_y <= trans.y + trans.h:
+                return ('transition', trans)
+
+        return None
+
     def _handle_canvas_click(self, pos, button):
         world_x, world_y = self._screen_to_world(pos[0], pos[1])
 
         if button == 1:  # 좌클릭
-            if self.current_tool == 'spawn':
-                self.map_data.player_spawn = [world_x, world_y]
+            if self.current_tool == 'select':
+                # 오브젝트 선택
+                found = self._find_object_at(world_x, world_y)
+                if found:
+                    self.selected_object = found
+                    self.selected_layer_index = -1  # 레이어 선택 해제
+                else:
+                    self.selected_object = None
+
+            elif self.current_tool == 'spawn':
+                # 새 스폰 포인트 추가
+                new_id = self.map_data.get_next_spawn_id()
+                new_spawn = SpawnPoint(new_id, world_x, world_y)
+                self.map_data.spawn_points.append(new_spawn)
+                self.selected_object = ('spawn', new_spawn)
+                self.selected_layer_index = -1
+
+            elif self.current_tool == 'object':
+                # 새 오브젝트 포인트 추가
+                name = simpledialog.askstring("Object", "Object name:")
+                if name:
+                    new_obj = ObjectPoint(name, world_x, world_y)
+                    self.map_data.object_points.append(new_obj)
+                    self.selected_object = ('object', new_obj)
+                    self.selected_layer_index = -1
 
             elif self.current_tool == 'checkpoint':
                 new_id = len(self.map_data.checkpoints) + 1
-                self.map_data.checkpoints.append(Checkpoint(new_id, world_x, world_y))
+                new_cp = Checkpoint(new_id, world_x, world_y)
+                self.map_data.checkpoints.append(new_cp)
+                self.selected_object = ('checkpoint', new_cp)
+                self.selected_layer_index = -1
 
             elif self.current_tool == 'transition':
                 if self.placing_transition is None:
@@ -631,7 +766,10 @@ class MapEditor:
                     target = simpledialog.askstring("Transition", "Target scene name:")
                     if target:
                         spawn_id = simpledialog.askinteger("Transition", "Spawn ID:", initialvalue=0) or 0
-                        self.map_data.transitions.append(Transition(x, y, w, h, target, spawn_id))
+                        new_trans = Transition(x, y, w, h, target, spawn_id)
+                        self.map_data.transitions.append(new_trans)
+                        self.selected_object = ('transition', new_trans)
+                        self.selected_layer_index = -1
                     self.placing_transition = None
 
             elif self.current_tool == 'bounds':
@@ -646,15 +784,9 @@ class MapEditor:
                     self.map_data.bounds = [x, y, w, h]
                     self.placing_bounds = None
 
-        elif button == 3:  # 우클릭 - 삭제
-            for i, cp in enumerate(self.map_data.checkpoints):
-                if abs(cp.x - world_x) < 20/self.zoom and abs(cp.y - world_y) < 20/self.zoom:
-                    del self.map_data.checkpoints[i]
-                    return
-            for i, trans in enumerate(self.map_data.transitions):
-                if trans.x <= world_x <= trans.x + trans.w and trans.y <= world_y <= trans.y + trans.h:
-                    del self.map_data.transitions[i]
-                    return
+        elif button == 3:  # 우클릭 - 빈 곳 클릭시 선택 해제
+            if self.current_tool == 'select':
+                self.selected_object = None
 
     def _handle_events(self):
         for event in pygame.event.get():
@@ -714,6 +846,35 @@ class MapEditor:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if canvas_rect.collidepoint(event.pos):
                     self._handle_canvas_click(event.pos, event.button)
+                    # 드래그 시작 (select 모드에서 선택된 오브젝트가 있을 때)
+                    if event.button == 1 and self.current_tool == 'select' and self.selected_object:
+                        world_x, world_y = self._screen_to_world(event.pos[0], event.pos[1])
+                        obj_type, obj = self.selected_object
+                        # 선택된 오브젝트 위에서 클릭했는지 확인
+                        hit = self._find_object_at(world_x, world_y)
+                        if hit and hit[1] is obj:
+                            self.dragging_object = True
+                            if obj_type in ('spawn', 'object', 'checkpoint'):
+                                self.drag_offset = (world_x - obj.x, world_y - obj.y)
+                            elif obj_type == 'transition':
+                                self.drag_offset = (world_x - obj.x, world_y - obj.y)
+
+            # 마우스 버튼 업 - 드래그 종료
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    self.dragging_object = False
+
+            # 마우스 이동 - 드래그 중 오브젝트 이동
+            if event.type == pygame.MOUSEMOTION:
+                if self.dragging_object and self.selected_object and canvas_rect.collidepoint(event.pos):
+                    world_x, world_y = self._screen_to_world(event.pos[0], event.pos[1])
+                    obj_type, obj = self.selected_object
+                    if obj_type in ('spawn', 'object', 'checkpoint'):
+                        obj.x = world_x - self.drag_offset[0]
+                        obj.y = world_y - self.drag_offset[1]
+                    elif obj_type == 'transition':
+                        obj.x = world_x - self.drag_offset[0]
+                        obj.y = world_y - self.drag_offset[1]
 
             # 키보드
             if event.type == pygame.KEYDOWN:
@@ -728,7 +889,11 @@ class MapEditor:
                     self.current_tool = 'select'
 
                 if event.key == pygame.K_DELETE:
-                    self._remove_selected_layer()
+                    # 오브젝트가 선택되어 있으면 오브젝트 삭제, 아니면 레이어 삭제
+                    if self.selected_object:
+                        self._delete_selected_object()
+                    else:
+                        self._remove_selected_layer()
 
         # 카메라 이동 (화살표 키)
         keys = pygame.key.get_pressed()
@@ -815,18 +980,51 @@ class MapEditor:
                     self.screen.blit(scaled_meta, (draw_x, draw_y))
 
         # 오브젝트들 렌더링 (월드 좌표 기준, parallax 1.0)
-        # 플레이어 스폰
-        spawn_x, spawn_y = self._world_to_screen(self.map_data.player_spawn[0], self.map_data.player_spawn[1])
-        pygame.draw.circle(self.screen, (0, 220, 0), (int(spawn_x), int(spawn_y)), int(10 * self.zoom))
-        pygame.draw.circle(self.screen, (255, 255, 255), (int(spawn_x), int(spawn_y)), int(10 * self.zoom), 2)
-        spawn_text = self.font_small.render("SPAWN", True, (255, 255, 255))
-        self.screen.blit(spawn_text, (spawn_x - 18, spawn_y - 22))
+        # 스폰 포인트들
+        for sp in self.map_data.spawn_points:
+            spawn_x, spawn_y = self._world_to_screen(sp.x, sp.y)
+            is_selected = self.selected_object and self.selected_object[0] == 'spawn' and self.selected_object[1] is sp
+
+            # 선택 표시 (외곽 글로우)
+            if is_selected:
+                pygame.draw.circle(self.screen, (255, 255, 100), (int(spawn_x), int(spawn_y)), int(16 * self.zoom), 3)
+
+            pygame.draw.circle(self.screen, (0, 220, 0), (int(spawn_x), int(spawn_y)), int(10 * self.zoom))
+            border_color = (255, 255, 100) if is_selected else (255, 255, 255)
+            pygame.draw.circle(self.screen, border_color, (int(spawn_x), int(spawn_y)), int(10 * self.zoom), 2)
+            spawn_text = self.font_small.render(f"SP:{sp.spawn_id}", True, (255, 255, 255))
+            self.screen.blit(spawn_text, (spawn_x - 15, spawn_y - 22))
+
+        # 오브젝트 포인트들
+        for op in self.map_data.object_points:
+            obj_x, obj_y = self._world_to_screen(op.x, op.y)
+            is_selected = self.selected_object and self.selected_object[0] == 'object' and self.selected_object[1] is op
+
+            # 선택 표시
+            if is_selected:
+                pygame.draw.circle(self.screen, (255, 255, 100), (int(obj_x), int(obj_y)), int(16 * self.zoom), 3)
+
+            # 오렌지색 다이아몬드 모양
+            size = int(8 * self.zoom)
+            points = [(obj_x, obj_y - size), (obj_x + size, obj_y), (obj_x, obj_y + size), (obj_x - size, obj_y)]
+            pygame.draw.polygon(self.screen, (255, 140, 0), points)
+            border_color = (255, 255, 100) if is_selected else (255, 255, 255)
+            pygame.draw.polygon(self.screen, border_color, points, 2)
+            obj_text = self.font_small.render(op.name, True, (255, 200, 100))
+            self.screen.blit(obj_text, (obj_x - len(op.name) * 3, obj_y - 22))
 
         # 체크포인트
         for cp in self.map_data.checkpoints:
             cp_x, cp_y = self._world_to_screen(cp.x, cp.y)
             size = int(12 * self.zoom)
-            pygame.draw.rect(self.screen, (255, 200, 0), (cp_x - size//2, cp_y - size, size, size * 2), 2)
+            is_selected = self.selected_object and self.selected_object[0] == 'checkpoint' and self.selected_object[1] is cp
+
+            # 선택 표시
+            if is_selected:
+                pygame.draw.rect(self.screen, (255, 255, 100), (cp_x - size//2 - 4, cp_y - size - 4, size + 8, size * 2 + 8), 3)
+
+            border_color = (255, 255, 100) if is_selected else (255, 200, 0)
+            pygame.draw.rect(self.screen, border_color, (cp_x - size//2, cp_y - size, size, size * 2), 2)
             cp_text = self.font_small.render(f"CP{cp.id}", True, (255, 200, 0))
             self.screen.blit(cp_text, (cp_x - 12, cp_y - size - 15))
 
@@ -835,8 +1033,16 @@ class MapEditor:
             tx, ty = self._world_to_screen(trans.x, trans.y)
             tw, th = trans.w * self.zoom, trans.h * self.zoom
             trans_rect = pygame.Rect(tx, ty, tw, th)
-            pygame.draw.rect(self.screen, (255, 0, 255), trans_rect, 2)
-            trans_text = self.font_small.render(f"→{trans.target}", True, (255, 0, 255))
+            is_selected = self.selected_object and self.selected_object[0] == 'transition' and self.selected_object[1] is trans
+
+            # 선택 표시
+            if is_selected:
+                select_rect = pygame.Rect(tx - 3, ty - 3, tw + 6, th + 6)
+                pygame.draw.rect(self.screen, (255, 255, 100), select_rect, 3)
+
+            border_color = (255, 255, 100) if is_selected else (255, 0, 255)
+            pygame.draw.rect(self.screen, border_color, trans_rect, 2)
+            trans_text = self.font_small.render(f"→{trans.target}[{trans.spawn_id}]", True, (255, 0, 255))
             self.screen.blit(trans_text, (tx + 3, ty + 3))
 
         # 트랜지션 배치 중 미리보기
@@ -922,123 +1128,20 @@ class MapEditor:
             btn.draw(self.screen, self.font)
         y += 80
 
-        # 선택된 레이어 정보
+        # 구분선
         pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
         y += 15
 
-        title = self.font_large.render("Layer Properties", True, COLOR_TEXT)
-        self.screen.blit(title, (x, y))
-        y += 30
-
-        if 0 <= self.selected_layer_index < len(self.map_data.layers):
-            layer = self.map_data.layers[self.selected_layer_index]
-
-            # 레이어 이름
-            name_text = self.font.render(f"Name: {layer.name}", True, COLOR_TEXT)
-            self.screen.blit(name_text, (x, y))
-            y += 22
-
-            # 이미지 경로
-            path_text = self.font_small.render(f"Image: {layer.image_path[:25]}...", True, COLOR_TEXT_DIM)
-            self.screen.blit(path_text, (x, y))
-            y += 20
-
-            # Parallax 슬라이더
-            self.parallax_slider.rect.y = y + 18
-            self.parallax_slider.draw(self.screen, self.font)
-            y += 50
-
-            # Scale 슬라이더
-            self.scale_slider.rect.y = y + 18
-            self.scale_slider.draw(self.screen, self.font)
-            y += 50
-
-            # Offset X 슬라이더
-            self.offset_x_slider.rect.y = y + 18
-            self.offset_x_slider.draw(self.screen, self.font)
-            y += 50
-
-            # Offset Y 슬라이더
-            self.offset_y_slider.rect.y = y + 18
-            self.offset_y_slider.draw(self.screen, self.font)
-            y += 50
-
-            # 메타 이미지
-            meta_label = self.font.render("Meta Image:", True, COLOR_TEXT)
-            self.screen.blit(meta_label, (x, y))
-            y += 22
-
-            if layer.meta_path:
-                meta_text = self.font_small.render(layer.meta_path[:30], True, COLOR_ACCENT)
-                self.screen.blit(meta_text, (x, y))
-                y += 20
-                # Clear 버튼
-                clear_btn_rect = pygame.Rect(x, y, 80, 24)
-                self.sidebar_btn_rects['clear_meta'] = clear_btn_rect
-                pygame.draw.rect(self.screen, COLOR_BUTTON, clear_btn_rect, border_radius=3)
-                clear_text = self.font_small.render("Clear", True, COLOR_TEXT)
-                self.screen.blit(clear_text, (x + 25, y + 4))
-
-            # Set Meta 버튼 (Clear 옆 또는 None 옆)
-            set_btn_rect = pygame.Rect(x + 90, y, 100, 24)
-            self.sidebar_btn_rects['set_meta'] = set_btn_rect
-            pygame.draw.rect(self.screen, COLOR_BUTTON, set_btn_rect, border_radius=3)
-            set_text = self.font_small.render("Set Meta", True, COLOR_TEXT)
-            self.screen.blit(set_text, (x + 108, y + 4))
-
-            if not layer.meta_path:
-                meta_text = self.font_small.render("None", True, COLOR_TEXT_DIM)
-                self.screen.blit(meta_text, (x, y + 4))
-
-            y += 35
-
-            # Main Layer 설정
-            main_label = self.font.render("Main Layer:", True, COLOR_TEXT)
-            self.screen.blit(main_label, (x, y))
-            y += 22
-
-            # Set Main 버튼 (토글)
-            main_btn_color = COLOR_BUTTON_ACTIVE if layer.is_main else COLOR_BUTTON
-            main_btn_rect = pygame.Rect(x, y, 120, 24)
-            self.sidebar_btn_rects['set_main'] = main_btn_rect
-            pygame.draw.rect(self.screen, main_btn_color, main_btn_rect, border_radius=3)
-            main_text = "★ MAIN" if layer.is_main else "Set as Main"
-            main_text_surface = self.font_small.render(main_text, True, COLOR_TEXT)
-            self.screen.blit(main_text_surface, (x + 25, y + 4))
-
-            y += 35
-
-            # 레이어 순서 버튼
-            pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
-            y += 15
-
-            order_label = self.font.render("Layer Order:", True, COLOR_TEXT)
-            self.screen.blit(order_label, (x, y))
-            y += 25
-
-            # Up/Down/Delete 버튼
-            btn_w = 60
-            up_rect = pygame.Rect(x, y, btn_w, 24)
-            down_rect = pygame.Rect(x + btn_w + 5, y, btn_w, 24)
-            del_rect = pygame.Rect(x + (btn_w + 5) * 2, y, btn_w + 20, 24)
-
-            # rect 저장
-            self.sidebar_btn_rects['up'] = up_rect
-            self.sidebar_btn_rects['down'] = down_rect
-            self.sidebar_btn_rects['delete'] = del_rect
-
-            pygame.draw.rect(self.screen, COLOR_BUTTON, up_rect, border_radius=3)
-            pygame.draw.rect(self.screen, COLOR_BUTTON, down_rect, border_radius=3)
-            pygame.draw.rect(self.screen, (100, 60, 60), del_rect, border_radius=3)
-
-            self.screen.blit(self.font_small.render("Up", True, COLOR_TEXT), (x + 20, y + 4))
-            self.screen.blit(self.font_small.render("Down", True, COLOR_TEXT), (x + btn_w + 15, y + 4))
-            self.screen.blit(self.font_small.render("Delete", True, COLOR_TEXT), (x + (btn_w + 5) * 2 + 15, y + 4))
-
+        # 오브젝트가 선택되어 있으면 오브젝트 프로퍼티 표시
+        if self.selected_object:
+            y = self._render_object_properties(x, y)
+        # 레이어가 선택되어 있으면 레이어 프로퍼티 표시
+        elif 0 <= self.selected_layer_index < len(self.map_data.layers):
+            y = self._render_layer_properties(x, y)
         else:
-            self.sidebar_btn_rects = {}  # 레이어 미선택 시 버튼 rect 클리어
-            no_layer_text = self.font.render("No layer selected", True, COLOR_TEXT_DIM)
-            self.screen.blit(no_layer_text, (x, y))
+            self.sidebar_btn_rects = {}
+            no_sel_text = self.font.render("No selection", True, COLOR_TEXT_DIM)
+            self.screen.blit(no_sel_text, (x, y))
 
         # 하단 정보
         y = WINDOW_HEIGHT - 80
@@ -1059,6 +1162,354 @@ class MapEditor:
         help_text = self.font_small.render("Arrows: Move | Wheel: Zoom | Del: Remove", True, COLOR_TEXT_DIM)
         self.screen.blit(help_text, (x, y))
 
+    def _render_object_properties(self, x, y):
+        """선택된 오브젝트의 프로퍼티 렌더링"""
+        self.sidebar_btn_rects = {}
+        obj_type, obj = self.selected_object
+
+        if obj_type == 'spawn':
+            return self._render_spawn_properties(x, y, obj)
+        elif obj_type == 'object':
+            return self._render_objectpoint_properties(x, y, obj)
+        elif obj_type == 'checkpoint':
+            return self._render_checkpoint_properties(x, y, obj)
+        elif obj_type == 'transition':
+            return self._render_transition_properties(x, y, obj)
+        return y
+
+    def _render_spawn_properties(self, x, y, spawn: SpawnPoint):
+        """스폰 포인트 프로퍼티 렌더링"""
+        title = self.font_large.render("Spawn Point", True, (0, 220, 0))
+        self.screen.blit(title, (x, y))
+        y += 30
+
+        # Spawn ID
+        id_text = self.font.render(f"Spawn ID: {spawn.spawn_id}", True, COLOR_TEXT)
+        self.screen.blit(id_text, (x, y))
+        y += 25
+
+        # ID 변경 버튼
+        change_id_rect = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['change_spawn_id'] = change_id_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, change_id_rect, border_radius=3)
+        self.screen.blit(self.font_small.render("Change ID", True, COLOR_TEXT), (x + 28, y + 4))
+        y += 35
+
+        # 위치
+        pos_text = self.font.render(f"Position:", True, COLOR_TEXT)
+        self.screen.blit(pos_text, (x, y))
+        y += 22
+
+        x_text = self.font_small.render(f"X: {int(spawn.x)}", True, COLOR_TEXT_DIM)
+        y_text = self.font_small.render(f"Y: {int(spawn.y)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(x_text, (x, y))
+        self.screen.blit(y_text, (x + 80, y))
+        y += 22
+
+        # 좌표 수정 버튼
+        edit_pos_rect = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['edit_pos'] = edit_pos_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, edit_pos_rect, border_radius=3)
+        self.screen.blit(self.font_small.render("Edit Position", True, COLOR_TEXT), (x + 22, y + 4))
+        y += 35
+
+        # 구분선
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        # 삭제 버튼
+        del_rect = pygame.Rect(x, y, SIDEBAR_WIDTH - 30, 28)
+        self.sidebar_btn_rects['delete_object'] = del_rect
+        pygame.draw.rect(self.screen, (100, 60, 60), del_rect, border_radius=3)
+        del_text = self.font.render("Delete Spawn Point", True, COLOR_TEXT)
+        text_rect = del_text.get_rect(center=del_rect.center)
+        self.screen.blit(del_text, text_rect)
+        y += 40
+
+        return y
+
+    def _render_objectpoint_properties(self, x, y, obj: ObjectPoint):
+        """오브젝트 포인트 프로퍼티 렌더링"""
+        title = self.font_large.render("Object Point", True, (255, 140, 0))
+        self.screen.blit(title, (x, y))
+        y += 30
+
+        # Object Name
+        name_text = self.font.render(f"Name: {obj.name}", True, COLOR_TEXT)
+        self.screen.blit(name_text, (x, y))
+        y += 25
+
+        # Name 변경 버튼
+        change_name_rect = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['change_obj_name'] = change_name_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, change_name_rect, border_radius=3)
+        self.screen.blit(self.font_small.render("Change Name", True, COLOR_TEXT), (x + 18, y + 4))
+        y += 35
+
+        # 위치
+        pos_text = self.font.render(f"Position:", True, COLOR_TEXT)
+        self.screen.blit(pos_text, (x, y))
+        y += 22
+
+        x_text = self.font_small.render(f"X: {int(obj.x)}", True, COLOR_TEXT_DIM)
+        y_text = self.font_small.render(f"Y: {int(obj.y)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(x_text, (x, y))
+        self.screen.blit(y_text, (x + 80, y))
+        y += 22
+
+        # 좌표 수정 버튼
+        edit_pos_rect = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['edit_pos'] = edit_pos_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, edit_pos_rect, border_radius=3)
+        self.screen.blit(self.font_small.render("Edit Position", True, COLOR_TEXT), (x + 22, y + 4))
+        y += 35
+
+        # 구분선
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        # 삭제 버튼
+        del_rect = pygame.Rect(x, y, SIDEBAR_WIDTH - 30, 28)
+        self.sidebar_btn_rects['delete_object'] = del_rect
+        pygame.draw.rect(self.screen, (100, 60, 60), del_rect, border_radius=3)
+        del_text = self.font.render("Delete Object", True, COLOR_TEXT)
+        text_rect = del_text.get_rect(center=del_rect.center)
+        self.screen.blit(del_text, text_rect)
+        y += 40
+
+        return y
+
+    def _render_checkpoint_properties(self, x, y, checkpoint: Checkpoint):
+        """체크포인트 프로퍼티 렌더링"""
+        title = self.font_large.render("Checkpoint", True, (255, 200, 0))
+        self.screen.blit(title, (x, y))
+        y += 30
+
+        # Checkpoint ID
+        id_text = self.font.render(f"Checkpoint ID: {checkpoint.id}", True, COLOR_TEXT)
+        self.screen.blit(id_text, (x, y))
+        y += 25
+
+        # ID 변경 버튼
+        change_id_rect = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['change_cp_id'] = change_id_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, change_id_rect, border_radius=3)
+        self.screen.blit(self.font_small.render("Change ID", True, COLOR_TEXT), (x + 28, y + 4))
+        y += 35
+
+        # 위치
+        pos_text = self.font.render(f"Position:", True, COLOR_TEXT)
+        self.screen.blit(pos_text, (x, y))
+        y += 22
+
+        x_text = self.font_small.render(f"X: {int(checkpoint.x)}", True, COLOR_TEXT_DIM)
+        y_text = self.font_small.render(f"Y: {int(checkpoint.y)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(x_text, (x, y))
+        self.screen.blit(y_text, (x + 80, y))
+        y += 22
+
+        # 좌표 수정 버튼
+        edit_pos_rect = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['edit_pos'] = edit_pos_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, edit_pos_rect, border_radius=3)
+        self.screen.blit(self.font_small.render("Edit Position", True, COLOR_TEXT), (x + 22, y + 4))
+        y += 35
+
+        # 구분선
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        # 삭제 버튼
+        del_rect = pygame.Rect(x, y, SIDEBAR_WIDTH - 30, 28)
+        self.sidebar_btn_rects['delete_object'] = del_rect
+        pygame.draw.rect(self.screen, (100, 60, 60), del_rect, border_radius=3)
+        del_text = self.font.render("Delete Checkpoint", True, COLOR_TEXT)
+        text_rect = del_text.get_rect(center=del_rect.center)
+        self.screen.blit(del_text, text_rect)
+        y += 40
+
+        return y
+
+    def _render_transition_properties(self, x, y, trans: Transition):
+        """트랜지션 프로퍼티 렌더링"""
+        title = self.font_large.render("Transition", True, (255, 0, 255))
+        self.screen.blit(title, (x, y))
+        y += 30
+
+        # Target Scene
+        target_label = self.font.render("Target Scene:", True, COLOR_TEXT)
+        self.screen.blit(target_label, (x, y))
+        y += 22
+
+        target_text = self.font_small.render(trans.target, True, COLOR_ACCENT)
+        self.screen.blit(target_text, (x, y))
+        y += 25
+
+        # Target 변경 버튼
+        change_target_rect = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['change_target'] = change_target_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, change_target_rect, border_radius=3)
+        self.screen.blit(self.font_small.render("Change Target", True, COLOR_TEXT), (x + 18, y + 4))
+        y += 35
+
+        # Spawn ID
+        spawn_label = self.font.render(f"Spawn ID: {trans.spawn_id}", True, COLOR_TEXT)
+        self.screen.blit(spawn_label, (x, y))
+        y += 25
+
+        # Spawn ID 변경 버튼
+        change_spawn_rect = pygame.Rect(x, y, 140, 24)
+        self.sidebar_btn_rects['change_trans_spawn_id'] = change_spawn_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, change_spawn_rect, border_radius=3)
+        self.screen.blit(self.font_small.render("Change Spawn ID", True, COLOR_TEXT), (x + 18, y + 4))
+        y += 35
+
+        # Rect 정보
+        rect_label = self.font.render("Rect:", True, COLOR_TEXT)
+        self.screen.blit(rect_label, (x, y))
+        y += 22
+
+        rect_info = self.font_small.render(f"X:{int(trans.x)} Y:{int(trans.y)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(rect_info, (x, y))
+        y += 18
+        size_info = self.font_small.render(f"W:{int(trans.w)} H:{int(trans.h)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(size_info, (x, y))
+        y += 22
+
+        # Rect 수정 버튼
+        edit_rect_btn = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['edit_rect'] = edit_rect_btn
+        pygame.draw.rect(self.screen, COLOR_BUTTON, edit_rect_btn, border_radius=3)
+        self.screen.blit(self.font_small.render("Edit Rect", True, COLOR_TEXT), (x + 32, y + 4))
+        y += 35
+
+        # 구분선
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        # 삭제 버튼
+        del_rect = pygame.Rect(x, y, SIDEBAR_WIDTH - 30, 28)
+        self.sidebar_btn_rects['delete_object'] = del_rect
+        pygame.draw.rect(self.screen, (100, 60, 60), del_rect, border_radius=3)
+        del_text = self.font.render("Delete Transition", True, COLOR_TEXT)
+        text_rect = del_text.get_rect(center=del_rect.center)
+        self.screen.blit(del_text, text_rect)
+        y += 40
+
+        return y
+
+    def _render_layer_properties(self, x, y):
+        """레이어 프로퍼티 렌더링"""
+        title = self.font_large.render("Layer Properties", True, COLOR_TEXT)
+        self.screen.blit(title, (x, y))
+        y += 30
+
+        layer = self.map_data.layers[self.selected_layer_index]
+
+        # 레이어 이름
+        name_text = self.font.render(f"Name: {layer.name}", True, COLOR_TEXT)
+        self.screen.blit(name_text, (x, y))
+        y += 22
+
+        # 이미지 경로
+        path_text = self.font_small.render(f"Image: {layer.image_path[:25]}...", True, COLOR_TEXT_DIM)
+        self.screen.blit(path_text, (x, y))
+        y += 20
+
+        # Parallax 슬라이더
+        self.parallax_slider.rect.y = y + 18
+        self.parallax_slider.draw(self.screen, self.font)
+        y += 50
+
+        # Scale 슬라이더
+        self.scale_slider.rect.y = y + 18
+        self.scale_slider.draw(self.screen, self.font)
+        y += 50
+
+        # Offset X 슬라이더
+        self.offset_x_slider.rect.y = y + 18
+        self.offset_x_slider.draw(self.screen, self.font)
+        y += 50
+
+        # Offset Y 슬라이더
+        self.offset_y_slider.rect.y = y + 18
+        self.offset_y_slider.draw(self.screen, self.font)
+        y += 50
+
+        # 메타 이미지
+        meta_label = self.font.render("Meta Image:", True, COLOR_TEXT)
+        self.screen.blit(meta_label, (x, y))
+        y += 22
+
+        if layer.meta_path:
+            meta_text = self.font_small.render(layer.meta_path[:30], True, COLOR_ACCENT)
+            self.screen.blit(meta_text, (x, y))
+            y += 20
+            # Clear 버튼
+            clear_btn_rect = pygame.Rect(x, y, 80, 24)
+            self.sidebar_btn_rects['clear_meta'] = clear_btn_rect
+            pygame.draw.rect(self.screen, COLOR_BUTTON, clear_btn_rect, border_radius=3)
+            clear_text = self.font_small.render("Clear", True, COLOR_TEXT)
+            self.screen.blit(clear_text, (x + 25, y + 4))
+
+        # Set Meta 버튼 (Clear 옆 또는 None 옆)
+        set_btn_rect = pygame.Rect(x + 90, y, 100, 24)
+        self.sidebar_btn_rects['set_meta'] = set_btn_rect
+        pygame.draw.rect(self.screen, COLOR_BUTTON, set_btn_rect, border_radius=3)
+        set_text = self.font_small.render("Set Meta", True, COLOR_TEXT)
+        self.screen.blit(set_text, (x + 108, y + 4))
+
+        if not layer.meta_path:
+            meta_text = self.font_small.render("None", True, COLOR_TEXT_DIM)
+            self.screen.blit(meta_text, (x, y + 4))
+
+        y += 35
+
+        # Main Layer 설정
+        main_label = self.font.render("Main Layer:", True, COLOR_TEXT)
+        self.screen.blit(main_label, (x, y))
+        y += 22
+
+        # Set Main 버튼 (토글)
+        main_btn_color = COLOR_BUTTON_ACTIVE if layer.is_main else COLOR_BUTTON
+        main_btn_rect = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['set_main'] = main_btn_rect
+        pygame.draw.rect(self.screen, main_btn_color, main_btn_rect, border_radius=3)
+        main_text = "★ MAIN" if layer.is_main else "Set as Main"
+        main_text_surface = self.font_small.render(main_text, True, COLOR_TEXT)
+        self.screen.blit(main_text_surface, (x + 25, y + 4))
+
+        y += 35
+
+        # 레이어 순서 버튼
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        order_label = self.font.render("Layer Order:", True, COLOR_TEXT)
+        self.screen.blit(order_label, (x, y))
+        y += 25
+
+        # Up/Down/Delete 버튼
+        btn_w = 60
+        up_rect = pygame.Rect(x, y, btn_w, 24)
+        down_rect = pygame.Rect(x + btn_w + 5, y, btn_w, 24)
+        del_rect = pygame.Rect(x + (btn_w + 5) * 2, y, btn_w + 20, 24)
+
+        # rect 저장
+        self.sidebar_btn_rects['up'] = up_rect
+        self.sidebar_btn_rects['down'] = down_rect
+        self.sidebar_btn_rects['delete'] = del_rect
+
+        pygame.draw.rect(self.screen, COLOR_BUTTON, up_rect, border_radius=3)
+        pygame.draw.rect(self.screen, COLOR_BUTTON, down_rect, border_radius=3)
+        pygame.draw.rect(self.screen, (100, 60, 60), del_rect, border_radius=3)
+
+        self.screen.blit(self.font_small.render("Up", True, COLOR_TEXT), (x + 20, y + 4))
+        self.screen.blit(self.font_small.render("Down", True, COLOR_TEXT), (x + btn_w + 15, y + 4))
+        self.screen.blit(self.font_small.render("Delete", True, COLOR_TEXT), (x + (btn_w + 5) * 2 + 15, y + 4))
+
+        return y + 30
+
     def _handle_sidebar_clicks(self, event):
         """사이드바 내 추가 클릭 처리 - 저장된 rect 사용"""
         if event.type != pygame.MOUSEBUTTONDOWN or event.button != 1:
@@ -1066,6 +1517,54 @@ class MapEditor:
 
         if not self.sidebar_btn_rects:
             return
+
+        # 오브젝트 삭제 버튼
+        if 'delete_object' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['delete_object'].collidepoint(event.pos):
+                self._delete_selected_object()
+                return
+
+        # 좌표 수정 버튼
+        if 'edit_pos' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['edit_pos'].collidepoint(event.pos):
+                self._edit_object_position()
+                return
+
+        # Rect 수정 버튼 (Transition용)
+        if 'edit_rect' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['edit_rect'].collidepoint(event.pos):
+                self._edit_transition_rect()
+                return
+
+        # 스폰 포인트 ID 변경 버튼
+        if 'change_spawn_id' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['change_spawn_id'].collidepoint(event.pos):
+                self._change_spawn_id()
+                return
+
+        # 오브젝트 이름 변경 버튼
+        if 'change_obj_name' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['change_obj_name'].collidepoint(event.pos):
+                self._change_object_name()
+                return
+
+        # 체크포인트 ID 변경 버튼
+        if 'change_cp_id' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['change_cp_id'].collidepoint(event.pos):
+                self._change_checkpoint_id()
+                return
+
+        # 트랜지션 타겟 변경 버튼
+        if 'change_target' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['change_target'].collidepoint(event.pos):
+                self._change_transition_target()
+                return
+
+        # 트랜지션 스폰 ID 변경 버튼
+        if 'change_trans_spawn_id' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['change_trans_spawn_id'].collidepoint(event.pos):
+                self._change_transition_spawn_id()
+                return
 
         # Set Meta 버튼
         if 'set_meta' in self.sidebar_btn_rects:
@@ -1102,6 +1601,150 @@ class MapEditor:
             if self.sidebar_btn_rects['delete'].collidepoint(event.pos):
                 self._remove_selected_layer()
                 return
+
+    def _edit_object_position(self):
+        """선택된 오브젝트의 좌표 수정"""
+        if not self.selected_object:
+            return
+
+        obj_type, obj = self.selected_object
+
+        if obj_type in ('spawn', 'object', 'checkpoint'):
+            new_x = simpledialog.askinteger("Position", "Enter X coordinate:",
+                                            initialvalue=int(obj.x))
+            if new_x is not None:
+                new_y = simpledialog.askinteger("Position", "Enter Y coordinate:",
+                                                initialvalue=int(obj.y))
+                if new_y is not None:
+                    obj.x = float(new_x)
+                    obj.y = float(new_y)
+        elif obj_type == 'transition':
+            new_x = simpledialog.askinteger("Position", "Enter X coordinate:",
+                                            initialvalue=int(obj.x))
+            if new_x is not None:
+                new_y = simpledialog.askinteger("Position", "Enter Y coordinate:",
+                                                initialvalue=int(obj.y))
+                if new_y is not None:
+                    obj.x = float(new_x)
+                    obj.y = float(new_y)
+
+    def _edit_transition_rect(self):
+        """트랜지션 Rect (위치+크기) 수정"""
+        if not self.selected_object or self.selected_object[0] != 'transition':
+            return
+
+        trans = self.selected_object[1]
+
+        new_x = simpledialog.askinteger("Rect", "Enter X:", initialvalue=int(trans.x))
+        if new_x is None:
+            return
+        new_y = simpledialog.askinteger("Rect", "Enter Y:", initialvalue=int(trans.y))
+        if new_y is None:
+            return
+        new_w = simpledialog.askinteger("Rect", "Enter Width:", initialvalue=int(trans.w), minvalue=1)
+        if new_w is None:
+            return
+        new_h = simpledialog.askinteger("Rect", "Enter Height:", initialvalue=int(trans.h), minvalue=1)
+        if new_h is None:
+            return
+
+        trans.x = float(new_x)
+        trans.y = float(new_y)
+        trans.w = float(new_w)
+        trans.h = float(new_h)
+
+    def _delete_selected_object(self):
+        """선택된 오브젝트 삭제"""
+        if not self.selected_object:
+            return
+
+        obj_type, obj = self.selected_object
+
+        if obj_type == 'spawn':
+            if obj in self.map_data.spawn_points:
+                # 최소 하나의 스폰 포인트는 유지
+                if len(self.map_data.spawn_points) > 1:
+                    self.map_data.spawn_points.remove(obj)
+                    self.selected_object = None
+        elif obj_type == 'object':
+            if obj in self.map_data.object_points:
+                self.map_data.object_points.remove(obj)
+                self.selected_object = None
+        elif obj_type == 'checkpoint':
+            if obj in self.map_data.checkpoints:
+                self.map_data.checkpoints.remove(obj)
+                self.selected_object = None
+        elif obj_type == 'transition':
+            if obj in self.map_data.transitions:
+                self.map_data.transitions.remove(obj)
+                self.selected_object = None
+
+    def _change_spawn_id(self):
+        """스폰 포인트 ID 변경 (중복 방지)"""
+        if not self.selected_object or self.selected_object[0] != 'spawn':
+            return
+
+        spawn = self.selected_object[1]
+        new_id = simpledialog.askinteger("Spawn ID", "Enter new Spawn ID:",
+                                         initialvalue=spawn.spawn_id, minvalue=0)
+        if new_id is not None:
+            # 중복 체크
+            if self.map_data.is_spawn_id_unique(new_id, spawn):
+                spawn.spawn_id = new_id
+            else:
+                # 중복된 ID가 있으면 자동으로 사용 가능한 ID 제안
+                available_id = self.map_data.get_next_spawn_id()
+                use_available = simpledialog.askstring(
+                    "ID Conflict",
+                    f"ID {new_id} already exists. Use {available_id} instead? (yes/no)",
+                    initialvalue="yes"
+                )
+                if use_available and use_available.lower() in ('yes', 'y'):
+                    spawn.spawn_id = available_id
+
+    def _change_object_name(self):
+        """오브젝트 이름 변경"""
+        if not self.selected_object or self.selected_object[0] != 'object':
+            return
+
+        obj = self.selected_object[1]
+        new_name = simpledialog.askstring("Object Name", "Enter new object name:",
+                                          initialvalue=obj.name)
+        if new_name:
+            obj.name = new_name
+
+    def _change_checkpoint_id(self):
+        """체크포인트 ID 변경"""
+        if not self.selected_object or self.selected_object[0] != 'checkpoint':
+            return
+
+        checkpoint = self.selected_object[1]
+        new_id = simpledialog.askinteger("Checkpoint ID", "Enter new Checkpoint ID:",
+                                         initialvalue=checkpoint.id, minvalue=1)
+        if new_id is not None:
+            checkpoint.id = new_id
+
+    def _change_transition_target(self):
+        """트랜지션 타겟 씬 변경"""
+        if not self.selected_object or self.selected_object[0] != 'transition':
+            return
+
+        trans = self.selected_object[1]
+        new_target = simpledialog.askstring("Target Scene", "Enter target scene name:",
+                                            initialvalue=trans.target)
+        if new_target:
+            trans.target = new_target
+
+    def _change_transition_spawn_id(self):
+        """트랜지션의 스폰 ID 변경"""
+        if not self.selected_object or self.selected_object[0] != 'transition':
+            return
+
+        trans = self.selected_object[1]
+        new_id = simpledialog.askinteger("Spawn ID", "Enter target spawn ID:",
+                                         initialvalue=trans.spawn_id, minvalue=0)
+        if new_id is not None:
+            trans.spawn_id = new_id
 
     def run(self):
         while self.running:

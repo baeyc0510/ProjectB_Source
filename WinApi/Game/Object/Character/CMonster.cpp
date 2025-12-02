@@ -30,7 +30,7 @@ void CMonster::Init()
 	collider = new CCollider();
 	collider->SetScale(Vec2(32, 66));
 	collider->SetOffset(Vec2(0, -33));
-	collider->SetLayer(Layer::Monster);
+	collider->SetLayer(ELayer::Monster);
 	AddChild(collider);
 	
 	// Abilities
@@ -64,7 +64,7 @@ void CMonster::Update()
 	}
 
 	UpdateMetaCollision();	// 메타맵 기반 충돌 처리
-	UpdateGroundState();
+	UpdateStates();
 	UpdateAnimation();
 	animator->SetDirection(GetForward());
 }

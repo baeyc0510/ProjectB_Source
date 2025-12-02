@@ -34,12 +34,12 @@ public:
 	CMetaMap* GetMetaMap() { return &metaMap; }
 	const CMetaMap* GetMetaMap() const { return &metaMap; }
 
-	// 지형 조회 (CMetaMap 래퍼)
+	// 지형 조회
 	ETerrain GetTerrain(Vec2 pos) const { return metaMap.GetTerrain(pos); }
 	ETerrain GetTerrain(int x, int y) const { return metaMap.GetTerrain(x, y); }
 
 	// 맵 정보
-	Vec2 GetPlayerSpawn() const { return playerSpawn; }
+	Vec2 GetSpawnPoint(int spawnId) const;
 	Rect GetBounds() const { return bounds; }
 
 	// 체크포인트
@@ -56,14 +56,14 @@ private:
 	wstring GetMapDirectory(const wstring& jsonPath);
 
 private:
-	vector<CMapLayer> backgroundLayers;	// parallax < 1.0 또는 main 이전
-	CMapLayer mainLayer;				// parallax = 1.0, 메타데이터 있음
-	vector<CMapLayer> foregroundLayers;	// parallax > 1.0 또는 main 이후
+	vector<CMapLayer> backgroundLayers;
+	CMapLayer mainLayer;
+	vector<CMapLayer> foregroundLayers;
 
 	CMetaMap metaMap;
-
-	Vec2 playerSpawn;
+	
 	Rect bounds;
+	vector<Vec2> spawnPoints;
 	vector<CheckpointData> checkpoints;
 	vector<SceneTransitionData> transitions;
 

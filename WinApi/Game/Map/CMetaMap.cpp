@@ -35,11 +35,11 @@ void CMetaMap::CachePixelData(CImage* image)
 	HDC hdc = image->GetImageDC();
 	HBITMAP hBmp = (HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP);
 
-	// 비트맵 정보 설정 (24비트 BGR)
+	// 비트맵 정보 설정
 	BITMAPINFO bmi = {};
 	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bmi.bmiHeader.biWidth = width;
-	bmi.bmiHeader.biHeight = -(LONG)height;  // 탑-다운 방식 (위에서 아래로)
+	bmi.bmiHeader.biHeight = -(LONG)height;  // 위에서 아래로
 	bmi.bmiHeader.biPlanes = 1;
 	bmi.bmiHeader.biBitCount = 24;
 	bmi.bmiHeader.biCompression = BI_RGB;
@@ -69,13 +69,16 @@ void CMetaMap::Release()
 COLORREF CMetaMap::GetPixelColor(int x, int y) const
 {
 	if (!pixelData)
+		return MetaColor::Empty;
+	
+	// 범위 체크
+	if (y < 0 || y >= (int)height)
+		return MetaColor::Empty;
+	
+	if (x < 0 || x >= (int)width)
 		return MetaColor::Solid;
-
-	// 범위 체크 - 밖은 Solid로 처리
-	if (x < 0 || x >= (int)width || y < 0 || y >= (int)height)
-		return MetaColor::Solid;
-
-	// 픽셀 위치 계산 (BGR 포맷, 탑-다운)
+	
+	// 픽셀 위치 계산 (탑-다운)
 	BYTE* pixel = pixelData + y * stride + x * 3;
 	BYTE b = pixel[0];
 	BYTE g = pixel[1];
@@ -126,6 +129,6 @@ ETerrain CMetaMap::ColorToTerrain(COLORREF color) const
 	if (color == MetaColor::Swamp)     return ETerrain::Swamp;
 	if (color == MetaColor::Damage)    return ETerrain::Damage;
 
-	// 알 수 없는 색상은 Empty로 처리
+	// 알 수 없는 색상
 	return ETerrain::Empty;
 }

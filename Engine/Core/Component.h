@@ -42,7 +42,7 @@ public:
 
 protected:
 	void			SetOwner(T* owner)		{ this->owner = owner; }
-	void			SetActive(bool active)	{ this->active = active; }
+	virtual void			SetActive(bool active)	{ this->active = active; }
 	void			SetScene(CScene* scene) { this->scene = scene; }
 	virtual void	SetReservedDelete()		{ reservedDelete = true; }	// 컴포넌트 삭제 예약
 
@@ -138,6 +138,18 @@ public:
 				return casted;
 		}
 		return nullptr;
+	}
+	
+	template <typename ComponentType>
+	ComponentType* AddOrGetComponent()
+	{
+		ComponentType* component = GetComponent<ComponentType>();
+		if (!component)
+		{
+			component = new ComponentType();
+			AddChild(component);
+		}
+		return component;
 	}
 
 protected:

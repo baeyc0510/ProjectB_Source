@@ -19,8 +19,8 @@ public:
 private:
 	HINSTANCE	hInst;
 	HWND		hWnd;
-	Vec2		winSize;		// 실제 윈도우 크기 (1280x720)
-	Vec2		virtualSize;	// 가상 해상도 (640x360) - 게임 로직 기준
-	float		renderScale;	// 렌더 스케일 (winSize / virtualSize)
+	Vec2		winSize;		// 실제 윈도우 크기
+	Vec2		virtualSize;	// 가상 해상도
+	float		renderScale;	// 렌더 스케일
 };
 

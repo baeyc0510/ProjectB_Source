@@ -32,13 +32,14 @@ void CMap::Release()
 	foregroundLayers.clear();
 
 	metaMap.Release();
+	spawnPoints.clear();
 	checkpoints.clear();
 	transitions.clear();
 }
 
 void CMap::RenderBackground(Vec2 cameraPos)
 {
-	// 배경 레이어들 렌더링 (뒤에서 앞으로)
+	// 배경 레이어들 렌더링 (뒤(낮은 인덱스)-> 앞(높은 인덱스))
 	for (auto& layer : backgroundLayers)
 	{
 		layer.Render(cameraPos);
@@ -55,6 +56,17 @@ void CMap::RenderForeground(Vec2 cameraPos)
 	{
 		layer.Render(cameraPos);
 	}
+}
+
+Vec2 CMap::GetSpawnPoint(int spawnId) const
+{
+	if (spawnId < 0 || spawnId >= spawnPoints.size())
+	{
+		Logger::Error(L"Invalid spawnId: " + spawnId);
+		return Vec2();
+	}
+	
+	return spawnPoints[spawnId];
 }
 
 CheckpointData* CMap::GetCheckpoint(int id)
@@ -110,16 +122,14 @@ void CMap::LoadFromJson(const wstring& jsonPath)
 	file.close();
 
 	// 레이어 로드
-	// 이미지 경로는 resourceFolder (Resources/) 기준 상대경로
-	// isMain 필드로 메인 레이어 결정, 메인 이전은 background, 이후는 foreground
 	if (mapData.contains("layers"))
 	{
-		// 1단계: 모든 레이어 데이터와 메인 레이어 인덱스 찾기
 		const auto& layers = mapData["layers"];
 		int mainLayerIndex = -1;
 
 		for (size_t i = 0; i < layers.size(); ++i)
 		{
+			// 메인레이어 찾기
 			if (layers[i].value("isMain", false))
 			{
 				mainLayerIndex = (int)i;
@@ -127,8 +137,7 @@ void CMap::LoadFromJson(const wstring& jsonPath)
 			}
 		}
 
-		// 2단계: 레이어 분류
-		bool isFirstBackground = true;  // 첫 번째 배경만 BitBlt 사용
+		bool isFirstBackground = true;
 		for (size_t i = 0; i < layers.size(); ++i)
 		{
 			const auto& layerData = layers[i];
@@ -136,18 +145,17 @@ void CMap::LoadFromJson(const wstring& jsonPath)
 			float parallax = layerData.value("parallax", 1.0f);
 			float offsetX = layerData.value("offsetX", 0.0f);
 			float offsetY = layerData.value("offsetY", 0.0f);
-			// JSON에서 transparent 설정 가능, 기본값은 레이어 타입에 따라 결정
-			bool hasTransparentField = layerData.contains("transparent");
+			bool bHasTransparentField = layerData.contains("transparent");
 
 			wstring imagePath = StringToWString(imageName);
 
 			if ((int)i == mainLayerIndex)
 			{
 				// 메인 레이어 - 기본 투명 처리 true
-				bool transparent = hasTransparentField ? layerData["transparent"].get<bool>() : true;
-				mainLayer.Load(imagePath, parallax, Vec2(offsetX, offsetY), transparent);
+				bool bIsTransparent = bHasTransparentField ? layerData["transparent"].get<bool>() : true;
+				mainLayer.Load(imagePath, parallax, Vec2(offsetX, offsetY), bIsTransparent);
 
-				// 메타 이미지 로드 (있으면)
+				// 메타 이미지 로드
 				if (layerData.contains("meta"))
 				{
 					string metaName = layerData["meta"];
@@ -158,35 +166,37 @@ void CMap::LoadFromJson(const wstring& jsonPath)
 			else if (mainLayerIndex < 0 || (int)i < mainLayerIndex)
 			{
 				// 배경 레이어 - 첫 번째만 BitBlt, 나머지는 TransparentBlt
-				bool transparent = hasTransparentField ? layerData["transparent"].get<bool>() : !isFirstBackground;
+				bool bIsTransparent = bHasTransparentField ? layerData["transparent"].get<bool>() : !isFirstBackground;
 				CMapLayer layer;
-				layer.Load(imagePath, parallax, Vec2(offsetX, offsetY), transparent);
+				layer.Load(imagePath, parallax, Vec2(offsetX, offsetY), bIsTransparent);
 				backgroundLayers.push_back(std::move(layer));
 				isFirstBackground = false;
 			}
 			else
 			{
 				// 전경 레이어 - 기본 투명 처리 true
-				bool transparent = hasTransparentField ? layerData["transparent"].get<bool>() : true;
+				bool bIsTransparent = bHasTransparentField ? layerData["transparent"].get<bool>() : true;
 				CMapLayer layer;
-				layer.Load(imagePath, parallax, Vec2(offsetX, offsetY), transparent);
+				layer.Load(imagePath, parallax, Vec2(offsetX, offsetY), bIsTransparent);
 				foregroundLayers.push_back(std::move(layer));
 			}
 		}
 	}
 
-	// 플레이어 스폰 위치 (픽셀 좌표 → 월드 좌표)
-	// 맵 에디터는 픽셀 좌표를 저장하고, 게임은 월드 좌표를 사용
+	// 스폰 위치
 	// 변환: worldPos = pixelPos - virtualCenter
 	Vec2 virtualCenter = SINGLE(CEngine)->GetVirtualSize() * 0.5f;
-	if (mapData.contains("playerSpawn"))
+	if (mapData.contains("spawnPoints"))
 	{
-		playerSpawn.x = mapData["playerSpawn"][0];
-		playerSpawn.y = mapData["playerSpawn"][1];
-		playerSpawn = playerSpawn - virtualCenter;
+		for (auto& spawnData : mapData["spawnPoints"])
+		{
+			Vec2 spawnPoint(spawnData["pos"][0],spawnData["pos"][1]);
+			spawnPoint = spawnPoint - virtualCenter;
+			spawnPoints.push_back(spawnPoint);
+		}
 	}
 
-	// 카메라 바운드 (픽셀 좌표 → 월드 좌표)
+	// 카메라 바운드
 	if (mapData.contains("bounds"))
 	{
 		bounds.x = mapData["bounds"][0];
@@ -197,7 +207,7 @@ void CMap::LoadFromJson(const wstring& jsonPath)
 		bounds.y -= virtualCenter.y;
 	}
 
-	// 체크포인트 (픽셀 좌표 → 월드 좌표)
+	// 체크포인트
 	if (mapData.contains("checkpoints"))
 	{
 		for (const auto& cpData : mapData["checkpoints"])
@@ -212,7 +222,7 @@ void CMap::LoadFromJson(const wstring& jsonPath)
 		}
 	}
 
-	// 씬 전환 트리거 (픽셀 좌표 → 월드 좌표)
+	// 씬 전환 트리거
 	if (mapData.contains("transitions"))
 	{
 		for (const auto& transData : mapData["transitions"])

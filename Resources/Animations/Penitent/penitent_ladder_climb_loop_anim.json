@@ -1,0 +1,17 @@
+{
+    "image": "Image/Penitent/penitent_ladder_climb_loop_anim.bmp",
+    "pivot": [18.0, 0.0],
+    "frame_interval": 0.07,
+    "frames": [
+        {"rect": [0, 0, 33, 78], "events": []},
+        {"rect": [33, 0, 33, 78], "events": []},
+        {"rect": [66, 0, 33, 78], "events": []},
+        {"rect": [99, 0, 33, 78], "events": []},
+        {"rect": [132, 0, 33, 78], "events": []},
+        {"rect": [165, 0, 33, 78], "events": []},
+        {"rect": [198, 0, 33, 78], "events": []},
+        {"rect": [231, 0, 33, 78], "events": []},
+        {"rect": [264, 0, 33, 78], "events": []},
+        {"rect": [297, 0, 33, 78], "events": []}
+    ]
+}

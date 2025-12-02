@@ -121,11 +121,11 @@ ETerrain CMapManager::GetTerrainAt(float worldX, float worldY) const
 	return GetTerrainAt(Vec2(worldX, worldY));
 }
 
-Vec2 CMapManager::GetPlayerSpawn() const
+Vec2 CMapManager::GetPlayerSpawn(int spawnId) const
 {
 	if (!currentMap)
 		return Vec2(0, 0);
-	return currentMap->GetPlayerSpawn();
+	return currentMap->GetSpawnPoint(spawnId);
 }
 
 Rect CMapManager::GetBounds() const
@@ -154,6 +154,14 @@ void CMapManager::ActivateCheckpoint(int id)
 {
 	if (currentMap)
 		currentMap->ActivateCheckpoint(id);
+}
+
+const vector<SceneTransitionData>& CMapManager::GetTransitions() const
+{
+	static vector<SceneTransitionData> empty;
+	if (!currentMap)
+		return empty;
+	return currentMap->GetTransitions();
 }
 
 CMetaMap* CMapManager::GetMetaMap()

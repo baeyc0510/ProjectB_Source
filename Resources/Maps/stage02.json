@@ -1,0 +1,58 @@
+{
+  "layers": [
+    {
+      "image": "Sub/Scene02/stage_02_bg.bmp",
+      "parallax": 0.4,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": false
+    },
+    {
+      "image": "Sub/Scene02/stage_02_main.bmp",
+      "parallax": 1.0,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": true,
+      "meta": "Sub/Scene02/stage_02_meta.bmp"
+    },
+    {
+      "image": "Sub/Scene02/stage_02_fg.bmp",
+      "parallax": 1.0,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": false
+    }
+  ],
+  "spawnPoints": [
+    {
+      "spawnId": 0,
+      "pos": [
+        101.77034249429474,
+        186.433780774434
+      ]
+    }
+  ],
+  "bounds": [
+    1.4362795011179514,
+    -0.7624507796385842,
+    1704.7224689770528,
+    358.00691815224275
+  ],
+  "checkpoints": [],
+  "objects": [],
+  "transitions": [
+    {
+      "rect": [
+        -14.741351176619354,
+        90.52028920488338,
+        60.29072015770449,
+        162.89071761906126
+      ],
+      "target": "Stage01",
+      "spawnId": 1
+    }
+  ]
+}

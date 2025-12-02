@@ -16,6 +16,12 @@ CPlayerStatusHUD::CPlayerStatusHUD()
 
 CPlayerStatusHUD::~CPlayerStatusHUD()
 {
+	
+}
+
+void CPlayerStatusHUD::SetVisibility(bool visibility)
+{
+	SetShow(visibility);
 }
 
 void CPlayerStatusHUD::SetHP(float current, float max)

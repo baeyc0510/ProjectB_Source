@@ -10,6 +10,7 @@ public:
 	~CPlayerStatusHUD() override;
 
 public:
+	void SetVisibility(bool visibility);
 	void SetHP(float current, float max);
 	void SetMP(float current, float max);
 	void SetFlask(int current, int max);

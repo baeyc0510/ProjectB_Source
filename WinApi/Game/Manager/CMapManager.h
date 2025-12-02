@@ -23,7 +23,7 @@ public:
 	void RenderForeground();
 
 	// 좌표 변환
-	// World 좌표: 게임 로직 기준, 화면 중앙이 (0, 0)
+	// World 좌표: 게임 로직 기준
 	// Pixel 좌표: 맵/메타맵 기준, 좌상단이 (0, 0)
 	Vec2 WorldToPixel(Vec2 world) const;
 	Vec2 PixelToWorld(Vec2 pixel) const;
@@ -39,11 +39,12 @@ public:
 	ETerrain GetTerrainAt(float worldX, float worldY) const;
 
 	// 맵 정보
-	Vec2 GetPlayerSpawn() const;
+	Vec2 GetPlayerSpawn(int spawnId = 0) const;
 	Rect GetBounds() const;
 	const vector<CheckpointData>& GetCheckpoints() const;
 	CheckpointData* GetCheckpoint(int id);
 	void ActivateCheckpoint(int id);
+	const vector<SceneTransitionData>& GetTransitions() const;
 	
 	CMap* GetCurrentMap() { return currentMap; }
 	CMetaMap* GetMetaMap();

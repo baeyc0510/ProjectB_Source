@@ -39,7 +39,7 @@ protected:
 	bool			screenFixed;
 	bool			show;
 
-protected:
+public:
 	void			ComponentInit()			override;
 	void			ComponentOnEnable()		override;
 	void			ComponentUpdate()		override;
