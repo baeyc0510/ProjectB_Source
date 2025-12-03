@@ -263,35 +263,97 @@ void CCharacter::ProcessCeilingCollision(CollisionContext& ctx)
     SetPos(ctx.pos);
 }
 
-// 메타맵 충돌 처리
+// 콜라이더 기반 지형 충돌 처리
 void CCharacter::UpdateMetaCollision()
 {
     if (!collider || !rigidbody)
         return;
 
-    CMetaMap* metaMap = MAP->GetMetaMap();
-    if (!metaMap || !metaMap->IsLoaded())
+    CMap* map = MAP->GetCurrentMap();
+    if (!map)
         return;
 
-    // 컨텍스트 초기화
     Vec2 pos = GetPos();
     Vec2 colliderOffset = collider->GetOffset();
     Vec2 colliderScale = collider->GetScale();
     Vec2 colliderCenter = pos + colliderOffset;
 
-    CollisionContext ctx;
-    ctx.metaMap = metaMap;
-    ctx.pos = pos;
-    ctx.pixelCenter = MAP->WorldToPixel(colliderCenter);
-    ctx.colliderOffset = colliderOffset;
-    ctx.halfWidth = colliderScale.x / 2.f;
-    ctx.halfHeight = colliderScale.y / 2.f;
-    ctx.wasGrounded = bIsGrounded;
+    float halfWidth = colliderScale.x * 0.5f;
+    float halfHeight = colliderScale.y * 0.5f;
 
-    // 충돌 처리
-    ProcessGroundCollision(ctx);    // 바닥
-    ProcessWallCollision(ctx, -1);  // 왼쪽
-    ProcessWallCollision(ctx, 1);   // 오른쪽
-    ProcessCeilingCollision(ctx);   // 천장
-    ProcessMetaCollision(ctx);
+    Vec2 footPos = Vec2(colliderCenter.x, colliderCenter.y + halfHeight);
+    Vec2 headPos = Vec2(colliderCenter.x, colliderCenter.y - halfHeight);
+    Vec2 velocity = rigidbody->GetVelocity();
+
+    // 1. 바닥 충돌 체크
+    float groundY;
+    bool onSlope;
+    bool wasGrounded = bIsGrounded;
+
+    // 상승 중(점프 중)에는 바닥 충돌 체크 스킵
+    if (velocity.y < 0)
+    {
+        bIsGrounded = false;
+    }
+    else if (map->CheckGroundCollision(footPos, halfWidth * 0.8f, groundY, onSlope))
+    {
+        bIsGrounded = true;
+
+        // 위치 보정 - 항상 바닥 위에 스냅
+        float newPosY = groundY - halfHeight - colliderOffset.y;
+        pos.y = newPosY;
+        SetPos(pos);
+
+        // 하강 속도 제거
+        if (velocity.y > 0)
+        {
+            velocity.y = 0.f;
+            rigidbody->SetVelocity(velocity);
+        }
+    }
+    else
+    {
+        bIsGrounded = false;
+    }
+
+    // 착지 이벤트 (추후 필요시 구현)
+    // if (!wasGrounded && bIsGrounded)
+    // {
+    //     OnLanding();
+    // }
+
+    // 2. 벽 충돌 체크 (왼쪽)
+    float wallX;
+    if (velocity.x < 0 && map->CheckWallCollision(colliderCenter, halfWidth, halfHeight, -1, wallX))
+    {
+        velocity.x = 0.f;
+        rigidbody->SetVelocity(velocity);
+
+        // 위치 보정
+        pos.x = wallX + halfWidth - colliderOffset.x;
+        SetPos(pos);
+    }
+
+    // 3. 벽 충돌 체크 (오른쪽)
+    if (velocity.x > 0 && map->CheckWallCollision(colliderCenter, halfWidth, halfHeight, 1, wallX))
+    {
+        velocity.x = 0.f;
+        rigidbody->SetVelocity(velocity);
+
+        // 위치 보정
+        pos.x = wallX - halfWidth - colliderOffset.x;
+        SetPos(pos);
+    }
+
+    // 4. 천장 충돌 체크
+    float ceilingY;
+    if (velocity.y < 0 && map->CheckCeilingCollision(headPos, halfWidth * 0.5f, ceilingY))
+    {
+        velocity.y = 0.f;
+        rigidbody->SetVelocity(velocity);
+
+        // 위치 보정
+        pos.y = ceilingY + halfHeight - colliderOffset.y;
+        SetPos(pos);
+    }
 }

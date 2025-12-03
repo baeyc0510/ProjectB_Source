@@ -501,10 +501,15 @@ void CPlayer::CheckVelocityChanged()
 	prevVelocity = curVelocity;
 }
 
+// 사다리 오버랩 체크 (비활성화 - 콜라이더 기반 시스템으로 대체 예정)
 void CPlayer::ProcessLadderOverlap(CollisionContext& ctx)
 {
+	// TODO: 콜라이더 기반 사다리 체크로 대체
+	return;
+
+	/*
 	static constexpr int OVERLAP_WIDTH = 20;
-	
+
 	int centerX = (int)ctx.pixelCenter.x;
 	int centerY = (int)ctx.pixelCenter.y;
 	int feetY = (int)(ctx.pixelCenter.y + ctx.halfHeight);
@@ -513,15 +518,15 @@ void CPlayer::ProcessLadderOverlap(CollisionContext& ctx)
 	bool bOverlapCenter = false;
 	bool bOverlapFeet = false;
 	bool bOverlap = false;
-	
+
 	int checkX = centerX - OVERLAP_WIDTH / 2;
 	int checkY = (centerY + feetY) / 2;
-	
+
 	for (int i = 0; i < OVERLAP_WIDTH; i++)
 	{
 		bOverlapCenter = bOverlapCenter || ctx.metaMap->IsLadder(checkX,centerY);
 		bOverlapFeet = bOverlapFeet || ctx.metaMap->IsLadder(checkX,feetY);
-		
+
 		if (stateSystem->HasTag(Tag_Climbing))
 		{
 			bOverlap = ctx.metaMap->IsLadder(checkX,checkY);
@@ -530,7 +535,7 @@ void CPlayer::ProcessLadderOverlap(CollisionContext& ctx)
 		{
 			bOverlap = bOverlapCenter ||  bOverlapFeet;
 		}
-		
+
 		if (bOverlap)
 		{
 			ladderX = MAP->PixelToWorld(Vec2(checkX,centerY)).x;
@@ -538,7 +543,7 @@ void CPlayer::ProcessLadderOverlap(CollisionContext& ctx)
 		}
 		checkX ++;
 	}
-	
+
 	if (bOverlap)
 	{
 		stateSystem->AddTagUnique(Tag_CanClimb);
@@ -552,12 +557,12 @@ void CPlayer::ProcessLadderOverlap(CollisionContext& ctx)
 		{
 			stateSystem->RemoveTag(Tag_Climbing);
 			rigidbody->UseGravity(true);
-			
+
 			if (bOverlapFeet)
 			{
 				Vec2 worldPos = MAP->PixelToWorld(Vec2(checkX,checkY));
 				SetPos(Vec2(ladderX, worldPos.y));
-				
+
 				stateSystem->AddTag(Tag_AbilityAnimation);
 				stateSystem->AddTag(Tag_BlockMovement);
 				stateSystem->AddTag(Tag_StopVelocity);
@@ -570,4 +575,5 @@ void CPlayer::ProcessLadderOverlap(CollisionContext& ctx)
 			}
 		}
 	}
+	*/
 }

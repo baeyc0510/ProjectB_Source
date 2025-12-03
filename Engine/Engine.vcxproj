@@ -171,6 +171,7 @@
     <ClInclude Include="CEngine.h" />
     <ClInclude Include="Components\CAnimator.h" />
     <ClInclude Include="Components\CCollider.h" />
+    <ClInclude Include="Components\CLineCollider.h" />
     <ClInclude Include="Core\CGameObject.h" />
     <ClInclude Include="Core\Component.h" />
     <ClInclude Include="Core\CScene.h" />
@@ -572,6 +573,7 @@
     </ClCompile>
     <ClCompile Include="Components\CAnimator.cpp" />
     <ClCompile Include="Components\CCollider.cpp" />
+    <ClCompile Include="Components\CLineCollider.cpp" />
     <ClCompile Include="Core\CGameObject.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>

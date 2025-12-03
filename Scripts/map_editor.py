@@ -129,6 +129,43 @@ class Transition:
     target: str
     spawn_id: int
 
+# 기본 콜라이더 태그 (자주 사용되는 것들)
+DEFAULT_COLLIDER_TAGS = ['Solid', 'OneWay', 'Ladder', 'WallClimb', 'Ledge', 'Damage', 'Platform']
+
+# 태그별 기본 색상 (없으면 회색 사용)
+TAG_COLORS = {
+    'Solid': (255, 80, 80),
+    'OneWay': (80, 255, 80),
+    'Ladder': (80, 80, 255),
+    'WallClimb': (255, 160, 80),
+    'Ledge': (80, 255, 255),
+    'Damage': (255, 255, 80),
+    'Platform': (180, 80, 255),
+}
+
+def get_tag_color(tags: List[str]) -> tuple:
+    """태그 리스트에서 첫 번째 매칭되는 색상 반환"""
+    for tag in tags:
+        if tag in TAG_COLORS:
+            return TAG_COLORS[tag]
+    return (150, 150, 150)  # 기본 회색
+
+@dataclass
+class BoxCollider:
+    x: float
+    y: float
+    w: float
+    h: float
+    tags: List[str] = field(default_factory=lambda: ['Solid'])
+
+@dataclass
+class SlopeCollider:
+    x1: float  # 시작점
+    y1: float
+    x2: float  # 끝점
+    y2: float
+    tags: List[str] = field(default_factory=lambda: ['Solid'])
+
 @dataclass
 class MapData:
     layers: List[Layer] = field(default_factory=list)
@@ -137,6 +174,8 @@ class MapData:
     checkpoints: List[Checkpoint] = field(default_factory=list)
     transitions: List[Transition] = field(default_factory=list)
     object_points: List[ObjectPoint] = field(default_factory=list)
+    box_colliders: List[BoxCollider] = field(default_factory=list)
+    slope_colliders: List[SlopeCollider] = field(default_factory=list)
     map_directory: str = ""
 
     def get_next_spawn_id(self) -> int:
@@ -268,9 +307,15 @@ class MapEditor:
         self.current_tool = 'select'
         self.placing_transition = None
         self.placing_bounds = None
+        self.placing_box = None  # 박스 콜라이더 배치 시작점
+        self.placing_slope = None  # 슬로프 콜라이더 시작점
+
+        # 콜라이더 태그 설정
+        self.current_collider_tags = ['Solid']  # 현재 선택된 태그
+        self.show_colliders = True  # 콜라이더 표시 여부
 
         # 선택된 오브젝트 추적
-        self.selected_object = None  # (type, object) 튜플 - type: 'spawn', 'checkpoint', 'transition'
+        self.selected_object = None  # (type, object) 튜플 - type: 'spawn', 'checkpoint', 'transition', 'box_collider', 'slope_collider'
         self.dragging_object = False
         self.drag_offset = (0, 0)
 
@@ -300,13 +345,16 @@ class MapEditor:
         x += btn_w + 10 + gap
 
         # 뷰 토글
-        x = CANVAS_WIDTH - 380
+        x = CANVAS_WIDTH - 480
         self.btn_toggle_meta = Button(x, y, 90, btn_h, "Meta: ON", self._toggle_meta)
         self.toolbar_buttons.append(self.btn_toggle_meta)
         x += 95
         self.btn_toggle_grid = Button(x, y, 75, btn_h, "Grid: ON", self._toggle_grid)
         self.toolbar_buttons.append(self.btn_toggle_grid)
         x += 80
+        self.btn_toggle_colliders = Button(x, y, 80, btn_h, "Col: ON", self._toggle_colliders)
+        self.toolbar_buttons.append(self.btn_toggle_colliders)
+        x += 85
         self.btn_toggle_cam_bound = Button(x, y, 100, btn_h, "Bound: OFF", self._toggle_cam_bound)
         self.toolbar_buttons.append(self.btn_toggle_cam_bound)
 
@@ -316,7 +364,12 @@ class MapEditor:
         y = 20
         w = SIDEBAR_WIDTH - 30
 
-        tools = [('select', 'Select'), ('spawn', 'Spawn'), ('object', 'Object'), ('checkpoint', 'Checkpoint'), ('transition', 'Transition'), ('bounds', 'Bounds')]
+        tools = [
+            ('select', 'Select'), ('spawn', 'Spawn'),
+            ('object', 'Object'), ('checkpoint', 'Checkpoint'),
+            ('transition', 'Transition'), ('bounds', 'Bounds'),
+            ('box_collider', 'Box Col'), ('slope_collider', 'Slope Col')
+        ]
         for i, (tool_id, tool_name) in enumerate(tools):
             btn = Button(x + (i % 2) * (w//2 + 5), y + (i // 2) * 32, w//2 - 5, 28, tool_name,
                         lambda t=tool_id: self._set_tool(t))
@@ -398,6 +451,8 @@ class MapEditor:
         self.map_data.checkpoints = []
         self.map_data.transitions = []
         self.map_data.object_points = []
+        self.map_data.box_colliders = []
+        self.map_data.slope_colliders = []
         self.map_data.bounds = [0, 0, 2000, 1080]
         self.map_data.map_directory = ""
 
@@ -483,6 +538,20 @@ class MapEditor:
                 )
                 self.map_data.transitions.append(trans)
 
+            # 박스 콜라이더 로드
+            for box_data in data.get('boxColliders', []):
+                rect = box_data['rect']
+                tags = box_data.get('tags', ['Solid'])
+                box = BoxCollider(rect[0], rect[1], rect[2], rect[3], tags)
+                self.map_data.box_colliders.append(box)
+
+            # 슬로프 콜라이더 로드
+            for slope_data in data.get('slopeColliders', []):
+                points = slope_data['points']
+                tags = slope_data.get('tags', ['Solid'])
+                slope = SlopeCollider(points[0], points[1], points[2], points[3], tags)
+                self.map_data.slope_colliders.append(slope)
+
             self.selected_layer_index = 0 if self.map_data.layers else -1
             self.selected_object = None
             self._update_layer_tabs()
@@ -514,7 +583,9 @@ class MapEditor:
             'bounds': self.map_data.bounds,
             'checkpoints': [],
             'objects': [],
-            'transitions': []
+            'transitions': [],
+            'boxColliders': [],
+            'slopeColliders': []
         }
 
         for layer in self.map_data.layers:
@@ -553,6 +624,18 @@ class MapEditor:
                 'rect': [trans.x, trans.y, trans.w, trans.h],
                 'target': trans.target,
                 'spawnId': trans.spawn_id
+            })
+
+        for box in self.map_data.box_colliders:
+            data['boxColliders'].append({
+                'rect': [box.x, box.y, box.w, box.h],
+                'tags': box.tags
+            })
+
+        for slope in self.map_data.slope_colliders:
+            data['slopeColliders'].append({
+                'points': [slope.x1, slope.y1, slope.x2, slope.y2],
+                'tags': slope.tags
             })
 
         with open(filepath, 'w') as f:
@@ -637,6 +720,10 @@ class MapEditor:
         self.show_grid = not self.show_grid
         self.btn_toggle_grid.text = f"Grid: {'ON' if self.show_grid else 'OFF'}"
 
+    def _toggle_colliders(self):
+        self.show_colliders = not self.show_colliders
+        self.btn_toggle_colliders.text = f"Col: {'ON' if self.show_colliders else 'OFF'}"
+
     def _toggle_cam_bound(self):
         self.camera_bound_enabled = not self.camera_bound_enabled
         self.btn_toggle_cam_bound.text = f"Bound: {'ON' if self.camera_bound_enabled else 'OFF'}"
@@ -674,6 +761,8 @@ class MapEditor:
         self.current_tool = tool
         self.placing_transition = None
         self.placing_bounds = None
+        self.placing_box = None
+        self.placing_slope = None
         # 툴 변경 시 오브젝트 선택 해제
         if tool != 'select':
             self.selected_object = None
@@ -714,7 +803,31 @@ class MapEditor:
             if trans.x <= world_x <= trans.x + trans.w and trans.y <= world_y <= trans.y + trans.h:
                 return ('transition', trans)
 
+        # 박스 콜라이더 체크
+        for box in self.map_data.box_colliders:
+            if box.x <= world_x <= box.x + box.w and box.y <= world_y <= box.y + box.h:
+                return ('box_collider', box)
+
+        # 슬로프 콜라이더 체크 (선분 근처인지)
+        for slope in self.map_data.slope_colliders:
+            # 선분과의 거리 계산
+            dist = self._point_to_line_distance(world_x, world_y, slope.x1, slope.y1, slope.x2, slope.y2)
+            if dist < hit_radius:
+                return ('slope_collider', slope)
+
         return None
+
+    def _point_to_line_distance(self, px, py, x1, y1, x2, y2):
+        """점에서 선분까지의 거리 계산"""
+        dx = x2 - x1
+        dy = y2 - y1
+        if dx == 0 and dy == 0:
+            return ((px - x1)**2 + (py - y1)**2)**0.5
+
+        t = max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)))
+        proj_x = x1 + t * dx
+        proj_y = y1 + t * dy
+        return ((px - proj_x)**2 + (py - proj_y)**2)**0.5
 
     def _handle_canvas_click(self, pos, button):
         world_x, world_y = self._screen_to_world(pos[0], pos[1])
@@ -783,6 +896,36 @@ class MapEditor:
                     y = min(start_y, world_y)
                     self.map_data.bounds = [x, y, w, h]
                     self.placing_bounds = None
+
+            elif self.current_tool == 'box_collider':
+                if self.placing_box is None:
+                    self.placing_box = (world_x, world_y)
+                else:
+                    start_x, start_y = self.placing_box
+                    w = abs(world_x - start_x)
+                    h = abs(world_y - start_y)
+                    x = min(start_x, world_x)
+                    y = min(start_y, world_y)
+                    if w > 5 and h > 5:  # 최소 크기 체크
+                        new_box = BoxCollider(x, y, w, h, list(self.current_collider_tags))
+                        self.map_data.box_colliders.append(new_box)
+                        self.selected_object = ('box_collider', new_box)
+                        self.selected_layer_index = -1
+                    self.placing_box = None
+
+            elif self.current_tool == 'slope_collider':
+                if self.placing_slope is None:
+                    self.placing_slope = (world_x, world_y)
+                else:
+                    start_x, start_y = self.placing_slope
+                    # 거리 체크
+                    dist = ((world_x - start_x)**2 + (world_y - start_y)**2)**0.5
+                    if dist > 10:  # 최소 길이 체크
+                        new_slope = SlopeCollider(start_x, start_y, world_x, world_y, list(self.current_collider_tags))
+                        self.map_data.slope_colliders.append(new_slope)
+                        self.selected_object = ('slope_collider', new_slope)
+                        self.selected_layer_index = -1
+                    self.placing_slope = None
 
         elif button == 3:  # 우클릭 - 빈 곳 클릭시 선택 해제
             if self.current_tool == 'select':
@@ -886,6 +1029,8 @@ class MapEditor:
                 if event.key == pygame.K_ESCAPE:
                     self.placing_transition = None
                     self.placing_bounds = None
+                    self.placing_box = None
+                    self.placing_slope = None
                     self.current_tool = 'select'
 
                 if event.key == pygame.K_DELETE:
@@ -1054,6 +1199,73 @@ class MapEditor:
                 preview_rect.normalize()
                 pygame.draw.rect(self.screen, (255, 0, 255), preview_rect, 1)
 
+        # 콜라이더 렌더링
+        if self.show_colliders:
+            # 박스 콜라이더
+            for box in self.map_data.box_colliders:
+                bx, by = self._world_to_screen(box.x, box.y)
+                bw, bh = box.w * self.zoom, box.h * self.zoom
+                box_rect = pygame.Rect(bx, by, bw, bh)
+                is_selected = self.selected_object and self.selected_object[0] == 'box_collider' and self.selected_object[1] is box
+
+                # 반투명 채우기
+                color = get_tag_color(box.tags)
+                fill_surface = pygame.Surface((int(bw), int(bh)), pygame.SRCALPHA)
+                fill_surface.fill((*color, 80))
+                self.screen.blit(fill_surface, (bx, by))
+
+                # 테두리
+                border_color = (255, 255, 100) if is_selected else color
+                border_width = 3 if is_selected else 2
+                pygame.draw.rect(self.screen, border_color, box_rect, border_width)
+
+                # 태그 표시
+                tag_text = ','.join(box.tags[:2])  # 처음 2개 태그만 표시
+                if len(box.tags) > 2:
+                    tag_text += '...'
+                text_surface = self.font_small.render(tag_text, True, color)
+                self.screen.blit(text_surface, (bx + 3, by + 3))
+
+            # 슬로프 콜라이더
+            for slope in self.map_data.slope_colliders:
+                sx1, sy1 = self._world_to_screen(slope.x1, slope.y1)
+                sx2, sy2 = self._world_to_screen(slope.x2, slope.y2)
+                is_selected = self.selected_object and self.selected_object[0] == 'slope_collider' and self.selected_object[1] is slope
+
+                color = get_tag_color(slope.tags)
+                line_color = (255, 255, 100) if is_selected else color
+                line_width = 4 if is_selected else 3
+                pygame.draw.line(self.screen, line_color, (sx1, sy1), (sx2, sy2), line_width)
+
+                # 끝점 표시
+                pygame.draw.circle(self.screen, color, (int(sx1), int(sy1)), 5)
+                pygame.draw.circle(self.screen, color, (int(sx2), int(sy2)), 5)
+
+                # 태그 표시
+                mid_x, mid_y = (sx1 + sx2) / 2, (sy1 + sy2) / 2
+                tag_text = ','.join(slope.tags[:2])
+                text_surface = self.font_small.render(tag_text, True, color)
+                self.screen.blit(text_surface, (mid_x - 20, mid_y - 15))
+
+        # 박스 콜라이더 배치 중 미리보기
+        if self.placing_box:
+            mouse_pos = pygame.mouse.get_pos()
+            if canvas_rect.collidepoint(mouse_pos):
+                start_x, start_y = self._world_to_screen(self.placing_box[0], self.placing_box[1])
+                preview_rect = pygame.Rect(start_x, start_y, mouse_pos[0] - start_x, mouse_pos[1] - start_y)
+                preview_rect.normalize()
+                color = get_tag_color(self.current_collider_tags)
+                pygame.draw.rect(self.screen, color, preview_rect, 2)
+
+        # 슬로프 콜라이더 배치 중 미리보기
+        if self.placing_slope:
+            mouse_pos = pygame.mouse.get_pos()
+            if canvas_rect.collidepoint(mouse_pos):
+                start_x, start_y = self._world_to_screen(self.placing_slope[0], self.placing_slope[1])
+                color = get_tag_color(self.current_collider_tags)
+                pygame.draw.line(self.screen, color, (start_x, start_y), mouse_pos, 2)
+                pygame.draw.circle(self.screen, color, (int(start_x), int(start_y)), 5)
+
         # 카메라 바운드 렌더링
         bounds = self.map_data.bounds
         if bounds[2] > 0 and bounds[3] > 0:  # 너비/높이가 있으면
@@ -1175,6 +1387,10 @@ class MapEditor:
             return self._render_checkpoint_properties(x, y, obj)
         elif obj_type == 'transition':
             return self._render_transition_properties(x, y, obj)
+        elif obj_type == 'box_collider':
+            return self._render_box_collider_properties(x, y, obj)
+        elif obj_type == 'slope_collider':
+            return self._render_slope_collider_properties(x, y, obj)
         return y
 
     def _render_spawn_properties(self, x, y, spawn: SpawnPoint):
@@ -1398,6 +1614,143 @@ class MapEditor:
 
         return y
 
+    def _render_box_collider_properties(self, x, y, box: BoxCollider):
+        """박스 콜라이더 프로퍼티 렌더링"""
+        color = get_tag_color(box.tags)
+        title = self.font_large.render("Box Collider", True, color)
+        self.screen.blit(title, (x, y))
+        y += 30
+
+        # Rect 정보
+        rect_label = self.font.render("Rect:", True, COLOR_TEXT)
+        self.screen.blit(rect_label, (x, y))
+        y += 22
+
+        rect_info = self.font_small.render(f"X:{int(box.x)} Y:{int(box.y)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(rect_info, (x, y))
+        y += 18
+        size_info = self.font_small.render(f"W:{int(box.w)} H:{int(box.h)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(size_info, (x, y))
+        y += 25
+
+        # Rect 수정 버튼
+        edit_rect_btn = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['edit_box_rect'] = edit_rect_btn
+        pygame.draw.rect(self.screen, COLOR_BUTTON, edit_rect_btn, border_radius=3)
+        self.screen.blit(self.font_small.render("Edit Rect", True, COLOR_TEXT), (x + 32, y + 4))
+        y += 35
+
+        # 태그 섹션
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        tags_label = self.font.render("Tags:", True, COLOR_TEXT)
+        self.screen.blit(tags_label, (x, y))
+        y += 25
+
+        # 현재 태그 표시
+        for i, tag in enumerate(box.tags):
+            tag_color = TAG_COLORS.get(tag, (150, 150, 150))
+            tag_rect = pygame.Rect(x + (i % 3) * 85, y + (i // 3) * 25, 80, 22)
+            pygame.draw.rect(self.screen, tag_color, tag_rect, border_radius=3)
+            tag_text = self.font_small.render(tag[:8], True, (255, 255, 255))
+            text_rect = tag_text.get_rect(center=tag_rect.center)
+            self.screen.blit(tag_text, text_rect)
+        y += ((len(box.tags) - 1) // 3 + 1) * 25 + 10
+
+        # 태그 편집 버튼
+        edit_tags_btn = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['edit_tags'] = edit_tags_btn
+        pygame.draw.rect(self.screen, COLOR_BUTTON, edit_tags_btn, border_radius=3)
+        self.screen.blit(self.font_small.render("Edit Tags", True, COLOR_TEXT), (x + 30, y + 4))
+        y += 35
+
+        # 구분선
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        # 삭제 버튼
+        del_rect = pygame.Rect(x, y, SIDEBAR_WIDTH - 30, 28)
+        self.sidebar_btn_rects['delete_object'] = del_rect
+        pygame.draw.rect(self.screen, (100, 60, 60), del_rect, border_radius=3)
+        del_text = self.font.render("Delete Collider", True, COLOR_TEXT)
+        text_rect = del_text.get_rect(center=del_rect.center)
+        self.screen.blit(del_text, text_rect)
+        y += 40
+
+        return y
+
+    def _render_slope_collider_properties(self, x, y, slope: SlopeCollider):
+        """슬로프 콜라이더 프로퍼티 렌더링"""
+        color = get_tag_color(slope.tags)
+        title = self.font_large.render("Slope Collider", True, color)
+        self.screen.blit(title, (x, y))
+        y += 30
+
+        # 좌표 정보
+        pos_label = self.font.render("Start Point:", True, COLOR_TEXT)
+        self.screen.blit(pos_label, (x, y))
+        y += 22
+
+        start_info = self.font_small.render(f"X:{int(slope.x1)} Y:{int(slope.y1)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(start_info, (x, y))
+        y += 22
+
+        pos_label2 = self.font.render("End Point:", True, COLOR_TEXT)
+        self.screen.blit(pos_label2, (x, y))
+        y += 22
+
+        end_info = self.font_small.render(f"X:{int(slope.x2)} Y:{int(slope.y2)}", True, COLOR_TEXT_DIM)
+        self.screen.blit(end_info, (x, y))
+        y += 25
+
+        # 좌표 수정 버튼
+        edit_pos_btn = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['edit_slope_pos'] = edit_pos_btn
+        pygame.draw.rect(self.screen, COLOR_BUTTON, edit_pos_btn, border_radius=3)
+        self.screen.blit(self.font_small.render("Edit Points", True, COLOR_TEXT), (x + 28, y + 4))
+        y += 35
+
+        # 태그 섹션
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        tags_label = self.font.render("Tags:", True, COLOR_TEXT)
+        self.screen.blit(tags_label, (x, y))
+        y += 25
+
+        # 현재 태그 표시
+        for i, tag in enumerate(slope.tags):
+            tag_color = TAG_COLORS.get(tag, (150, 150, 150))
+            tag_rect = pygame.Rect(x + (i % 3) * 85, y + (i // 3) * 25, 80, 22)
+            pygame.draw.rect(self.screen, tag_color, tag_rect, border_radius=3)
+            tag_text = self.font_small.render(tag[:8], True, (255, 255, 255))
+            text_rect = tag_text.get_rect(center=tag_rect.center)
+            self.screen.blit(tag_text, text_rect)
+        y += ((len(slope.tags) - 1) // 3 + 1) * 25 + 10
+
+        # 태그 편집 버튼
+        edit_tags_btn = pygame.Rect(x, y, 120, 24)
+        self.sidebar_btn_rects['edit_tags'] = edit_tags_btn
+        pygame.draw.rect(self.screen, COLOR_BUTTON, edit_tags_btn, border_radius=3)
+        self.screen.blit(self.font_small.render("Edit Tags", True, COLOR_TEXT), (x + 30, y + 4))
+        y += 35
+
+        # 구분선
+        pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+        y += 15
+
+        # 삭제 버튼
+        del_rect = pygame.Rect(x, y, SIDEBAR_WIDTH - 30, 28)
+        self.sidebar_btn_rects['delete_object'] = del_rect
+        pygame.draw.rect(self.screen, (100, 60, 60), del_rect, border_radius=3)
+        del_text = self.font.render("Delete Collider", True, COLOR_TEXT)
+        text_rect = del_text.get_rect(center=del_rect.center)
+        self.screen.blit(del_text, text_rect)
+        y += 40
+
+        return y
+
     def _render_layer_properties(self, x, y):
         """레이어 프로퍼티 렌더링"""
         title = self.font_large.render("Layer Properties", True, COLOR_TEXT)
@@ -1602,6 +1955,24 @@ class MapEditor:
                 self._remove_selected_layer()
                 return
 
+        # 박스 콜라이더 Rect 수정 버튼
+        if 'edit_box_rect' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['edit_box_rect'].collidepoint(event.pos):
+                self._edit_box_collider_rect()
+                return
+
+        # 슬로프 콜라이더 좌표 수정 버튼
+        if 'edit_slope_pos' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['edit_slope_pos'].collidepoint(event.pos):
+                self._edit_slope_collider_points()
+                return
+
+        # 태그 편집 버튼
+        if 'edit_tags' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['edit_tags'].collidepoint(event.pos):
+                self._edit_collider_tags()
+                return
+
     def _edit_object_position(self):
         """선택된 오브젝트의 좌표 수정"""
         if not self.selected_object:
@@ -1678,6 +2049,14 @@ class MapEditor:
             if obj in self.map_data.transitions:
                 self.map_data.transitions.remove(obj)
                 self.selected_object = None
+        elif obj_type == 'box_collider':
+            if obj in self.map_data.box_colliders:
+                self.map_data.box_colliders.remove(obj)
+                self.selected_object = None
+        elif obj_type == 'slope_collider':
+            if obj in self.map_data.slope_colliders:
+                self.map_data.slope_colliders.remove(obj)
+                self.selected_object = None
 
     def _change_spawn_id(self):
         """스폰 포인트 ID 변경 (중복 방지)"""
@@ -1745,6 +2124,83 @@ class MapEditor:
                                          initialvalue=trans.spawn_id, minvalue=0)
         if new_id is not None:
             trans.spawn_id = new_id
+
+    def _edit_box_collider_rect(self):
+        """박스 콜라이더 Rect 수정"""
+        if not self.selected_object or self.selected_object[0] != 'box_collider':
+            return
+
+        box = self.selected_object[1]
+
+        new_x = simpledialog.askinteger("Rect", "Enter X:", initialvalue=int(box.x))
+        if new_x is None:
+            return
+        new_y = simpledialog.askinteger("Rect", "Enter Y:", initialvalue=int(box.y))
+        if new_y is None:
+            return
+        new_w = simpledialog.askinteger("Rect", "Enter Width:", initialvalue=int(box.w), minvalue=1)
+        if new_w is None:
+            return
+        new_h = simpledialog.askinteger("Rect", "Enter Height:", initialvalue=int(box.h), minvalue=1)
+        if new_h is None:
+            return
+
+        box.x = float(new_x)
+        box.y = float(new_y)
+        box.w = float(new_w)
+        box.h = float(new_h)
+
+    def _edit_slope_collider_points(self):
+        """슬로프 콜라이더 좌표 수정"""
+        if not self.selected_object or self.selected_object[0] != 'slope_collider':
+            return
+
+        slope = self.selected_object[1]
+
+        new_x1 = simpledialog.askinteger("Start Point", "Enter X1:", initialvalue=int(slope.x1))
+        if new_x1 is None:
+            return
+        new_y1 = simpledialog.askinteger("Start Point", "Enter Y1:", initialvalue=int(slope.y1))
+        if new_y1 is None:
+            return
+        new_x2 = simpledialog.askinteger("End Point", "Enter X2:", initialvalue=int(slope.x2))
+        if new_x2 is None:
+            return
+        new_y2 = simpledialog.askinteger("End Point", "Enter Y2:", initialvalue=int(slope.y2))
+        if new_y2 is None:
+            return
+
+        slope.x1 = float(new_x1)
+        slope.y1 = float(new_y1)
+        slope.x2 = float(new_x2)
+        slope.y2 = float(new_y2)
+
+    def _edit_collider_tags(self):
+        """콜라이더 태그 편집"""
+        if not self.selected_object:
+            return
+
+        obj_type, obj = self.selected_object
+        if obj_type not in ('box_collider', 'slope_collider'):
+            return
+
+        # 현재 태그를 쉼표로 구분된 문자열로 변환
+        current_tags = ','.join(obj.tags)
+
+        # 태그 입력 다이얼로그
+        new_tags_str = simpledialog.askstring(
+            "Edit Tags",
+            f"Enter tags (comma-separated):\nAvailable: {', '.join(DEFAULT_COLLIDER_TAGS)}",
+            initialvalue=current_tags
+        )
+
+        if new_tags_str is not None:
+            # 쉼표로 분리하고 공백 제거
+            new_tags = [tag.strip() for tag in new_tags_str.split(',') if tag.strip()]
+            if new_tags:
+                obj.tags = new_tags
+                # 현재 선택된 태그도 업데이트
+                self.current_collider_tags = list(new_tags)
 
     def run(self):
         while self.running:

@@ -22,6 +22,7 @@
 // Component
 #include "Components/CAnimator.h"
 #include "Components/CCollider.h"
+#include "Components/CLineCollider.h"
 
 // Asset
 #include "Asset/CAnimation.h"
