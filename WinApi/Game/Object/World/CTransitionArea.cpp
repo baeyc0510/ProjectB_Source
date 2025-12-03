@@ -15,7 +15,7 @@ void CTransitionArea::InitArea(const SceneTransitionData& transitionData)
 {
     // init collider
     Vec2 scale =  Vec2(transitionData.rect.w, transitionData.rect.h);
-    collider = AddOrGetComponent<CCollider>();
+    collider = AddOrGetComponent<CBoxCollider>();
     collider->SetScale(scale);
     
     // init pos
@@ -31,7 +31,7 @@ void CTransitionArea::InitArea(const SceneTransitionData& transitionData)
 
 void CTransitionArea::Init()
 {
-    collider = AddOrGetComponent<CCollider>();
+    collider = AddOrGetComponent<CBoxCollider>();
     collider->SetLayer(ELayer::Transition);
 }
 

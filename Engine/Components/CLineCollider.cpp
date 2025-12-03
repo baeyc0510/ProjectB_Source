@@ -17,14 +17,27 @@ void CLineCollider::SetLine(const Vec2& start, const Vec2& end)
 	localEnd = end;
 }
 
+Vec2 CLineCollider::GetScale() const
+{
+	// 선분의 바운딩 박스 크기 반환
+	float width = abs(localEnd.x - localStart.x);
+	float height = abs(localEnd.y - localStart.y);
+	return Vec2(width, height);
+}
+
+void CLineCollider::SetScale(const Vec2& scale)
+{
+	// 라인 콜라이더는 SetLine으로 설정하므로 무시
+}
+
 Vec2 CLineCollider::GetWorldStart() const
 {
-	return const_cast<CLineCollider*>(this)->GetPos() + localStart;
+	return GetPos() + localStart;
 }
 
 Vec2 CLineCollider::GetWorldEnd() const
 {
-	return const_cast<CLineCollider*>(this)->GetPos() + localEnd;
+	return GetPos() + localEnd;
 }
 
 float CLineCollider::GetYAt(float worldX) const
@@ -41,6 +54,20 @@ float CLineCollider::GetYAt(float worldX) const
 	return start.y + t * (end.y - start.y);
 }
 
+float CLineCollider::GetXAt(float worldY) const
+{
+	Vec2 start = GetWorldStart();
+	Vec2 end = GetWorldEnd();
+
+	float dy = end.y - start.y;
+	if (abs(dy) < 0.001f)
+		return start.x;
+
+	float t = (worldY - start.y) / dy;
+	t = max(0.0f, min(1.0f, t));
+	return start.x + t * (end.x - start.x);
+}
+
 bool CLineCollider::IsInXRange(float worldX) const
 {
 	Vec2 start = GetWorldStart();
@@ -49,37 +76,6 @@ bool CLineCollider::IsInXRange(float worldX) const
 	float minX = min(start.x, end.x);
 	float maxX = max(start.x, end.x);
 	return worldX >= minX && worldX <= maxX;
-}
-
-bool CLineCollider::IsCollisionWithBox(const Vec2& boxPos, const Vec2& boxScale) const
-{
-	Vec2 start = GetWorldStart();
-	Vec2 end = GetWorldEnd();
-
-	float boxLeft = boxPos.x - boxScale.x * 0.5f;
-	float boxRight = boxPos.x + boxScale.x * 0.5f;
-	float boxTop = boxPos.y - boxScale.y * 0.5f;
-	float boxBottom = boxPos.y + boxScale.y * 0.5f;
-
-	// 선분의 X 범위가 박스와 겹치는지 확인
-	float lineMinX = min(start.x, end.x);
-	float lineMaxX = max(start.x, end.x);
-
-	if (lineMaxX < boxLeft || lineMinX > boxRight)
-		return false;
-
-	// 박스 범위 내의 선분 Y 값들 확인
-	float checkMinX = max(lineMinX, boxLeft);
-	float checkMaxX = min(lineMaxX, boxRight);
-
-	float y1 = GetYAt(checkMinX);
-	float y2 = GetYAt(checkMaxX);
-
-	float lineMinY = min(y1, y2);
-	float lineMaxY = max(y1, y2);
-
-	// 선분의 Y 범위가 박스와 겹치는지 확인
-	return !(lineMaxY < boxTop || lineMinY > boxBottom);
 }
 
 bool CLineCollider::IsPointOnLine(const Vec2& point, float toleranceY) const
@@ -91,10 +87,21 @@ bool CLineCollider::IsPointOnLine(const Vec2& point, float toleranceY) const
 	return abs(point.y - lineY) <= toleranceY;
 }
 
-bool CLineCollider::IsCollision(CCollider* other)
+float CLineCollider::GetSlopeAngle() const
 {
-	// 다른 콜라이더가 박스 콜라이더인 경우
-	return IsCollisionWithBox(other->GetPos(), other->GetScale());
+	Vec2 start = GetWorldStart();
+	Vec2 end = GetWorldEnd();
+
+	float dx = end.x - start.x;
+	float dy = end.y - start.y;
+
+	return atan2f(-dy, abs(dx));
+}
+
+float CLineCollider::GetSlopeAngleDegrees() const
+{
+	constexpr float RAD_TO_DEG = 180.0f / 3.14159265f;
+	return GetSlopeAngle() * RAD_TO_DEG;
 }
 
 void CLineCollider::Render()
@@ -102,11 +109,13 @@ void CLineCollider::Render()
 	Vec2 start = CAMERA->WorldToScreenPoint(GetWorldStart());
 	Vec2 end = CAMERA->WorldToScreenPoint(GetWorldEnd());
 
-	RENDER->SetPen(PenType::Solid, RGB(0, 200, 255));
+	COLORREF color = IsColliding() ? RGB(255, 0, 0) : layerColors[GetLayer() % 16];
+
+	RENDER->SetPen(PenType::Solid, color);
 	RENDER->Line(start.x, start.y, end.x, end.y);
 
 	// 끝점 표시
-	RENDER->SetBrush(BrushType::Solid, RGB(0, 200, 255));
+	RENDER->SetBrush(BrushType::Solid, color);
 	RENDER->Ellipse(start.x - 3, start.y - 3, start.x + 3, start.y + 3);
 	RENDER->Ellipse(end.x - 3, end.y - 3, end.x + 3, end.y + 3);
 

@@ -17,6 +17,7 @@ public:
 	void SetCurrentFlask(int value);
 	void SetMaxFlask(int value);
 	void SetJumpForce(float value) { jumpForce = value; }
+	void SetLadderInfo(float x, float topY, float bottomY) { ladderX = x; ladderTopY = topY; ladderBottomY = bottomY; }
 	
 	float GetCurrentHP() const {return currentHP;}
 	float GetMaxHP() const {return maxHP;}
@@ -35,8 +36,9 @@ protected:
 	void Release() override;
 
 	/*~ CCharacter Interface ~*/
-	void ProcessMetaCollision(CollisionContext& ctx) override;
-	
+	void OnCollisionEnter(CCollider* other) override;
+	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
+
 	/*~ ICombatInterface ~*/
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 
@@ -56,13 +58,11 @@ private:
 
 	// 상태 처리
 	void UpdateAnimation();
-	void OnStateChanged(EStateTag oldTags, EStateTag newTags);
 	void CheckVelocityChanged();
-	void ProcessLadderOverlap(CollisionContext& ctx);
 	
 private:
 	// 상수
-	static constexpr float MOVE_SPEED = 300.f;
+	static constexpr float MOVE_SPEED = 250.f;
 	static constexpr float JUMP_FORCE = 550.f;
 	static constexpr float KNOCKBACK_POWER = 100.f;
 	static constexpr float MAX_HP = 100.f;
@@ -71,8 +71,8 @@ private:
 	static constexpr float CLIMB_SPEED = 150.f;
 
 	// Crouch collider 설정
-	Vec2 standingColScale;
-	Vec2 standingColOffset;
+	Vec2 colScale;
+	Vec2 colOffset;
 	
 	// status
 	float currentHP;
@@ -89,6 +89,11 @@ private:
 	// velocity 변경 감지용
 	Vec2 prevVelocity;
 	
-	// 사다리 좌표
+	// 사다리 정보
 	float ladderX;
+	float ladderTopY;
+	float ladderBottomY;
+
+	// 입력 상태 변화 감지용
+	bool bWasMovingInput;
 };

@@ -3,6 +3,8 @@
 class CWorldManager;
 class CScene;
 
+class CCollider;
+
 class CGameObject : public Composite<CGameObject>, public IRender
 {
 	friend CWorldManager;

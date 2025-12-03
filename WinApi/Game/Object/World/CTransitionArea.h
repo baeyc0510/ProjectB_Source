@@ -21,7 +21,7 @@ protected:
     void OnCollisionEnter(CCollider* other) override;
 
 private:
-    CCollider* collider;
+    CBoxCollider* collider;
     ESceneType targetScene;
     int spawnId;
 };

@@ -1,7 +1,26 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CCollider.h"
 
 UINT CCollider::colliderCount = 0;
+
+const COLORREF CCollider::layerColors[16] = {
+	RGB(255, 255, 255),  // 0 - 흰색
+	RGB(0, 0, 255),      // 1 - 파랑
+	RGB(255, 255, 0),    // 2 - 노랑
+	RGB(0, 255, 0),      // 3 - 초록
+	RGB(255, 0, 255),    // 4 - 마젠타
+	RGB(0, 255, 255),    // 5 - 청록
+	RGB(255, 128, 0),    // 6 - 주황
+	RGB(0, 128, 0),      // 7 - 진초록
+	RGB(0, 128, 128),    // 8 - 청록(어두운)
+	RGB(128, 0, 128),    // 9 - 보라
+	RGB(128, 0, 0),      // 10 - 진빨강
+	RGB(128, 128, 255),  // 11 - 연보라
+	RGB(128, 128, 0),    // 12 - 올리브
+	RGB(255, 192, 203),  // 13 - 분홍
+	RGB(139, 69, 19),    // 14 - 갈색
+	RGB(192, 192, 192),  // 15 - 회색
+};
 
 CCollider::CCollider()
 {
@@ -10,42 +29,11 @@ CCollider::CCollider()
 	layer	= 0;
 	pos		= Vec2(0, 0);
 	offset	= Vec2(0, 0);
-	scale	= Vec2(0, 0);
 	zOrder	= -10;
 }
 
 CCollider::~CCollider()
 {
-}
-
-bool CCollider::IsCollision(CCollider* other)
-{
-	// 사각 충돌
-	if (abs(GetPos().x - other->GetPos().x) < (GetScale().x + other->GetScale().x) * 0.5f &&
-		abs(GetPos().y - other->GetPos().y) < (GetScale().y + other->GetScale().y) * 0.5f)
-		return true;
-	else
-		return false;
-}
-
-void CCollider::Render()
-{
-	Vec2 renderPos = CAMERA->WorldToScreenPoint(pos);
-
-	if (count > 0)
-		RENDER->SetPen(PenType::Solid, RGB(255, 0, 0));
-	else
-		RENDER->SetPen(PenType::Solid, RGB(0, 255, 0));
-	RENDER->SetBrush(BrushType::Null);
-
-	RENDER->Rect(
-		renderPos.x - scale.x * 0.5f,
-		renderPos.y - scale.y * 0.5f,
-		renderPos.x + scale.x * 0.5f,
-		renderPos.y + scale.y * 0.5f);
-
-	RENDER->SetPen();
-	RENDER->SetBrush();
 }
 
 void CCollider::ComponentInit()
@@ -54,6 +42,7 @@ void CCollider::ComponentInit()
 
 void CCollider::ComponentOnEnable()
 {
+	count = 0;  // 충돌 상태 초기화
 	SINGLE(CCollisionManager)->AddCollider(this);
 	Component::ComponentOnEnable();
 }
@@ -72,6 +61,7 @@ void CCollider::ComponentOnDisable()
 {
 	Component::ComponentOnDisable();
 	SINGLE(CCollisionManager)->RemoveCollider(this);
+	count = 0;  // 충돌 상태 초기화
 }
 
 void CCollider::ComponentRelease()

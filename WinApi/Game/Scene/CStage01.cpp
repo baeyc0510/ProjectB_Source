@@ -23,7 +23,7 @@ void CStage01::Init()
 	CMapScene::Init();
 	
 	// // Dummy Monster (Player 오른쪽)
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		CMonster* monster = new CMonster();
 		monster->SetPos(MAP->GetPlayerSpawn() + Vec2(100.f + 50*i, 0.f));

@@ -46,6 +46,7 @@ void CMapScene::Enter()
 
     CAMERA->SetOffset(Vec2(0.f,-100.f));
     CAMERA->SetDeadZone(Vec2(100.f,100.f));
+    CAMERA->SetSmoothSpeed(16.f);  // 부드러운 카메라 따라가기
     CAMERA->SetBounds(MAP->GetBounds());
 
     CPlayer* player = FindObjectByType<CPlayer>();
@@ -104,10 +105,6 @@ void CMapScene::OnLoadMap()
     // TrasitionArea 배치
     SpawnTransitionArea();
 
-    // 지형 콜라이더 생성
-    CMap* map = MAP->GetCurrentMap();
-    if (map)
-    {
-        map->CreateColliderObjects(this);
-    }
+    // 월드 콜라이더 생성
+    MAP->CreateWorldColliders(this);
 }

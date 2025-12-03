@@ -131,11 +131,14 @@ Vec2 CCameraManager::WorldToScreenPoint(Vec2 worldPoint)
 	// 가상 해상도 기준으로 좌표 변환
 	Vec2 virtualSize = SINGLE(CEngine)->GetVirtualSize();
 	Vec2 center = virtualSize * 0.5f;
-	Vec2 screenPos = worldPoint - (lookAt - center);
 
-	// 픽셀 스내핑: 지터링 방지를 위해 정수로 반올림
-	screenPos.x = floorf(screenPos.x + 0.5f);
-	screenPos.y = floorf(screenPos.y + 0.5f);
+	// 카메라 오프셋을 한 번만 반올림 - 모든 오브젝트가 동시에 이동하도록
+	float offsetX = floorf(lookAt.x - center.x + 0.5f);
+	float offsetY = floorf(lookAt.y - center.y + 0.5f);
+
+	Vec2 screenPos;
+	screenPos.x = worldPoint.x - offsetX;
+	screenPos.y = worldPoint.y - offsetY;
 	return screenPos;
 }
 
@@ -206,10 +209,28 @@ void CCameraManager::MoveToTarget()
 		return;
 	}
 
-	// 부드러운 따라가기 (lerp)
-	float t = 1.0f - expf(-smoothSpeed * DT);
-	lookAt.x += (targetPos.x - lookAt.x) * t;
-	lookAt.y += (targetPos.y - lookAt.y) * t;
+	// 픽셀 단위 부드러운 이동 (lookAt은 항상 정수 유지)
+	Vec2 diff = targetPos - lookAt;
+
+	// X축
+	if (abs(diff.x) > 0.5f)
+	{
+		float moveX = diff.x * smoothSpeed * DT;
+		// 최소 1픽셀 이동 보장
+		if (abs(moveX) < 1.f) moveX = (diff.x > 0) ? 1.f : -1.f;
+		// 오버슈트 방지
+		if (abs(moveX) > abs(diff.x)) moveX = diff.x;
+		lookAt.x = floorf(lookAt.x + moveX + 0.5f);
+	}
+
+	// Y축
+	if (abs(diff.y) > 0.5f)
+	{
+		float moveY = diff.y * smoothSpeed * DT;
+		if (abs(moveY) < 1.f) moveY = (diff.y > 0) ? 1.f : -1.f;
+		if (abs(moveY) > abs(diff.y)) moveY = diff.y;
+		lookAt.y = floorf(lookAt.y + moveY + 0.5f);
+	}
 }
 
 void CCameraManager::BrightToTarget()

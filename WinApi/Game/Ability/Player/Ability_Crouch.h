@@ -14,6 +14,7 @@ public:
     void OnEnd() override;
     
 private:
+    void OnJumpPressed();
     void OnCrouchReleased();
     void OnEndCrouch();
 };

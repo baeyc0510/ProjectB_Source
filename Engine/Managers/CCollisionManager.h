@@ -1,7 +1,9 @@
-﻿#pragma once
+#pragma once
 
 struct HitResult;
 class CCollider;
+class CBoxCollider;
+class CLineCollider;
 
 struct DebugBox
 {
@@ -44,6 +46,12 @@ public:
 private:
 	void	CollisionUpdate(UINT left, UINT right);
 	UINT64	CollisionID(UINT leftID, UINT rightID);
+
+	// 충돌 판정 함수 (타입별)
+	static bool CheckCollision(CCollider* left, CCollider* right);
+	static bool BoxVsBox(CBoxCollider* a, CBoxCollider* b);
+	static bool BoxVsLine(CBoxCollider* box, CLineCollider* line);
+	static bool LineVsLine(CLineCollider* a, CLineCollider* b);
 
 	array<list<CCollider*>, MAXLAYER>		colliderList;
 	array<array<bool, MAXLAYER>, MAXLAYER>	layerMask;

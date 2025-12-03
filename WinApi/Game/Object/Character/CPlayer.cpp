@@ -17,10 +17,9 @@
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CMapManager.h"
 #include "Game/Manager/CVFXManager.h"
-#include "Game/Map/CMetaMap.h"
 #include "Game/Object/CVFX.h"
 
-CPlayer::CPlayer() : currentHP(0), maxHP(0), currentMP(0), maxMP(0), currentFlask(0), maxFlask(0), prevVelocity(0, 0)
+CPlayer::CPlayer() : currentHP(0), maxHP(0), currentMP(0), maxMP(0), currentFlask(0), maxFlask(0), prevVelocity(0, 0), bWasMovingInput(false), ladderX(0), ladderTopY(0), ladderBottomY(0)
 {
 	name = TEXT("플레이어");
 	jumpForce = JUMP_FORCE;
@@ -41,13 +40,11 @@ void CPlayer::Init()
 	AddChild(rigidbody);
 
 	// Collider
-	collider = new CCollider();
-	standingColScale = Vec2(42, 72);
-	standingColOffset = Vec2(0, -36);
-	collider->SetScale(standingColScale);
-	collider->SetOffset(standingColOffset);
+	colScale = Vec2(42, 72);
+	colOffset = Vec2(0, -36);
+	collider->SetScale(colScale);
+	collider->SetOffset(colOffset);
 	collider->SetLayer(ELayer::Player);
-	AddChild(collider);
 	
 	// Abilities
 	AddAbility<Ability_ComboAttack>(EAbility::Attack);
@@ -90,13 +87,28 @@ void CPlayer::Init()
 void CPlayer::OnEnable()
 {
 	CCharacter::OnEnable();
-	animator->Play(AnimKey::Idle, false);
 
-	// StateSystem 이벤트 구독
-	stateSystem->OnStateChanged.Add([this](EStateTag oldTags, EStateTag newTags)
+	// 상태 초기화 (씬 전환 시)
+	bWasMovingInput = false;
+	prevVelocity = Vec2(0, 0);
+
+	if (stateSystem)
 	{
-		OnStateChanged(oldTags, newTags);
-	});
+		stateSystem->RemoveTagAll(Tag_Moving);
+	}
+	if (rigidbody)
+	{
+		rigidbody->SetVelocity(Vec2(0, 0));
+		rigidbody->SetGrounded(false);
+	}
+	if (abilitySystem)
+	{
+		abilitySystem->CancelAbilitiesWithTag(Tag_AbilityAnimation);
+		abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
+	}
+	
+
+	animator->Play(AnimKey::Idle, false);
 }
 
 void CPlayer::Update()
@@ -105,7 +117,6 @@ void CPlayer::Update()
 	HandleCombatInput();
 	HandleActionInput();
 	UpdateMovement();
-	// UpdateMetaCollision();  // 콜라이더 기반 충돌로 대체됨 (OnCollisionStay)
 	UpdateStates();
 	CheckVelocityChanged();
 	UpdateAnimation();
@@ -155,8 +166,26 @@ void CPlayer::HandleActionInput()
 	// 사다리 진입 (W/S 키로 사다리 영역에서 시작)
 	if (stateSystem->HasTag(Tag_CanClimb) && !stateSystem->HasTag(Tag_Climbing))
 	{
-		if (INPUT->ButtonDown('W') || INPUT->ButtonDown('S'))
+		// 사다리 상단/하단 근처인지 체크 (여유값 10픽셀)
+		constexpr float LADDER_EDGE_THRESHOLD = 10.f;
+		float footY = collider->GetPos().y + collider->GetScale().y * 0.5f;
+		bool bAtLadderTop = footY < ladderTopY + LADDER_EDGE_THRESHOLD;
+		bool bAtLadderBottom = footY > ladderBottomY - LADDER_EDGE_THRESHOLD;
+
+		// 상단 근처면 S키로만, 하단 근처면 W키로만 진입 가능
+		bool canEnterWithW = INPUT->ButtonDown('W') && !bAtLadderTop;
+		bool canEnterWithS = INPUT->ButtonDown('S') && !bAtLadderBottom;
+
+		if (canEnterWithW || canEnterWithS)
 		{
+			// S키로 진입 시: 플랫폼 통과 허용 + 캐릭터 중심을 사다리 상단에 맞춤
+			if (canEnterWithS)
+			{
+				bShouldIgnorePlatform = true;
+				SetIsGrounded(false);
+				SetPos(Vec2(GetPos().x, ladderTopY));
+			}
+
 			abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
 			stateSystem->AddTagUnique(Tag_Climbing);
 			rigidbody->UseGravity(false);
@@ -184,13 +213,14 @@ void CPlayer::HandleActionInput()
 	}
 	if (INPUT->ButtonUp('S'))
 	{
-		abilitySystem->CancelAbility(EAbility::Crouch);
+		abilitySystem->TriggerEvent(EGameEvent::Input_Crouch_Released);
 	}
 
 	// JUMP
 	if (INPUT->ButtonDown(VK_SPACE))
 	{
 		abilitySystem->TryActivateAbility(EAbility::Jump);
+		abilitySystem->TriggerEvent(EGameEvent::Input_Jump_Pressed); // 점프 시도 이후 trigger해야함.
 	}
 }
 
@@ -215,16 +245,37 @@ void CPlayer::UpdateMovement()
 	{
 		velocity.x = 0.f;
 		velocity.y = 0.f;
-		SetPos(Vec2(ladderX,pos.y));
+		SetPos(Vec2(ladderX, pos.y));
 
-		// 상하 이동
+		// 현재 위치 계산
+		float centerY = collider->GetPos().y;
+		float footY = centerY + collider->GetScale().y * 0.5f;
+		float midY = (centerY + footY) * 0.5f;  // (중심 + 발) / 2
+
+		// 상하 이동 (경계 체크)
 		if (INPUT->ButtonStay('W'))
 		{
 			velocity.y = -CLIMB_SPEED;
+			
+			// midY가 상단을 벗어나면
+			if (midY <= ladderTopY)
+			{
+				// 사다리 탈출 -> 플랫폼 위에 착지
+				// 발이 ladderTopY에 오도록 위치 스냅
+				float colHalfY = collider->GetScale().y * 0.5f;
+				float offsetY = collider->GetOffset().y;
+				SetPos(Vec2(ladderX, ladderTopY - colHalfY - offsetY));
+
+				stateSystem->RemoveTagAll(Tag_Climbing);
+				rigidbody->UseGravity(true);
+				rigidbody->SetVelocity(Vec2(0.f, 0.f));
+				return;
+			}
 		}
-		else if (INPUT->ButtonStay('S'))
+		else if (INPUT->ButtonStay('S') && footY < ladderBottomY)
 		{
 			velocity.y = CLIMB_SPEED;
+			ignoredPlatformID = GetCurrentGroundID();
 		}
 
 		rigidbody->SetVelocity(velocity);
@@ -233,23 +284,38 @@ void CPlayer::UpdateMovement()
 	}
 
 	// 일반 이동
+	bool bIsMovingInput = INPUT->ButtonStay('A') || INPUT->ButtonStay('D');
+
 	if (INPUT->ButtonStay('A'))
 	{
 		velocity.x = -MOVE_SPEED;
 		SetForward(-1);
-		stateSystem->AddTagUnique(Tag_Moving);
 	}
 	else if (INPUT->ButtonStay('D'))
 	{
 		velocity.x = MOVE_SPEED;
 		SetForward(1);
-		stateSystem->AddTagUnique(Tag_Moving);
 	}
-	else
+	else if (bIsGrounded)
 	{
-		velocity.x = 0;
+		// 지면에서만 마찰 적용
+		constexpr float FRICTION = 2000.f;
+		if (velocity.x > 0)
+			velocity.x = max(0.f, velocity.x - FRICTION * DT);
+		else if (velocity.x < 0)
+			velocity.x = min(0.f, velocity.x + FRICTION * DT);
+	}
+
+	// 입력 상태 변화 시 태그 업데이트
+	if (bIsMovingInput && !bWasMovingInput)
+	{
+		stateSystem->AddTag(Tag_Moving);
+	}
+	else if (!bIsMovingInput && bWasMovingInput)
+	{
 		stateSystem->RemoveTag(Tag_Moving);
 	}
+	bWasMovingInput = bIsMovingInput;
 
 	rigidbody->SetVelocity(velocity);
 }
@@ -291,7 +357,7 @@ void CPlayer::UpdateAnimation()
 			animator->Play(AnimKey::Fall_Moving, false);
 		}
 	}
-	else if (stateSystem->HasTag(Tag_Moving))
+	else if (stateSystem->HasTag(Tag_Moving) && !stateSystem->HasTag(Tag_BlockMovement))
 	{
 		animator->Play(AnimKey::Run, false);
 	}
@@ -320,10 +386,9 @@ void CPlayer::Release()
 	CCharacter::Release();
 }
 
-void CPlayer::ProcessMetaCollision(CollisionContext& ctx)
+void CPlayer::OnCollisionEnter(CCollider* other)
 {
-	CCharacter::ProcessMetaCollision(ctx);
-	ProcessLadderOverlap(ctx);
+	CCharacter::OnCollisionEnter(other);
 }
 
 void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
@@ -458,30 +523,38 @@ void CPlayer::UpdateMP(float& attribute, float value) const
 
 void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 {
+	CCharacter::OnStateChanged(oldTags, newTags);
+	
 	// 앉기
 	if (TagAdded(oldTags, newTags, Tag_Crouching) || TagAdded(oldTags, newTags, Tag_Sliding))
 	{
-		Vec2 crouchScale = standingColScale * Vec2(1.0f, 0.5f);
-		Vec2 crouchOffset = standingColOffset + crouchScale * Vec2(0.0f, 0.5f);
+		Vec2 crouchScale = colScale * Vec2(1.0f, 0.5f);
+		Vec2 crouchOffset = colOffset + crouchScale * Vec2(0.0f, 0.5f);
 		collider->SetScale(crouchScale);
 		collider->SetOffset(crouchOffset);
 	}
 	// 앉기 해제
 	else if (TagRemoved(oldTags, newTags, Tag_Crouching) || TagRemoved(oldTags, newTags, Tag_Sliding))
 	{
-		collider->SetScale(standingColScale);
-		collider->SetOffset(standingColOffset);
+		collider->SetScale(colScale);
+		collider->SetOffset(colOffset);
+		
 	}
 	
 	// 착지
 	if (TagAdded(oldTags, newTags, Tag_Grounded))
 	{
-		// 착지 이벤트 트리거
-		abilitySystem->TriggerEvent(EGameEvent::Landed);
 		// 착지 시 점프 공격 소진 태그 리셋
 		stateSystem->RemoveTag(Tag_AirAttackExhausted);
 		// 착지 시 사다리 타기 해제
 		stateSystem->RemoveTag(Tag_Climbing);
+	}
+
+	// 사다리 타기 해제 시
+	if (TagRemoved(oldTags, newTags, Tag_Climbing))
+	{
+		rigidbody->UseGravity(true);
+		bShouldIgnorePlatform = false;
 	}
 }
 
@@ -499,81 +572,4 @@ void CPlayer::CheckVelocityChanged()
 	}
 
 	prevVelocity = curVelocity;
-}
-
-// 사다리 오버랩 체크 (비활성화 - 콜라이더 기반 시스템으로 대체 예정)
-void CPlayer::ProcessLadderOverlap(CollisionContext& ctx)
-{
-	// TODO: 콜라이더 기반 사다리 체크로 대체
-	return;
-
-	/*
-	static constexpr int OVERLAP_WIDTH = 20;
-
-	int centerX = (int)ctx.pixelCenter.x;
-	int centerY = (int)ctx.pixelCenter.y;
-	int feetY = (int)(ctx.pixelCenter.y + ctx.halfHeight);
-
-	// 캐릭터 중심에 사다리가 있는지 체크
-	bool bOverlapCenter = false;
-	bool bOverlapFeet = false;
-	bool bOverlap = false;
-
-	int checkX = centerX - OVERLAP_WIDTH / 2;
-	int checkY = (centerY + feetY) / 2;
-
-	for (int i = 0; i < OVERLAP_WIDTH; i++)
-	{
-		bOverlapCenter = bOverlapCenter || ctx.metaMap->IsLadder(checkX,centerY);
-		bOverlapFeet = bOverlapFeet || ctx.metaMap->IsLadder(checkX,feetY);
-
-		if (stateSystem->HasTag(Tag_Climbing))
-		{
-			bOverlap = ctx.metaMap->IsLadder(checkX,checkY);
-		}
-		else
-		{
-			bOverlap = bOverlapCenter ||  bOverlapFeet;
-		}
-
-		if (bOverlap)
-		{
-			ladderX = MAP->PixelToWorld(Vec2(checkX,centerY)).x;
-			break;
-		}
-		checkX ++;
-	}
-
-	if (bOverlap)
-	{
-		stateSystem->AddTagUnique(Tag_CanClimb);
-	}
-	else
-	{
-		stateSystem->RemoveTag(Tag_CanClimb);
-
-		// 사다리 밖으로 나가면 타기 상태 해제
-		if (stateSystem->HasTag(Tag_Climbing))
-		{
-			stateSystem->RemoveTag(Tag_Climbing);
-			rigidbody->UseGravity(true);
-
-			if (bOverlapFeet)
-			{
-				Vec2 worldPos = MAP->PixelToWorld(Vec2(checkX,checkY));
-				SetPos(Vec2(ladderX, worldPos.y));
-
-				stateSystem->AddTag(Tag_AbilityAnimation);
-				stateSystem->AddTag(Tag_BlockMovement);
-				stateSystem->AddTag(Tag_StopVelocity);
-				animator->Play(AnimKey::CrouchUp, true, [this]()
-				{
-					stateSystem->RemoveTag(Tag_AbilityAnimation);
-					stateSystem->RemoveTag(Tag_BlockMovement);
-					stateSystem->RemoveTag(Tag_StopVelocity);
-				});
-			}
-		}
-	}
-	*/
 }

@@ -30,14 +30,6 @@ public:
 	Vec2 WorldToPixel(float x, float y) const;
 	Vec2 PixelToWorld(float x, float y) const;
 
-	// 메타맵 조회 (월드 좌표 사용)
-	bool IsGroundAt(Vec2 worldPos) const;
-	bool IsGroundAt(float worldX, float worldY) const;
-	bool IsSolidAt(Vec2 worldPos) const;
-	bool IsSolidAt(float worldX, float worldY) const;
-	ETerrain GetTerrainAt(Vec2 worldPos) const;
-	ETerrain GetTerrainAt(float worldX, float worldY) const;
-
 	// 맵 정보
 	Vec2 GetPlayerSpawn(int spawnId = 0) const;
 	Rect GetBounds() const;
@@ -47,11 +39,15 @@ public:
 	const vector<SceneTransitionData>& GetTransitions() const;
 	
 	CMap* GetCurrentMap() { return currentMap; }
-	CMetaMap* GetMetaMap();
+
+	// 월드 콜라이더 생성/해제
+	void CreateWorldColliders(class CScene* scene);
+	void DestroyWorldColliders();
 
 private:
 	CMap* currentMap;
 	Vec2 virtualCenter;		// 가상 해상도 중심
+	vector<CGameObject*> worldColliders;	// 생성된 콜라이더 오브젝트들
 };
 
 #define MAP		CMapManager::GetInstance()

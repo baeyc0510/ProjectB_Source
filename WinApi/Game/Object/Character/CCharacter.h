@@ -6,26 +6,25 @@ class CStateSystem;
 class CRigidbody;
 class CMetaMap;
 
-// 충돌 처리에 필요한 데이터
-struct CollisionContext
-{
-    CMetaMap* metaMap;
-    Vec2 pos;               // 캐릭터 위치 (수정 가능)
-    Vec2 pixelCenter;       // 콜라이더 중심 (픽셀 좌표)
-    Vec2 colliderOffset;
-    float halfWidth;
-    float halfHeight;
-    bool wasGrounded;
-};
-
 class CCharacter : public CGameObject
 {
+public:
+    // 슬로프 관련 상수
+    static constexpr float MAX_SLOPE_ANGLE = 50.0f;  // 오를 수 있는 최대 각도 (도)
+    static constexpr float MAX_SLOPE_ANGLE_RAD = MAX_SLOPE_ANGLE * 3.14159265f / 180.0f;  // 라디안
+
 public:
     CCharacter();
     ~CCharacter() override;
 
     virtual wstring GetRandomBloodVfxKey() const;
 
+    CStateSystem* GetStateSystem() const { return stateSystem; }
+
+    void SetIgnorePlatform(UINT platformID) { ignoredPlatformID = platformID; }
+    void SetIsGrounded(bool inIsGrounded);
+    UINT GetCurrentGroundID() const;  // 현재 서있는 지면/플랫폼 ID (없으면 0)
+    
 protected:
     void Init() override;
     void OnEnable() override;
@@ -38,17 +37,10 @@ protected:
     void OnCollisionStay(CCollider* other) override;
     void OnCollisionExit(CCollider* other) override;
 
-    // 공통 로직
+    
     virtual void UpdateStates();
-    // 메타맵 기반 충돌 처리
-    void UpdateMetaCollision();
-
-    // 메타맵 충돌 헬퍼
-    void ProcessGroundCollision(CollisionContext& ctx);
-    void ProcessWallCollision(CollisionContext& ctx, int direction);  // -1: left, 1: right
-    void ProcessCeilingCollision(CollisionContext& ctx);
-    virtual void ProcessMetaCollision(CollisionContext& ctx) {} // 자식 클래스 커스텀 로직용
-
+    virtual void OnStateChanged(EStateTag oldTags, EStateTag newTags);
+    
     void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 
     template<typename AbilityType>
@@ -65,8 +57,14 @@ protected:
     CStateSystem* stateSystem;
     CAbilitySystem* abilitySystem;
     CRigidbody* rigidbody;
-    CCollider* collider;
+    CBoxCollider* collider;
 
     // 공통 상태
-    bool bIsGrounded;
+    bool bIsGrounded;       // 지면 착지 상태
+    bool bIsOnSteepSlope;   // 가파른 경사면에서 미끄러지는 중
+    bool bWasOnSteepSlope;  // 이전 프레임 상태 (태그 변화 감지용)
+    bool bShouldIgnorePlatform;
+    UINT ignoredPlatformID; // 통과 중인 플랫폼 ID (0이면 없음)
+    UINT activeGroundID;    // 실제로 서있는 지면/플랫폼 ID (스냅 대상)
+    float activeGroundTop;  // activeGround 플랫폼의 상단 Y좌표 (비교용, Y가 클수록 아래)
 };

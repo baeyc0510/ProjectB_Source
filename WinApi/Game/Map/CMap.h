@@ -1,6 +1,5 @@
 #pragma once
 #include "CMapLayer.h"
-#include "CMetaMap.h"
 #include <vector>
 #include <string>
 
@@ -77,15 +76,7 @@ public:
 	// 렌더링 (zOrder 순서대로)
 	void RenderBackground(Vec2 cameraPos);	// Main 레이어 이전 (뒤)
 	void RenderForeground(Vec2 cameraPos);	// Main 레이어 이후 (앞)
-
-	// 메타맵 접근
-	CMetaMap* GetMetaMap() { return &metaMap; }
-	const CMetaMap* GetMetaMap() const { return &metaMap; }
-
-	// 지형 조회
-	ETerrain GetTerrain(Vec2 pos) const { return metaMap.GetTerrain(pos); }
-	ETerrain GetTerrain(int x, int y) const { return metaMap.GetTerrain(x, y); }
-
+	
 	// 맵 정보
 	Vec2 GetSpawnPoint(int spawnId) const;
 	Rect GetBounds() const { return bounds; }
@@ -107,37 +98,6 @@ public:
 	vector<const BoxColliderData*> GetBoxCollidersWithTag(const string& tag) const;
 	vector<const SlopeColliderData*> GetSlopeCollidersWithTag(const string& tag) const;
 
-	// ============ 지형 충돌 체크 ============
-
-	// 바닥 충돌 체크 - 특정 위치에서 바닥과 충돌하는지, 충돌 시 보정된 Y 반환
-	// footPos: 발 위치, halfWidth: 캐릭터 반폭
-	// outGroundY: 충돌 시 바닥 Y 좌표, outOnSlope: 슬로프 위인지
-	bool CheckGroundCollision(const Vec2& footPos, float halfWidth, float& outGroundY, bool& outOnSlope) const;
-
-	// 벽 충돌 체크 - 특정 위치에서 벽과 충돌하는지
-	// bodyPos: 몸통 중심, halfWidth: 캐릭터 반폭, halfHeight: 캐릭터 반높이
-	// direction: 체크 방향 (-1: 왼쪽, 1: 오른쪽)
-	// outWallX: 충돌 시 벽 X 좌표
-	bool CheckWallCollision(const Vec2& bodyPos, float halfWidth, float halfHeight, int direction, float& outWallX) const;
-
-	// 천장 충돌 체크
-	// headPos: 머리 위치, halfWidth: 캐릭터 반폭
-	// outCeilingY: 충돌 시 천장 Y 좌표
-	bool CheckCeilingCollision(const Vec2& headPos, float halfWidth, float& outCeilingY) const;
-
-	// X 위치에서 바닥 Y 좌표 얻기 (바닥이 없으면 매우 큰 값 반환)
-	float GetGroundYAt(float x, float startY, float maxDistance = 500.f) const;
-
-	// 콜라이더 디버그 렌더링
-	void RenderColliderDebug() const;
-
-	// 콜라이더 오브젝트 생성/해제
-	void CreateColliderObjects(class CScene* scene);
-	void DestroyColliderObjects();
-
-	// 콜라이더로부터 태그 정보 조회
-	const vector<string>* GetTagsFromCollider(CCollider* collider) const;
-
 private:
 	void LoadFromJson(const wstring& jsonPath);
 	wstring GetMapDirectory(const wstring& jsonPath);
@@ -147,19 +107,12 @@ private:
 	CMapLayer mainLayer;
 	vector<CMapLayer> foregroundLayers;
 
-	CMetaMap metaMap;
-
 	Rect bounds;
 	vector<Vec2> spawnPoints;
 	vector<CheckpointData> checkpoints;
 	vector<SceneTransitionData> transitions;
 	vector<BoxColliderData> boxColliders;
 	vector<SlopeColliderData> slopeColliders;
-
-	// 실제 생성된 콜라이더 오브젝트들
-	vector<CGameObject*> colliderObjects;
-	// 콜라이더 ID -> 태그 매핑
-	unordered_map<UINT, vector<string>> colliderTagMap;
 
 	wstring mapDirectory;	// JSON 파일이 있는 디렉토리
 };

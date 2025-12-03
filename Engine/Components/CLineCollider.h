@@ -1,7 +1,6 @@
 #pragma once
 #include "CCollider.h"
 
-// 선분(라인) 콜라이더 - 슬로프/경사면 지형 충돌용
 class CLineCollider : public CCollider
 {
 public:
@@ -21,20 +20,28 @@ public:
 	// X 위치에서의 Y 높이 계산 (슬로프용)
 	float GetYAt(float worldX) const;
 
+	// Y 위치에서의 X 좌표 계산 (GetYAt의 역함수)
+	float GetXAt(float worldY) const;
+
 	// X가 선분 범위 내인지 확인
 	bool IsInXRange(float worldX) const;
-
-	// 박스와 선분의 충돌 체크
-	bool IsCollisionWithBox(const Vec2& boxPos, const Vec2& boxScale) const;
 
 	// 점이 선분 위에 있는지 체크 (toleranceY: 허용 오차)
 	bool IsPointOnLine(const Vec2& point, float toleranceY = 5.0f) const;
 
-private:
-	virtual bool IsCollision(CCollider* other) override;
-	void Render() override;
+	// 슬로프 각도 반환 (라디안, 수평=0, 오르막=양수)
+	float GetSlopeAngle() const;
+
+	// 슬로프 각도 반환 (도 단위)
+	float GetSlopeAngleDegrees() const;
+
+	Vec2 GetScale() const override;
+	void SetScale(const Vec2& scale) override;
+	EColliderType GetType() const override { return EColliderType::Line; }
 
 private:
-	Vec2 localStart;  // 로컬 시작점
-	Vec2 localEnd;    // 로컬 끝점
+	void Render() override;
+
+	Vec2 localStart;
+	Vec2 localEnd;
 };

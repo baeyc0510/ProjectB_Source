@@ -1,6 +1,12 @@
-﻿#pragma once
+#pragma once
 
 class CCollisionManager;
+
+enum class EColliderType
+{
+	Box,
+	Line
+};
 
 class CCollider : public Component<CGameObject>, public IRender
 {
@@ -10,42 +16,38 @@ public:
 	virtual ~CCollider();
 
 public:
-	UINT			GetID()							{ return id; }
-	UINT			GetLayer()						{ return layer; }
-	const Vec2&		GetPos()						{ return pos; }
-	const Vec2&		GetOffset()						{ return offset; }
-	const Vec2&		GetScale()						{ return scale; }
+	UINT				GetID() const					{ return id; }
+	UINT				GetLayer() const				{ return layer; }
+	const Vec2&			GetPos() const					{ return pos; }
+	const Vec2&			GetOffset() const				{ return offset; }
+	virtual Vec2		GetScale() const = 0;
+	virtual EColliderType GetType() const = 0;
 
-	void			SetLayer(UINT layer)			{ this->layer = layer; }
-	void			SetPos(const Vec2& pos)			{ this->pos = pos; }
-	void			SetOffset(const Vec2& offset)	{ this->offset = offset; }
-	void			SetScale(const Vec2 scale)		{ this->scale = scale; }
+	void				SetLayer(UINT layer)			{ this->layer = layer; }
+	void				SetPos(const Vec2& pos)			{ this->pos = pos; }
+	void				SetOffset(const Vec2& offset)	{ this->offset = offset; }
+	virtual void		SetScale(const Vec2& scale)		= 0;
 
-private:
-	virtual	bool	IsCollision(CCollider* other);
+protected:
+	static const COLORREF layerColors[16];
+	bool				IsColliding() const				{ return count > 0; }
 
-	void			Render()						override;
+	void				ComponentInit()					override;
+	void				ComponentOnEnable()				override;
+	void				ComponentUpdate()				override;
+	void				ComponentRender()				override;
+	void				ComponentOnDisable()			override;
+	void				ComponentRelease()				override;
 
-	void			ComponentInit()					override;
-	void			ComponentOnEnable()				override;
-	void			ComponentUpdate()				override;
-	void			ComponentRender()				override;
-	void			ComponentOnDisable()			override;
-	void			ComponentRelease()				override;
-
-	static UINT		colliderCount;					// 충돌체가 생성될때마다 증가하는 값
-	UINT			id;								// 충돌체의 ID (게임에서 중복되지 않는 유일한 ID)
-	UINT			count;							// 충돌중인 충돌체 갯수
-
-	UINT			layer;							// 충돌체의 레이어
-	Vec2			pos;
-	Vec2			offset;							// 충돌체의 변위차
-	Vec2			scale;
+	static UINT			colliderCount;
+	UINT				id;
+	UINT				count;
+	UINT				layer;
+	Vec2				pos;
+	Vec2				offset;
 
 private:
-	// 충돌시점 함수
-	void			OnCollisionEnter(CCollider* other);		// 충돌 진입
-	void			OnCollisionStay(CCollider* other);		// 충돌 중
-	void			OnCollisionExit(CCollider* other);		// 충돌 해제
+	void				OnCollisionEnter(CCollider* other);
+	void				OnCollisionStay(CCollider* other);
+	void				OnCollisionExit(CCollider* other);
 };
-

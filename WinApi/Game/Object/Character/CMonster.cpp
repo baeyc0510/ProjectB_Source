@@ -27,11 +27,9 @@ void CMonster::Init()
 	AddChild(rigidbody);
 
 	// Collider
-	collider = new CCollider();
 	collider->SetScale(Vec2(32, 66));
 	collider->SetOffset(Vec2(0, -33));
 	collider->SetLayer(ELayer::Monster);
-	AddChild(collider);
 	
 	// Abilities
 	AddAbility<Ability_MonsterAttack>(EAbility::Attack);

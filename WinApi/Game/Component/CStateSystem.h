@@ -13,6 +13,7 @@ public:
 	void AddTag(EStateTag tag);
 	void AddTagUnique(EStateTag tag);
 	void RemoveTag(EStateTag tag);
+	void RemoveTagAll(EStateTag tag);  // 해당 태그의 모든 스택 제거
 	void ClearTags();
 
 	//========================================

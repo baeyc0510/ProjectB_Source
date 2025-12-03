@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "CMapManager.h"
+#include "Game/Object/World/CGroundCollider.h"
+#include "Game/Object/World/CLadder.h"
+#include "Game/Object/World/CPlatform.h"
 
 CMapManager::CMapManager()
 	: currentMap(nullptr)
@@ -79,48 +82,6 @@ Vec2 CMapManager::PixelToWorld(float x, float y) const
 	return Vec2(x - virtualCenter.x, y - virtualCenter.y);
 }
 
-bool CMapManager::IsGroundAt(Vec2 worldPos) const
-{
-	if (!currentMap || !currentMap->GetMetaMap()->IsLoaded())
-		return false;
-
-	Vec2 pixelPos = WorldToPixel(worldPos);
-	return currentMap->GetMetaMap()->IsGroundAt((int)pixelPos.x, (int)pixelPos.y);
-}
-
-bool CMapManager::IsGroundAt(float worldX, float worldY) const
-{
-	return IsGroundAt(Vec2(worldX, worldY));
-}
-
-bool CMapManager::IsSolidAt(Vec2 worldPos) const
-{
-	if (!currentMap || !currentMap->GetMetaMap()->IsLoaded())
-		return false;
-
-	Vec2 pixelPos = WorldToPixel(worldPos);
-	return currentMap->GetMetaMap()->IsSolid((int)pixelPos.x, (int)pixelPos.y);
-}
-
-bool CMapManager::IsSolidAt(float worldX, float worldY) const
-{
-	return IsSolidAt(Vec2(worldX, worldY));
-}
-
-ETerrain CMapManager::GetTerrainAt(Vec2 worldPos) const
-{
-	if (!currentMap || !currentMap->GetMetaMap()->IsLoaded())
-		return ETerrain::Empty;
-
-	Vec2 pixelPos = WorldToPixel(worldPos);
-	return currentMap->GetMetaMap()->GetTerrain((int)pixelPos.x, (int)pixelPos.y);
-}
-
-ETerrain CMapManager::GetTerrainAt(float worldX, float worldY) const
-{
-	return GetTerrainAt(Vec2(worldX, worldY));
-}
-
 Vec2 CMapManager::GetPlayerSpawn(int spawnId) const
 {
 	if (!currentMap)
@@ -164,9 +125,68 @@ const vector<SceneTransitionData>& CMapManager::GetTransitions() const
 	return currentMap->GetTransitions();
 }
 
-CMetaMap* CMapManager::GetMetaMap()
+void CMapManager::CreateWorldColliders(CScene* scene)
 {
-	if (!currentMap)
-		return nullptr;
-	return currentMap->GetMetaMap();
+	if (!scene || !currentMap)
+		return;
+
+	DestroyWorldColliders();
+
+	// 박스 콜라이더 생성
+	for (const auto& box : currentMap->GetBoxColliders())
+	{
+		Vec2 center(box.rect.x + box.rect.w * 0.5f, box.rect.y + box.rect.h * 0.5f);
+		Vec2 size(box.rect.w, box.rect.h);
+
+		CGameObject* obj = nullptr;
+
+		if (box.HasTag("Ladder"))
+		{
+			CLadder* ladder = new CLadder();
+			ladder->SetBoxCollider(center, size);
+			obj = ladder;
+		}
+		else if (box.HasTag("Platform"))
+		{
+			CPlatform* platform = new CPlatform();
+			platform->SetBoxCollider(center, size);
+			obj = platform;
+		}
+		else
+		{
+			CGroundCollider* ground = new CGroundCollider();
+			ground->SetBoxCollider(center, size);
+			obj = ground;
+		}
+
+		scene->AddGameObject(obj);
+		worldColliders.push_back(obj);
+	}
+
+	// 슬로프 콜라이더 생성
+	for (const auto& slope : currentMap->GetSlopeColliders())
+	{
+		CGameObject* obj = nullptr;
+
+		if (slope.HasTag("Platform"))
+		{
+			CPlatform* platform = new CPlatform();
+			platform->SetLineCollider(slope.start, slope.end);
+			obj = platform;
+		}
+		else
+		{
+			CGroundCollider* ground = new CGroundCollider();
+			ground->SetLineCollider(slope.start, slope.end);
+			obj = ground;
+		}
+
+		scene->AddGameObject(obj);
+		worldColliders.push_back(obj);
+	}
+}
+
+void CMapManager::DestroyWorldColliders()
+{
+	worldColliders.clear();
 }

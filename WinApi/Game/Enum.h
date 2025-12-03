@@ -23,6 +23,8 @@ enum ELayer
 	Player,
 	Monster,
 	Ground,
+	Ladder,
+	Platform,
 	Transition,
 	LayerSize,
 };
@@ -137,6 +139,7 @@ enum class EGameEvent
 	EndCrouch,
 	VelocityChanged,
 	// Input
+	Input_Jump_Pressed,
 	Input_Attack_Pressed,
 	Input_Crouch_Released,
 };
@@ -160,20 +163,4 @@ enum class EOverlayUI
 {
 	None,
 	Inventory,
-};
-
-//========================================
-//##			Terrain Types			##
-//========================================
-
-enum class ETerrain
-{
-	Empty,			// 빈 공간 (통과)
-	Solid,			// 솔리드 (벽/바닥)
-	OneWay,			// 원웨이 플랫폼
-	Ladder,			// 사다리
-	WallClimb,		// 벽타기
-	Ledge,			// 매달리기
-	Swamp,			// 늪 (감속)
-	Damage,			// 데미지 (가시)
 };

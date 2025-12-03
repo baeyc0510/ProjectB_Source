@@ -17,8 +17,19 @@ CCharacter::CCharacter()
     , rigidbody(nullptr)
     , collider(nullptr)
     , bIsGrounded(false)
+    , bIsOnSteepSlope(false)
+    , bWasOnSteepSlope(false)
+    , bShouldIgnorePlatform(false)
+    , ignoredPlatformID(0)
+    , activeGroundID(0)
+    , activeGroundTop(-FLT_MAX)
 {
     scale = Vec2(100, 100);
+}
+
+UINT CCharacter::GetCurrentGroundID() const
+{
+    return activeGroundID;
 }
 
 CCharacter::~CCharacter()
@@ -30,10 +41,32 @@ wstring CCharacter::GetRandomBloodVfxKey() const
     return VFXKey::Blood1;
 }
 
+void CCharacter::SetIsGrounded(bool inIsGrounded)
+{
+    bIsGrounded = inIsGrounded;
+    if (rigidbody)
+    {
+        rigidbody->SetGrounded(bIsGrounded);
+    }
+    if (!bIsGrounded)
+    {
+        activeGroundID = 0;
+        activeGroundTop = -FLT_MAX;
+    }
+}
+
 void CCharacter::Init()
 {
+    // Collider
+    collider = new CBoxCollider();
+    AddChild(collider);
+    
     // StateSystem
     stateSystem = new CStateSystem();
+    stateSystem->OnStateChanged.Add([this](EStateTag oldTags, EStateTag newTags)
+    {
+        OnStateChanged(oldTags, newTags);
+    });
     AddChild(stateSystem);
 
     // AbilitySystem
@@ -50,6 +83,13 @@ void CCharacter::Init()
 
 void CCharacter::OnEnable()
 {
+    // 상태 초기화 (씬 전환 시 persistent 오브젝트 상태 리셋)
+    bIsGrounded = false;
+    bIsOnSteepSlope = false;
+    bWasOnSteepSlope = false;
+    ignoredPlatformID = 0;
+    activeGroundID = 0;
+    activeGroundTop = -FLT_MAX;
 }
 
 void CCharacter::Update()
@@ -74,49 +114,120 @@ void CCharacter::OnCollisionEnter(CCollider* other)
 
 void CCharacter::OnCollisionStay(CCollider* other)
 {
-    // Ground 레이어와의 충돌만 처리
-    if (other->GetLayer() != ELayer::Ground)
+    ELayer layer = static_cast<ELayer>(other->GetLayer());
+    bool isGround = (layer == ELayer::Ground);
+    bool isPlatform = (layer == ELayer::Platform);
+
+    // Ground 또는 Platform 레이어와의 충돌만 처리
+    if (!isGround && !isPlatform)
+        return;
+
+    if (bShouldIgnorePlatform)
+        return;
+
+    // 특정 플랫폼 통과 중이면 해당 플랫폼만 무시
+    if (isPlatform && other->GetID() == ignoredPlatformID)
         return;
 
     if (!collider || !rigidbody)
         return;
 
-    Vec2 myPos = collider->GetPos();
-    Vec2 myHalf = collider->GetScale() * 0.5f;
+    Vec2 characterColPos = collider->GetPos();
+    Vec2 characterColHalf = collider->GetScale() * 0.5f;
     Vec2 velocity = rigidbody->GetVelocity();
+    float characterBottom = characterColPos.y + characterColHalf.y;
 
-    // 라인 콜라이더 (슬로프) 처리
+    // 라인 콜라이더 처리
     CLineCollider* lineCollider = dynamic_cast<CLineCollider*>(other);
     if (lineCollider)
     {
         // 슬로프 충돌 처리
-        float footY = myPos.y + myHalf.y;
+        float footY = characterColPos.y + characterColHalf.y;
 
-        if (lineCollider->IsInXRange(myPos.x))
+        if (lineCollider->IsInXRange(characterColPos.x))
         {
-            float slopeY = lineCollider->GetYAt(myPos.x);
+            float slopeY = lineCollider->GetYAt(characterColPos.x);
             float penetration = footY - slopeY;
+
+            // 원웨이 플랫폼: 상승 중이면 통과
+            if (isPlatform && velocity.y < 0)
+                return;
 
             // 슬로프 위에 있거나 약간 파고들었을 때
             if (penetration > -5.f && penetration < 50.f)
             {
-                // 상승 중이 아닐 때만 바닥 처리
-                if (velocity.y >= 0)
+                // 더 아래(Y가 큰) 슬로프를 activeGround로 선택
+                if (activeGroundID == 0 || slopeY > activeGroundTop)
                 {
-                    bIsGrounded = true;
-                    rigidbody->SetGrounded(true);
+                    activeGroundID = other->GetID();
+                    activeGroundTop = slopeY;
+                }
 
-                    // 위치 보정
+                // activeGround가 아니면 스냅하지 않음
+                if (other->GetID() != activeGroundID)
+                    return;
+
+                // 경사면 위에 있으므로 착지 상태
+                bIsGrounded = true;
+                rigidbody->SetGrounded(true);
+                if (isGround) ignoredPlatformID = 0;
+
+                // 슬로프 방향 판별
+                Vec2 slopeStart = lineCollider->GetWorldStart();
+                Vec2 slopeEnd = lineCollider->GetWorldEnd();
+                bool bIsUpRight = slopeEnd.y < slopeStart.y;  // Y가 감소하면 올라감
+
+                float slopeAngle = lineCollider->GetSlopeAngle();
+                bool bIsGoingUp = (velocity.x > 0 && bIsUpRight) || (velocity.x < 0 && !bIsUpRight);
+
+                // 가파른 경사면
+                if (slopeAngle > MAX_SLOPE_ANGLE_RAD)
+                {
+                    bIsOnSteepSlope = true;
+
                     Vec2 newPos = GetPos();
-                    newPos.y = slopeY - myHalf.y - collider->GetOffset().y;
+                    float snapY = lineCollider->GetYAt(newPos.x + collider->GetOffset().x);
+                    newPos.y = snapY - characterColHalf.y - collider->GetOffset().y;
                     SetPos(newPos);
 
-                    // 하강 속도 제거
-                    if (velocity.y > 0)
-                    {
-                        velocity.y = 0.f;
-                        rigidbody->SetVelocity(velocity);
-                    }
+                    constexpr float SLIDE_SPEED = 300.f;
+                    float slideDir = bIsUpRight ? -1.f : 1.f;
+                    velocity.x = slideDir * SLIDE_SPEED * cosf(slopeAngle);
+                    velocity.y = SLIDE_SPEED * sinf(slopeAngle);
+                    rigidbody->SetVelocity(velocity);
+                    return;
+                }
+
+                // 완만한 경사면
+                bIsOnSteepSlope = false;
+
+                // 상승 중이면 착지 처리 안함
+                if (velocity.y < 0)
+                {
+                    return;
+                }
+
+                // 경사면 속도 보정: 오르막일 때 X 이동량을 cos(angle)로 보정
+                Vec2 newCharacterPos = GetPos();
+                if (bIsGoingUp && abs(velocity.x) > 0.1f)
+                {
+                    // 경사면에서는 실제 이동 거리가 더 길어지므로 X를 줄여서 보정
+                    float cosAngle = cosf(slopeAngle);
+                    // 줄여야 되는 x 성분 벡터
+                    float velocityAdjust = velocity.x * (1.f - cosAngle) * DT;
+                    newCharacterPos.x -= velocityAdjust;
+                }
+
+                // 보정된 x 위치에서의 슬로프 Y 계산 후 위로 올리기
+                float adjustedSlopeY = lineCollider->GetYAt(newCharacterPos.x + collider->GetOffset().x);
+                newCharacterPos.y = adjustedSlopeY - characterColHalf.y - collider->GetOffset().y;
+                SetPos(newCharacterPos);
+
+                // 하강 속도 제거
+                if (velocity.y > 0)
+                {
+                    velocity.y = 0.f;
+                    rigidbody->SetVelocity(velocity);
                 }
             }
         }
@@ -126,31 +237,85 @@ void CCharacter::OnCollisionStay(CCollider* other)
     // 박스 콜라이더 처리
     Vec2 otherPos = other->GetPos();
     Vec2 otherHalf = other->GetScale() * 0.5f;
+    float platformTop = otherPos.y - otherHalf.y;
 
-    // 겹침 계산
-    float overlapX = (myHalf.x + otherHalf.x) - abs(myPos.x - otherPos.x);
-    float overlapY = (myHalf.y + otherHalf.y) - abs(myPos.y - otherPos.y);
+    // 원웨이 플랫폼: 위에서 착지할 때만 충돌
+    if (isPlatform)
+    {
+        // 상승 중이면 통과
+        if (velocity.y < 0)
+            return;
+
+        // 착지 가능 여부 판단: 캐릭터 발이 플랫폼 상단보다 많이 아래에 있으면 통과
+        float tolerance = 5.f + velocity.y * DT;
+        if (characterBottom > platformTop + tolerance)
+            return;
+
+        // 더 아래(Y가 큰) 플랫폼을 activeGround로 선택
+        if (activeGroundID == 0 || platformTop > activeGroundTop)
+        {
+            activeGroundID = other->GetID();
+            activeGroundTop = platformTop;
+        }
+
+        // activeGround가 아니면 스냅하지 않음
+        if (other->GetID() != activeGroundID)
+            return;
+
+        // 착지 처리
+        bIsGrounded = true;
+        rigidbody->SetGrounded(true);
+        ignoredPlatformID = 0;
+
+        // 스냅
+        Vec2 newPos = GetPos();
+        newPos.y = platformTop - characterColHalf.y - collider->GetOffset().y + 1.f;
+        SetPos(newPos);
+
+        if (velocity.y > 0)
+        {
+            velocity.y = 0.f;
+            rigidbody->SetVelocity(velocity);
+        }
+        return;
+    }
+
+    // Ground: 밀어내기 -> AABB 충돌에서 겹친 크기만큼 밀어냄
+    float overlapX = (characterColHalf.x + otherHalf.x) - abs(characterColPos.x - otherPos.x);
+    float overlapY = (characterColHalf.y + otherHalf.y) - abs(characterColPos.y - otherPos.y);
 
     if (overlapX <= 0 || overlapY <= 0)
         return;
 
-    // MTD (Minimum Translation Distance) 기반 충돌 해결
-    // 더 작은 겹침 방향으로 밀어냄
+    // x축과 y축 중 겹친 크기가 더 작은 쪽으로 밀어냄
+    // 1. y축 겹칩이 더 작은 경우 -> 수직 충돌 (바닥 또는 천장)
     if (overlapY <= overlapX)
     {
-        // 수직 충돌 (바닥 또는 천장)
-        if (myPos.y < otherPos.y)
+        // 내가 위에 있음 - 바닥 충돌
+        if (characterColPos.y < otherPos.y)
         {
-            // 내가 위에 있음 - 바닥 충돌
             // 하강 중이거나 정지 시에만 처리
             if (velocity.y >= 0)
             {
+                // 더 아래(Y가 큰) 지면을 activeGround로 선택
+                float groundTop = otherPos.y - otherHalf.y;
+                if (activeGroundID == 0 || groundTop > activeGroundTop)
+                {
+                    activeGroundID = other->GetID();
+                    activeGroundTop = groundTop;
+                }
+
+                // activeGround가 아니면 위치 보정하지 않음
+                if (other->GetID() != activeGroundID)
+                    return;
+
                 bIsGrounded = true;
                 rigidbody->SetGrounded(true);
+                ignoredPlatformID = 0;
 
-                // 위치 보정 - 겹침만큼 위로 밀어냄
+                // groundTop 기준으로 스냅 (1픽셀 침투 유지)
                 Vec2 newPos = GetPos();
-                newPos.y -= overlapY;
+                newPos.y = groundTop - characterColHalf.y - collider->GetOffset().y + 1.f;
                 SetPos(newPos);
 
                 // 하강 속도 제거
@@ -161,26 +326,26 @@ void CCharacter::OnCollisionStay(CCollider* other)
                 }
             }
         }
+        // 내가 아래에 있음 - 천장 충돌
         else
         {
-            // 내가 아래에 있음 - 천장 충돌
             if (velocity.y < 0)
             {
                 // 상승 속도 제거
                 velocity.y = 0.f;
                 rigidbody->SetVelocity(velocity);
 
-                // 위치 보정 - 겹침만큼 아래로 밀어냄
+                // 겹침만큼 아래로 밀어냄
                 Vec2 newPos = GetPos();
                 newPos.y += overlapY;
                 SetPos(newPos);
             }
         }
     }
+    // 2. x축 겹침이 더 작은 경우 -> 수평 충돌 (벽)
     else
     {
-        // 수평 충돌 (벽)
-        float pushDir = (myPos.x < otherPos.x) ? -1.f : 1.f;
+        float pushDir = (characterColPos.x < otherPos.x) ? -1.f : 1.f;
 
         // 벽 방향으로 이동 중일 때만 속도 정지
         bool movingIntoWall = (pushDir < 0 && velocity.x > 0) || (pushDir > 0 && velocity.x < 0);
@@ -190,7 +355,7 @@ void CCharacter::OnCollisionStay(CCollider* other)
             rigidbody->SetVelocity(velocity);
         }
 
-        // 위치 보정 - 겹침만큼 밀어냄
+        // 겹침만큼 옆으로 밀어냄
         Vec2 newPos = GetPos();
         newPos.x += pushDir * overlapX;
         SetPos(newPos);
@@ -199,15 +364,26 @@ void CCharacter::OnCollisionStay(CCollider* other)
 
 void CCharacter::OnCollisionExit(CCollider* other)
 {
-    // Ground 레이어와의 충돌 해제
-    if (other->GetLayer() == ELayer::Ground)
+    ELayer layer = static_cast<ELayer>(other->GetLayer());
+
+    // Ground 또는 Platform 레이어와의 충돌 해제
+    if (layer == ELayer::Ground || layer == ELayer::Platform)
     {
-        // 다른 Ground 콜라이더와 여전히 충돌 중인지는
-        // 다음 프레임의 OnCollisionStay에서 다시 설정됨
-        // 여기서는 일단 착지 해제 (점프나 낙하 시작)
-        bIsGrounded = false;
-        if (rigidbody)
-            rigidbody->SetGrounded(false);
+        // activeGround가 exit되면 리셋 (다음 프레임 Stay에서 새로 설정됨)
+        if (other->GetID() == activeGroundID)
+        {
+            activeGroundID = 0;
+            activeGroundTop = -FLT_MAX;
+            bIsGrounded = false;
+            if (rigidbody)
+                rigidbody->SetGrounded(false);
+        }
+
+        // 라인 콜라이더에서 벗어나면 미끄러짐 상태 해제
+        if (layer == ELayer::Ground && dynamic_cast<CLineCollider*>(other))
+        {
+            bIsOnSteepSlope = false;
+        }
     }
 }
 
@@ -224,6 +400,37 @@ void CCharacter::UpdateStates()
         stateSystem->RemoveTag(Tag_Grounded);
         stateSystem->AddTagUnique(Tag_Airborne);
     }
+
+    // 가파른 경사면 미끄러짐 상태 (변화 시에만 태그 조작)
+    if (bIsOnSteepSlope && !bWasOnSteepSlope)
+    {
+        stateSystem->AddTag(Tag_BlockMovement);
+    }
+    else if (!bIsOnSteepSlope && bWasOnSteepSlope)
+    {
+        stateSystem->RemoveTag(Tag_BlockMovement);
+    }
+    bWasOnSteepSlope = bIsOnSteepSlope;
+}
+
+void CCharacter::OnStateChanged(EStateTag oldTags, EStateTag newTags)
+{
+    // 착지
+    if (TagAdded(oldTags, newTags, Tag_Grounded))
+    {
+        SetIsGrounded(true);
+        // 착지 이벤트 트리거
+        abilitySystem->TriggerEvent(EGameEvent::Landed);
+        // 플랫폼 통과 해제
+        ignoredPlatformID = 0;
+    }
+    // 공중
+    if (TagAdded(oldTags, newTags, Tag_Airborne))
+    {
+        SetIsGrounded(false);
+        activeGroundID = 0;
+        activeGroundTop = -FLT_MAX;
+    }
 }
 
 
@@ -234,258 +441,4 @@ void CCharacter::AddAnimation(const wstring& aniName, const wstring& path, bool 
     assert(animation);
     animation->SetRepeat(bShouldRepeat);
     animator->AddAnimation(aniName, animation);
-}
-
-// 바닥 충돌 처리
-void CCharacter::ProcessGroundCollision(CollisionContext& ctx)
-{
-    constexpr int SLOPE_CHECK_DEPTH = 4;
-
-    int feetY = (int)(ctx.pixelCenter.y + ctx.halfHeight + 1);
-    int leftX = (int)(ctx.pixelCenter.x - ctx.halfWidth * 0.5f);
-    int centerX = (int)ctx.pixelCenter.x;
-    int rightX = (int)(ctx.pixelCenter.x + ctx.halfWidth * 0.5f);
-
-    // 1. 기본 바닥 체크
-    bIsGrounded = ctx.metaMap->IsGroundAt(leftX, feetY) ||
-                  ctx.metaMap->IsGroundAt(centerX, feetY) ||
-                  ctx.metaMap->IsGroundAt(rightX, feetY);
-
-    // 2. 내리막길 스냅
-    int slopeGroundY = -1;
-    Vec2 velocity = rigidbody->GetVelocity();
-
-    //이전에 grounded였고 지금 아닐 때, 상승 중이 아닐 때
-    if (ctx.wasGrounded && !bIsGrounded && velocity.y >= 0)
-    {
-        for (int checkY = feetY; checkY < feetY + SLOPE_CHECK_DEPTH; ++checkY)
-        {
-            if (ctx.metaMap->IsGroundAt(leftX, checkY) ||
-                ctx.metaMap->IsGroundAt(centerX, checkY) ||
-                ctx.metaMap->IsGroundAt(rightX, checkY))
-            {
-                bIsGrounded = true;
-                slopeGroundY = checkY;
-                break;
-            }
-        }
-    }
-
-    // 3. 착지 처리
-    if (!bIsGrounded)
-    {
-        rigidbody->SetGrounded(false);
-        return;
-    }
-
-    rigidbody->SetGrounded(true);
-
-    // 4. 위치 보정 필요 여부 판단
-    // - 하강 중 (velocity.y > 0)
-    // - 내리막 스냅 발생 (slopeGroundY > 0)
-    // - 수평 이동 중 오르막 파묻힘 (velocity.x != 0 && isInsideGround && 전방에 벽 없음)
-    bool isInsideGround = ctx.metaMap->IsGroundAt(centerX, feetY - 1);
-
-    // 전방에 수직 벽이 있는지 체크 (경사면과 구분)
-    bool hasWallAhead = false;
-    if (!IsNearlyZero(velocity.x) && isInsideGround)
-    {
-        int moveDir = (velocity.x > 0) ? 1 : -1;
-        int wallCheckX = (int)(ctx.pixelCenter.x + (ctx.halfWidth + 1) * moveDir);
-        int bodyMidY = (int)ctx.pixelCenter.y;
-
-        // 몸통 중앙 높이에 벽이 있으면 수직 벽
-        hasWallAhead = ctx.metaMap->IsSolid(wallCheckX, bodyMidY);
-    }
-
-    bool isMovingOnSlope = !IsNearlyZero(velocity.x) && isInsideGround && !hasWallAhead;
-    bool needsCorrection = velocity.y > 0 || slopeGroundY > 0 || isMovingOnSlope;
-
-    if (needsCorrection)
-    {
-        int searchStartY = (slopeGroundY > 0) ? slopeGroundY : feetY;
-        int groundY = searchStartY - 1;
-
-        while (ctx.metaMap->IsGroundAt(centerX, groundY) && groundY > searchStartY - 20)
-            groundY--;
-
-        ctx.pos.y = MAP->PixelToWorld(0, (float)groundY).y - ctx.colliderOffset.y - ctx.halfHeight;
-        SetPos(ctx.pos);
-    }
-
-    // 5. 하강 속도 제거
-    if (velocity.y > 0)
-    {
-        velocity.y = 0.f;
-        rigidbody->SetVelocity(velocity);
-    }
-}
-
-// 벽 충돌 처리 (direction: -1 = 왼쪽, 1 = 오른쪽)
-void CCharacter::ProcessWallCollision(CollisionContext& ctx, int direction)
-{
-    int bodyCenterY = (int)ctx.pixelCenter.y;
-
-    // 1. 벽 바로 앞에 있는지 체크 (1픽셀 앞)
-    int aheadX = (int)(ctx.pixelCenter.x + (ctx.halfWidth + 1) * direction);
-    bool wallAhead = ctx.metaMap->IsSolid(aheadX, bodyCenterY);
-
-    // 2. 벽 안에 있는지 체크 (콜라이더 가장자리)
-    int edgeX = (int)(ctx.pixelCenter.x + ctx.halfWidth * direction);
-    bool insideWall = ctx.metaMap->IsSolid(edgeX, bodyCenterY);
-
-    if (!wallAhead && !insideWall)
-        return;
-
-    // 벽 방향으로 이동 중이면 속도 정지
-    Vec2 velocity = rigidbody->GetVelocity();
-    bool movingIntoWall = (direction < 0) ? velocity.x < 0 : velocity.x > 0;
-    if (movingIntoWall)
-    {
-        velocity.x = 0.f;
-        rigidbody->SetVelocity(velocity);
-    }
-
-    // 벽 안에 있을 때만 밖으로 밀어냄
-    if (insideWall)
-    {
-        int safeX = edgeX;
-        constexpr int MAX_SEARCH = 20;
-        for (int i = 0; i < MAX_SEARCH; ++i)
-        {
-            if (!ctx.metaMap->IsSolid(safeX, bodyCenterY))
-                break;
-            safeX -= direction;
-        }
-
-        ctx.pos.x = MAP->PixelToWorld((float)safeX, 0).x - ctx.halfWidth * direction - ctx.colliderOffset.x;
-        ctx.pixelCenter.x = MAP->WorldToPixel(ctx.pos + ctx.colliderOffset).x;
-        SetPos(ctx.pos);
-    }
-}
-
-// 천장 충돌 처리
-void CCharacter::ProcessCeilingCollision(CollisionContext& ctx)
-{
-    int headY = (int)(ctx.pixelCenter.y - ctx.halfHeight - 1);
-    int leftX = (int)(ctx.pixelCenter.x - ctx.halfWidth * 0.5f);
-    int centerX = (int)ctx.pixelCenter.x;
-    int rightX = (int)(ctx.pixelCenter.x + ctx.halfWidth * 0.5f);
-
-    bool hitCeiling = ctx.metaMap->IsSolid(leftX, headY) ||
-                      ctx.metaMap->IsSolid(centerX, headY) ||
-                      ctx.metaMap->IsSolid(rightX, headY);
-
-    if (!hitCeiling)
-        return;
-
-    Vec2 velocity = rigidbody->GetVelocity();
-    if (velocity.y >= 0)
-        return;
-
-    velocity.y = 0.f;
-    rigidbody->SetVelocity(velocity);
-
-    // 위치 보정: 천장 아래로 밀어냄
-    int safeY = headY + 1;
-    for (int i = 0; i < 10 && ctx.metaMap->IsSolid(centerX, safeY); ++i)
-        safeY++;
-
-    ctx.pos.y = MAP->PixelToWorld(0, (float)safeY).y + ctx.halfHeight - ctx.colliderOffset.y;
-    SetPos(ctx.pos);
-}
-
-// 콜라이더 기반 지형 충돌 처리
-void CCharacter::UpdateMetaCollision()
-{
-    if (!collider || !rigidbody)
-        return;
-
-    CMap* map = MAP->GetCurrentMap();
-    if (!map)
-        return;
-
-    Vec2 pos = GetPos();
-    Vec2 colliderOffset = collider->GetOffset();
-    Vec2 colliderScale = collider->GetScale();
-    Vec2 colliderCenter = pos + colliderOffset;
-
-    float halfWidth = colliderScale.x * 0.5f;
-    float halfHeight = colliderScale.y * 0.5f;
-
-    Vec2 footPos = Vec2(colliderCenter.x, colliderCenter.y + halfHeight);
-    Vec2 headPos = Vec2(colliderCenter.x, colliderCenter.y - halfHeight);
-    Vec2 velocity = rigidbody->GetVelocity();
-
-    // 1. 바닥 충돌 체크
-    float groundY;
-    bool onSlope;
-    bool wasGrounded = bIsGrounded;
-
-    // 상승 중(점프 중)에는 바닥 충돌 체크 스킵
-    if (velocity.y < 0)
-    {
-        bIsGrounded = false;
-    }
-    else if (map->CheckGroundCollision(footPos, halfWidth * 0.8f, groundY, onSlope))
-    {
-        bIsGrounded = true;
-
-        // 위치 보정 - 항상 바닥 위에 스냅
-        float newPosY = groundY - halfHeight - colliderOffset.y;
-        pos.y = newPosY;
-        SetPos(pos);
-
-        // 하강 속도 제거
-        if (velocity.y > 0)
-        {
-            velocity.y = 0.f;
-            rigidbody->SetVelocity(velocity);
-        }
-    }
-    else
-    {
-        bIsGrounded = false;
-    }
-
-    // 착지 이벤트 (추후 필요시 구현)
-    // if (!wasGrounded && bIsGrounded)
-    // {
-    //     OnLanding();
-    // }
-
-    // 2. 벽 충돌 체크 (왼쪽)
-    float wallX;
-    if (velocity.x < 0 && map->CheckWallCollision(colliderCenter, halfWidth, halfHeight, -1, wallX))
-    {
-        velocity.x = 0.f;
-        rigidbody->SetVelocity(velocity);
-
-        // 위치 보정
-        pos.x = wallX + halfWidth - colliderOffset.x;
-        SetPos(pos);
-    }
-
-    // 3. 벽 충돌 체크 (오른쪽)
-    if (velocity.x > 0 && map->CheckWallCollision(colliderCenter, halfWidth, halfHeight, 1, wallX))
-    {
-        velocity.x = 0.f;
-        rigidbody->SetVelocity(velocity);
-
-        // 위치 보정
-        pos.x = wallX - halfWidth - colliderOffset.x;
-        SetPos(pos);
-    }
-
-    // 4. 천장 충돌 체크
-    float ceilingY;
-    if (velocity.y < 0 && map->CheckCeilingCollision(headPos, halfWidth * 0.5f, ceilingY))
-    {
-        velocity.y = 0.f;
-        rigidbody->SetVelocity(velocity);
-
-        // 위치 보정
-        pos.y = ceilingY + halfHeight - colliderOffset.y;
-        SetPos(pos);
-    }
 }

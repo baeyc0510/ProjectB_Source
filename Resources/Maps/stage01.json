@@ -14,8 +14,7 @@
       "scale": 1.0,
       "offsetX": 0,
       "offsetY": 0,
-      "isMain": true,
-      "meta": "Sub/Scene01/stage01_meta.bmp"
+      "isMain": true
     },
     {
       "image": "Sub/Scene01/stage_01_fg.bmp",
@@ -62,7 +61,30 @@
       "spawnId": 0
     }
   ],
-  "boxColliders": [],
+  "boxColliders": [
+    {
+      "rect": [
+        0.0,
+        86.0,
+        36.0,
+        600.0
+      ],
+      "tags": [
+        "Solid"
+      ]
+    },
+    {
+      "rect": [
+        1672.6051500801138,
+        276.15895915337944,
+        20.827195534015345,
+        530.1467954112986
+      ],
+      "tags": [
+        "Solid"
+      ]
+    }
+  ],
   "slopeColliders": [
     {
       "points": [

@@ -91,6 +91,9 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ground);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Ground);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Transition);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ladder);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Platform);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Platform);
 
 	// TODO : 오브젝트 풀링
 	SINGLE(CVFXManager)->PreLoad();
@@ -145,10 +148,10 @@ void CGame::Update()
 	SINGLE(CTimeManager)->Update();
 	SINGLE(CUIManager)->Update();
 	SINGLE(CGameUIManager)->Update();
-	// 순서 주의! : 카메라는 씬 업데이트 전에 진행
-	// 오브젝트의 renderPos 계산 시 최신 카메라 위치를 사용하기 위해
-	SINGLE(CCameraManager)->Update();
 	SINGLE(CSceneManager)->Update();
+	// 순서 주의! : 카메라는 씬 업데이트 후에 진행
+	// 플레이어 위치가 확정된 후 카메라가 따라가야 떨림 방지
+	SINGLE(CCameraManager)->Update();
 	SINGLE(CSoundManager)->Update();
 
 	// 순서 주의! : 충돌 매니저는 업데이트 가장 마지막에 진행

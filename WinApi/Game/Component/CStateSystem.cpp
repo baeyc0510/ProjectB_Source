@@ -78,6 +78,24 @@ void CStateSystem::RemoveTag(EStateTag tag)
 		OnStateChanged.Broadcast(oldTags, currentTags);
 }
 
+void CStateSystem::RemoveTagAll(EStateTag tag)
+{
+	EStateTag oldTags = currentTags;
+
+	// 복합 비트를 개별 비트로 분리하여 각각 카운트를 0으로 설정
+	EStateTag remaining = tag;
+	while (remaining != Tag_None)
+	{
+		EStateTag singleBit = static_cast<EStateTag>(remaining & -static_cast<int>(remaining));
+		bitCountMap[singleBit] = 0;
+		currentTags = currentTags & ~singleBit;
+		remaining = static_cast<EStateTag>(remaining & ~singleBit);
+	}
+
+	if (oldTags != currentTags)
+		OnStateChanged.Broadcast(oldTags, currentTags);
+}
+
 void CStateSystem::ClearTags()
 {
 	EStateTag oldTags = currentTags;

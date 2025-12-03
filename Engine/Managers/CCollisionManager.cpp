@@ -1,5 +1,8 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CCollisionManager.h"
+#include "Components/CCollider.h"
+#include "Components/CBoxCollider.h"
+#include "Components/CLineCollider.h"
 
 CCollisionManager::CCollisionManager()
 {
@@ -35,11 +38,39 @@ void CCollisionManager::Release()
 void CCollisionManager::AddCollider(CCollider* collider)
 {
 	colliderList[collider->GetLayer()].push_back(collider);
+
+	// 해당 콜라이더와 관련된 이전 충돌 기록 제거 (재진입 시 깨끗한 상태로 시작)
+	UINT id = collider->GetID();
+	for (auto it = prevCollision.begin(); it != prevCollision.end(); )
+	{
+		UINT64 collisionID = it->first;
+		UINT leftID = (UINT)(collisionID >> 32);
+		UINT rightID = (UINT)(collisionID & 0xFFFFFFFF);
+
+		if (leftID == id || rightID == id)
+			it = prevCollision.erase(it);
+		else
+			++it;
+	}
 }
 
 void CCollisionManager::RemoveCollider(CCollider* collider)
 {
 	colliderList[collider->GetLayer()].remove(collider);
+
+	// 해당 콜라이더와 관련된 충돌 기록 제거
+	UINT id = collider->GetID();
+	for (auto it = prevCollision.begin(); it != prevCollision.end(); )
+	{
+		UINT64 collisionID = it->first;
+		UINT leftID = (UINT)(collisionID >> 32);
+		UINT rightID = (UINT)(collisionID & 0xFFFFFFFF);
+
+		if (leftID == id || rightID == id)
+			it = prevCollision.erase(it);
+		else
+			++it;
+	}
 }
 
 void CCollisionManager::CheckLayer(UINT left, UINT right)
@@ -76,8 +107,8 @@ void CCollisionManager::CollisionUpdate(UINT left, UINT right)
 			if (prevCollision.find(collisionID) == prevCollision.end())
 				prevCollision.insert(make_pair(collisionID, false));
 
-			// 충돌처리 확인 (양방향 체크 - 다형성 콜라이더 지원)
-			if (leftCollider->IsCollision(rightCollider) || rightCollider->IsCollision(leftCollider))
+			// 충돌처리 확인
+			if (CheckCollision(leftCollider, rightCollider))
 			{
 				// 이전 프레임 O, 현재 프레임 O
 				if (prevCollision[collisionID])
@@ -148,6 +179,85 @@ UINT64 CCollisionManager::CollisionID(UINT leftID, UINT rightID)
 	}
 }
 
+bool CCollisionManager::CheckCollision(CCollider* left, CCollider* right)
+{
+	EColliderType leftType = left->GetType();
+	EColliderType rightType = right->GetType();
+
+	if (leftType == EColliderType::Box && rightType == EColliderType::Box)
+	{
+		return BoxVsBox(static_cast<CBoxCollider*>(left), static_cast<CBoxCollider*>(right));
+	}
+	else if (leftType == EColliderType::Box && rightType == EColliderType::Line)
+	{
+		return BoxVsLine(static_cast<CBoxCollider*>(left), static_cast<CLineCollider*>(right));
+	}
+	else if (leftType == EColliderType::Line && rightType == EColliderType::Box)
+	{
+		return BoxVsLine(static_cast<CBoxCollider*>(right), static_cast<CLineCollider*>(left));
+	}
+	else if (leftType == EColliderType::Line && rightType == EColliderType::Line)
+	{
+		return LineVsLine(static_cast<CLineCollider*>(left), static_cast<CLineCollider*>(right));
+	}
+
+	return false;
+}
+
+bool CCollisionManager::BoxVsBox(CBoxCollider* a, CBoxCollider* b)
+{
+	Vec2 posA = a->GetPos();
+	Vec2 posB = b->GetPos();
+	Vec2 scaleA = a->GetScale();
+	Vec2 scaleB = b->GetScale();
+
+	if (abs(posA.x - posB.x) < (scaleA.x + scaleB.x) * 0.5f &&
+		abs(posA.y - posB.y) < (scaleA.y + scaleB.y) * 0.5f)
+		return true;
+
+	return false;
+}
+
+bool CCollisionManager::BoxVsLine(CBoxCollider* box, CLineCollider* line)
+{
+	Vec2 boxPos = box->GetPos();
+	Vec2 boxScale = box->GetScale();
+
+	Vec2 start = line->GetWorldStart();
+	Vec2 end = line->GetWorldEnd();
+
+	float boxLeft = boxPos.x - boxScale.x * 0.5f;
+	float boxRight = boxPos.x + boxScale.x * 0.5f;
+	float boxTop = boxPos.y - boxScale.y * 0.5f;
+	float boxBottom = boxPos.y + boxScale.y * 0.5f;
+
+	// 선분의 X 범위가 박스와 겹치는지 확인
+	float lineMinX = min(start.x, end.x);
+	float lineMaxX = max(start.x, end.x);
+
+	if (lineMaxX < boxLeft || lineMinX > boxRight)
+		return false;
+
+	// 박스 범위 내의 선분 Y 값들 확인
+	float checkMinX = max(lineMinX, boxLeft);
+	float checkMaxX = min(lineMaxX, boxRight);
+
+	float y1 = line->GetYAt(checkMinX);
+	float y2 = line->GetYAt(checkMaxX);
+
+	float lineMinY = min(y1, y2);
+	float lineMaxY = max(y1, y2);
+
+	// 선분의 Y 범위가 박스와 겹치는지 확인
+	return !(lineMaxY < boxTop || lineMinY > boxBottom);
+}
+
+bool CCollisionManager::LineVsLine(CLineCollider* a, CLineCollider* b)
+{
+	// 선분-선분 충돌은 현재 미지원
+	return false;
+}
+
 vector<HitResult> CCollisionManager::BoxTrace(const Vec2& center, const Vec2& halfSize, UINT targetLayer, bool bDrawDebug)
 {
 	vector<HitResult> results;
@@ -157,15 +267,21 @@ vector<HitResult> CCollisionManager::BoxTrace(const Vec2& center, const Vec2& ha
 		if (collider->IsReservedDelete())
 			continue;
 
+		// BoxCollider만 처리
+		if (collider->GetType() != EColliderType::Box)
+			continue;
+
+		CBoxCollider* boxCollider = static_cast<CBoxCollider*>(collider);
+
 		// AABB 충돌 체크
-		Vec2 colPos = collider->GetPos();
-		Vec2 colHalf = collider->GetScale() * 0.5f;
+		Vec2 colPos = boxCollider->GetPos();
+		Vec2 colHalf = boxCollider->GetScale() * 0.5f;
 
 		if (abs(center.x - colPos.x) < halfSize.x + colHalf.x &&
 			abs(center.y - colPos.y) < halfSize.y + colHalf.y)
 		{
 			HitResult result;
-			result.collider = collider;
+			result.collider = boxCollider;
 
 			// 각 AABB의 Min/Max 계산
 			Vec2 minA = center - halfSize;
@@ -181,18 +297,18 @@ vector<HitResult> CCollisionManager::BoxTrace(const Vec2& center, const Vec2& ha
 
 			// 중심점 계산
 			result.hitCenter = Vec2((interMinX + interMaxX) * 0.5f, (interMinY + interMaxY) * 0.5f);
-			
+
 			results.push_back(result);
 		}
 	}
-	
+
 	if (bDrawDebug)
 	{
 		bool bHit = !results.empty();
-		COLORREF color = bHit ?    RGB(0, 255, 0) : RGB(255, 0, 0);
-		DrawDebugBox(center,halfSize, color, 0.1f );
+		COLORREF color = bHit ? RGB(0, 255, 0) : RGB(255, 0, 0);
+		DrawDebugBox(center, halfSize, color, 0.1f);
 	}
-	
+
 	return results;
 }
 
