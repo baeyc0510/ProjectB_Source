@@ -63,7 +63,7 @@ void CMonster::Update()
 		attackTimer = 0.0f;
 	}
 
-	UpdateMetaCollision();	// 메타맵 기반 충돌 처리
+	// UpdateMetaCollision();  // 콜라이더 기반 충돌로 대체됨 (OnCollisionStay)
 	UpdateStates();
 	UpdateAnimation();
 	animator->SetDirection(GetForward());

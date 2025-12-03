@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "CMap.h"
+#include "Game/Object/World/CTerrainCollider.h"
+#include "Components/CLineCollider.h"
 #include <fstream>
 
 using json = nlohmann::json;
@@ -555,4 +557,68 @@ void CMap::RenderColliderDebug() const
 
 	RENDER->SetPen();
 	RENDER->SetBrush();
+}
+
+void CMap::CreateColliderObjects(CScene* scene)
+{
+	if (!scene)
+		return;
+
+	DestroyColliderObjects();
+
+	// 박스 콜라이더 오브젝트 생성
+	for (const auto& box : boxColliders)
+	{
+		CTerrainCollider* terrainObj = new CTerrainCollider();
+
+		Vec2 center(box.rect.x + box.rect.w * 0.5f, box.rect.y + box.rect.h * 0.5f);
+		Vec2 size(box.rect.w, box.rect.h);
+		terrainObj->SetBoxCollider(center, size);
+
+		scene->AddGameObject(terrainObj);
+		colliderObjects.push_back(terrainObj);
+
+		// 태그 매핑 저장
+		CCollider* col = terrainObj->GetCollider();
+		if (col)
+		{
+			colliderTagMap[col->GetID()] = box.tags;
+		}
+	}
+
+	// 슬로프(라인) 콜라이더 오브젝트 생성
+	for (const auto& slope : slopeColliders)
+	{
+		CTerrainCollider* terrainObj = new CTerrainCollider();
+		terrainObj->SetLineCollider(slope.start, slope.end);
+
+		scene->AddGameObject(terrainObj);
+		colliderObjects.push_back(terrainObj);
+
+		// 태그 매핑 저장
+		CCollider* col = terrainObj->GetCollider();
+		if (col)
+		{
+			colliderTagMap[col->GetID()] = slope.tags;
+		}
+	}
+}
+
+void CMap::DestroyColliderObjects()
+{
+	// CScene이 오브젝트 메모리 관리를 하므로 포인터만 정리
+	colliderObjects.clear();
+	colliderTagMap.clear();
+}
+
+const vector<string>* CMap::GetTagsFromCollider(CCollider* collider) const
+{
+	if (!collider)
+		return nullptr;
+
+	auto it = colliderTagMap.find(collider->GetID());
+	if (it != colliderTagMap.end())
+		return &it->second;
+
+	return nullptr;
 }

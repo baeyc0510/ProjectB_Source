@@ -131,6 +131,13 @@ public:
 	// 콜라이더 디버그 렌더링
 	void RenderColliderDebug() const;
 
+	// 콜라이더 오브젝트 생성/해제
+	void CreateColliderObjects(class CScene* scene);
+	void DestroyColliderObjects();
+
+	// 콜라이더로부터 태그 정보 조회
+	const vector<string>* GetTagsFromCollider(CCollider* collider) const;
+
 private:
 	void LoadFromJson(const wstring& jsonPath);
 	wstring GetMapDirectory(const wstring& jsonPath);
@@ -141,13 +148,18 @@ private:
 	vector<CMapLayer> foregroundLayers;
 
 	CMetaMap metaMap;
-	
+
 	Rect bounds;
 	vector<Vec2> spawnPoints;
 	vector<CheckpointData> checkpoints;
 	vector<SceneTransitionData> transitions;
 	vector<BoxColliderData> boxColliders;
 	vector<SlopeColliderData> slopeColliders;
+
+	// 실제 생성된 콜라이더 오브젝트들
+	vector<CGameObject*> colliderObjects;
+	// 콜라이더 ID -> 태그 매핑
+	unordered_map<UINT, vector<string>> colliderTagMap;
 
 	wstring mapDirectory;	// JSON 파일이 있는 디렉토리
 };

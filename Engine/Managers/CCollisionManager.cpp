@@ -76,8 +76,8 @@ void CCollisionManager::CollisionUpdate(UINT left, UINT right)
 			if (prevCollision.find(collisionID) == prevCollision.end())
 				prevCollision.insert(make_pair(collisionID, false));
 
-			// 충돌처리 확인
-			if (leftCollider->IsCollision(rightCollider))
+			// 충돌처리 확인 (양방향 체크 - 다형성 콜라이더 지원)
+			if (leftCollider->IsCollision(rightCollider) || rightCollider->IsCollision(leftCollider))
 			{
 				// 이전 프레임 O, 현재 프레임 O
 				if (prevCollision[collisionID])

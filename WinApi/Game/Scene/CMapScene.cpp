@@ -103,4 +103,11 @@ void CMapScene::OnLoadMap()
 {
     // TrasitionArea 배치
     SpawnTransitionArea();
+
+    // 지형 콜라이더 생성
+    CMap* map = MAP->GetCurrentMap();
+    if (map)
+    {
+        map->CreateColliderObjects(this);
+    }
 }

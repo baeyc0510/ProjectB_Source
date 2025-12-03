@@ -190,6 +190,7 @@
     <ClInclude Include="Game\Object\Character\CMonster.h" />
     <ClInclude Include="Game\Object\Character\CPlayer.h" />
     <ClInclude Include="Game\Object\CVFX.h" />
+    <ClInclude Include="Game\Object\World\CTerrainCollider.h" />
     <ClInclude Include="Game\Object\World\CTransitionArea.h" />
     <ClInclude Include="Game\Scene\CMapScene.h" />
     <ClInclude Include="Game\Scene\CStage01.h" />
@@ -535,6 +536,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\Object\CVFX.cpp" />
+    <ClCompile Include="Game\Object\World\CTerrainCollider.cpp" />
     <ClCompile Include="Game\Object\World\CTransitionArea.cpp" />
     <ClCompile Include="Game\Scene\CMapScene.cpp" />
     <ClCompile Include="Game\Scene\CStage01.cpp" />

@@ -105,7 +105,7 @@ void CPlayer::Update()
 	HandleCombatInput();
 	HandleActionInput();
 	UpdateMovement();
-	UpdateMetaCollision();
+	// UpdateMetaCollision();  // 콜라이더 기반 충돌로 대체됨 (OnCollisionStay)
 	UpdateStates();
 	CheckVelocityChanged();
 	UpdateAnimation();
