@@ -3,6 +3,10 @@
 
 UINT CCollider::colliderCount = 0;
 
+void CCollider::RenderDebug()
+{
+}
+
 const COLORREF CCollider::layerColors[16] = {
 	RGB(255, 255, 255),  // 0 - 흰색
 	RGB(0, 0, 255),      // 1 - 파랑

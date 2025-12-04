@@ -11,6 +11,7 @@ enum ESceneType
 	Stage02,
 	Stage03,
 	Stage04,
+	Stage_Boss01,
 };
 
 //========================================
@@ -26,6 +27,7 @@ enum ELayer
 	Ladder,
 	Platform,
 	Transition,
+	Ledge,		// (플랫폼 가장자리)
 	LayerSize,
 };
 
@@ -56,6 +58,9 @@ enum EStateTag
 	Tag_FlaskRemaining		= 1 << 17,	// 잔여 플라스크 있음
 	Tag_Climbing			= 1 << 18,	// 사다리 타는 중
 	Tag_CanClimb			= 1 << 19,	// 사다리 진입 가능
+	Tag_HasTarget			= 1 << 20,	// AI: 타겟 보유
+	Tag_AIPatrol			= 1 << 21,	// AI: 순찰 중
+	Tag_AIChase				= 1 << 22,	// AI: 추격 중
 };
 
 inline EStateTag operator|(EStateTag a, EStateTag b)
@@ -113,6 +118,10 @@ enum class EAbility
 	Hit,
 	ParryHit,
 	Death,
+	// AI
+	AI_Patrol,
+	AI_Chase,
+	AI_Attack,
 };
 
 //========================================
@@ -142,6 +151,11 @@ enum class EGameEvent
 	Input_Jump_Pressed,
 	Input_Attack_Pressed,
 	Input_Crouch_Released,
+	// AI 이벤트
+	AI_TargetDetected,		// 타겟 감지
+	AI_TargetLost,			// 타겟 놓침
+	AI_TargetInAttackRange,	// 공격 범위 진입
+	AI_PatrolPointReached,	// 순찰 지점 도달
 };
 
 //========================================

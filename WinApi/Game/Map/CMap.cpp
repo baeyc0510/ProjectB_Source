@@ -16,6 +16,7 @@ CMap::~CMap()
 void CMap::Load(const wstring& mapJsonPath)
 {
 	Release();
+	mapPath = mapJsonPath;
 	LoadFromJson(mapJsonPath);
 }
 
@@ -36,6 +37,7 @@ void CMap::Release()
 	transitions.clear();
 	boxColliders.clear();
 	slopeColliders.clear();
+	mapPath = L"";
 }
 
 void CMap::RenderBackground(Vec2 cameraPos)
@@ -295,6 +297,20 @@ void CMap::LoadFromJson(const wstring& jsonPath)
 				slope.tags.push_back("Solid");
 			}
 			slopeColliders.push_back(slope);
+		}
+	}
+	
+	// 월드 오브젝트
+	if (mapData.contains("objects"))
+	{
+		for (const auto& objectData : mapData["objects"])
+		{
+			WorldObjectData data;
+			data.name = objectData["name"].get<string>();
+			data.pos.x = objectData["pos"][0];
+			data.pos.y = objectData["pos"][1];
+			
+			worldObjects.push_back(data);
 		}
 	}
 }

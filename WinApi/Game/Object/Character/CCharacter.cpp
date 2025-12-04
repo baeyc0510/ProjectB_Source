@@ -19,10 +19,11 @@ CCharacter::CCharacter()
     , bIsGrounded(false)
     , bIsOnSteepSlope(false)
     , bWasOnSteepSlope(false)
-    , bShouldIgnorePlatform(false)
     , ignoredPlatformID(0)
     , activeGroundID(0)
     , activeGroundTop(-FLT_MAX)
+    , platformMinX(-FLT_MAX)
+    , platformMaxX(FLT_MAX)
 {
     scale = Vec2(100, 100);
 }
@@ -48,15 +49,14 @@ void CCharacter::SetIsGrounded(bool inIsGrounded)
     {
         rigidbody->SetGrounded(bIsGrounded);
     }
-    if (!bIsGrounded)
-    {
-        activeGroundID = 0;
-        activeGroundTop = -FLT_MAX;
-    }
 }
 
 void CCharacter::Init()
 {
+    // Rigidbody
+    rigidbody = new CRigidbody();
+    AddChild(rigidbody);
+    
     // Collider
     collider = new CBoxCollider();
     AddChild(collider);
@@ -90,6 +90,8 @@ void CCharacter::OnEnable()
     ignoredPlatformID = 0;
     activeGroundID = 0;
     activeGroundTop = -FLT_MAX;
+    platformMinX = -FLT_MAX;
+    platformMaxX = FLT_MAX;
 }
 
 void CCharacter::Update()
@@ -110,6 +112,7 @@ void CCharacter::Release()
 
 void CCharacter::OnCollisionEnter(CCollider* other)
 {
+    OnCollisionStay(other);
 }
 
 void CCharacter::OnCollisionStay(CCollider* other)
@@ -122,9 +125,6 @@ void CCharacter::OnCollisionStay(CCollider* other)
     if (!isGround && !isPlatform)
         return;
 
-    if (bShouldIgnorePlatform)
-        return;
-
     // 특정 플랫폼 통과 중이면 해당 플랫폼만 무시
     if (isPlatform && other->GetID() == ignoredPlatformID)
         return;
@@ -135,7 +135,6 @@ void CCharacter::OnCollisionStay(CCollider* other)
     Vec2 characterColPos = collider->GetPos();
     Vec2 characterColHalf = collider->GetScale() * 0.5f;
     Vec2 velocity = rigidbody->GetVelocity();
-    float characterBottom = characterColPos.y + characterColHalf.y;
 
     // 라인 콜라이더 처리
     CLineCollider* lineCollider = dynamic_cast<CLineCollider*>(other);
@@ -161,6 +160,11 @@ void CCharacter::OnCollisionStay(CCollider* other)
                 {
                     activeGroundID = other->GetID();
                     activeGroundTop = slopeY;
+                    // 슬로프 경계 저장
+                    Vec2 start = lineCollider->GetWorldStart();
+                    Vec2 end = lineCollider->GetWorldEnd();
+                    platformMinX = min(start.x, end.x);
+                    platformMaxX = max(start.x, end.x);
                 }
 
                 // activeGround가 아니면 스냅하지 않음
@@ -168,9 +172,7 @@ void CCharacter::OnCollisionStay(CCollider* other)
                     return;
 
                 // 경사면 위에 있으므로 착지 상태
-                bIsGrounded = true;
-                rigidbody->SetGrounded(true);
-                if (isGround) ignoredPlatformID = 0;
+                SetIsGrounded_Internal(true);
 
                 // 슬로프 방향 판별
                 Vec2 slopeStart = lineCollider->GetWorldStart();
@@ -237,50 +239,37 @@ void CCharacter::OnCollisionStay(CCollider* other)
     // 박스 콜라이더 처리
     Vec2 otherPos = other->GetPos();
     Vec2 otherHalf = other->GetScale() * 0.5f;
-    float platformTop = otherPos.y - otherHalf.y;
-
+    float otherTop = otherPos.y - otherHalf.y;
+    float otherBottom = otherPos.y + otherHalf.y;
+    
+    Vec2 myPos = collider->GetPos();
+    Vec2 myHalf = collider->GetScale() * 0.5f;
+    float myHead = myPos.y - myHalf.y;
+    float myFoot = myPos.y + myHalf.y;
+    
+    // 더 아래(Y가 큰) Ground를 activeGround로 선택
+    if (activeGroundID == 0 || otherTop > activeGroundTop)
+    {
+        activeGroundID = other->GetID();
+        activeGroundTop = otherTop;
+        // 플랫폼 경계 저장
+        platformMinX = otherPos.x - otherHalf.x;
+        platformMaxX = otherPos.x + otherHalf.x;
+    }
+    
     // 원웨이 플랫폼: 위에서 착지할 때만 충돌
     if (isPlatform)
     {
         // 상승 중이면 통과
         if (velocity.y < 0)
             return;
-
-        // 착지 가능 여부 판단: 캐릭터 발이 플랫폼 상단보다 많이 아래에 있으면 통과
-        float tolerance = 5.f + velocity.y * DT;
-        if (characterBottom > platformTop + tolerance)
+        
+        // 플랫폼 아래 있으면 통과
+        if (myFoot > otherBottom)
             return;
-
-        // 더 아래(Y가 큰) 플랫폼을 activeGround로 선택
-        if (activeGroundID == 0 || platformTop > activeGroundTop)
-        {
-            activeGroundID = other->GetID();
-            activeGroundTop = platformTop;
-        }
-
-        // activeGround가 아니면 스냅하지 않음
-        if (other->GetID() != activeGroundID)
-            return;
-
-        // 착지 처리
-        bIsGrounded = true;
-        rigidbody->SetGrounded(true);
-        ignoredPlatformID = 0;
-
-        // 스냅
-        Vec2 newPos = GetPos();
-        newPos.y = platformTop - characterColHalf.y - collider->GetOffset().y + 1.f;
-        SetPos(newPos);
-
-        if (velocity.y > 0)
-        {
-            velocity.y = 0.f;
-            rigidbody->SetVelocity(velocity);
-        }
-        return;
     }
-
-    // Ground: 밀어내기 -> AABB 충돌에서 겹친 크기만큼 밀어냄
+    
+    // AABB 충돌에서 겹친 크기
     float overlapX = (characterColHalf.x + otherHalf.x) - abs(characterColPos.x - otherPos.x);
     float overlapY = (characterColHalf.y + otherHalf.y) - abs(characterColPos.y - otherPos.y);
 
@@ -291,31 +280,31 @@ void CCharacter::OnCollisionStay(CCollider* other)
     // 1. y축 겹칩이 더 작은 경우 -> 수직 충돌 (바닥 또는 천장)
     if (overlapY <= overlapX)
     {
-        // 내가 위에 있음 - 바닥 충돌
-        if (characterColPos.y < otherPos.y)
+        // 바닥 충돌
+        if (myFoot >= otherTop)
         {
             // 하강 중이거나 정지 시에만 처리
             if (velocity.y >= 0)
             {
                 // 더 아래(Y가 큰) 지면을 activeGround로 선택
-                float groundTop = otherPos.y - otherHalf.y;
-                if (activeGroundID == 0 || groundTop > activeGroundTop)
+                if (activeGroundID == 0 || otherTop > activeGroundTop)
                 {
                     activeGroundID = other->GetID();
-                    activeGroundTop = groundTop;
+                    activeGroundTop = otherTop;
+                    // 플랫폼 경계 저장
+                    platformMinX = otherPos.x - otherHalf.x;
+                    platformMaxX = otherPos.x + otherHalf.x;
                 }
 
                 // activeGround가 아니면 위치 보정하지 않음
                 if (other->GetID() != activeGroundID)
                     return;
 
-                bIsGrounded = true;
-                rigidbody->SetGrounded(true);
-                ignoredPlatformID = 0;
+                SetIsGrounded_Internal(true);
 
                 // groundTop 기준으로 스냅 (1픽셀 침투 유지)
                 Vec2 newPos = GetPos();
-                newPos.y = groundTop - characterColHalf.y - collider->GetOffset().y + 1.f;
+                newPos.y = otherTop + 1.f;
                 SetPos(newPos);
 
                 // 하강 속도 제거
@@ -326,8 +315,8 @@ void CCharacter::OnCollisionStay(CCollider* other)
                 }
             }
         }
-        // 내가 아래에 있음 - 천장 충돌
-        else
+        // 천장 충돌
+        else if (myHead <= otherBottom)
         {
             if (velocity.y < 0)
             {
@@ -345,6 +334,12 @@ void CCharacter::OnCollisionStay(CCollider* other)
     // 2. x축 겹침이 더 작은 경우 -> 수평 충돌 (벽)
     else
     {
+        // 단차가 아주 작은 경우는 그냥 넘어감.
+        if (abs(otherTop - myFoot) < 2.5f)
+        {
+            return;
+        }
+        
         float pushDir = (characterColPos.x < otherPos.x) ? -1.f : 1.f;
 
         // 벽 방향으로 이동 중일 때만 속도 정지
@@ -372,11 +367,7 @@ void CCharacter::OnCollisionExit(CCollider* other)
         // activeGround가 exit되면 리셋 (다음 프레임 Stay에서 새로 설정됨)
         if (other->GetID() == activeGroundID)
         {
-            activeGroundID = 0;
-            activeGroundTop = -FLT_MAX;
-            bIsGrounded = false;
-            if (rigidbody)
-                rigidbody->SetGrounded(false);
+            SetIsGrounded_Internal(false);
         }
 
         // 라인 콜라이더에서 벗어나면 미끄러짐 상태 해제
@@ -390,12 +381,12 @@ void CCharacter::OnCollisionExit(CCollider* other)
 void CCharacter::UpdateStates()
 {
     // 착지 체크
-    if (bIsGrounded && stateSystem->HasTag(Tag_Airborne))
+    if (bIsGrounded)
     {
         stateSystem->RemoveTag(Tag_Airborne);
         stateSystem->AddTagUnique(Tag_Grounded);
     }
-    if (!bIsGrounded)
+    else
     {
         stateSystem->RemoveTag(Tag_Grounded);
         stateSystem->AddTagUnique(Tag_Airborne);
@@ -418,16 +409,12 @@ void CCharacter::OnStateChanged(EStateTag oldTags, EStateTag newTags)
     // 착지
     if (TagAdded(oldTags, newTags, Tag_Grounded))
     {
-        SetIsGrounded(true);
         // 착지 이벤트 트리거
         abilitySystem->TriggerEvent(EGameEvent::Landed);
-        // 플랫폼 통과 해제
-        ignoredPlatformID = 0;
     }
     // 공중
     if (TagAdded(oldTags, newTags, Tag_Airborne))
     {
-        SetIsGrounded(false);
         activeGroundID = 0;
         activeGroundTop = -FLT_MAX;
     }
@@ -441,4 +428,27 @@ void CCharacter::AddAnimation(const wstring& aniName, const wstring& path, bool 
     assert(animation);
     animation->SetRepeat(bShouldRepeat);
     animator->AddAnimation(aniName, animation);
+}
+
+void CCharacter::SetIsGrounded_Internal(bool inIsGrounded)
+{
+    bIsGrounded = inIsGrounded;
+    if (bIsGrounded)
+    {
+        // 플랫폼 통과 해제
+        ignoredPlatformID = 0;
+    }
+    else
+    {
+        // 활성 그라운드 해제
+        activeGroundID = 0;
+        activeGroundTop = -FLT_MAX;
+        platformMinX = -FLT_MAX;
+        platformMaxX = FLT_MAX;
+    }
+    
+    if (rigidbody)
+    {
+        rigidbody->SetGrounded(bIsGrounded);
+    }
 }

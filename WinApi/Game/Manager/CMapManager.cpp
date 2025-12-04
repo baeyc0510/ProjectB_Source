@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "CMapManager.h"
+
+#include "Game/Object/Character/CEnemy.h"
+#include "Game/Object/Character/CharacterFactory.h"
 #include "Game/Object/World/CGroundCollider.h"
 #include "Game/Object/World/CLadder.h"
 #include "Game/Object/World/CPlatform.h"
@@ -28,20 +31,38 @@ void CMapManager::Release()
 
 void CMapManager::LoadMap(const wstring& mapPath)
 {
-	UnloadMap();
-
-	currentMap = new CMap();
-	currentMap->Load(mapPath);
+	currentMap = FindMap(mapPath);
+	if (!currentMap)
+	{
+		currentMap = new CMap();
+		currentMap->Load(mapPath);
+		mapCache[mapPath] = currentMap;
+	}
 }
 
 void CMapManager::UnloadMap()
 {
-	if (currentMap)
+	for (auto it = mapCache.begin(); it != mapCache.end(); ++it)
 	{
-		currentMap->Release();
-		delete currentMap;
-		currentMap = nullptr;
+		if (CMap* map = it->second)
+		{
+			map->Release();
+			delete map;
+		}
 	}
+	mapCache.clear();
+	currentMap = nullptr;
+}
+
+CMap* CMapManager::FindMap(const wstring& mapPath)
+{
+	auto found = mapCache.find(mapPath);
+	if (found != mapCache.end())
+	{
+		return found->second;
+	}
+	
+	return nullptr;
 }
 
 void CMapManager::RenderBackground()
@@ -189,4 +210,19 @@ void CMapManager::CreateWorldColliders(CScene* scene)
 void CMapManager::DestroyWorldColliders()
 {
 	worldColliders.clear();
+}
+
+void CMapManager::CreateWorldCharacters(CScene* scene)
+{
+	if (!scene || !currentMap)
+		return;
+	
+	for (const auto& objData : currentMap->GetWorldObjects())
+	{
+		if (CEnemy* enemy = CharacterFactory::CreateEnemy(objData.name))
+		{
+			enemy->SetPos(PixelToWorld(objData.pos));
+			scene->AddGameObject(enemy);
+		}
+	}
 }

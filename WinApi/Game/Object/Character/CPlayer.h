@@ -63,7 +63,7 @@ private:
 private:
 	// 상수
 	static constexpr float MOVE_SPEED = 250.f;
-	static constexpr float JUMP_FORCE = 550.f;
+	static constexpr float JUMP_FORCE = 470.f;
 	static constexpr float KNOCKBACK_POWER = 100.f;
 	static constexpr float MAX_HP = 100.f;
 	static constexpr float MAX_MP = 100.f;

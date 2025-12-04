@@ -13,6 +13,7 @@ public:
 
 	EColliderType		GetType() const override		{ return EColliderType::Box; }
 
+	void RenderDebug() override;
 private:
 	void				Render() override;
 

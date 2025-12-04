@@ -35,13 +35,11 @@ void CPlayer::Init()
 	CCharacter::Init();
 	
 	// Rigidbody
-	rigidbody = new CRigidbody();
 	rigidbody->SetGravityScale(1.6f);
-	AddChild(rigidbody);
 
 	// Collider
-	colScale = Vec2(42, 72);
-	colOffset = Vec2(0, -36);
+	colScale = Vec2(42, 66);
+	colOffset = Vec2(0, -33);
 	collider->SetScale(colScale);
 	collider->SetOffset(colOffset);
 	collider->SetLayer(ELayer::Player);
@@ -173,17 +171,17 @@ void CPlayer::HandleActionInput()
 		bool bAtLadderBottom = footY > ladderBottomY - LADDER_EDGE_THRESHOLD;
 
 		// 상단 근처면 S키로만, 하단 근처면 W키로만 진입 가능
-		bool canEnterWithW = INPUT->ButtonDown('W') && !bAtLadderTop;
-		bool canEnterWithS = INPUT->ButtonDown('S') && !bAtLadderBottom;
+		bool bEnterUp = INPUT->ButtonDown('W') && !bAtLadderTop;
+		bool bEnterDown = INPUT->ButtonDown('S') && !bAtLadderBottom;
 
-		if (canEnterWithW || canEnterWithS)
+		if (bEnterUp || bEnterDown)
 		{
-			// S키로 진입 시: 플랫폼 통과 허용 + 캐릭터 중심을 사다리 상단에 맞춤
-			if (canEnterWithS)
+			if (bEnterDown)
 			{
-				bShouldIgnorePlatform = true;
+				UINT groundId = GetCurrentGroundID();
 				SetIsGrounded(false);
-				SetPos(Vec2(GetPos().x, ladderTopY));
+				SetIgnorePlatform(groundId);
+				SetPos(Vec2(GetPos().x, ladderTopY + colScale.y * 0.5f));
 			}
 
 			abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
@@ -554,7 +552,6 @@ void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 	if (TagRemoved(oldTags, newTags, Tag_Climbing))
 	{
 		rigidbody->UseGravity(true);
-		bShouldIgnorePlatform = false;
 	}
 }
 

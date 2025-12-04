@@ -340,4 +340,14 @@ void CCollisionManager::RenderDebug()
 		else
 			++it;
 	}
+	
+	for (auto colls : colliderList)
+	{
+		for (auto coll : colls)
+		{
+			if (!coll)
+				continue;
+			coll->RenderDebug();
+		}
+	}
 }

@@ -5,7 +5,6 @@
 #include "Game/Manager/CMapManager.h"
 #include "Game/Object/Character/CPlayer.h"
 #include "Game/Object/World/CTransitionArea.h"
-#include "Game/Util/TransitionHelper.h"
 
 CMapScene::CMapScene()
 {
@@ -34,6 +33,16 @@ CPlayer* CMapScene::SpawnPlayer()
 
 void CMapScene::Init()
 {
+    MAP->LoadMap(mapFilePath);
+    
+    // TrasitionArea 배치
+    SpawnTransitionArea();
+    
+    // 월드 콜라이더 생성
+    MAP->CreateWorldColliders(this);
+    
+    // 월드 오브젝트들 생성 (적 캐릭터)
+    MAP->CreateWorldCharacters(this);
 }
 
 void CMapScene::Enter()
@@ -102,9 +111,6 @@ void CMapScene::SpawnTransitionArea()
 
 void CMapScene::OnLoadMap()
 {
-    // TrasitionArea 배치
-    SpawnTransitionArea();
-
-    // 월드 콜라이더 생성
-    MAP->CreateWorldColliders(this);
+    
+    
 }

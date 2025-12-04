@@ -24,6 +24,11 @@ public:
     void SetIgnorePlatform(UINT platformID) { ignoredPlatformID = platformID; }
     void SetIsGrounded(bool inIsGrounded);
     UINT GetCurrentGroundID() const;  // 현재 서있는 지면/플랫폼 ID (없으면 0)
+
+    // 현재 서있는 플랫폼의 X축 경계
+    float GetPlatformMinX() const { return platformMinX; }
+    float GetPlatformMaxX() const { return platformMaxX; }
+    bool HasPlatformBounds() const { return activeGroundID != 0; }
     
 protected:
     void Init() override;
@@ -50,6 +55,9 @@ protected:
         AbilityType* ability = new AbilityType();
         abilitySystem->AddAbility(AbilityName, ability);
     }
+    
+private:
+    void SetIsGrounded_Internal(bool inIsGrounded);
 
 protected:
     // 공통 컴포넌트
@@ -63,8 +71,9 @@ protected:
     bool bIsGrounded;       // 지면 착지 상태
     bool bIsOnSteepSlope;   // 가파른 경사면에서 미끄러지는 중
     bool bWasOnSteepSlope;  // 이전 프레임 상태 (태그 변화 감지용)
-    bool bShouldIgnorePlatform;
     UINT ignoredPlatformID; // 통과 중인 플랫폼 ID (0이면 없음)
     UINT activeGroundID;    // 실제로 서있는 지면/플랫폼 ID (스냅 대상)
     float activeGroundTop;  // activeGround 플랫폼의 상단 Y좌표 (비교용, Y가 클수록 아래)
+    float platformMinX;     // 현재 플랫폼 X 최소값
+    float platformMaxX;     // 현재 플랫폼 X 최대값
 };

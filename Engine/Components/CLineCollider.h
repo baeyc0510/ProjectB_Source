@@ -39,6 +39,7 @@ public:
 	void SetScale(const Vec2& scale) override;
 	EColliderType GetType() const override { return EColliderType::Line; }
 
+	void RenderDebug() override;
 private:
 	void Render() override;
 

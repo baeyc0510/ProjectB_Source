@@ -104,7 +104,7 @@ float CLineCollider::GetSlopeAngleDegrees() const
 	return GetSlopeAngle() * RAD_TO_DEG;
 }
 
-void CLineCollider::Render()
+void CLineCollider::RenderDebug()
 {
 	Vec2 start = CAMERA->WorldToScreenPoint(GetWorldStart());
 	Vec2 end = CAMERA->WorldToScreenPoint(GetWorldEnd());
@@ -118,7 +118,8 @@ void CLineCollider::Render()
 	RENDER->SetBrush(BrushType::Solid, color);
 	RENDER->Ellipse(start.x - 3, start.y - 3, start.x + 3, start.y + 3);
 	RENDER->Ellipse(end.x - 3, end.y - 3, end.x + 3, end.y + 3);
+}
 
-	RENDER->SetPen();
-	RENDER->SetBrush();
+void CLineCollider::Render()
+{
 }

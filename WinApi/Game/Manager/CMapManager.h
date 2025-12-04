@@ -1,6 +1,8 @@
 #pragma once
 #include "Game/Map/CMap.h"
 
+class CScene;
+
 class CMapManager : public SingleTon<CMapManager>
 {
 	friend SingleTon<CMapManager>;
@@ -18,6 +20,8 @@ public:
 	void UnloadMap();
 	bool IsMapLoaded() const { return currentMap != nullptr; }
 
+	CMap* FindMap(const wstring& mapPath);
+	
 	// 렌더링
 	void RenderBackground();
 	void RenderForeground();
@@ -41,13 +45,15 @@ public:
 	CMap* GetCurrentMap() { return currentMap; }
 
 	// 월드 콜라이더 생성/해제
-	void CreateWorldColliders(class CScene* scene);
+	void CreateWorldColliders(CScene* scene);
 	void DestroyWorldColliders();
+	void CreateWorldCharacters(CScene* scene);
 
 private:
 	CMap* currentMap;
 	Vec2 virtualCenter;		// 가상 해상도 중심
 	vector<CGameObject*> worldColliders;	// 생성된 콜라이더 오브젝트들
+	unordered_map<wstring, CMap*> mapCache;
 };
 
 #define MAP		CMapManager::GetInstance()

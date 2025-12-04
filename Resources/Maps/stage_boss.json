@@ -1,0 +1,101 @@
+{
+  "layers": [
+    {
+      "image": "Image/BackGround/piedad_bg1.bmp",
+      "parallax": 0.0,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": false
+    },
+    {
+      "image": "Image/BackGround/piedad_map.bmp",
+      "parallax": 1.0,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": false
+    },
+    {
+      "image": "Image/BackGround/piedad_bg3.bmp",
+      "parallax": 0.9,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": false
+    },
+    {
+      "image": "Image/BackGround/piedad_map_door.bmp",
+      "parallax": 1.0,
+      "scale": 1.0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "isMain": false
+    }
+  ],
+  "spawnPoints": [
+    {
+      "spawnId": 0,
+      "pos": [
+        98.16551619823957,
+        247.28744935183266
+      ]
+    }
+  ],
+  "bounds": [
+    3.426477168477362,
+    2.8325467283887633,
+    1991.1006934601057,
+    349.92622670264967
+  ],
+  "checkpoints": [],
+  "objects": [],
+  "transitions": [
+    {
+      "rect": [
+        8.128825493182319,
+        124.80281526759157,
+        36.74103443884445,
+        176.90127692776966
+      ],
+      "target": "Stage02",
+      "spawnId": 1
+    }
+  ],
+  "boxColliders": [
+    {
+      "rect": [
+        7.739075090318472,
+        291.43466981784184,
+        1980.565598293094,
+        53.477181053236905
+      ],
+      "tags": [
+        "Solid"
+      ]
+    },
+    {
+      "rect": [
+        1963.572441741908,
+        3.3889776615674236,
+        21.435458174297537,
+        342.9673307887566
+      ],
+      "tags": [
+        "Solid"
+      ]
+    },
+    {
+      "rect": [
+        9.048391849164858,
+        5.337655677412613,
+        15.58942412676167,
+        329.3265846778402
+      ],
+      "tags": [
+        "Solid"
+      ]
+    }
+  ],
+  "slopeColliders": []
+}

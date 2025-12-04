@@ -2,9 +2,10 @@
 #include "CStage01.h"
 #include "Game/Object/Character/CPlayer.h"
 #include "Game/Component/CStateSystem.h"
-#include "Game/Object/Character/CMonster.h"
+#include "Game/Object/Character/CEnemy.h"
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CMapManager.h"
+#include "Game/Object/Character/CEnemy_Acorite.h"
 
 class CCameraController;
 class CPlayer;
@@ -21,15 +22,6 @@ CStage01::~CStage01()
 void CStage01::Init()
 {
 	CMapScene::Init();
-	
-	// // Dummy Monster (Player 오른쪽)
-	for (int i = 0; i < 10; i++)
-	{
-		CMonster* monster = new CMonster();
-		monster->SetPos(MAP->GetPlayerSpawn() + Vec2(100.f + 50*i, 0.f));
-		monster->SetForward(-1);
-		AddGameObject(monster);
-	}
 }
 
 void CStage01::Enter()

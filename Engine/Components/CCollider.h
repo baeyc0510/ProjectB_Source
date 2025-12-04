@@ -27,7 +27,8 @@ public:
 	void				SetPos(const Vec2& pos)			{ this->pos = pos; }
 	void				SetOffset(const Vec2& offset)	{ this->offset = offset; }
 	virtual void		SetScale(const Vec2& scale)		= 0;
-
+	
+	virtual void		RenderDebug();
 protected:
 	static const COLORREF layerColors[16];
 	bool				IsColliding() const				{ return count > 0; }

@@ -10,7 +10,7 @@ CBoxCollider::~CBoxCollider()
 {
 }
 
-void CBoxCollider::Render()
+void CBoxCollider::RenderDebug()
 {
 	Vec2 renderPos = CAMERA->WorldToScreenPoint(GetPos());
 
@@ -27,4 +27,8 @@ void CBoxCollider::Render()
 
 	RENDER->SetPen();
 	RENDER->SetBrush();
+}
+
+void CBoxCollider::Render()
+{
 }

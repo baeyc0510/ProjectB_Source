@@ -63,6 +63,12 @@ struct SlopeColliderData
 	}
 };
 
+struct WorldObjectData
+{
+	Vec2 pos;
+	string name;
+};
+
 class CMap
 {
 public:
@@ -78,6 +84,7 @@ public:
 	void RenderForeground(Vec2 cameraPos);	// Main 레이어 이후 (앞)
 	
 	// 맵 정보
+	wstring GetMapPath() const { return mapPath; }
 	Vec2 GetSpawnPoint(int spawnId) const;
 	Rect GetBounds() const { return bounds; }
 
@@ -94,15 +101,20 @@ public:
 	const vector<BoxColliderData>& GetBoxColliders() const { return boxColliders; }
 	const vector<SlopeColliderData>& GetSlopeColliders() const { return slopeColliders; }
 
+	// 월드 오브젝트
+	const vector<WorldObjectData>& GetWorldObjects() const { return worldObjects; }
+	
 	// 태그로 콜라이더 필터링
 	vector<const BoxColliderData*> GetBoxCollidersWithTag(const string& tag) const;
 	vector<const SlopeColliderData*> GetSlopeCollidersWithTag(const string& tag) const;
+
 
 private:
 	void LoadFromJson(const wstring& jsonPath);
 	wstring GetMapDirectory(const wstring& jsonPath);
 
 private:
+	wstring mapPath;
 	vector<CMapLayer> backgroundLayers;
 	CMapLayer mainLayer;
 	vector<CMapLayer> foregroundLayers;
@@ -113,6 +125,7 @@ private:
 	vector<SceneTransitionData> transitions;
 	vector<BoxColliderData> boxColliders;
 	vector<SlopeColliderData> slopeColliders;
+	vector<WorldObjectData> worldObjects;
 
 	wstring mapDirectory;	// JSON 파일이 있는 디렉토리
 };

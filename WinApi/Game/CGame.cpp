@@ -9,6 +9,7 @@
 #include "Scene/CStage01.h"
 #include "Scene/CSceneTitle.h"
 #include "Scene/CStage02.h"
+#include "Scene/CStage_Boss01.h"
 
 const Vec2 CGame::WINSTART		= Vec2(100, 100);
 const Vec2 CGame::WINSIZE		= Vec2(1280, 720);	// 실제 윈도우 크기
@@ -85,6 +86,7 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CSceneManager)->AddScene(ESceneType::Title,	new CSceneTitle());
 	SINGLE(CSceneManager)->AddScene(ESceneType::Stage01,	new CStage01());
 	SINGLE(CSceneManager)->AddScene(ESceneType::Stage02,	new CStage02());
+	SINGLE(CSceneManager)->AddScene(ESceneType::Stage_Boss01,	new CStage_Boss01());
 
 	// TODO : 충돌 레이어 설정
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Monster);
@@ -141,21 +143,15 @@ void CGame::Input()
 void CGame::Update()
 {
 	// 게임의 처리 진행
-	// 순서 주의! : 이벤트 매니저는 업데이트 가장 초기에 진행
+	// 순서 주의! : 월드 매니저는 업데이트 가장 초기에 진행
 	// 같은 프레임내에 모든 게임 오브젝트가 동일한 상황을 기준으로 처리하기 위해
 	SINGLE(CWorldManager)->Update();
-
 	SINGLE(CTimeManager)->Update();
 	SINGLE(CUIManager)->Update();
 	SINGLE(CGameUIManager)->Update();
 	SINGLE(CSceneManager)->Update();
-	// 순서 주의! : 카메라는 씬 업데이트 후에 진행
-	// 플레이어 위치가 확정된 후 카메라가 따라가야 떨림 방지
 	SINGLE(CCameraManager)->Update();
 	SINGLE(CSoundManager)->Update();
-
-	// 순서 주의! : 충돌 매니저는 업데이트 가장 마지막에 진행
-	// 씬에서 움직인 결과위치를 기준으로 충돌판정을 진행하기 위해
 	SINGLE(CCollisionManager)->Update();
 }
 
