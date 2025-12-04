@@ -68,7 +68,7 @@ private:
 	static constexpr float MAX_HP = 100.f;
 	static constexpr float MAX_MP = 100.f;
 	static constexpr int MAX_FLASK = 2;
-	static constexpr float CLIMB_SPEED = 150.f;
+	static constexpr float CLIMB_SPEED = 100.f;
 
 	// Crouch collider 설정
 	Vec2 colScale;

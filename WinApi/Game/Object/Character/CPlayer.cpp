@@ -14,6 +14,7 @@
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 #include "Game/Component/CAbilitySystem.h"
+#include "Game/Component/CCharacterMovement.h"
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CMapManager.h"
 #include "Game/Manager/CVFXManager.h"
@@ -43,6 +44,15 @@ void CPlayer::Init()
 	collider->SetScale(colScale);
 	collider->SetOffset(colOffset);
 	collider->SetLayer(ELayer::Player);
+
+	// Movement (Player 기본 설정: 드롭다운 가능, 엣지 블로킹 없음)
+	movement->SetConfig({
+		.maxSlopeAngle = 50.0f,
+		.bCanDropThrough = true,
+		.bBlockAtEdges = false,
+		.bFlipDirectionAtEdge = false,
+		.bFlipDirectionAtWall = false
+	});
 	
 	// Abilities
 	AddAbility<Ability_ComboAttack>(EAbility::Attack);
@@ -186,8 +196,6 @@ void CPlayer::HandleActionInput()
 
 			abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
 			stateSystem->AddTagUnique(Tag_Climbing);
-			rigidbody->UseGravity(false);
-			rigidbody->SetVelocity(Vec2(0.f, 0.f));
 			return;
 		}
 	}
@@ -248,7 +256,7 @@ void CPlayer::UpdateMovement()
 		// 현재 위치 계산
 		float centerY = collider->GetPos().y;
 		float footY = centerY + collider->GetScale().y * 0.5f;
-		float midY = (centerY + footY) * 0.5f;  // (중심 + 발) / 2
+		float midY = centerY;
 
 		// 상하 이동 (경계 체크)
 		if (INPUT->ButtonStay('W'))
@@ -258,15 +266,12 @@ void CPlayer::UpdateMovement()
 			// midY가 상단을 벗어나면
 			if (midY <= ladderTopY)
 			{
-				// 사다리 탈출 -> 플랫폼 위에 착지
 				// 발이 ladderTopY에 오도록 위치 스냅
 				float colHalfY = collider->GetScale().y * 0.5f;
 				float offsetY = collider->GetOffset().y;
 				SetPos(Vec2(ladderX, ladderTopY - colHalfY - offsetY));
-
+				
 				stateSystem->RemoveTagAll(Tag_Climbing);
-				rigidbody->UseGravity(true);
-				rigidbody->SetVelocity(Vec2(0.f, 0.f));
 				return;
 			}
 		}
@@ -548,10 +553,18 @@ void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 		stateSystem->RemoveTag(Tag_Climbing);
 	}
 
+	// 사다리 타기 진입 시
+	if (TagAdded(oldTags, newTags, Tag_Climbing))
+	{
+		rigidbody->UseGravity(false);
+		rigidbody->SetVelocity(Vec2(0.f, 0.f));
+	}
 	// 사다리 타기 해제 시
 	if (TagRemoved(oldTags, newTags, Tag_Climbing))
 	{
+		SetIgnorePlatform(0);
 		rigidbody->UseGravity(true);
+		rigidbody->SetVelocity(Vec2(0.f, 0.f));
 	}
 }
 

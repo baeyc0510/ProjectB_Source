@@ -54,13 +54,14 @@ enum EStateTag
 	Tag_BlockMovement		= 1 << 13,
 	Tag_StopVelocity 		= 1 << 14,
 	Tag_Crouching			= 1 << 15,
-	Tag_AirAttackExhausted	= 1 << 16,	// 공중 공격 소진
-	Tag_FlaskRemaining		= 1 << 17,	// 잔여 플라스크 있음
-	Tag_Climbing			= 1 << 18,	// 사다리 타는 중
-	Tag_CanClimb			= 1 << 19,	// 사다리 진입 가능
-	Tag_HasTarget			= 1 << 20,	// AI: 타겟 보유
-	Tag_AIPatrol			= 1 << 21,	// AI: 순찰 중
-	Tag_AIChase				= 1 << 22,	// AI: 추격 중
+	Tag_ShouldCrouch		= 1 << 16,
+	Tag_AirAttackExhausted	= 1 << 17,	// 공중 공격 소진
+	Tag_FlaskRemaining		= 1 << 18,	// 잔여 플라스크 있음
+	Tag_Climbing			= 1 << 19,	// 사다리 타는 중
+	Tag_CanClimb			= 1 << 20,	// 사다리 진입 가능
+	Tag_HasTarget			= 1 << 21,	// AI: 타겟 보유
+	Tag_AIPatrol			= 1 << 22,	// AI: 순찰 중
+	Tag_AIChase				= 1 << 23,	// AI: 추격 중
 };
 
 inline EStateTag operator|(EStateTag a, EStateTag b)

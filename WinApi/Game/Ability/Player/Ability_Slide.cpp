@@ -10,7 +10,7 @@ Ability_Slide::Ability_Slide()
 
 void Ability_Slide::OnActivate()
 {
-    const float SLIDE_SPEED = 500.f;
+    const float SLIDE_SPEED = 400.f;
 
     Ability::OnActivate();
 

@@ -177,6 +177,7 @@
     <ClInclude Include="Game\CGame.h" />
     <ClInclude Include="Game\Component\CAbilitySystem.h" />
     <ClInclude Include="Game\Component\CAIController.h" />
+    <ClInclude Include="Game\Component\CCharacterMovement.h" />
     <ClInclude Include="Game\Component\CRigidbody.h" />
     <ClInclude Include="Game\Component\CStateSystem.h" />
     <ClInclude Include="Game\Enum.h" />
@@ -380,6 +381,7 @@
     </ClCompile>
     <ClCompile Include="Game\Component\CAbilitySystem.cpp" />
     <ClCompile Include="Game\Component\CAIController.cpp" />
+    <ClCompile Include="Game\Component\CCharacterMovement.cpp" />
     <ClCompile Include="Game\Component\CRigidbody.cpp" />
     <ClCompile Include="Game\Component\CStateSystem.cpp" />
     <ClCompile Include="Game\Interface\CombatInterface.cpp" />
