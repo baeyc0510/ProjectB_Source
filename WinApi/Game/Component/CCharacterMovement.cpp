@@ -32,68 +32,42 @@ void CCharacterMovement::ComponentInit()
 
 void CCharacterMovement::ComponentOnEnable()
 {
-	Component::ComponentOnEnable();
+	Component<CGameObject>::ComponentOnEnable();
 
 	// 상태 초기화
-	bIsGrounded = false;
-	bIsOnSteepSlope = false;
-	bWasOnSteepSlope = false;
-	activeGroundID = 0;
-	activeGroundTop = -FLT_MAX;
+	groundState.Reset();
+	frameFlags.Reset();
 	ignoredPlatformID = 0;
-	platformMinX = -FLT_MAX;
-	platformMaxX = FLT_MAX;
-
-	ResetFrameState();
 }
 
-void CCharacterMovement::LateUpdate()
+void CCharacterMovement::ComponentLateUpdate()
 {
-	// 이전 프레임 상태 갱신
-	bWasOnSteepSlope = bIsOnSteepSlope;
-
 	// 프레임별 충돌 정보 리셋
-	ResetFrameState();
-}
-
-void CCharacterMovement::ResetFrameState()
-{
-	bHitWall = false;
-	wallHitDirection = 0;
-	bReachedEdge = false;
-	edgeDirection = 0;
+	frameFlags.Reset();
 }
 
 void CCharacterMovement::ResetGroundState()
 {
-	activeGroundID = 0;
-	activeGroundTop = -FLT_MAX;
-	platformMinX = -FLT_MAX;
-	platformMaxX = FLT_MAX;
+	groundState.activeGroundID = 0;
+	groundState.activeGroundTop = -FLT_MAX;
+	groundState.platformMinX = -FLT_MAX;
+	groundState.platformMaxX = FLT_MAX;
 }
 
 void CCharacterMovement::SetGrounded(bool value)
 {
-	bIsGrounded = value;
+	groundState.bIsGrounded = value;
 
-	if (bIsGrounded)
-	{
-		ignoredPlatformID = 0;
-	}
-	else
-	{
-		ResetGroundState();
-	}
+	// // 착지 해제 시 지면 상태 리셋
+	// if (!groundState.bIsGrounded)
+	// {
+	// 	ResetGroundState();
+	// }
 
 	if (rigidbody)
 	{
-		rigidbody->SetGrounded(bIsGrounded);
+		rigidbody->SetGrounded(groundState.bIsGrounded);
 	}
-}
-
-void CCharacterMovement::SetIgnorePlatform(UINT platformID)
-{
-	ignoredPlatformID = platformID;
 }
 
 void CCharacterMovement::HandleCollisionEnter(CCollider* other)
@@ -151,18 +125,18 @@ void CCharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPl
 		return;
 
 	// 더 아래(Y가 큰) 슬로프를 activeGround로 선택
-	if (activeGroundID == 0 || slopeY > activeGroundTop)
+	if (groundState.activeGroundID == 0 || slopeY > groundState.activeGroundTop)
 	{
-		activeGroundID = lineCollider->GetID();
-		activeGroundTop = slopeY;
+		groundState.activeGroundID = lineCollider->GetID();
+		groundState.activeGroundTop = slopeY;
 
 		Vec2 start = lineCollider->GetWorldStart();
 		Vec2 end = lineCollider->GetWorldEnd();
-		platformMinX = min(start.x, end.x);
-		platformMaxX = max(start.x, end.x);
+		groundState.platformMinX = min(start.x, end.x);
+		groundState.platformMaxX = max(start.x, end.x);
 	}
 
-	if (lineCollider->GetID() != activeGroundID)
+	if (lineCollider->GetID() != groundState.activeGroundID)
 		return;
 
 	// 착지 상태
@@ -179,7 +153,7 @@ void CCharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPl
 	// 가파른 경사면
 	if (slopeAngle > maxSlopeAngleRad)
 	{
-		bIsOnSteepSlope = true;
+		groundState.bIsOnSteepSlope = true;
 
 		Vec2 newPos = owner->GetPos();
 		float snapY = lineCollider->GetYAt(newPos.x + collider->GetOffset().x);
@@ -195,7 +169,7 @@ void CCharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPl
 	}
 
 	// 완만한 경사면
-	bIsOnSteepSlope = false;
+	groundState.bIsOnSteepSlope = false;
 
 	if (velocity.y < 0)
 		return;
@@ -237,12 +211,12 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 	float myFoot = myPos.y + myHalf.y;
 
 	// 더 아래 Ground를 activeGround로 선택
-	if (activeGroundID == 0 || otherTop > activeGroundTop)
+	if (groundState.activeGroundID == 0 || otherTop > groundState.activeGroundTop)
 	{
-		activeGroundID = other->GetID();
-		activeGroundTop = otherTop;
-		platformMinX = otherPos.x - otherHalf.x;
-		platformMaxX = otherPos.x + otherHalf.x;
+		groundState.activeGroundID = other->GetID();
+		groundState.activeGroundTop = otherTop;
+		groundState.platformMinX = otherPos.x - otherHalf.x;
+		groundState.platformMaxX = otherPos.x + otherHalf.x;
 	}
 
 	// 원웨이 플랫폼
@@ -270,15 +244,15 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 		{
 			if (velocity.y >= 0)
 			{
-				if (activeGroundID == 0 || otherTop > activeGroundTop)
+				if (groundState.activeGroundID == 0 || otherTop > groundState.activeGroundTop)
 				{
-					activeGroundID = other->GetID();
-					activeGroundTop = otherTop;
-					platformMinX = otherPos.x - otherHalf.x;
-					platformMaxX = otherPos.x + otherHalf.x;
+					groundState.activeGroundID = other->GetID();
+					groundState.activeGroundTop = otherTop;
+					groundState.platformMinX = otherPos.x - otherHalf.x;
+					groundState.platformMaxX = otherPos.x + otherHalf.x;
 				}
 
-				if (other->GetID() != activeGroundID)
+				if (other->GetID() != groundState.activeGroundID)
 					return;
 
 				SetGrounded(true);
@@ -325,8 +299,8 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 			rigidbody->SetVelocity(velocity);
 
 			// 벽 충돌 플래그 설정
-			bHitWall = true;
-			wallHitDirection = wallDir;
+			frameFlags.bHitWall = true;
+			frameFlags.wallHitDirection = wallDir;
 		}
 
 		Vec2 newPos = owner->GetPos();
@@ -343,15 +317,16 @@ void CCharacterMovement::HandleCollisionExit(CCollider* other)
 		return;
 
 	// activeGround exit 시 착지 해제
-	if (other->GetID() == activeGroundID)
+	if (other->GetID() == groundState.activeGroundID)
 	{
 		SetGrounded(false);
+		ResetGroundState();
 	}
 
 	// 경사면 exit 시 미끄러짐 해제
 	if (layer == ELayer::Ground && dynamic_cast<CLineCollider*>(other))
 	{
-		bIsOnSteepSlope = false;
+		groundState.bIsOnSteepSlope = false;
 	}
 
 	// 엣지 감지 (AI용)
@@ -372,8 +347,8 @@ void CCharacterMovement::HandleGroundExit(CCollider* other)
 		return;
 
 	// 엣지 도달 플래그 설정
-	bReachedEdge = true;
-	edgeDirection = dir;
+	frameFlags.bReachedEdge = true;
+	frameFlags.edgeDirection = dir;
 
 	// 즉시 정지
 	rigidbody->SetVelocity(Vec2(0.0f, velocity.y));
@@ -427,4 +402,36 @@ bool CCharacterMovement::CheckGroundAhead(int direction)
 	auto platformResults = COLLISION->BoxTrace(traceCenter, traceHalfSize, (UINT)ELayer::Platform);
 
 	return !groundResults.empty() || !platformResults.empty();
+}
+
+void CCharacterMovement::AddMoveInput(float direction)
+{
+	moveInput = direction;
+}
+
+void CCharacterMovement::ProcessMovement()
+{
+	if (!rigidbody)
+		return;
+
+	Vec2 vel = rigidbody->GetVelocity();
+
+	// 입력이 있으면 속도 적용
+	if (moveInput != 0.f)
+	{
+		vel.x = moveInput * moveSpeed;
+	}
+	// 입력이 없고 지면에 있으면 마찰 적용
+	else if (groundState.bIsGrounded)
+	{
+		if (vel.x > 0)
+			vel.x = max(0.f, vel.x - friction * DT);
+		else if (vel.x < 0)
+			vel.x = min(0.f, vel.x + friction * DT);
+	}
+
+	rigidbody->SetVelocity(vel);
+
+	// 입력 리셋 (매 프레임 호출되어야 함)
+	moveInput = 0.f;
 }

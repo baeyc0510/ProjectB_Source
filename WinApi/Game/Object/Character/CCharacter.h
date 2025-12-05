@@ -18,6 +18,7 @@ public:
     CCharacterMovement* GetMovement() const { return movement; }
 
     void SetIgnorePlatform(UINT platformID);
+    void SetIsGrounded(bool grounded);
     UINT GetCurrentGroundID() const;
 
     // MovementComponent에서 폴링
@@ -39,6 +40,7 @@ protected:
 
     virtual void UpdateStates();
     virtual void OnStateChanged(EStateTag oldTags, EStateTag newTags);
+    virtual bool ShouldIgnorePlatform() const { return false; }
 
     void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 

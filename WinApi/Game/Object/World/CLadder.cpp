@@ -16,9 +16,8 @@ void CLadder::OnCollisionEnter(CCollider* other)
 {
 	if (other->GetLayer() != ELayer::Player)
 		return;
-
-	CPlayer* player = dynamic_cast<CPlayer*>(other->GetOwner());
-	if (player)
+	
+	if (CPlayer* player = dynamic_cast<CPlayer*>(other->GetOwner()))
 	{
 		player->SetLadderInfo(ladderX, ladderTopY, ladderBottomY);
 		player->GetStateSystem()->AddTagUnique(Tag_CanClimb);
@@ -29,9 +28,8 @@ void CLadder::OnCollisionExit(CCollider* other)
 {
 	if (other->GetLayer() != ELayer::Player)
 		return;
-
-	CPlayer* player = dynamic_cast<CPlayer*>(other->GetOwner());
-	if (player)
+	
+	if (CPlayer* player = dynamic_cast<CPlayer*>(other->GetOwner()))
 	{
 		player->GetStateSystem()->RemoveTag(Tag_CanClimb);
 	}

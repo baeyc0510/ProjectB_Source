@@ -32,7 +32,6 @@ void Ability_Crouch::OnJumpPressed()
     if (CPlayer* player = dynamic_cast<CPlayer*>(owner))
     {
         player->SetIgnorePlatform(player->GetCurrentGroundID());
-        player->SetIsGrounded(false);
         EndAbility();
     }
 }

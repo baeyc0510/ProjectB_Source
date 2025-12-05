@@ -114,6 +114,7 @@ enum class EAbility
 	Jump,
 	Slide,
 	Crouch,
+	Climb,
 	Parry,
 	CounterAttack,
 	Hit,
@@ -152,6 +153,10 @@ enum class EGameEvent
 	Input_Jump_Pressed,
 	Input_Attack_Pressed,
 	Input_Crouch_Released,
+	Input_Up_Hold,
+	Input_Up_Released,
+	Input_Down_Hold,
+	Input_Down_Released,
 	// AI 이벤트
 	AI_TargetDetected,		// 타겟 감지
 	AI_TargetLost,			// 타겟 놓침

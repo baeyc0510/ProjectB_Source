@@ -18,6 +18,10 @@ public:
 	void SetMaxFlask(int value);
 	void SetJumpForce(float value) { jumpForce = value; }
 	void SetLadderInfo(float x, float topY, float bottomY) { ladderX = x; ladderTopY = topY; ladderBottomY = bottomY; }
+	float GetLadderX() const { return ladderX; }
+	float GetLadderTopY() const { return ladderTopY; }
+	float GetLadderBottomY() const { return ladderBottomY; }
+	Vec2 GetCharacterScale() const { return characterScale; }
 	
 	float GetCurrentHP() const {return currentHP;}
 	float GetMaxHP() const {return maxHP;}
@@ -36,9 +40,9 @@ protected:
 	void Release() override;
 
 	/*~ CCharacter Interface ~*/
-	void OnCollisionEnter(CCollider* other) override;
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
-
+	bool ShouldIgnorePlatform() const override;
+	
 	/*~ ICombatInterface ~*/
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 
@@ -68,10 +72,9 @@ private:
 	static constexpr float MAX_HP = 100.f;
 	static constexpr float MAX_MP = 100.f;
 	static constexpr int MAX_FLASK = 2;
-	static constexpr float CLIMB_SPEED = 100.f;
 
 	// Crouch collider 설정
-	Vec2 colScale;
+	Vec2 characterScale;
 	Vec2 colOffset;
 	
 	// status

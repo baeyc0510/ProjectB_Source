@@ -30,6 +30,7 @@ public:
 	virtual void	ComponentInit()			= 0;
 	virtual void	ComponentOnEnable()		{ active = true; }
 	virtual void	ComponentUpdate()		= 0;
+	virtual void	ComponentLateUpdate()	{}
 	virtual void	ComponentRender()		= 0;
 	virtual void	ComponentOnDisable()	{ active = false; }
 	virtual void	ComponentRelease()		= 0;
@@ -81,6 +82,14 @@ public:
 		for (Component<T>* component : childList)
 		{
 			component->ComponentUpdate();
+		}
+	}
+
+	void ComponentLateUpdate() override
+	{
+		for (Component<T>* component : childList)
+		{
+			component->ComponentLateUpdate();
 		}
 	}
 

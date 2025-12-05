@@ -167,6 +167,7 @@
     <ClInclude Include="Game\Ability\Player\Ability_AirAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_ComboAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Crouch.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Climb.h" />
     <ClInclude Include="Game\Ability\Player\Ability_CrouchAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Jump.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Parry.h" />
@@ -222,6 +223,7 @@
     <ClCompile Include="Game\Ability\Player\Ability_AirAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_ComboAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Crouch.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Climb.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_CrouchAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Jump.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Parry.cpp" />

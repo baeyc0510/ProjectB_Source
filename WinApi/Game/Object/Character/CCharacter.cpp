@@ -26,7 +26,19 @@ void CCharacter::SetIgnorePlatform(UINT platformID)
 {
     if (movement)
     {
+        if (platformID == GetCurrentGroundID())
+        {
+            movement->SetGrounded(false);
+        }
         movement->SetIgnorePlatform(platformID);
+    }
+}
+
+void CCharacter::SetIsGrounded(bool grounded)
+{
+    if (movement)
+    {
+        movement->SetGrounded(grounded);
     }
 }
 
@@ -91,6 +103,12 @@ void CCharacter::OnEnable()
 
 void CCharacter::Update()
 {
+	// 속도 정지 태그 처리
+	if (stateSystem && stateSystem->HasTag(Tag_StopVelocity))
+	{
+		if (rigidbody)
+			rigidbody->SetVelocity(Vec2(0.0f, 0.0f));
+	}
 }
 
 void CCharacter::Render()
@@ -167,6 +185,10 @@ void CCharacter::OnStateChanged(EStateTag oldTags, EStateTag newTags)
     if (TagAdded(oldTags, newTags, Tag_Grounded))
     {
         abilitySystem->TriggerEvent(EGameEvent::Landed);
+        if (!ShouldIgnorePlatform())
+        {
+            movement->ClearIgnorePlatform();
+        }
     }
 }
 

@@ -125,6 +125,16 @@ void CScene::SceneUpdate()
 	{
 		ui->ComponentUpdate();
 	}
+
+	// LateUpdate
+	for (CGameObject* obj : objList)
+	{
+		obj->ComponentLateUpdate();
+	}
+	for (CUI* ui : uiList)
+	{
+		ui->ComponentLateUpdate();
+	}
 }
 
 void CScene::SceneRender()

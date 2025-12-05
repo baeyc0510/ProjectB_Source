@@ -24,13 +24,13 @@ void CEnemy::Init()
 	CCharacter::Init();
 
 	// Movement (AI 설정: 엣지 블로킹, 방향 전환)
-	movement->SetConfig({
-		.maxSlopeAngle = 50.0f,
-		.bCanDropThrough = false,
-		.bBlockAtEdges = true,
-		.bFlipDirectionAtEdge = true,
-		.bFlipDirectionAtWall = true
-	});
+	FMovementConfig moveConfig;
+	moveConfig.maxSlopeAngle = 50.0f;
+	moveConfig.bCanDropThrough = false;
+	moveConfig.bBlockAtEdges = true;
+	moveConfig.bFlipDirectionAtEdge = true;
+	moveConfig.bFlipDirectionAtWall = true;
+	movement->SetConfig(moveConfig);
 
 	// AIController
 	aiController = new CAIController();
@@ -70,12 +70,6 @@ void CEnemy::Release()
 
 void CEnemy::UpdateAnimation()
 {
-	if (stateSystem->HasTag(Tag_StopVelocity))
-	{
-		rigidbody->SetVelocity(Vec2(0.0f, 0.0f));
-		return;
-	}
-
 	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
 
@@ -117,8 +111,8 @@ void CEnemy::HandleMovementEvents()
 
 void CEnemy::UpdateAIMovement()
 {
-	// 이동 불가 상태면 정지
-	if (stateSystem->HasAnyTag(Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement))
+	// 이동 불가 상태 (CCharacter::Update에서 Tag_StopVelocity 처리됨)
+	if (stateSystem->HasAnyTag(Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement))
 	{
 		rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
 		return;
