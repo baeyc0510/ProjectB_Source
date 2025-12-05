@@ -17,7 +17,6 @@
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CCharacterMovement.h"
 #include "Game/Manager/CGameUIManager.h"
-#include "Game/Manager/CMapManager.h"
 #include "Game/Manager/CVFXManager.h"
 #include "Game/Object/CVFX.h"
 
@@ -219,13 +218,15 @@ void CPlayer::HandleActionInput()
 
 void CPlayer::UpdateMovement()
 {
-	// 정지 상태 (CCharacter::Update에서 velocity 처리됨)
+	// 정지 상태
 	if (stateSystem->HasTag(Tag_StopVelocity) || stateSystem->HasTag(Tag_BlockMovement))
 		return;
 
-	// 사다리 타기 중 (Ability_Climb에서 처리)
+	// 사다리 타기 중
 	if (stateSystem->HasTag(Tag_Climbing))
 		return;
+	
+	// 매달리기 
 
 	// 이동 입력 처리
 	float moveDir = 0.f;
@@ -304,6 +305,34 @@ void CPlayer::OnDisable()
 void CPlayer::Release()
 {
 	CCharacter::Release();
+}
+
+void CPlayer::OnCollisionEnter(CCollider* other)
+{
+	CCharacter::OnCollisionEnter(other);
+}
+
+void CPlayer::OnCollisionStay(CCollider* other)
+{
+	ELayer layer = static_cast<ELayer>( other->GetLayer());
+	if (layer == ELayer::Ledge)
+	{
+		CheckLedge(other);
+	}
+	
+	CCharacter::OnCollisionStay(other);
+}
+
+void CPlayer::OnCollisionExit(CCollider* other)
+{
+	// 설정한 ledge에서 벗어난 경우 ledge정보 초기화
+	ELayer layer = static_cast<ELayer>( other->GetLayer());
+	if (layer == ELayer::Ledge && ledgeId == other->GetID())
+	{
+		ClearLedge();
+	}
+	
+	CCharacter::OnCollisionExit(other);
 }
 
 void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
@@ -483,4 +512,70 @@ void CPlayer::CheckVelocityChanged()
 	}
 
 	prevVelocity = curVelocity;
+}
+
+void CPlayer::CheckLedge(CCollider* other)
+{
+	if (!other || !collider)
+		return;
+	
+	// 이미 ledge로 마크되어 있는 경우 early return
+	if (bOverlapWithLedge && ledgeId == other->GetID())
+		return;
+	
+	// 매달리기 조건 판별
+	Vec2 otherPos = other->GetPos();
+	Vec2 otherHalf = other->GetScale() * 0.5f;
+	float otherTop = otherPos.y - otherHalf.y;
+		
+	Vec2 playerPos = collider->GetPos();
+	Vec2 playerHalfScale = collider->GetScale() * 0.5f;
+	float playerBottom = playerPos.y + playerHalfScale.y;
+	
+	if (playerBottom < otherTop)
+		return;
+	
+	// 이미 겹쳐있는 다른 Ledge가 있고 해당 ledge보다 낮으면 갱신 x
+	if (bOverlapWithLedge && otherTop > ledgeTop)
+	{
+		return;
+	}
+	
+	bOverlapWithLedge = true;
+	ledgeId = other->GetID();
+	ledgeTop = otherTop;
+	ledgeX = otherPos.x;
+}
+
+void CPlayer::UpdateCanClimbLedge()
+{
+	bool bIsFalling = rigidbody->GetVelocity().y > 0;
+	if (!bOverlapWithLedge || !bIsFalling)
+	{
+		stateSystem->RemoveTag(Tag_CanClimbLedge);
+		return;
+	}
+	
+	Vec2 playerPos = collider->GetPos();
+	Vec2 playerHalfScale = collider->GetScale() * 0.5f;
+	float playerTop = playerPos.y - playerHalfScale.y;
+	float checkY = playerTop + LEDGE_CLIMB_THRESHOLD;
+	
+	// 기준점이 ledgeTop보다 낮은 경우 CanClimb 
+	if (checkY < ledgeTop)
+	{
+		stateSystem->AddTagUnique(Tag_CanClimbLedge);
+	}
+	else
+	{
+		stateSystem->RemoveTag(Tag_CanClimbLedge);
+	}
+}
+
+void CPlayer::ClearLedge()
+{
+	bOverlapWithLedge = false;
+	ledgeId = 0;
+	ledgeTop = -FLT_MAX;
+	ledgeX = -FLT_MAX;
 }

@@ -44,6 +44,15 @@ void CGameObject::ComponentUpdate()
 	Composite::ComponentUpdate();
 }
 
+void CGameObject::ComponentLateUpdate()
+{
+	if (IsReservedDelete())
+		return;
+	
+	LateUpdate();
+	Composite::ComponentLateUpdate();
+}
+
 void CGameObject::ComponentRender()
 {
 	if (IsReservedDelete())

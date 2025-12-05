@@ -36,10 +36,14 @@ protected:
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
+	
 	void Render() override;
 	void OnDisable() override;
 	void Release() override;
-
+	void OnCollisionEnter(CCollider* other) override;
+	void OnCollisionStay(CCollider* other) override;
+	void OnCollisionExit(CCollider* other) override;
+	
 	/*~ CCharacter Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 	bool ShouldIgnorePlatform() const override;
@@ -64,7 +68,10 @@ private:
 	// 상태 처리
 	void UpdateAnimation();
 	void CheckVelocityChanged();
-	
+
+	void CheckLedge(CCollider* other);
+	void UpdateCanClimbLedge();
+	void ClearLedge();
 private:
 	// 상수
 	static constexpr float MOVE_SPEED = 250.f;
@@ -73,7 +80,8 @@ private:
 	static constexpr float MAX_HP = 100.f;
 	static constexpr float MAX_MP = 100.f;
 	static constexpr int MAX_FLASK = 2;
-
+	static constexpr float LEDGE_CLIMB_THRESHOLD = 10.f;
+	
 	// Crouch collider 설정
 	Vec2 characterScale;
 	Vec2 colOffset;
@@ -97,7 +105,13 @@ private:
 	float ladderX;
 	float ladderTopY;
 	float ladderBottomY;
-
+	
+	// Ledge(땅 끄트머리 턱) 정보
+	bool bOverlapWithLedge = false;
+	UINT ledgeId = 0;
+	float ledgeX = -FLT_MAX;
+	float ledgeTop = -FLT_MAX;
+	
 	// 입력 상태 변화 감지용
 	bool bWasMovingInput;
 };

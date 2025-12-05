@@ -46,14 +46,16 @@ protected:
 private:
 	virtual void	Init()		= 0;
 	virtual void	OnEnable()	= 0;
-	virtual void	Update()	= 0;
 	virtual void	OnDisable()	= 0;
 	virtual void	Release()	= 0;
+	virtual void	Update()	 {}
+	virtual void	LateUpdate() {}
 	//virtual void	Render()	= 0;
 	
 	void			ComponentInit()			override;
 	void			ComponentOnEnable()		override;
 	void			ComponentUpdate()		override;
+	void			ComponentLateUpdate()	override;
 	void			ComponentRender()		override;
 	void			ComponentOnDisable()	override;
 	void			ComponentRelease()		override;

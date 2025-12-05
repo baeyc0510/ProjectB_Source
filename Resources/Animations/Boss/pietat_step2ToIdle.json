@@ -1,0 +1,12 @@
+{
+    "image": "Image/Pietat/pietat_step2ToIdle.bmp",
+    "pivot": [70.0, 15.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 142, 225], "events": []},
+        {"rect": [142, 0, 142, 225], "events": []},
+        {"rect": [284, 0, 142, 225], "events": []},
+        {"rect": [426, 0, 142, 225], "events": []},
+        {"rect": [568, 0, 142, 225], "events": []}
+    ]
+}

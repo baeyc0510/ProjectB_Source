@@ -62,6 +62,7 @@ enum EStateTag
 	Tag_HasTarget			= 1 << 21,	// AI: 타겟 보유
 	Tag_AIPatrol			= 1 << 22,	// AI: 순찰 중
 	Tag_AIChase				= 1 << 23,	// AI: 추격 중
+	Tag_CanClimbLedge		= 1 << 24,
 };
 
 inline EStateTag operator|(EStateTag a, EStateTag b)
@@ -120,6 +121,7 @@ enum class EAbility
 	Hit,
 	ParryHit,
 	Death,
+	HangOnLedge,
 	// AI
 	AI_Patrol,
 	AI_Chase,

@@ -1,0 +1,17 @@
+{
+    "image": "Image/Penitent/penitent_climbledge_reviewed.bmp",
+    "pivot": [40.0, 5.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 102, 131], "events": []},
+        {"rect": [102, 0, 102, 131], "events": []},
+        {"rect": [204, 0, 102, 131], "events": []},
+        {"rect": [306, 0, 102, 131], "events": []},
+        {"rect": [408, 0, 102, 131], "events": []},
+        {"rect": [510, 0, 102, 131], "events": []},
+        {"rect": [612, 0, 102, 131], "events": []},
+        {"rect": [714, 0, 102, 131], "events": []},
+        {"rect": [816, 0, 102, 131], "events": []},
+        {"rect": [918, 0, 102, 131], "events": []}
+    ]
+}
