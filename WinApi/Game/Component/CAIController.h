@@ -25,12 +25,7 @@ public:
 	CAIController();
 	virtual ~CAIController();
 
-	void ComponentInit() override;
-	void ComponentUpdate() override;
-	void ComponentOnEnable() override;
-	void ComponentRender() override {}
-	void ComponentRelease() override {}
-
+	/*~ CAIController Interface ~*/
 	// 설정
 	void SetConfig(const FAIConfig& inConfig) { config = inConfig; }
 	FAIConfig& GetConfig() { return config; }
@@ -59,6 +54,14 @@ public:
 	void FlipPatrolDirection() { patrolDirection *= -1; }
 	bool IsAtPatrolBoundary() const;
 
+protected:
+	/*~ Component Interface ~*/
+	void ComponentInit() override;
+	void ComponentUpdate() override;
+	void ComponentOnEnable() override;
+	void ComponentRender() override {}
+	void ComponentRelease() override {}
+	
 private:
 	void UpdateTargetDetection();
 	void UpdatePatrol();

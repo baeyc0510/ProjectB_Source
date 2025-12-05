@@ -6,13 +6,7 @@ public:
     CVFX();
     ~CVFX() override;
     
-    void Init() override;
-    void OnEnable() override;
-    void Update() override;
-    void Render() override;
-    void OnDisable() override;
-    void Release() override;
-    
+    /*~ CVFX Interface ~*/
     void SetLifetime(float inLifetime);
     float GetRemainingLifetime() const;
     
@@ -25,12 +19,19 @@ public:
     void StopVFX();
 
 protected:
+    /*~ CGameObject Interface ~*/
+    void Init() override;
+    void OnEnable() override;
+    void Update() override;
+    void Render() override;
+    void OnDisable() override;
+    void Release() override;
+    
+    /*~ CVFX Interface ~*/
     virtual void OnFinishedAnimation();
     
-protected:
-    CAnimator* animator;
-    
 private:
+    CAnimator* animator;
     CAnimation* animation;
     float lifetime;
     float remainingLifetime;

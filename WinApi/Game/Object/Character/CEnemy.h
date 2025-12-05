@@ -10,9 +10,11 @@ public:
 	CEnemy();
 	~CEnemy() override;
 
+	/*~ CEnemy Interface ~*/
 	CAIController* GetAIController() const { return aiController; }
 
 protected:
+	/*~ CGameObject Interface ~*/
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
@@ -20,6 +22,7 @@ protected:
 	void OnDisable() override;
 	void Release() override;
 
+	/*~ CCharacter Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 
 	/*~ ICombatInterface ~*/

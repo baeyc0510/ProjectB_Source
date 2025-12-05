@@ -9,12 +9,8 @@ public:
     CRigidbody();
     virtual ~CRigidbody();
 
-	void ComponentInit() override;
-	void ComponentRender() override;
-    void ComponentUpdate() override;
-	void ComponentRelease() override;
-
 public:
+    /*~ CRigidbody Interface ~*/
     // Getters
     Vec2 GetVelocity() { return velocity; }
     bool IsUsingGravity() { return bUseGravity; }
@@ -28,6 +24,14 @@ public:
     void SetGrounded(bool grounded) { bGrounded = grounded; }
 
     void AddVelocity(Vec2 inVelocity) { velocity += inVelocity; }
+    
+protected:
+    /*~ Component Interface ~*/
+	void ComponentInit() override;
+	void ComponentRender() override;
+    void ComponentUpdate() override;
+	void ComponentRelease() override;
+
 private:
     Vec2 velocity;
     float gravityScale;

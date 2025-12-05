@@ -12,21 +12,21 @@ public:
     CCharacter();
     ~CCharacter() override;
 
-    virtual wstring GetRandomBloodVfxKey() const;
-
+    /*~ CCharacter Interface ~*/
     CStateSystem* GetStateSystem() const { return stateSystem; }
     CCharacterMovement* GetMovement() const { return movement; }
+    virtual wstring GetRandomBloodVfxKey() const;
 
     void SetIgnorePlatform(UINT platformID);
     void SetIsGrounded(bool grounded);
     UINT GetCurrentGroundID() const;
-
-    // MovementComponent에서 폴링
+    
     float GetPlatformMinX() const;
     float GetPlatformMaxX() const;
     bool HasPlatformBounds() const;
 
 protected:
+    /*~ CGameObject Interface ~*/
     void Init() override;
     void OnEnable() override;
     void Update() override;
@@ -38,6 +38,7 @@ protected:
     void OnCollisionStay(CCollider* other) override;
     void OnCollisionExit(CCollider* other) override;
 
+    /*~ CCharacter Interface ~*/
     virtual void UpdateStates();
     virtual void OnStateChanged(EStateTag oldTags, EStateTag newTags);
     virtual bool ShouldIgnorePlatform() const { return false; }

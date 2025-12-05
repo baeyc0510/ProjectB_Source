@@ -64,7 +64,7 @@ public:
 	CCharacterMovement();
 	virtual ~CCharacterMovement();
 
-	// Component interface
+	/*~ Component Interface ~*/
 	void ComponentInit() override;
 	void ComponentOnEnable() override;
 	void ComponentUpdate() override {}
@@ -72,6 +72,7 @@ public:
 	void ComponentRender() override {}
 	void ComponentRelease() override {}
 
+	/*~ CCharacterMovement Interface ~*/
 	// 설정
 	void SetConfig(const FMovementConfig& inConfig);
 	const FMovementConfig& GetConfig() const { return config; }

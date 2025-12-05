@@ -10,6 +10,7 @@ public:
 	CAbilitySystem();
 	virtual ~CAbilitySystem();
 	
+	/*~ CAbilitySystem Interface ~*/
 	void AddAbility(EAbility abilityType, Ability* ability);
 	Ability* GetAbility(EAbility abilityType) const;
 
@@ -31,6 +32,7 @@ public:
 	CStateSystem* GetStateSystem() const { return stateSystem; }
 
 protected:
+	/*~ Component Interface ~*/
 	void ComponentInit() override;
 	void ComponentOnEnable() override {}
 	void ComponentUpdate() override;

@@ -7,7 +7,8 @@ class CPlatform : public CWorldCollider
 public:
 	CPlatform() = default;
 	~CPlatform() override = default;
-
+	
+	/*~ CPlatform Interface ~*/
 	void SetBoxCollider(const Vec2& center, const Vec2& size);
 	void SetLineCollider(const Vec2& start, const Vec2& end);
 };

@@ -7,29 +7,23 @@ public:
 	CStateSystem();
 	virtual ~CStateSystem();
 
-	//========================================
-	// 태그 관리
-	//========================================
+	/*~ CStateSystem Interface ~*/
 	void AddTag(EStateTag tag);
 	void AddTagUnique(EStateTag tag);
 	void RemoveTag(EStateTag tag);
 	void RemoveTagAll(EStateTag tag);  // 해당 태그의 모든 스택 제거
 	void ClearTags();
-
-	//========================================
-	// 태그 검사
-	//========================================
+	
 	bool HasTag(EStateTag tag) const;
 	bool HasAllTags(EStateTag tags) const;
 	bool HasAnyTag(EStateTag tags) const;
 	EStateTag GetTags() const { return currentTags; }
 
-	//========================================
 	// 디버그
-	//========================================
 	wstring GetStateTagString() const;
 
 private:
+	/*~ Component Interface ~*/
 	void ComponentInit() override;
 	void ComponentOnEnable() override {}
 	void ComponentUpdate() override {}

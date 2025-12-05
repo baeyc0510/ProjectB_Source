@@ -8,6 +8,7 @@ public:
 	CGroundCollider() = default;
 	~CGroundCollider() override = default;
 
+	/*~ CWorldCollider Interface ~*/
 	void SetBoxCollider(const Vec2& center, const Vec2& size);
 	void SetLineCollider(const Vec2& start, const Vec2& end);
 };

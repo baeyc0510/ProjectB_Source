@@ -8,9 +8,11 @@ class CTransitionArea : public CGameObject
 public:
     CTransitionArea();
     
+    /*~ CTransitionArea Interface ~*/
     void InitArea(const SceneTransitionData& transitionData);
     
 protected:
+    /*~ CGameObject Interface ~*/
     void Init()	override;
     void OnEnable()	override;
     void Update() override;

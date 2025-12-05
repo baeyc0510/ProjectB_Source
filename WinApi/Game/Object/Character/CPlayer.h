@@ -32,6 +32,7 @@ public:
 	float GetJumpForce() const {return jumpForce;}
 	
 protected:
+	/*~ CGameObject Interface ~*/
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
