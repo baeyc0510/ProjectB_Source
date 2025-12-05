@@ -1,0 +1,20 @@
+{
+    "image": "Image/Pietat/pietat_turnaround2.bmp",
+    "pivot": [70.0, 15.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 146, 228], "events": []},
+        {"rect": [146, 0, 146, 228], "events": []},
+        {"rect": [292, 0, 146, 228], "events": []},
+        {"rect": [438, 0, 146, 228], "events": []},
+        {"rect": [584, 0, 146, 228], "events": []},
+        {"rect": [730, 0, 146, 228], "events": []},
+        {"rect": [876, 0, 146, 228], "events": []},
+        {"rect": [1022, 0, 146, 228], "events": []},
+        {"rect": [1168, 0, 146, 228], "events": []},
+        {"rect": [1314, 0, 146, 228], "events": []},
+        {"rect": [1460, 0, 146, 228], "events": []},
+        {"rect": [1606, 0, 146, 228], "events": []},
+        {"rect": [1752, 0, 146, 228], "events": []}
+    ]
+}

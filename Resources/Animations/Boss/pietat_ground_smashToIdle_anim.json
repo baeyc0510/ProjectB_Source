@@ -1,0 +1,16 @@
+{
+    "image": "Image/Pietat/pietat_ground_smashToIdle_anim.bmp",
+    "pivot": [60.0, 10.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 159, 218], "events": []},
+        {"rect": [159, 0, 159, 218], "events": []},
+        {"rect": [318, 0, 159, 218], "events": []},
+        {"rect": [477, 0, 159, 218], "events": []},
+        {"rect": [636, 0, 159, 218], "events": []},
+        {"rect": [795, 0, 159, 218], "events": []},
+        {"rect": [954, 0, 159, 218], "events": []},
+        {"rect": [1113, 0, 159, 218], "events": []},
+        {"rect": [1272, 0, 159, 218], "events": []}
+    ]
+}

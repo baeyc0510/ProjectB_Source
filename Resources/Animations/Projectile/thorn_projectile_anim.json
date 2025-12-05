@@ -1,0 +1,17 @@
+{
+    "image": "Image/Pietat/thorn_projectile_anim.bmp",
+    "pivot": [12.0, 12.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 25, 26], "events": []},
+        {"rect": [25, 0, 25, 26], "events": []},
+        {"rect": [50, 0, 25, 26], "events": []},
+        {"rect": [75, 0, 25, 26], "events": []},
+        {"rect": [100, 0, 25, 26], "events": []},
+        {"rect": [125, 0, 25, 26], "events": []},
+        {"rect": [150, 0, 25, 26], "events": []},
+        {"rect": [175, 0, 25, 26], "events": []},
+        {"rect": [200, 0, 25, 26], "events": []},
+        {"rect": [225, 0, 25, 26], "events": []}
+    ]
+}

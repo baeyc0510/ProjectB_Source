@@ -1,0 +1,29 @@
+{
+    "image": "Image/Pietat/thorn_projectile_unraveled_destroyed_anim.bmp",
+    "pivot": [58.0, 50.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 114, 120], "events": []},
+        {"rect": [114, 0, 114, 120], "events": []},
+        {"rect": [228, 0, 114, 120], "events": []},
+        {"rect": [342, 0, 114, 120], "events": []},
+        {"rect": [456, 0, 114, 120], "events": []},
+        {"rect": [570, 0, 114, 120], "events": []},
+        {"rect": [684, 0, 114, 120], "events": []},
+        {"rect": [798, 0, 114, 120], "events": []},
+        {"rect": [912, 0, 114, 120], "events": []},
+        {"rect": [1026, 0, 114, 120], "events": []},
+        {"rect": [1140, 0, 114, 120], "events": []},
+        {"rect": [1254, 0, 114, 120], "events": []},
+        {"rect": [1368, 0, 114, 120], "events": []},
+        {"rect": [1482, 0, 114, 120], "events": []},
+        {"rect": [1596, 0, 114, 120], "events": []},
+        {"rect": [1710, 0, 114, 120], "events": []},
+        {"rect": [1824, 0, 114, 120], "events": []},
+        {"rect": [1938, 0, 114, 120], "events": []},
+        {"rect": [2052, 0, 114, 120], "events": []},
+        {"rect": [2166, 0, 114, 120], "events": []},
+        {"rect": [2280, 0, 114, 120], "events": []},
+        {"rect": [2394, 0, 114, 120], "events": []}
+    ]
+}
