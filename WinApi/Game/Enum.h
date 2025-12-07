@@ -59,6 +59,7 @@ enum EStateTag
 	Tag_FlaskRemaining		= 1 << 18,	// 잔여 플라스크 있음
 	Tag_Climbing			= 1 << 19,	// 사다리 타는 중
 	Tag_CanClimb			= 1 << 20,	// 사다리 진입 가능
+	Tag_HangingLedge		= 1 << 25,	// Ledge 매달리는 중
 	Tag_HasTarget			= 1 << 21,	// AI: 타겟 보유
 	Tag_AIPatrol			= 1 << 22,	// AI: 순찰 중
 	Tag_AIChase				= 1 << 23,	// AI: 추격 중

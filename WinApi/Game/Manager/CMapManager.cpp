@@ -3,8 +3,9 @@
 
 #include "Game/Object/Character/CEnemy.h"
 #include "Game/Object/Character/CharacterFactory.h"
-#include "Game/Object/World/CGroundCollider.h"
+#include "Game/Object/World/CGround.h"
 #include "Game/Object/World/CLadder.h"
+#include "Game/Object/World/CLedge.h"
 #include "Game/Object/World/CPlatform.h"
 
 CMapManager::CMapManager()
@@ -173,11 +174,17 @@ void CMapManager::CreateWorldColliders(CScene* scene)
 			platform->SetBoxCollider(center, size);
 			obj = platform;
 		}
-		else
+		else if (box.HasTag("Solid"))
 		{
-			CGroundCollider* ground = new CGroundCollider();
+			CGround* ground = new CGround();
 			ground->SetBoxCollider(center, size);
 			obj = ground;
+		}
+		else if (box.HasTag("Ledge"))
+		{
+			CLedge* ledge = new CLedge();
+			ledge->SetBoxCollider(center, size);
+			obj = ledge;
 		}
 
 		scene->AddGameObject(obj);
@@ -197,7 +204,7 @@ void CMapManager::CreateWorldColliders(CScene* scene)
 		}
 		else
 		{
-			CGroundCollider* ground = new CGroundCollider();
+			CGround* ground = new CGround();
 			ground->SetLineCollider(slope.start, slope.end);
 			obj = ground;
 		}

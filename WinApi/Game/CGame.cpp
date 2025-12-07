@@ -95,6 +95,7 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Transition);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ladder);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Platform);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ledge);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Platform);
 
 	// TODO : 오브젝트 풀링

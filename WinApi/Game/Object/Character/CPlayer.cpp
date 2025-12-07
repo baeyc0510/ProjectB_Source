@@ -12,6 +12,7 @@
 #include "Game/Ability/Player/Ability_Slide.h"
 #include "Game/Ability/Player/Ability_UseFlask.h"
 #include "Game/Ability/Player/Ability_Climb.h"
+#include "Game/Ability/Player/Ability_LedgeClimb.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 #include "Game/Component/CAbilitySystem.h"
@@ -65,6 +66,7 @@ void CPlayer::Init()
 	AddAbility<Ability_UseFlask>(EAbility::UseFlask);
 	AddAbility<Ability_Jump>(EAbility::Jump);
 	AddAbility<Ability_Climb>(EAbility::Climb);
+	AddAbility<Ability_LedgeClimb>(EAbility::HangOnLedge);
 	
 	// Animations
 	AddAnimation(AnimKey::Idle, TEXT("Animations/Penitent/penitent_idle_anim.json"), true);
@@ -89,6 +91,8 @@ void CPlayer::Init()
 	AddAnimation(AnimKey::CrouchAttack, TEXT("Animations/Penitent/penitent_crouch_attack_anim.json"), false);
 	AddAnimation(AnimKey::UseFlask,TEXT("Animations/Penitent/penitent_healthposion_anim.json"), false);
 	AddAnimation(AnimKey::Climbing,TEXT("Animations/Penitent/penitent_ladder_climb_loop_anim.json"), true);
+	AddAnimation(AnimKey::LedgeHang, TEXT("Animations/Penitent/penitent_hangonledge_anim.json"), false);
+	AddAnimation(AnimKey::LedgeClimbOver, TEXT("Animations/Penitent/penitent_climbledge.json"), false);
 	
 	// 초기 스탯값 적용
 	InitStartupStats();
@@ -131,6 +135,14 @@ void CPlayer::Update()
 	HandleActionInput();
 	UpdateMovement();
 	UpdateStates();
+	UpdateCanClimbLedge();
+
+	// Ledge 자동 매달리기
+	if (stateSystem->HasTag(Tag_CanClimbLedge))
+	{
+		abilitySystem->TryActivateAbility(EAbility::HangOnLedge);
+	}
+
 	CheckVelocityChanged();
 	UpdateAnimation();
 }
@@ -518,33 +530,36 @@ void CPlayer::CheckLedge(CCollider* other)
 {
 	if (!other || !collider)
 		return;
-	
+
 	// 이미 ledge로 마크되어 있는 경우 early return
 	if (bOverlapWithLedge && ledgeId == other->GetID())
 		return;
-	
+
 	// 매달리기 조건 판별
 	Vec2 otherPos = other->GetPos();
 	Vec2 otherHalf = other->GetScale() * 0.5f;
 	float otherTop = otherPos.y - otherHalf.y;
-		
+
 	Vec2 playerPos = collider->GetPos();
 	Vec2 playerHalfScale = collider->GetScale() * 0.5f;
 	float playerBottom = playerPos.y + playerHalfScale.y;
-	
+
 	if (playerBottom < otherTop)
 		return;
-	
+
 	// 이미 겹쳐있는 다른 Ledge가 있고 해당 ledge보다 낮으면 갱신 x
 	if (bOverlapWithLedge && otherTop > ledgeTop)
 	{
 		return;
 	}
-	
+
 	bOverlapWithLedge = true;
 	ledgeId = other->GetID();
 	ledgeTop = otherTop;
 	ledgeX = otherPos.x;
+
+	// 방향 계산: ledge가 플레이어 기준 왼쪽(-1) 또는 오른쪽(1)
+	ledgeDirection = (otherPos.x > playerPos.x) ? 1 : -1;
 }
 
 void CPlayer::UpdateCanClimbLedge()
@@ -555,13 +570,20 @@ void CPlayer::UpdateCanClimbLedge()
 		stateSystem->RemoveTag(Tag_CanClimbLedge);
 		return;
 	}
-	
+
+	// 방향 체크: 바라보는 방향과 ledge 방향이 일치해야 함
+	if (GetForward() != ledgeDirection)
+	{
+		stateSystem->RemoveTag(Tag_CanClimbLedge);
+		return;
+	}
+
 	Vec2 playerPos = collider->GetPos();
 	Vec2 playerHalfScale = collider->GetScale() * 0.5f;
 	float playerTop = playerPos.y - playerHalfScale.y;
 	float checkY = playerTop + LEDGE_CLIMB_THRESHOLD;
-	
-	// 기준점이 ledgeTop보다 낮은 경우 CanClimb 
+
+	// 기준점이 ledgeTop보다 낮은 경우 CanClimb
 	if (checkY < ledgeTop)
 	{
 		stateSystem->AddTagUnique(Tag_CanClimbLedge);
@@ -578,4 +600,5 @@ void CPlayer::ClearLedge()
 	ledgeId = 0;
 	ledgeTop = -FLT_MAX;
 	ledgeX = -FLT_MAX;
+	ledgeDirection = 0;
 }

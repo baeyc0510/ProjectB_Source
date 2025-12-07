@@ -170,6 +170,7 @@
     <ClInclude Include="Game\Ability\Player\Ability_Climb.h" />
     <ClInclude Include="Game\Ability\Player\Ability_CrouchAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Jump.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_LedgeClimb.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Parry.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Slide.h" />
     <ClInclude Include="Game\Ability\Player\Ability_UseFlask.h" />
@@ -194,8 +195,9 @@
     <ClInclude Include="Game\Object\Character\CPlayer.h" />
     <ClInclude Include="Game\Object\Character\CharacterFactory.h" />
     <ClInclude Include="Game\Object\CVFX.h" />
-    <ClInclude Include="Game\Object\World\CGroundCollider.h" />
+    <ClInclude Include="Game\Object\World\CGround.h" />
     <ClInclude Include="Game\Object\World\CLadder.h" />
+    <ClInclude Include="Game\Object\World\CLedge.h" />
     <ClInclude Include="Game\Object\World\CPlatform.h" />
     <ClInclude Include="Game\Object\World\CTransitionArea.h" />
     <ClInclude Include="Game\Object\World\CWorldCollider.h" />
@@ -226,6 +228,7 @@
     <ClCompile Include="Game\Ability\Player\Ability_Climb.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_CrouchAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Jump.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_LedgeClimb.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Parry.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Slide.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_UseFlask.cpp" />
@@ -548,8 +551,9 @@
     </ClCompile>
     <ClCompile Include="Game\Object\Character\CharacterFactory.cpp" />
     <ClCompile Include="Game\Object\CVFX.cpp" />
-    <ClCompile Include="Game\Object\World\CGroundCollider.cpp" />
+    <ClCompile Include="Game\Object\World\CGround.cpp" />
     <ClCompile Include="Game\Object\World\CLadder.cpp" />
+    <ClCompile Include="Game\Object\World\CLedge.cpp" />
     <ClCompile Include="Game\Object\World\CPlatform.cpp" />
     <ClCompile Include="Game\Object\World\CTransitionArea.cpp" />
     <ClCompile Include="Game\Object\World\CWorldCollider.cpp" />

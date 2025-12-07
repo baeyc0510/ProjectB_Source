@@ -2,11 +2,11 @@
 #include "CWorldCollider.h"
 
 // 지면 콜라이더 - Ground 레이어
-class CGroundCollider : public CWorldCollider
+class CGround : public CWorldCollider
 {
 public:
-	CGroundCollider() = default;
-	~CGroundCollider() override = default;
+	CGround() = default;
+	~CGround() override = default;
 
 	/*~ CWorldCollider Interface ~*/
 	void SetBoxCollider(const Vec2& center, const Vec2& size);

@@ -22,6 +22,12 @@ public:
 	float GetLadderTopY() const { return ladderTopY; }
 	float GetLadderBottomY() const { return ladderBottomY; }
 	Vec2 GetCharacterScale() const { return characterScale; }
+
+	// Ledge 정보
+	float GetLedgeX() const { return ledgeX; }
+	float GetLedgeTop() const { return ledgeTop; }
+	int GetLedgeDirection() const { return ledgeDirection; }
+	void ResetLedgeInfo() { ClearLedge(); }
 	
 	float GetCurrentHP() const {return currentHP;}
 	float GetMaxHP() const {return maxHP;}
@@ -111,6 +117,7 @@ private:
 	UINT ledgeId = 0;
 	float ledgeX = -FLT_MAX;
 	float ledgeTop = -FLT_MAX;
+	int ledgeDirection = 0;  // ledge가 플레이어 기준 왼쪽(-1) 또는 오른쪽(1)
 	
 	// 입력 상태 변화 감지용
 	bool bWasMovingInput;
