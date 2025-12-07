@@ -31,3 +31,22 @@ void Ability_HitReaction::StopKnockback()
     auto rigidbody = owner->GetComponent<CRigidbody>();
     rigidbody->SetVelocity(Vec2(0,0));
 }
+
+/*~ Ability_ParryHitReaction ~*/
+
+void Ability_ParryHitReaction::OnActivate()
+{
+    Ability_HitReaction::OnActivate();
+    ApplyPushback();
+}
+
+void Ability_ParryHitReaction::ApplyPushback()
+{
+    CRigidbody* rb = owner->GetComponent<CRigidbody>();
+    if (!rb)
+        return;
+
+    // 현재 방향의 반대로 밀려남
+    float dir = static_cast<float>(-owner->GetForward());
+    rb->SetVelocity(Vec2(PUSHBACK_FORCE * dir, 0.f));
+}

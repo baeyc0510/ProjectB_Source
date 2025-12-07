@@ -22,6 +22,8 @@ enum ELayer
 	Platform,
 	Transition,
 	Ledge,		// (플랫폼 가장자리)
+	Projectile,	// 보스 투사체
+	Hazard,		// 환경 위험요소 (가시, 넝쿨 등)
 	LayerSize,
 };
 
@@ -56,6 +58,7 @@ enum EStateTag
 	Tag_AIPatrol			= 1 << 22,	// AI: 순찰 중
 	Tag_AIChase				= 1 << 23,	// AI: 추격 중
 	Tag_CanClimbLedge		= 1 << 24,
+	Tag_BossAppearing		= 1 << 27,	// 보스 등장 중
 };
 
 inline EStateTag operator|(EStateTag a, EStateTag b)
@@ -116,6 +119,12 @@ enum class EAbility
 	AI_Patrol,
 	AI_Chase,
 	AI_Attack,
+	// Boss
+	Boss_Appear,
+	Boss_Slash,
+	Boss_Spit,
+	Boss_Stomp,
+	Boss_GroundSmash,
 };
 
 // Game 이벤트
@@ -153,6 +162,9 @@ enum class EGameEvent
 	AI_TargetLost,			// 타겟 놓침
 	AI_TargetInAttackRange,	// 공격 범위 진입
 	AI_PatrolPointReached,	// 순찰 지점 도달
+	// Boss 이벤트
+	Boss_SpitProjectile,	// 투사체 발사
+	Boss_SmashImpact,		// 내려찍기 충격
 };
 
 // Damage Types

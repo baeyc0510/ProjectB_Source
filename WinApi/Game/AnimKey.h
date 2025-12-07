@@ -42,4 +42,18 @@ namespace AnimKey
 	
 	// Monster
 	constexpr const wchar_t* Attack			= L"Attack";
+
+	// Boss - Ten Piedad
+	constexpr const wchar_t* BossAppear				= L"BossAppear";
+	constexpr const wchar_t* BossIdle				= L"BossIdle";
+	constexpr const wchar_t* BossTurnaround			= L"BossTurnaround";
+	constexpr const wchar_t* BossWalk				= L"BossWalk";
+	constexpr const wchar_t* BossWalkToIdle			= L"BossWalkToIdle";
+	constexpr const wchar_t* BossSlash				= L"BossSlash";
+	constexpr const wchar_t* BossSpitStart			= L"BossSpitStart";
+	constexpr const wchar_t* BossSpitLoop			= L"BossSpitLoop";
+	constexpr const wchar_t* BossSpitToIdle			= L"BossSpitToIdle";
+	constexpr const wchar_t* BossStomp				= L"BossStomp";
+	constexpr const wchar_t* BossGroundSmash		= L"BossGroundSmash";
+	constexpr const wchar_t* BossGroundSmashToIdle	= L"BossGroundSmashToIdle";
 }

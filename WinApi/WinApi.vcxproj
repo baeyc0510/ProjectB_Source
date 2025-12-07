@@ -164,6 +164,10 @@
     <ClInclude Include="Game\Ability\Ability.h" />
     <ClInclude Include="Game\Ability\Ability_HitReaction.h" />
     <ClInclude Include="Game\Ability\Monster\Ability_MonsterAttack.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossSlash.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossSpit.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossStomp.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossGroundSmash.h" />
     <ClInclude Include="Game\Ability\Player\Ability_AirAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_ComboAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Crouch.h" />
@@ -179,6 +183,7 @@
     <ClInclude Include="Game\CGame.h" />
     <ClInclude Include="Game\Component\CAbilitySystem.h" />
     <ClInclude Include="Game\Component\CAIController.h" />
+    <ClInclude Include="Game\Component\CBossAIController.h" />
     <ClInclude Include="Game\Component\CCharacterMovement.h" />
     <ClInclude Include="Game\Component\CRigidbody.h" />
     <ClInclude Include="Game\Component\CStateSystem.h" />
@@ -193,9 +198,16 @@
     <ClInclude Include="Game\Object\Character\CCharacter.h" />
     <ClInclude Include="Game\Object\Character\CEnemy.h" />
     <ClInclude Include="Game\Object\Character\CEnemy_Acorite.h" />
+    <ClInclude Include="Game\Object\Character\CBoss.h" />
+    <ClInclude Include="Game\Object\Character\CBoss_TenPiedad.h" />
     <ClInclude Include="Game\Object\Character\CPlayer.h" />
     <ClInclude Include="Game\Object\Character\CharacterFactory.h" />
     <ClInclude Include="Game\Object\CVFX.h" />
+    <ClInclude Include="Game\Object\Projectile\CProjectile.h" />
+    <ClInclude Include="Game\Object\Projectile\CProjectile_Spit.h" />
+    <ClInclude Include="Game\Object\Hazard\CHazard.h" />
+    <ClInclude Include="Game\Object\Hazard\CHazard_Vine.h" />
+    <ClInclude Include="Game\Object\Hazard\CHazard_Spike.h" />
     <ClInclude Include="Game\Object\World\CGround.h" />
     <ClInclude Include="Game\Object\World\CLadder.h" />
     <ClInclude Include="Game\Object\World\CLedge.h" />
@@ -224,6 +236,10 @@
     <ClCompile Include="Game\Ability\Ability.cpp" />
     <ClCompile Include="Game\Ability\Ability_HitReaction.cpp" />
     <ClCompile Include="Game\Ability\Monster\Ability_MonsterAttack.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossSlash.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossSpit.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossStomp.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossGroundSmash.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_AirAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_ComboAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Crouch.cpp" />
@@ -388,6 +404,7 @@
     </ClCompile>
     <ClCompile Include="Game\Component\CAbilitySystem.cpp" />
     <ClCompile Include="Game\Component\CAIController.cpp" />
+    <ClCompile Include="Game\Component\CBossAIController.cpp" />
     <ClCompile Include="Game\Component\CCharacterMovement.cpp" />
     <ClCompile Include="Game\Component\CRigidbody.cpp" />
     <ClCompile Include="Game\Component\CStateSystem.cpp" />
@@ -476,6 +493,8 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Game\Object\Character\CEnemy_Acorite.cpp" />
+    <ClCompile Include="Game\Object\Character\CBoss.cpp" />
+    <ClCompile Include="Game\Object\Character\CBoss_TenPiedad.cpp" />
     <ClCompile Include="Game\Object\Character\CPlayer.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -554,6 +573,11 @@
     </ClCompile>
     <ClCompile Include="Game\Object\Character\CharacterFactory.cpp" />
     <ClCompile Include="Game\Object\CVFX.cpp" />
+    <ClCompile Include="Game\Object\Projectile\CProjectile.cpp" />
+    <ClCompile Include="Game\Object\Projectile\CProjectile_Spit.cpp" />
+    <ClCompile Include="Game\Object\Hazard\CHazard.cpp" />
+    <ClCompile Include="Game\Object\Hazard\CHazard_Vine.cpp" />
+    <ClCompile Include="Game\Object\Hazard\CHazard_Spike.cpp" />
     <ClCompile Include="Game\Object\World\CGround.cpp" />
     <ClCompile Include="Game\Object\World\CLadder.cpp" />
     <ClCompile Include="Game\Object\World\CLedge.cpp" />

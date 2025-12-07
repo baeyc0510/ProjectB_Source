@@ -24,7 +24,15 @@ private:
 
 class Ability_ParryHitReaction : public Ability_HitReaction
 {
+public:
+    void OnActivate() override;
+
 protected:
     /*~ Ability_HitReaction Interface ~*/
     wstring GetHitAnimKey() const override { return AnimKey::ParryHit; }
+
+private:
+    void ApplyPushback();
+
+    static constexpr float PUSHBACK_FORCE = 200.f;
 };
