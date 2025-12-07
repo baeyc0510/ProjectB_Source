@@ -17,4 +17,5 @@ protected:
     virtual void OnHitCheck();
     virtual Vec2 GetTraceOffset();
     virtual Vec2 GetTraceSize();
+    virtual float GetDamage() { return 10.f; }
 };

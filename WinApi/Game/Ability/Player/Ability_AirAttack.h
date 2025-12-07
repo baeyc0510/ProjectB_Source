@@ -17,11 +17,11 @@ protected:
     void OnActivate() override;
     void OnInputAttack() override;
     void OnComboCountUpdated(int oldCnt, int newCnt) override;
-    const FComboData& GetComboData() const override;
+    const FAttackData& GetAttackData() const override;
 
 private:
     void OnLanded(CGameObject* source);
 
 private:
-    static const FComboData AirComboTable[2];
+    static const FAttackData AirComboTable[2];
 };

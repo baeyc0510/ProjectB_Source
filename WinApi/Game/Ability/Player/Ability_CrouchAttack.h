@@ -1,5 +1,6 @@
 #pragma once
 #include "Game/Ability/Ability.h"
+#include "Game/Util/CombatHelper.h"
 
 class Ability_CrouchAttack : public Ability
 {
@@ -14,7 +15,9 @@ public:
 
 private:
     void OnCrouchReleased();
+    void OnHitCheck();
 
 private:
+    static const FAttackData AttackData;
     bool bCrouchReleased = false;
 };
