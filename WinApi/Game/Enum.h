@@ -134,6 +134,8 @@ enum class EGameEvent
 	ParryWindowClose,
 	Recover,
 	DoAction,
+	Footstep,
+	Grab,
 	// 게임플레이 이벤트
 	Hit,
 	EndCrouch,

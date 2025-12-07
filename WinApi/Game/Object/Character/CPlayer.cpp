@@ -3,6 +3,8 @@
 
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
+#include "Game/SFXKeys.h"
+#include "Game/Manager/CSFXManager.h"
 #include "Game/Ability/Player/Ability_AirAttack.h"
 #include "Game/Ability/Player/Ability_ComboAttack.h"
 #include "Game/Ability/Player/Ability_Crouch.h"
@@ -311,6 +313,27 @@ void CPlayer::UpdateLedgeState()
 void CPlayer::ProcessPassiveAbilities()
 {
 	abilitySystem->TryActivateAbility(EAbility::HangOnLedge); // 매달리기
+}
+
+void CPlayer::HandleAnimationEvent(EGameEvent event)
+{
+	CCharacter::HandleAnimationEvent(event);
+	if (event == EGameEvent::Footstep)
+	{
+		OnFootstep();
+	}
+}
+
+void CPlayer::OnFootstep()
+{
+	// 달리기 중일 때만 발소리 재생
+	if (stateSystem->HasTag(Tag_Moving) && stateSystem->HasTag(Tag_Grounded))
+	{
+		static int footstepIndex = 0;
+		const wchar_t* sounds[] = { SFXKey::PlayerRun1, SFXKey::PlayerRun2 };
+		SFX->PlayOnce(sounds[footstepIndex % 2]);
+		footstepIndex++;
+	}
 }
 
 void CPlayer::UpdateAnimation()

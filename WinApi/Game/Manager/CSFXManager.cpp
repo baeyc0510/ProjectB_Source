@@ -1,0 +1,81 @@
+#include "pch.h"
+#include "CSFXManager.h"
+#include "Game/SFXKeys.h"
+
+void CSFXManager::PreLoad()
+{
+    // 플레이어 - 공격
+    LOADSOUND(SFXKey::PlayerHeavySlash, TEXT("Sound/penitent/PENITENT_HEAVY_SLASH.wav"));
+    LOADSOUND(SFXKey::PlayerLungeAttack, TEXT("Sound/penitent/LUNGE_ATTACK_LV3.wav"));
+    LOADSOUND(SFXKey::PlayerSlashAir1, TEXT("Sound/penitent/PENITENT_SLASH_AIR_1.wav"));
+    LOADSOUND(SFXKey::PlayerSlashAir2, TEXT("Sound/penitent/PENITENT_SLASH_AIR_2.wav"));
+    LOADSOUND(SFXKey::PlayerSlashAir3, TEXT("Sound/penitent/PENITENT_SLASH_AIR_3.wav"));
+    LOADSOUND(SFXKey::PlayerSlashAir4, TEXT("Sound/penitent/PENITENT_SLASH_AIR_4.wav"));
+
+    // 플레이어 - 적 타격
+    LOADSOUND(SFXKey::PlayerEnemyHit1, TEXT("Sound/penitent/PENITENT_ENEMY_HIT_3.wav"));
+    LOADSOUND(SFXKey::PlayerEnemyHit2, TEXT("Sound/penitent/PENITENT_ENEMY_HIT_4.wav"));
+    LOADSOUND(SFXKey::PlayerHeavyEnemyHit, TEXT("Sound/penitent/PENITENT_HEAVY_ENEMY_HIT.wav"));
+
+    // 플레이어 - 피격
+    LOADSOUND(SFXKey::PlayerDamage, TEXT("Sound/penitent/PENITENT_SIMPLE_DAMAGE_DEFAULT.wav"));
+    LOADSOUND(SFXKey::PlayerHeavyDamage, TEXT("Sound/penitent/PENITENT_HEAVY_DAMAGE.wav"));
+    LOADSOUND(SFXKey::PlayerPushback, TEXT("Sound/penitent/PENITENT_PUSHBACK.wav"));
+
+    // 플레이어 - 사망
+    LOADSOUND(SFXKey::PlayerDeath, TEXT("Sound/penitent/PENITENT_DEATH_DEFAULT.wav"));
+    LOADSOUND(SFXKey::PlayerSpikesDeath, TEXT("Sound/penitent/PENITENT_SPIKES_DEATH.wav"));
+    LOADSOUND(SFXKey::PlayerBossDeathHit, TEXT("Sound/penitent/PENITENT_BOSS_DEATH_HIT.wav"));
+
+    // 플레이어 - 이동
+    LOADSOUND(SFXKey::PlayerJump, TEXT("Sound/penitent/PENITENT_JUMP.wav"));
+    LOADSOUND(SFXKey::PlayerSlide, TEXT("Sound/penitent/PENITENT_DASH.wav"));
+    LOADSOUND(SFXKey::PlayerRun1, TEXT("Sound/penitent/PENITENT_RUN_MARBLE_6.wav"));
+    LOADSOUND(SFXKey::PlayerRun2, TEXT("Sound/penitent/PENITENT_RUN_MARBLE_8.wav"));
+    LOADSOUND(SFXKey::PlayerClimbLadder, TEXT("Sound/penitent/PENITENT_CLIMB_LADDER_3.wav"));
+
+    // 플레이어 - 패리
+    LOADSOUND(SFXKey::PlayerStartParry, TEXT("Sound/penitent/PENITENT_START_PARRY.wav"));
+    LOADSOUND(SFXKey::PlayerParryCounterHit, TEXT("Sound/penitent/PENITENT_PARRY_COUNTER_HIT.wav"));
+    LOADSOUND(SFXKey::PlayerParrySuccess, TEXT("Sound/penitent/PENITENT_PARRY_SUCCESS.wav"));
+    LOADSOUND(SFXKey::PlayerGuard, TEXT("Sound/penitent/PENITENT_GUARD.wav"));
+
+    // 플레이어 - 기타
+    LOADSOUND(SFXKey::PlayerHealing, TEXT("Sound/penitent/HEALING.wav"));
+    LOADSOUND(SFXKey::PlayerRespawn, TEXT("Sound/penitent/PENITENT_RESPAWN.wav"));
+    LOADSOUND(SFXKey::PlayerGetItem, TEXT("Sound/penitent/GET_FLOOR_ITEM.wav"));
+    LOADSOUND(SFXKey::PlayerOverthrow, TEXT("Sound/penitent/PENITENT_OVERTHROW_DEFAULT.wav"));
+}
+
+void CSFXManager::PlayOnce(const wstring& key, float volume)
+{
+    CSound* sound = GetSound(key);
+    if (sound)
+    {
+        SOUND->PlayOnce(sound, volume);
+    }
+}
+
+void CSFXManager::PlayLoop(const wstring& key, float volume)
+{
+    CSound* sound = GetSound(key);
+    if (sound)
+    {
+        SOUND->PlayLoop(key, sound, volume);
+    }
+}
+
+void CSFXManager::Stop(const wstring& key)
+{
+    SOUND->Stop(key);
+}
+
+void CSFXManager::StopAll()
+{
+    SOUND->StopAll();
+}
+
+CSound* CSFXManager::GetSound(const wstring& key)
+{
+    return SINGLE(CResourceManager)->SoundFind(key);
+}

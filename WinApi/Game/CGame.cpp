@@ -4,6 +4,7 @@
 #include "Enum.h"
 #include "Resource.h"
 #include "Manager/CVFXManager.h"
+#include "Manager/CSFXManager.h"
 #include "Manager/CMapManager.h"
 #include "Manager/CGameUIManager.h"
 #include "Scene/CStage01.h"
@@ -98,8 +99,9 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ledge);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Platform);
 
-	// TODO : 오브젝트 풀링
+	// 리소스 프리로드
 	SINGLE(CVFXManager)->PreLoad();
+	SINGLE(CSFXManager)->PreLoad();
 	
 	// 씬 시작
 	SINGLE(CSceneManager)->SetStartScene(ESceneType::Title);

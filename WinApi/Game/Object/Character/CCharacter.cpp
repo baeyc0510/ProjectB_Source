@@ -94,6 +94,11 @@ void CCharacter::Init()
 
     // Animator -> AbilitySystem 이벤트 연결
     AnimEventHelper::ConnectAbilitySystem(animator, abilitySystem);
+
+    // Animator -> Character 이벤트 연결
+    animator->OnFrameEvent.Add([this](const wstring& eventName) {
+        HandleAnimationEvent(AnimEventHelper::ToGameEvent(eventName));
+    });
 }
 
 void CCharacter::OnEnable()

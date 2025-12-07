@@ -21,6 +21,7 @@ private:
     void OnUpReleased();
     void OnDownReleased();
     void OnJumpPressed();
+    void OnGrab();
     void CheckAllInputReleased();
     void HandleBeginDownward();
     void HandleBeginUpward();

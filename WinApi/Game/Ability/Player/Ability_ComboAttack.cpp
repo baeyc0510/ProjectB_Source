@@ -2,6 +2,8 @@
 #include "Ability_ComboAttack.h"
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
+#include "Game/SFXKeys.h"
+#include "Game/Manager/CSFXManager.h"
 #include "Game/Interface/CombatInterface.h"
 
 const FComboData Ability_ComboAttack::ComboTable[3] = {
@@ -101,13 +103,30 @@ void Ability_ComboAttack::OnHitCheck()
         }
     }
 
+    // Play Sound
+    static const wchar_t* AirSounds[] = {
+        SFXKey::PlayerSlashAir1, SFXKey::PlayerSlashAir2,
+        SFXKey::PlayerSlashAir3, SFXKey::PlayerSlashAir4
+    };
+    static const wchar_t* HitSounds[] = {
+        SFXKey::PlayerEnemyHit1, SFXKey::PlayerEnemyHit2
+    };
+    
     const bool bHit = !results.empty();
     if (bHit)
     {
+        SFX->PlayOnce(HitSounds[soundIndex % 2]);
+
         int oldComboCnt = comboCnt;
         comboCnt = (comboCnt + 1) % maxComboCnt;
         OnComboCountUpdated(oldComboCnt, comboCnt);
     }
+    else
+    {
+        SFX->PlayOnce(AirSounds[soundIndex % 4]);
+    }
+
+    soundIndex++;
 }
 
 const FComboData& Ability_ComboAttack::GetComboData() const

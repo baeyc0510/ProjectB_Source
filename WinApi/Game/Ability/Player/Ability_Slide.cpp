@@ -2,6 +2,8 @@
 #include "Ability_Slide.h"
 
 #include "Game/AnimKey.h"
+#include "Game/SFXKeys.h"
+#include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 
@@ -12,6 +14,8 @@ Ability_Slide::Ability_Slide()
 void Ability_Slide::OnActivate()
 {
     Ability::OnActivate();
+
+    SFX->PlayOnce(SFXKey::PlayerSlide);
 
     GetAnimator()->Play(AnimKey::Slide, true, BIND(this, OnFinishedAnim), BIND(this, OnInterruptedAnim));
 

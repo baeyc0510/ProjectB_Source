@@ -41,6 +41,8 @@ protected:
 
     int comboCnt = 0;
     int maxComboCnt = 3;
+    int soundIndex = 0;
+    
     bool bCanCombo = false;
     bool bSavedCombo = false;
 };

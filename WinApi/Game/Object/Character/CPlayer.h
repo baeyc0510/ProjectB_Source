@@ -52,6 +52,7 @@ protected:
 	
 	/*~ CCharacter Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
+	void HandleAnimationEvent(EGameEvent event) override;
 	bool ShouldIgnorePlatform() const override;
 	
 	/*~ ICombatInterface ~*/
@@ -86,6 +87,9 @@ private:
 
 	// Animation
 	void UpdateAnimation();
+
+	// Events
+	void OnFootstep();
 
 	void CheckLedge(CCollider* other);
 	void ClearLedge();

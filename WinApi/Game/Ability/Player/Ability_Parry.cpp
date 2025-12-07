@@ -2,6 +2,8 @@
 #include "Ability_Parry.h"
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
+#include "Game/SFXKeys.h"
+#include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Interface/CombatInterface.h"
 
@@ -15,6 +17,8 @@ Ability_Parry::Ability_Parry()
 void Ability_Parry::OnActivate()
 {
     Ability::OnActivate();
+
+    SFX->PlayOnce(SFXKey::PlayerStartParry);
 
     GetAnimator()->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim));
 
@@ -71,6 +75,8 @@ void Ability_Parry::OnHit(CGameObject* source)
 
     if (!source)
         return;
+
+    SFX->PlayOnce(SFXKey::PlayerParrySuccess);
 
     // source의 패링 리액션 발동
     if (CAbilitySystem* sourceAbilitySystem = source->GetComponent<CAbilitySystem>())
@@ -134,4 +140,10 @@ void Ability_Parry::OnCounterHitCheck()
             combat->OnDamage(owner, context);
         }
     }
+
+    // 사운드 재생
+    if (!results.empty())
+        SFX->PlayOnce(SFXKey::PlayerParryCounterHit);
+    else
+        SFX->PlayOnce(SFXKey::PlayerHeavySlash);
 }

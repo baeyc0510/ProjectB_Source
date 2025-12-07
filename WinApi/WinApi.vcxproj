@@ -186,6 +186,7 @@
     <ClInclude Include="Game\Interface\CombatInterface.h" />
     <ClInclude Include="Game\Manager\CGameUIManager.h" />
     <ClInclude Include="Game\Manager\CMapManager.h" />
+    <ClInclude Include="Game\Manager\CSFXManager.h" />
     <ClInclude Include="Game\Manager\CVFXManager.h" />
     <ClInclude Include="Game\Map\CMap.h" />
     <ClInclude Include="Game\Map\CMapLayer.h" />
@@ -206,6 +207,7 @@
     <ClInclude Include="Game\Scene\CStage02.h" />
     <ClInclude Include="Game\Scene\CSceneTitle.h" />
     <ClInclude Include="Game\Scene\CStage_Boss01.h" />
+    <ClInclude Include="Game\SFXKeys.h" />
     <ClInclude Include="Game\Sound\CSoundController.h" />
     <ClInclude Include="Game\UI\CInventoryUI.h" />
     <ClInclude Include="Game\UI\COverlayUI.h" />
@@ -392,6 +394,7 @@
     <ClCompile Include="Game\Interface\CombatInterface.cpp" />
     <ClCompile Include="Game\Manager\CGameUIManager.cpp" />
     <ClCompile Include="Game\Manager\CMapManager.cpp" />
+    <ClCompile Include="Game\Manager\CSFXManager.cpp" />
     <ClCompile Include="Game\Manager\CVFXManager.cpp" />
     <ClCompile Include="Game\Map\CMap.cpp" />
     <ClCompile Include="Game\Map\CMapLayer.cpp" />
@@ -657,6 +660,9 @@
   <ItemGroup>
     <Image Include="small.ico" />
     <Image Include="WinApi.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Game\Ability\Piedad\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

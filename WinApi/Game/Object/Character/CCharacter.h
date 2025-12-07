@@ -41,6 +41,7 @@ protected:
     /*~ CCharacter Interface ~*/
     virtual void UpdateStates();
     virtual void OnStateChanged(EStateTag oldTags, EStateTag newTags);
+    virtual void HandleAnimationEvent(EGameEvent event) {}
     virtual bool ShouldIgnorePlatform() const { return false; }
 
     void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);

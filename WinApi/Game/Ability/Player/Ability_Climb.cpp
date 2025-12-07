@@ -2,6 +2,8 @@
 #include "Ability_Climb.h"
 
 #include "Game/AnimKey.h"
+#include "Game/SFXKeys.h"
+#include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 #include "Game/Object/Character/CPlayer.h"
@@ -40,6 +42,7 @@ void Ability_Climb::OnActivate()
     WaitEvent(EGameEvent::Input_Down_Released, BIND_EVENT(this, OnDownReleased));
     WaitEvent(EGameEvent::Input_Jump_Pressed, BIND_EVENT(this, OnJumpPressed));
     WaitEvent(EGameEvent::Landed, BIND_EVENT(this, OnLanded));
+    WaitEvent(EGameEvent::Grab, BIND_EVENT(this, OnGrab));
 }
 
 void Ability_Climb::OnEnd()
@@ -128,8 +131,12 @@ void Ability_Climb::OnDownReleased()
 
 void Ability_Climb::OnJumpPressed()
 {
-    // 탈출
     ExitLadder();
+}
+
+void Ability_Climb::OnGrab()
+{
+    SFX->PlayOnce(SFXKey::PlayerClimbLadder);
 }
 
 void Ability_Climb::CheckAllInputReleased()
