@@ -177,6 +177,17 @@ void CCharacter::UpdateStates()
         stateSystem->RemoveTag(Tag_BlockMovement);
     }
     bWasOnSteepSlope = bIsOnSteepSlope;
+
+    // 끼임 상태 (낮은 천장에서 슬라이드 후)
+    bool bIsSquashed = movement->IsBeingSquashed();
+    if (bIsSquashed)
+    {
+        stateSystem->AddTagUnique(Tag_Squashed);
+    }
+    else
+    {
+        stateSystem->RemoveTag(Tag_Squashed);
+    }
 }
 
 void CCharacter::OnStateChanged(EStateTag oldTags, EStateTag newTags)

@@ -45,6 +45,8 @@ struct FFrameFlags
 	int wallHitDirection = 0;
 	bool bReachedEdge = false;
 	int edgeDirection = 0;
+	bool bBeingSquashed = false;		// 낮은 천장에 끼인 상태
+	int squashPushDirection = 0;		// 밀려나는 방향
 
 	void Reset()
 	{
@@ -52,6 +54,8 @@ struct FFrameFlags
 		wallHitDirection = 0;
 		bReachedEdge = false;
 		edgeDirection = 0;
+		bBeingSquashed = false;
+		squashPushDirection = 0;
 	}
 };
 
@@ -100,6 +104,10 @@ public:
 	int GetWallHitDirection() const { return frameFlags.wallHitDirection; }
 	bool DidReachEdge() const { return frameFlags.bReachedEdge; }
 	int GetEdgeDirection() const { return frameFlags.edgeDirection; }
+
+	// 끼임 상태 (낮은 천장에서 슬라이드 후 끼인 경우)
+	bool IsBeingSquashed() const { return frameFlags.bBeingSquashed; }
+	int GetSquashPushDirection() const { return frameFlags.squashPushDirection; }
 
 	// 이동 입력 처리
 	void SetMoveSpeed(float speed) { moveSpeed = speed; }

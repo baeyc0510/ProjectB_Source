@@ -60,6 +60,7 @@ enum EStateTag
 	Tag_Climbing			= 1 << 19,	// 사다리 타는 중
 	Tag_CanClimb			= 1 << 20,	// 사다리 진입 가능
 	Tag_HangingLedge		= 1 << 25,	// Ledge 매달리는 중
+	Tag_Squashed			= 1 << 26,	// 낮은 천장에 끼인 상태 (슬라이드 후)
 	Tag_HasTarget			= 1 << 21,	// AI: 타겟 보유
 	Tag_AIPatrol			= 1 << 22,	// AI: 순찰 중
 	Tag_AIChase				= 1 << 23,	// AI: 추격 중

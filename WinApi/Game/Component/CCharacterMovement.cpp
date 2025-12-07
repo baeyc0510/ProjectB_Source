@@ -239,6 +239,28 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 	// 수직 충돌 (바닥 또는 천장)
 	if (overlapY <= overlapX)
 	{
+		// 캐릭터가 장애물 안에 깊이 들어간 경우 (발이 장애물 바닥보다 낮음)
+		// -> 위로 순간이동시키지 않고 옆으로 부드럽게 밀어냄
+		if (myFoot > otherBottom)
+		{
+			CCharacter* character = dynamic_cast<CCharacter*>(owner);
+			int pushDir = character ? character->GetForward() : 1;
+
+			// 끼임 상태 플래그 설정
+			frameFlags.bBeingSquashed = true;
+			frameFlags.squashPushDirection = pushDir;
+
+			// 부드러운 이동 (DT 기반)
+			constexpr float SQUASH_PUSH_SPEED = 150.f;
+			float pushAmount = SQUASH_PUSH_SPEED * DT;
+			pushAmount = min(pushAmount, overlapX);  // 겹침량 이상으로 밀지 않음
+
+			Vec2 newPos = owner->GetPos();
+			newPos.x += pushDir * pushAmount;
+			owner->SetPos(newPos);
+			return;
+		}
+
 		// 바닥 충돌
 		if (myFoot >= otherTop)
 		{
