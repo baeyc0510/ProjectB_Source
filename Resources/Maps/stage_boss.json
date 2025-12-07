@@ -49,7 +49,15 @@
     349.92622670264967
   ],
   "checkpoints": [],
-  "objects": [],
+  "objects": [
+    {
+      "name": "Piedad",
+      "pos": [
+        1418.3068430184248,
+        220.22336040926905
+      ]
+    }
+  ],
   "transitions": [
     {
       "rect": [
