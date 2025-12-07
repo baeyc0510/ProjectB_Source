@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "Ability.h"
 #include "Game/Component/CAbilitySystem.h"
+#include "Game/Component/CRigidbody.h"
+#include "Game/Component/CStateSystem.h"
 
 Ability::Ability()
 	: owner(nullptr)
@@ -108,4 +110,40 @@ void Ability::ClearEventHandles()
 		abilitySystem->OnEvent.Remove(handle);
 	}
 	eventHandles.clear();
+}
+
+CAnimator* Ability::GetAnimator() const
+{
+	if (!cachedAnimator && owner)
+	{
+		cachedAnimator = owner->GetComponent<CAnimator>();
+	}
+	return cachedAnimator;
+}
+
+CRigidbody* Ability::GetRigidbody() const
+{
+	if (!cachedRigidbody && owner)
+	{
+		cachedRigidbody = owner->GetComponent<CRigidbody>();
+	}
+	return cachedRigidbody;
+}
+
+CBoxCollider* Ability::GetCollider() const
+{
+	if (!cachedCollider && owner)
+	{
+		cachedCollider = owner->GetComponent<CBoxCollider>();
+	}
+	return cachedCollider;
+}
+
+CStateSystem* Ability::GetStateSystem() const
+{
+	if (!cachedStateSystem && owner)
+	{
+		cachedStateSystem = owner->GetComponent<CStateSystem>();
+	}
+	return cachedStateSystem;
 }

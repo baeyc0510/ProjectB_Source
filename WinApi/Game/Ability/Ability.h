@@ -7,6 +7,10 @@
 
 class CGameObject;
 class CAbilitySystem;
+class CAnimator;
+class CRigidbody;
+class CBoxCollider;
+class CStateSystem;
 
 class Ability
 {
@@ -52,9 +56,22 @@ public:
 	Delegate<> OnEnded;
 
 protected:
+	// 컴포넌트 헬퍼 (지연 초기화)
+	CAnimator* GetAnimator() const;
+	CRigidbody* GetRigidbody() const;
+	CBoxCollider* GetCollider() const;
+	CStateSystem* GetStateSystem() const;
+
+protected:
 	CGameObject* owner;
 	CAbilitySystem* abilitySystem;
 	bool isActive;
 	float cooldownRemaining;
 	vector<DelegateHandle> eventHandles;
+
+	// 캐싱된 컴포넌트 (mutable: const 메서드에서 캐싱 가능)
+	mutable CAnimator* cachedAnimator = nullptr;
+	mutable CRigidbody* cachedRigidbody = nullptr;
+	mutable CBoxCollider* cachedCollider = nullptr;
+	mutable CStateSystem* cachedStateSystem = nullptr;
 };

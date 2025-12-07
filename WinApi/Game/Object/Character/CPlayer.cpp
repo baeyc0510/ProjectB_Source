@@ -473,7 +473,7 @@ void CPlayer::UpdateMP(float& attribute, float value) const
 	
 	if (!IsNearlyEqual(attribute, oldValue))
 	{
-		GAMEUI->SetPlayerHP(currentMP,maxMP);
+		GAMEUI->SetPlayerMP(currentMP,maxMP);
 	}
 }
 

@@ -10,22 +10,13 @@ Ability_Slide::Ability_Slide()
 
 void Ability_Slide::OnActivate()
 {
-    const float SLIDE_SPEED = 400.f;
-
     Ability::OnActivate();
 
-    CAnimator* animator =  owner->GetComponent<CAnimator>();
-    animator->Play(GetAnimationName(),true, BIND(this,OnFinishedAnim), BIND(this, OnInterruptedAnim));
+    GetAnimator()->Play(AnimKey::Slide, true, BIND(this, OnFinishedAnim), BIND(this, OnInterruptedAnim));
 
-    CRigidbody* rigidbody = owner->GetComponent<CRigidbody>();
-    Vec2 velocity = rigidbody->GetVelocity();
+    Vec2 velocity = GetRigidbody()->GetVelocity();
     velocity.x = SLIDE_SPEED * owner->GetForward();
-    rigidbody->SetVelocity(velocity);
-}
-
-wstring Ability_Slide::GetAnimationName()
-{
-    return AnimKey::Slide;
+    GetRigidbody()->SetVelocity(velocity);
 }
 
 void Ability_Slide::OnFinishedAnim()

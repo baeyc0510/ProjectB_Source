@@ -4,6 +4,12 @@
 #include "Game/VFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
+const FComboData Ability_ComboAttack::ComboTable[3] = {
+    { {40.f, -30.f}, {60.f, 20.f}, AnimKey::Combo1, VFXKey::AttackHit1 },
+    { {30.f, -30.f}, {60.f, 20.f}, AnimKey::Combo2, VFXKey::AttackHit2 },
+    { {50.f, -30.f}, {80.f, 30.f}, AnimKey::Combo3, VFXKey::AttackHit3 },
+};
+
 Ability_ComboAttack::Ability_ComboAttack()
 {
 }
@@ -34,11 +40,10 @@ void Ability_ComboAttack::OnEnd()
 
 void Ability_ComboAttack::Attack()
 {
-    bSavedCombo = false; // 콤보 소모
-    
-    // 애니메이션 재생
-    CAnimator* animator =  owner->GetComponent<CAnimator>();
-    animator->Play(GetAnimationName(),true, BIND(this,OnFinishedAnim), BIND(this,OnFinishedAnim));
+    bSavedCombo = false;
+
+    const FComboData& data = GetComboData();
+    GetAnimator()->Play(data.animName, true, BIND(this, OnFinishedAnim), BIND(this, OnFinishedAnim));
 }
 
 void Ability_ComboAttack::OnComboWindowOpen()
@@ -73,14 +78,14 @@ void Ability_ComboAttack::OnFinishedAnim()
 
 void Ability_ComboAttack::OnHitCheck()
 {
-    const float BASE_DAMAGE = 10.f;
+    const FComboData& data = GetComboData();
 
     // Box Trace
-    Vec2 offset = GetTraceOffset();
+    Vec2 offset = data.traceOffset;
+    offset.x *= owner->GetForward();
     Vec2 center = owner->GetWorldPos() + offset;
-    Vec2 size = GetTraceSize();
-    
-    auto results = COLLISION->BoxTrace(center,size,ELayer::Monster, true);
+
+    auto results = COLLISION->BoxTrace(center, data.traceSize, ELayer::Monster, true);
     for (auto& result : results)
     {
         CGameObject* target = result.collider->GetOwner();
@@ -91,60 +96,21 @@ void Ability_ComboAttack::OnHitCheck()
             context.damageType = EDamageType::Slash;
             context.hitResult = result;
             context.value = BASE_DAMAGE;
-            context.vfxKey = GetVFXName();
+            context.vfxKey = data.vfxName;
             combat->OnDamage(owner, context);
         }
     }
-    
+
     const bool bHit = !results.empty();
     if (bHit)
     {
         int oldComboCnt = comboCnt;
-        comboCnt = (comboCnt + 1) % maxComboCnt;  // 콤보 업데이트
+        comboCnt = (comboCnt + 1) % maxComboCnt;
         OnComboCountUpdated(oldComboCnt, comboCnt);
     }
 }
 
-Vec2 Ability_ComboAttack::GetTraceOffset()
+const FComboData& Ability_ComboAttack::GetComboData() const
 {
-    Vec2 offset;
-    if (comboCnt == 0)  
-        offset = {40.f,-30.f};
-    if (comboCnt == 1)
-        offset = {30.f,-30.f};
-    if (comboCnt == 2)
-        offset = {50.f,-30.f};
-    
-    offset.x *= owner->GetForward();
-    return offset;
-}
-
-Vec2 Ability_ComboAttack::GetTraceSize()
-{
-    if (comboCnt == 0)  
-        return {60.f,20.f};
-    if (comboCnt == 1) 
-        return {60.f,20.f};
-    if (comboCnt == 2)  
-        return {80.f,30.f};
-    
-    return {0,0};
-}
-
-wstring Ability_ComboAttack::GetAnimationName()
-{
-    if (comboCnt == 0)  return AnimKey::Combo1;
-    if (comboCnt == 1)  return AnimKey::Combo2;
-    if (comboCnt == 2)  return AnimKey::Combo3;
-
-    return AnimKey::Combo1;
-}
-
-wstring Ability_ComboAttack::GetVFXName()
-{
-    if (comboCnt == 0)  return VFXKey::AttackHit1;
-    if (comboCnt == 1)  return VFXKey::AttackHit2;
-    if (comboCnt == 2)  return VFXKey::AttackHit3;
-    
-    return VFXKey::AttackHit1;
+    return ComboTable[comboCnt];
 }
