@@ -12,6 +12,10 @@ CTimeManager::CTimeManager()
 	curTime = {};
 
 	timerHandleCounter = 0;
+
+	timeScale = 1.0f;
+	targetTimeScale = 1.0f;
+	timeScaleRemaining = 0;
 }
 
 CTimeManager::~CTimeManager()
@@ -47,6 +51,17 @@ void CTimeManager::Update()
 		fps = updateCount;
 		updateOneSecond = 0;
 		updateCount = 0;
+	}
+
+	// TimeScale duration 처리 (unscaled dt 사용)
+	if (timeScaleRemaining > 0)
+	{
+		timeScaleRemaining -= dt;
+		if (timeScaleRemaining <= 0)
+		{
+			timeScale = targetTimeScale;
+			timeScaleRemaining = 0;
+		}
 	}
 
 	// Timer 업데이트
@@ -94,7 +109,28 @@ UINT CTimeManager::GetFPS()
 
 float CTimeManager::GetDT()
 {
+	return dt * timeScale;
+}
+
+float CTimeManager::GetUnscaledDT()
+{
 	return dt;
+}
+
+void CTimeManager::SetTimeScale(float scale, float duration)
+{
+	if (duration <= 0)
+	{
+		timeScale = scale;
+		targetTimeScale = scale;
+		timeScaleRemaining = 0;
+	}
+	else
+	{
+		timeScale = scale;
+		targetTimeScale = 1.0f;
+		timeScaleRemaining = duration;
+	}
 }
 
 TimerHandle CTimeManager::SetTimer(std::function<void()> callback, float delay, float rate, bool bLoop)

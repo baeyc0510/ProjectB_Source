@@ -14,7 +14,7 @@
       "scale": 1.0,
       "offsetX": 0,
       "offsetY": 0,
-      "isMain": false
+      "isMain": true
     },
     {
       "image": "Image/BackGround/piedad_bg3.bmp",

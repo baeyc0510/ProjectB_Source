@@ -23,6 +23,12 @@ CCameraManager::CCameraManager()
 
 	bounds			= Rect();
 	hasBounds		= false;
+
+	shakeParams		= {};
+	shakeRemaining	= 0;
+	shakeElapsed	= 0;
+	shakeOffset		= Vec2(0, 0);
+	shakeRandomSeed	= 0;
 }
 
 CCameraManager::~CCameraManager()
@@ -78,6 +84,7 @@ void CCameraManager::Update()
 
 	MoveToTarget();
 	BrightToTarget();
+	UpdateShake();
 	// ZoomToTarget(); // 줌 기능 비활성화 (나중에 제대로 구현 필요)
 
 	// 바운딩 영역 클램핑
@@ -132,9 +139,9 @@ Vec2 CCameraManager::WorldToScreenPoint(Vec2 worldPoint)
 	Vec2 virtualSize = SINGLE(CEngine)->GetVirtualSize();
 	Vec2 center = virtualSize * 0.5f;
 
-	// 카메라 오프셋을 한 번만 반올림 - 모든 오브젝트가 동시에 이동하도록
-	float offsetX = floorf(lookAt.x - center.x + 0.5f);
-	float offsetY = floorf(lookAt.y - center.y + 0.5f);
+	Vec2 camPos = GetLookAt();
+	float offsetX = floorf(camPos.x - center.x + 0.5f);
+	float offsetY = floorf(camPos.y - center.y + 0.5f);
 
 	Vec2 screenPos;
 	screenPos.x = worldPoint.x - offsetX;
@@ -278,4 +285,76 @@ void CCameraManager::ZoomToTarget()
 		// 부드러운 줌 전환
 		curZoom += (targetZoom - curZoom) / timeToZoom * DT;
 	}
+}
+
+void CCameraManager::Shake(const FShakeParams& params)
+{
+	shakeParams = params;
+	shakeRemaining = params.duration;
+	shakeElapsed = 0;
+	shakeRandomSeed = static_cast<float>(rand()) / RAND_MAX * 1000.f;
+}
+
+void CCameraManager::Shake(float intensity, float duration)
+{
+	FShakeParams params;
+	params.intensity = intensity;
+	params.duration = duration;
+	Shake(params);
+}
+
+void CCameraManager::StopShake()
+{
+	shakeRemaining = 0;
+	shakeOffset = Vec2(0, 0);
+}
+
+void CCameraManager::UpdateShake()
+{
+	if (shakeRemaining <= 0)
+	{
+		shakeOffset = Vec2(0, 0);
+		return;
+	}
+
+	float unscaledDT = TIMER->GetUnscaledDT();
+	shakeRemaining -= unscaledDT;
+	shakeElapsed += unscaledDT;
+
+	// 감쇠 계산 (1에서 0으로)
+	float progress = shakeElapsed / shakeParams.duration;
+	float decayMultiplier = 1.f;
+	if (shakeParams.decay > 0)
+	{
+		decayMultiplier = 1.f - (progress * shakeParams.decay);
+		if (decayMultiplier < 0) decayMultiplier = 0;
+	}
+
+	// 현재 강도
+	float currentIntensity = shakeParams.intensity * decayMultiplier;
+
+	// 진동 계산
+	float time = shakeElapsed * shakeParams.frequency;
+
+	if (shakeParams.bRandomOffset)
+	{
+		// Perlin-like noise 효과 (sin 조합)
+		float seedX = shakeRandomSeed;
+		float seedY = shakeRandomSeed + 100.f;
+		shakeOffset.x = sinf(time * 1.0f + seedX) * 0.5f + sinf(time * 2.3f + seedX) * 0.3f + sinf(time * 4.1f + seedX) * 0.2f;
+		shakeOffset.y = sinf(time * 1.1f + seedY) * 0.5f + sinf(time * 2.5f + seedY) * 0.3f + sinf(time * 3.9f + seedY) * 0.2f;
+	}
+	else
+	{
+		// 단순 sin 진동
+		shakeOffset.x = sinf(time);
+		shakeOffset.y = cosf(time * 1.1f);
+	}
+
+	shakeOffset.x *= currentIntensity;
+	shakeOffset.y *= currentIntensity;
+
+	// 정수로 반올림 (픽셀 단위)
+	shakeOffset.x = floorf(shakeOffset.x + 0.5f);
+	shakeOffset.y = floorf(shakeOffset.y + 0.5f);
 }

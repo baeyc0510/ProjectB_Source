@@ -5,10 +5,10 @@
     "frames": [
         {"rect": [0, 0, 136, 72], "events": []},
         {"rect": [136, 0, 136, 72], "events": []},
-        {"rect": [272, 0, 136, 72], "events": []},
+        {"rect": [272, 0, 136, 72], "events": ["ComboWindowOpen"]},
         {"rect": [408, 0, 136, 72], "events": []},
         {"rect": [544, 0, 136, 72], "events": ["HitCheck"]},
-        {"rect": [680, 0, 136, 72], "events": ["ComboWindowOpen"]},
+        {"rect": [680, 0, 136, 72], "events": []},
         {"rect": [816, 0, 136, 72], "events": []},
         {"rect": [952, 0, 136, 72], "events": []},
         {"rect": [1088, 0, 136, 72], "events": ["ComboWindowClose"]}

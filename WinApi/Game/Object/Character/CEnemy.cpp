@@ -194,7 +194,7 @@ void CEnemy::OnDamage(CGameObject* source, const CombatContext& context)
 		{
 			vfx->PlayVFX();
 		}
-
+		
 		// Hit Reaction
 		abilitySystem->CancelAbilitiesWithTag(Tag_Hit);
 		abilitySystem->TryActivateAbility(EAbility::Hit);
