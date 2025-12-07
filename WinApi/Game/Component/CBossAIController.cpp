@@ -3,9 +3,17 @@
 #include "CStateSystem.h"
 #include "Game/Object/Character/CPlayer.h"
 #include "Game/Object/Character/CCharacter.h"
+#include <ctime>
 
 CBossAIController::CBossAIController()
 {
+	// 랜덤 시드 설정 (한 번만)
+	static bool bSeeded = false;
+	if (!bSeeded)
+	{
+		srand(static_cast<unsigned int>(time(nullptr)));
+		bSeeded = true;
+	}
 }
 
 CBossAIController::~CBossAIController()
@@ -14,7 +22,9 @@ CBossAIController::~CBossAIController()
 
 void CBossAIController::ComponentInit()
 {
+	// 컴포넌트 캐시
 	stateSystem = owner->GetComponent<CStateSystem>();
+	abilitySystem = owner->GetComponent<CAbilitySystem>();
 }
 
 void CBossAIController::ComponentOnEnable()
@@ -33,10 +43,7 @@ void CBossAIController::ComponentUpdate()
 	{
 		FindPlayer();
 	}
-
-	// 쿨다운 업데이트
-	UpdateCooldowns(DT);
-
+	
 	// 결정 타이머 업데이트
 	decisionTimer += DT;
 }
@@ -49,23 +56,10 @@ void CBossAIController::FindPlayer()
 	target = owner->GetScene()->FindObjectByType<CPlayer>();
 }
 
-void CBossAIController::UpdateCooldowns(float dt)
-{
-	for (auto& attack : attacks)
-	{
-		if (attack.currentCooldown > 0.f)
-		{
-			attack.currentCooldown -= dt;
-		}
-	}
-}
-
-void CBossAIController::RegisterAttack(EAbility ability, float cooldown, float minRange, float maxRange, float weight)
+void CBossAIController::RegisterAttack(EAbility ability, float minRange, float maxRange, float weight)
 {
 	FBossAttackData data;
 	data.ability = ability;
-	data.cooldown = cooldown;
-	data.currentCooldown = 0.f;
 	data.minRange = minRange;
 	data.maxRange = maxRange;
 	data.weight = weight;
@@ -79,7 +73,7 @@ float CBossAIController::GetDistanceToTarget() const
 
 	Vec2 ownerPos = owner->GetPos();
 	Vec2 targetPos = target->GetPos();
-	return abs(targetPos.x - ownerPos.x);  // X축 거리만 사용 (보스는 보통 같은 층에서 싸움)
+	return abs(targetPos.x - ownerPos.x);  // X축 거리만 사용
 }
 
 float CBossAIController::GetDistanceToTargetY() const
@@ -121,12 +115,12 @@ EAbility CBossAIController::SelectNextAttack()
 	vector<FBossAttackData*> validAttacks;
 	for (auto& attack : attacks)
 	{
-		// 쿨다운 체크
-		if (attack.currentCooldown > 0.f)
-			continue;
-
 		// 거리 체크
 		if (distance < attack.minRange || distance > attack.maxRange)
+			continue;
+		
+		// 발동 가능 체크
+		if (!abilitySystem->CanActivateAbility(attack.ability))
 			continue;
 
 		validAttacks.push_back(&attack);
@@ -174,26 +168,25 @@ EAbility CBossAIController::SelectByWeight(const vector<FBossAttackData*>& valid
 	return validAttacks.back()->ability;
 }
 
-void CBossAIController::NotifyAttackUsed(EAbility ability)
+bool CBossAIController::ShouldChase() const
 {
-	for (auto& attack : attacks)
-	{
-		if (attack.ability == ability)
-		{
-			attack.currentCooldown = attack.cooldown;
-			break;
-		}
-	}
+	if (!chaseConfig.bCanChase || !target)
+		return false;
+
+	float distance = GetDistanceToTarget();
+
+	// 정지 범위 안이면 추격 불필요
+	if (distance <= chaseConfig.stopRange)
+		return false;
+
+	// 추격 범위 안이면 추격
+	return distance <= chaseConfig.chaseRange;
 }
 
-bool CBossAIController::IsAttackReady(EAbility ability) const
+bool CBossAIController::IsInStopRange() const
 {
-	for (const auto& attack : attacks)
-	{
-		if (attack.ability == ability)
-		{
-			return attack.currentCooldown <= 0.f;
-		}
-	}
-	return false;
+	if (!target)
+		return false;
+
+	return GetDistanceToTarget() <= chaseConfig.stopRange;
 }

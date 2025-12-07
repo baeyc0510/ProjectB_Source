@@ -167,7 +167,7 @@ void CGame::Render()
 	SINGLE(CCameraManager)->Render();
 
 	// 디버그 드로우
-	//SINGLE(CCollisionManager)->RenderDebug();
+	SINGLE(CCollisionManager)->RenderDebug();
 
 	// Game UI
 	SINGLE(CGameUIManager)->Render();

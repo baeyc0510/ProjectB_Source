@@ -9,16 +9,34 @@ public:
 protected:
 	void Init() override;
 	void OnAppearanceComplete() override;
+	void UpdateBossAI() override;
 	void UpdateBossAnimation() override;
+	bool CheckEncounterPlayer() override;
 
 private:
 	void RegisterAnimations();
 	void RegisterAbilities();
 	void ConfigureAI();
+	void UpdateChaseMovement();
+
+	// 방향 전환
+	bool NeedsTurnaround() const;	// 플레이어가 뒤에 있는지
+	void StartTurnaround();			// 턴어라운드 애니메이션 시작
+	void OnTurnaroundComplete();	// 턴어라운드 완료 콜백
+
+	// 추격 상태
+	bool bIsChasing = false;
+	bool bIsTurningAround = false;
 
 	// 공격 범위 상수
+	static constexpr float ENCOUNTER_RANGE = 500.f;
 	static constexpr float SLASH_RANGE = 80.f;
 	static constexpr float STOMP_RANGE = 60.f;
-	static constexpr float SPIT_MIN_RANGE = 150.f;
+	static constexpr float SPIT_MIN_RANGE = 250.f;
 	static constexpr float GROUND_SMASH_RANGE = 100.f;
+
+	// 추격 설정 상수
+	static constexpr float CHASE_SPEED = 100.0f;
+	static constexpr float CHASE_RANGE = 400.0f;	// 추격 시작 거리
+	static constexpr float STOP_RANGE = 70.0f;		// 정지 거리 (근접 공격 범위)
 };

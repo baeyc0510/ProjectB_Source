@@ -45,10 +45,8 @@ namespace AnimKey
 
 	// Boss - Ten Piedad
 	constexpr const wchar_t* BossAppear				= L"BossAppear";
-	constexpr const wchar_t* BossIdle				= L"BossIdle";
-	constexpr const wchar_t* BossTurnaround			= L"BossTurnaround";
-	constexpr const wchar_t* BossWalk				= L"BossWalk";
-	constexpr const wchar_t* BossWalkToIdle			= L"BossWalkToIdle";
+	constexpr const wchar_t* Turnaround				= L"Turnaround";
+	constexpr const wchar_t* WalkToIdle				= L"WalkToIdle";
 	constexpr const wchar_t* BossSlash				= L"BossSlash";
 	constexpr const wchar_t* BossSpitStart			= L"BossSpitStart";
 	constexpr const wchar_t* BossSpitLoop			= L"BossSpitLoop";

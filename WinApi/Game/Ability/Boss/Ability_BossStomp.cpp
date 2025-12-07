@@ -77,7 +77,7 @@ void Ability_BossStomp::LaunchPlayer(CGameObject* player)
 	float dir = static_cast<float>(owner->GetForward());
 	playerRb->SetVelocity(Vec2(LAUNCH_FORCE_X * dir, LAUNCH_FORCE_Y));
 
-	// 착지 예상 위치에 가시 생성 (추후 Hazard 시스템 구현 후 활성화)
+	// TODO: 착지 예상 위치에 가시 생성 (추후 Hazard 시스템 구현 후)
 	// Vec2 landingPos = PredictLandingPosition(player);
 	// ScheduleSpikeSpawn(landingPos);
 }

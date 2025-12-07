@@ -53,6 +53,16 @@ void CBoss::Update()
 		UpdateBossAI();
 		UpdateBossAnimation();
 	}
+	else if (!bHasEncountered)
+	{
+		if (CheckEncounterPlayer())
+		{
+			bHasEncountered = true;
+			TriggerAppearance();
+		}
+	}
+	
+	animator->SetDirection(GetForward());
 }
 
 void CBoss::Render()
@@ -76,6 +86,7 @@ void CBoss::TriggerAppearance()
 		return;
 
 	stateSystem->AddTag(Tag_BossAppearing);
+	// 보스 별 연출 효과를 Ability에서 구현
 	abilitySystem->TryActivateAbility(EAbility::Boss_Appear);
 }
 
@@ -90,8 +101,8 @@ void CBoss::UpdateBossAnimation()
 	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
 
-	// 기본 Idle (파생 클래스에서 오버라이드)
-	animator->Play(AnimKey::BossIdle);
+	// 기본 Idle
+	animator->Play(AnimKey::Idle);
 }
 
 void CBoss::UpdateBossAI()
@@ -109,10 +120,7 @@ void CBoss::UpdateBossAI()
 		EAbility nextAttack = bossAI->SelectNextAttack();
 		if (nextAttack != EAbility::None)
 		{
-			if (abilitySystem->TryActivateAbility(nextAttack))
-			{
-				bossAI->NotifyAttackUsed(nextAttack);
-			}
+			abilitySystem->TryActivateAbility(nextAttack);
 		}
 	}
 }
@@ -142,10 +150,6 @@ void CBoss::OnDamage(CGameObject* source, const CombatContext& context)
 		{
 			vfx->PlayVFX();
 		}
-
-		// Hit Reaction
-		abilitySystem->CancelAbilitiesWithTag(Tag_Hit);
-		abilitySystem->TryActivateAbility(EAbility::Hit);
 	}
 }
 

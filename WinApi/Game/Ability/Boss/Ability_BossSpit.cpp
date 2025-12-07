@@ -72,7 +72,7 @@ void Ability_BossSpit::SpawnProjectile()
 	float dirX = static_cast<float>(owner->GetForward());
 	Vec2 velocity;
 	velocity.x = PROJECTILE_SPEED * cos(angleRad) * dirX;
-	velocity.y = -PROJECTILE_SPEED * sin(angleRad);  // 위쪽으로 발사 (Y가 음수)
+	velocity.y = -PROJECTILE_SPEED * sin(angleRad);
 
 	// 투사체 생성
 	CProjectile_Spit* projectile = new CProjectile_Spit();

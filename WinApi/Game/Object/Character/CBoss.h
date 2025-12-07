@@ -21,7 +21,8 @@ public:
 	// 등장 시퀀스
 	bool HasAppeared() const { return bHasAppeared; }
 	void TriggerAppearance();
-
+	virtual void OnAppearanceComplete();
+	
 protected:
 	/*~ CGameObject Interface ~*/
 	void Init() override;
@@ -38,10 +39,10 @@ protected:
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 
 	/*~ CBoss Interface ~*/
-	virtual void OnAppearanceComplete();
 	virtual void UpdateBossAnimation();
 	virtual void UpdateBossAI();
-
+	virtual bool CheckEncounterPlayer() = 0;
+	
 protected:
 	CBossAIController* bossAI = nullptr;
 
@@ -51,4 +52,5 @@ protected:
 
 	// 상태
 	bool bHasAppeared = false;
+	bool bHasEncountered = false;
 };
