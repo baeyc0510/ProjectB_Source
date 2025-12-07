@@ -60,6 +60,11 @@ public:
 	// Time
 	UINT			GetFPS();
 	float			GetDT();
+	float			GetUnscaledDT();
+
+	// TimeScale
+	void			SetTimeScale(float scale, float duration = 0);
+	float			GetTimeScale() const			{ return timeScale; }
 
 	// Timer
 	TimerHandle		SetTimer(std::function<void()> callback, float delay, float rate = 0.0f, bool bLoop = false);
@@ -84,6 +89,11 @@ private:
 	std::unordered_map<TimerHandle, TimerData>	timers;
 	std::vector<TimerHandle>					pendingRemove;
 	unsigned long long							timerHandleCounter;
+
+	// TimeScale
+	float			timeScale;
+	float			targetTimeScale;
+	float			timeScaleRemaining;
 };
 
 #define DT			CTimeManager::GetInstance()->GetDT()
