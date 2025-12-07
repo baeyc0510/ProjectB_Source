@@ -15,19 +15,18 @@ Ability_Parry::Ability_Parry()
 void Ability_Parry::OnActivate()
 {
     Ability::OnActivate();
-    
-    CAnimator* animator =  owner->GetComponent<CAnimator>();
-    animator->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim));
-    
-    WaitEvent(EGameEvent::Hit, BIND_ARGS(this,OnHit));
-    WaitEvent(EGameEvent::ParryWindowOpen, BIND_EVENT(this,OnParryWindowOpen));
-    WaitEvent(EGameEvent::ParryWindowClose, BIND_EVENT(this,OnParryWindowClose));
+
+    GetAnimator()->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim));
+
+    WaitEvent(EGameEvent::Hit, BIND_ARGS(this, OnHit));
+    WaitEvent(EGameEvent::ParryWindowOpen, BIND_EVENT(this, OnParryWindowOpen));
+    WaitEvent(EGameEvent::ParryWindowClose, BIND_EVENT(this, OnParryWindowClose));
 }
 
 void Ability_Parry::OnEnd()
 {
     Ability::OnEnd();
-    
+
     ClearEventHandles();
     bParryWindowOpen = false;
     bParrySuccess = false;
@@ -39,14 +38,11 @@ void Ability_Parry::OnEndParryAnim()
     if (bShouldCounter)
     {
         bShouldCounter = false;
-        
-        CAnimator* animator =  owner->GetComponent<CAnimator>();
-        animator->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
-        
-        WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this,OnCounterHitCheck));
+        GetAnimator()->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
+        WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnCounterHitCheck));
         return;
     }
-    
+
     EndAbility();
 }
 
@@ -54,7 +50,7 @@ void Ability_Parry::OnInterruptedParryAnim()
 {
     if (!bParrySuccess && !bShouldCounter)
     {
-        EndAbility();    
+        EndAbility();
     }
 }
 
@@ -75,7 +71,7 @@ void Ability_Parry::OnHit(CGameObject* source)
 
     if (!source)
         return;
-    
+
     // source의 패링 리액션 발동
     if (CAbilitySystem* sourceAbilitySystem = source->GetComponent<CAbilitySystem>())
     {
@@ -83,9 +79,8 @@ void Ability_Parry::OnHit(CGameObject* source)
     }
 
     // player의 패링 성공 애니메이션 재생
-    CAnimator* animator =  owner->GetComponent<CAnimator>();
-    animator->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
-    
+    GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
+
     onCounterOpenHandle = WaitEvent(EGameEvent::ComboWindowOpen, BIND_EVENT(this, OnCounterOpen));
     onCounterCloseHandle = WaitEvent(EGameEvent::ComboWindowClose, BIND_EVENT(this, OnCounterClose));
     bParrySuccess = true;

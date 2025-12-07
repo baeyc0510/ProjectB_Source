@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "Game/Enum.h"
+#include "Game/Component/CAbilitySystem.h"
 
 // WaitEvent용 - 인자 없는 멤버 함수를 이벤트 콜백으로 바인딩 (source 무시)
 #define BIND_EVENT(Object, Function) \
 	[Object](CGameObject*) { (Object)->Function(); }
 
 class CGameObject;
-class CAbilitySystem;
 class CAnimator;
 class CRigidbody;
 class CBoxCollider;

@@ -24,8 +24,8 @@ struct FGroundState
 	bool bIsOnSteepSlope = false;
 	UINT activeGroundID = 0;
 	float activeGroundTop = -FLT_MAX;
-	float platformMinX = -FLT_MAX;
-	float platformMaxX = FLT_MAX;
+	float groundMinX = -FLT_MAX;
+	float groundMaxX = FLT_MAX;
 
 	void Reset()
 	{
@@ -33,8 +33,8 @@ struct FGroundState
 		bIsOnSteepSlope = false;
 		activeGroundID = 0;
 		activeGroundTop = -FLT_MAX;
-		platformMinX = -FLT_MAX;
-		platformMaxX = FLT_MAX;
+		groundMinX = -FLT_MAX;
+		groundMaxX = FLT_MAX;
 	}
 };
 
@@ -86,9 +86,9 @@ public:
 	bool IsGrounded() const { return groundState.bIsGrounded; }
 	bool IsOnSteepSlope() const { return groundState.bIsOnSteepSlope; }
 	UINT GetActiveGroundID() const { return groundState.activeGroundID; }
-	float GetPlatformMinX() const { return groundState.platformMinX; }
-	float GetPlatformMaxX() const { return groundState.platformMaxX; }
-	bool HasPlatformBounds() const { return groundState.activeGroundID != 0; }
+	float GetGroundMinX() const { return groundState.groundMinX; }
+	float GetGroundMaxX() const { return groundState.groundMaxX; }
+	bool HasGroundBounds() const { return groundState.activeGroundID != 0; }
 
 	// 상태 설정
 	void SetGrounded(bool value);

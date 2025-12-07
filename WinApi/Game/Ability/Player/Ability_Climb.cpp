@@ -20,19 +20,14 @@ void Ability_Climb::OnActivate()
         EndAbility();
         return;
     }
-    
+
     // 중력 설정
-    rigidbody = owner->GetComponent<CRigidbody>();
-    rigidbody->UseGravity(false);
-    rigidbody->SetVelocity(Vec2(0.f, 0.f));
+    GetRigidbody()->UseGravity(false);
+    GetRigidbody()->SetVelocity(Vec2(0.f, 0.f));
 
     // 애니메이션 설정
-    animator = owner->GetComponent<CAnimator>();
-    animator->Stop();
-    
-    // collider 캐시
-    collider = owner->GetComponent<CBoxCollider>();
-    
+    GetAnimator()->Stop();
+
     // 사다리 정보 캐시
     ladderX = player->GetLadderX();
     ladderTopY = player->GetLadderTopY();
@@ -53,15 +48,15 @@ void Ability_Climb::OnEnd()
     ClearEventHandles();
 
     // 중력 복원
-    rigidbody->UseGravity(true);
-    rigidbody->SetVelocity(Vec2(0.f, 0.f));
+    GetRigidbody()->UseGravity(true);
+    GetRigidbody()->SetVelocity(Vec2(0.f, 0.f));
 
     // IgnorePlatform 해제
     player->SetIgnorePlatform(0);
 
     // 애니메이션 정상화
-    animator->SetReverse(false);
-    
+    GetAnimator()->SetReverse(false);
+
     bClimbBeginHandled = false;
     bHoldDown = false;
     bHoldUp = false;
@@ -73,10 +68,10 @@ void Ability_Climb::OnUpHold()
     {
         HandleBeginUpward();
     }
-    
+
     bHoldUp = true;
 
-    float centerY = collider->GetPos().y;
+    float centerY = GetCollider()->GetPos().y;
 
     // 상단 경계 체크
     if (centerY <= ladderTopY)
@@ -86,9 +81,9 @@ void Ability_Climb::OnUpHold()
     }
 
     // 위로 이동
-    rigidbody->SetVelocity(Vec2(0.f, -CLIMB_SPEED));
-    animator->Play(AnimKey::Climbing, false);
-    animator->SetReverse(false);
+    GetRigidbody()->SetVelocity(Vec2(0.f, -CLIMB_SPEED));
+    GetAnimator()->Play(AnimKey::Climbing, false);
+    GetAnimator()->SetReverse(false);
 }
 
 void Ability_Climb::OnDownHold()
@@ -97,23 +92,23 @@ void Ability_Climb::OnDownHold()
     {
         HandleBeginDownward();
     }
-    
+
     bHoldDown = true;
 
-    float footY = collider->GetPos().y + collider->GetScale().y * 0.5f;
+    float footY = GetCollider()->GetPos().y + GetCollider()->GetScale().y * 0.5f;
 
     // 하단 경계 체크 - 바닥에 도달하면 정지
     if (footY >= ladderBottomY)
     {
-        rigidbody->SetVelocity(Vec2(0.f, 0.f));
-        animator->Stop();
+        GetRigidbody()->SetVelocity(Vec2(0.f, 0.f));
+        GetAnimator()->Stop();
         return;
     }
 
     // 아래로 이동
-    rigidbody->SetVelocity(Vec2(0.f, CLIMB_SPEED));
-    animator->Play(AnimKey::Climbing, false);
-    animator->SetReverse(true);
+    GetRigidbody()->SetVelocity(Vec2(0.f, CLIMB_SPEED));
+    GetAnimator()->Play(AnimKey::Climbing, false);
+    GetAnimator()->SetReverse(true);
 
     // 플랫폼 무시 설정
     player->SetIgnorePlatform(player->GetCurrentGroundID());
@@ -142,8 +137,8 @@ void Ability_Climb::CheckAllInputReleased()
     // 이동 입력 없을 때 정지
     if (!bHoldUp && !bHoldDown)
     {
-        rigidbody->SetVelocity(Vec2(0.f, 0.f));
-        animator->Stop();
+        GetRigidbody()->SetVelocity(Vec2(0.f, 0.f));
+        GetAnimator()->Stop();
     }
 }
 
@@ -171,8 +166,8 @@ void Ability_Climb::OnLanded()
 
 void Ability_Climb::HandleTopExit()
 {
-    float colHalfY = collider->GetScale().y * 0.5f;
-    float offsetY = collider->GetOffset().y;
+    float colHalfY = GetCollider()->GetScale().y * 0.5f;
+    float offsetY = GetCollider()->GetOffset().y;
 
     // 발이 ladderTopY에 오도록 위치 스냅
     owner->SetPos(Vec2(ladderX, ladderTopY - colHalfY - offsetY));

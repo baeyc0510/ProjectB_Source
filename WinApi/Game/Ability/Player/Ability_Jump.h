@@ -14,8 +14,6 @@ public:
     void OnActivate() override;
     void OnEnd() override;
 private:
-    Vec2 GetVelocity();
-    
     void OnFinishedAnim();
     void OnVelocityChanged();
 };

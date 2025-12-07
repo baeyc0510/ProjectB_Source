@@ -49,17 +49,17 @@ UINT CCharacter::GetCurrentGroundID() const
 
 float CCharacter::GetPlatformMinX() const
 {
-    return movement ? movement->GetPlatformMinX() : -FLT_MAX;
+    return movement ? movement->GetGroundMinX() : -FLT_MAX;
 }
 
 float CCharacter::GetPlatformMaxX() const
 {
-    return movement ? movement->GetPlatformMaxX() : FLT_MAX;
+    return movement ? movement->GetGroundMaxX() : FLT_MAX;
 }
 
 bool CCharacter::HasPlatformBounds() const
 {
-    return movement ? movement->HasPlatformBounds() : false;
+    return movement ? movement->HasGroundBounds() : false;
 }
 
 void CCharacter::Init()

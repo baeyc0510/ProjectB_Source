@@ -2,6 +2,7 @@
 #include "Ability_AirAttack.h"
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
+#include "Game/Component/CStateSystem.h"
 
 const FComboData Ability_AirAttack::AirComboTable[2] = {
     { {30.f, -60.f}, {40.f, 30.f}, AnimKey::AirCombo1, VFXKey::AttackHit1 },

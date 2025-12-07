@@ -50,8 +50,8 @@ void CCharacterMovement::ResetGroundState()
 {
 	groundState.activeGroundID = 0;
 	groundState.activeGroundTop = -FLT_MAX;
-	groundState.platformMinX = -FLT_MAX;
-	groundState.platformMaxX = FLT_MAX;
+	groundState.groundMinX = -FLT_MAX;
+	groundState.groundMaxX = FLT_MAX;
 }
 
 void CCharacterMovement::SetGrounded(bool value)
@@ -132,8 +132,8 @@ void CCharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPl
 
 		Vec2 start = lineCollider->GetWorldStart();
 		Vec2 end = lineCollider->GetWorldEnd();
-		groundState.platformMinX = min(start.x, end.x);
-		groundState.platformMaxX = max(start.x, end.x);
+		groundState.groundMinX = min(start.x, end.x);
+		groundState.groundMaxX = max(start.x, end.x);
 	}
 
 	if (lineCollider->GetID() != groundState.activeGroundID)
@@ -215,8 +215,8 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 	{
 		groundState.activeGroundID = other->GetID();
 		groundState.activeGroundTop = otherTop;
-		groundState.platformMinX = otherPos.x - otherHalf.x;
-		groundState.platformMaxX = otherPos.x + otherHalf.x;
+		groundState.groundMinX = otherPos.x - otherHalf.x;
+		groundState.groundMaxX = otherPos.x + otherHalf.x;
 	}
 
 	// 원웨이 플랫폼
@@ -248,8 +248,8 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 				{
 					groundState.activeGroundID = other->GetID();
 					groundState.activeGroundTop = otherTop;
-					groundState.platformMinX = otherPos.x - otherHalf.x;
-					groundState.platformMaxX = otherPos.x + otherHalf.x;
+					groundState.groundMinX = otherPos.x - otherHalf.x;
+					groundState.groundMaxX = otherPos.x + otherHalf.x;
 				}
 
 				if (other->GetID() != groundState.activeGroundID)

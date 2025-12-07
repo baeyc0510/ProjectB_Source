@@ -21,24 +21,19 @@ void Ability_LedgeClimb::OnActivate()
 		return;
 	}
 
-	// 컴포넌트 캐시
-	rigidbody = owner->GetComponent<CRigidbody>();
-	animator = owner->GetComponent<CAnimator>();
-	collider = owner->GetComponent<CBoxCollider>();
-
 	// Ledge 정보 캐시
 	ledgeX = player->GetLedgeX();
 	ledgeTop = player->GetLedgeTop();
 	ledgeDirection = player->GetLedgeDirection();
 
 	// 중력 비활성화 및 속도 정지
-	rigidbody->UseGravity(false);
-	rigidbody->SetVelocity(Vec2(0.f, 0.f));
+	GetRigidbody()->UseGravity(false);
+	GetRigidbody()->SetVelocity(Vec2(0.f, 0.f));
 
 	// 위치 스냅: 손이 ledge 상단에 닿는 위치로 조정
 	// 캐릭터의 상단이 ledgeTop과 일치하도록 설정
-	Vec2 colScale = collider->GetScale();
-	Vec2 colOffset = collider->GetOffset();
+	Vec2 colScale = GetCollider()->GetScale();
+	Vec2 colOffset = GetCollider()->GetOffset();
 	float colHalfY = colScale.y * 0.5f;
 
 	// X 위치: ledge 가장자리에서 캐릭터 방향 반대로 약간 떨어진 위치
@@ -49,8 +44,8 @@ void Ability_LedgeClimb::OnActivate()
 	owner->SetPos(Vec2(snapX, snapY));
 
 	// 애니메이션 방향 설정 및 매달림 애니메이션 재생
-	animator->SetDirection(ledgeDirection);
-	animator->Play(AnimKey::LedgeHang, true);
+	GetAnimator()->SetDirection(ledgeDirection);
+	GetAnimator()->Play(AnimKey::LedgeHang, true);
 
 	// 이벤트 대기
 	WaitEvent(EGameEvent::Input_Up_Hold, BIND_EVENT(this, OnUpHold));
@@ -65,10 +60,7 @@ void Ability_LedgeClimb::OnEnd()
 	ClearEventHandles();
 
 	// 중력 복원
-	if (rigidbody)
-	{
-		rigidbody->UseGravity(true);
-	}
+	GetRigidbody()->UseGravity(true);
 
 	// Ledge 정보 초기화 (재매달림 방지)
 	if (player)
@@ -88,7 +80,7 @@ void Ability_LedgeClimb::OnUpHold()
 	bClimbingOver = true;
 
 	// 올라가기 애니메이션 재생 (완료 시 OnClimbOverFinished 호출)
-	animator->Play(
+	GetAnimator()->Play(
 		AnimKey::LedgeClimbOver,
 		true,
 		[this]() { OnClimbOverFinished(); }
@@ -107,8 +99,8 @@ void Ability_LedgeClimb::OnJumpPressed()
 void Ability_LedgeClimb::OnClimbOverFinished()
 {
 	// 플랫폼 위로 위치 이동
-	Vec2 colScale = collider->GetScale();
-	Vec2 colOffset = collider->GetOffset();
+	Vec2 colScale = GetCollider()->GetScale();
+	Vec2 colOffset = GetCollider()->GetOffset();
 	float colHalfY = colScale.y * 0.5f;
 
 	// 발이 ledgeTop 위에 오도록 위치 스냅
@@ -116,7 +108,7 @@ void Ability_LedgeClimb::OnClimbOverFinished()
 	float snapY = ledgeTop - colHalfY - colOffset.y;
 
 	owner->SetPos(Vec2(snapX, snapY));
-
+	
 	EndAbility();
 }
 

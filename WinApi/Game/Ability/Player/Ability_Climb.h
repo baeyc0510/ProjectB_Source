@@ -36,18 +36,15 @@ private:
 
 private:
     static constexpr float CLIMB_SPEED = 100.f;
-    
+
     // 사다리 정보
     float ladderX = 0.f;
     float ladderTopY = 0.f;
     float ladderBottomY = 0.f;
-    
-    // 캐릭터 상태
-    class CPlayer* player;
-    class CRigidbody* rigidbody;
-    class CAnimator* animator;
-    class CBoxCollider* collider;
-    
+
+    // 플레이어 캐시 (플레이어 전용 메서드 사용)
+    class CPlayer* player = nullptr;
+
     bool bClimbBeginHandled = false;
     bool bHoldDown = false;
     bool bHoldUp = false;

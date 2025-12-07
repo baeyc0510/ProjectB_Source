@@ -26,11 +26,8 @@ private:
 	void DropFromLedge();
 
 private:
-	// 캐릭터 상태
+	// 플레이어 캐시 (플레이어 전용 메서드 사용)
 	class CPlayer* player = nullptr;
-	class CRigidbody* rigidbody = nullptr;
-	class CAnimator* animator = nullptr;
-	class CBoxCollider* collider = nullptr;
 
 	// Ledge 정보 캐시
 	float ledgeX = 0.f;
