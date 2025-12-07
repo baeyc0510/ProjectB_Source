@@ -250,7 +250,8 @@
       ],
       "tags": [
         "Ledge"
-      ]
+      ],
+      "cliffDirection": 1
     },
     {
       "rect": [
@@ -261,7 +262,8 @@
       ],
       "tags": [
         "Ledge"
-      ]
+      ],
+      "cliffDirection": -1
     },
     {
       "rect": [
@@ -272,7 +274,8 @@
       ],
       "tags": [
         "Ledge"
-      ]
+      ],
+      "cliffDirection": -1
     },
     {
       "rect": [

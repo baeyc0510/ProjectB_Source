@@ -266,6 +266,13 @@ void CMap::LoadFromJson(const wstring& jsonPath)
 			{
 				box.tags.push_back("Solid");
 			}
+
+			// Ledge의 cliffDirection 로드
+			if (boxData.contains("cliffDirection"))
+			{
+				box.cliffDirection = boxData["cliffDirection"].get<int>();
+			}
+
 			boxColliders.push_back(box);
 		}
 	}

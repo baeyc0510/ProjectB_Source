@@ -184,6 +184,7 @@ void CMapManager::CreateWorldColliders(CScene* scene)
 		{
 			CLedge* ledge = new CLedge();
 			ledge->SetBoxCollider(center, size);
+			ledge->SetCliffDirection(box.cliffDirection);
 			obj = ledge;
 		}
 

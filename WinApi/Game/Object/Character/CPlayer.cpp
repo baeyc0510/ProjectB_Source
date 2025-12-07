@@ -20,6 +20,7 @@
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CVFXManager.h"
 #include "Game/Object/CVFX.h"
+#include "Game/Object/World/CLedge.h"
 
 CPlayer::CPlayer() : currentHP(0), maxHP(0), currentMP(0), maxMP(0), currentFlask(0), maxFlask(0), prevVelocity(0, 0), bWasMovingInput(false), ladderX(0), ladderTopY(0), ladderBottomY(0)
 {
@@ -541,10 +542,9 @@ void CPlayer::CheckLedge(CCollider* other)
 	float otherTop = otherPos.y - otherHalf.y;
 
 	Vec2 playerPos = collider->GetPos();
-	Vec2 playerHalfScale = collider->GetScale() * 0.5f;
-	float playerBottom = playerPos.y + playerHalfScale.y;
+	float playerCenterY = playerPos.y;
 
-	if (playerBottom < otherTop)
+	if (playerCenterY < otherTop)
 		return;
 
 	// 이미 겹쳐있는 다른 Ledge가 있고 해당 ledge보다 낮으면 갱신 x
@@ -553,19 +553,36 @@ void CPlayer::CheckLedge(CCollider* other)
 		return;
 	}
 
+	// 방향 계산: ledge가 플레이어 기준 왼쪽(-1) 또는 오른쪽(1)
+	int direction = (otherPos.x > playerPos.x) ? 1 : -1;
+
+	// CLedge의 절벽 방향 확인
+	CLedge* ledge = dynamic_cast<CLedge*>(other->GetOwner());
+	if (ledge)
+	{
+		int cliffDir = ledge->GetCliffDirection();
+		// cliffDir != 0이면 특정 방향에서만 매달리기 가능
+		// cliffDir == 1 (오른쪽 절벽): 플레이어가 오른쪽에서 접근해야 함 (direction == -1)
+		// cliffDir == -1 (왼쪽 절벽): 플레이어가 왼쪽에서 접근해야 함 (direction == 1)
+		if (cliffDir != 0 && cliffDir != -direction)
+		{
+			return;
+		}
+	}
+
 	bOverlapWithLedge = true;
 	ledgeId = other->GetID();
 	ledgeTop = otherTop;
 	ledgeX = otherPos.x;
-
-	// 방향 계산: ledge가 플레이어 기준 왼쪽(-1) 또는 오른쪽(1)
-	ledgeDirection = (otherPos.x > playerPos.x) ? 1 : -1;
+	ledgeDirection = direction;
 }
 
 void CPlayer::UpdateCanClimbLedge()
 {
 	bool bIsFalling = rigidbody->GetVelocity().y > 0;
-	if (!bOverlapWithLedge || !bIsFalling)
+	bool bCanMove = !stateSystem->HasTag(Tag_BlockMovement);
+	
+	if (!bOverlapWithLedge || !bIsFalling || !bCanMove)
 	{
 		stateSystem->RemoveTag(Tag_CanClimbLedge);
 		return;

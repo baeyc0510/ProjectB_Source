@@ -157,6 +157,7 @@ class BoxCollider:
     w: float
     h: float
     tags: List[str] = field(default_factory=lambda: ['Solid'])
+    cliff_direction: int = 0  # Ledge용: -1=왼쪽 절벽, 0=양방향, 1=오른쪽 절벽
 
 @dataclass
 class SlopeCollider:
@@ -542,7 +543,8 @@ class MapEditor:
             for box_data in data.get('boxColliders', []):
                 rect = box_data['rect']
                 tags = box_data.get('tags', ['Solid'])
-                box = BoxCollider(rect[0], rect[1], rect[2], rect[3], tags)
+                cliff_dir = box_data.get('cliffDirection', 0)
+                box = BoxCollider(rect[0], rect[1], rect[2], rect[3], tags, cliff_dir)
                 self.map_data.box_colliders.append(box)
 
             # 슬로프 콜라이더 로드
@@ -627,10 +629,14 @@ class MapEditor:
             })
 
         for box in self.map_data.box_colliders:
-            data['boxColliders'].append({
+            box_data = {
                 'rect': [box.x, box.y, box.w, box.h],
                 'tags': box.tags
-            })
+            }
+            # Ledge인 경우에만 cliffDirection 저장
+            if 'Ledge' in box.tags and box.cliff_direction != 0:
+                box_data['cliffDirection'] = box.cliff_direction
+            data['boxColliders'].append(box_data)
 
         for slope in self.map_data.slope_colliders:
             data['slopeColliders'].append({
@@ -1665,6 +1671,29 @@ class MapEditor:
         self.screen.blit(self.font_small.render("Edit Tags", True, COLOR_TEXT), (x + 30, y + 4))
         y += 35
 
+        # Ledge인 경우 절벽 방향 설정 UI 표시
+        if 'Ledge' in box.tags:
+            pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
+            y += 15
+
+            dir_label = self.font.render("Cliff Direction:", True, COLOR_TEXT)
+            self.screen.blit(dir_label, (x, y))
+            y += 25
+
+            # 방향 표시
+            dir_names = {-1: "← Left", 0: "Both", 1: "Right →"}
+            dir_colors = {-1: (100, 180, 255), 0: (180, 180, 180), 1: (255, 180, 100)}
+            dir_text = self.font.render(dir_names[box.cliff_direction], True, dir_colors[box.cliff_direction])
+            self.screen.blit(dir_text, (x, y))
+            y += 25
+
+            # 방향 토글 버튼
+            toggle_dir_btn = pygame.Rect(x, y, 140, 24)
+            self.sidebar_btn_rects['toggle_cliff_dir'] = toggle_dir_btn
+            pygame.draw.rect(self.screen, COLOR_BUTTON, toggle_dir_btn, border_radius=3)
+            self.screen.blit(self.font_small.render("Toggle Direction", True, COLOR_TEXT), (x + 22, y + 4))
+            y += 35
+
         # 구분선
         pygame.draw.line(self.screen, COLOR_TEXT_DIM, (x, y), (x + SIDEBAR_WIDTH - 30, y))
         y += 15
@@ -1973,6 +2002,12 @@ class MapEditor:
                 self._edit_collider_tags()
                 return
 
+        # Ledge 절벽 방향 토글 버튼
+        if 'toggle_cliff_dir' in self.sidebar_btn_rects:
+            if self.sidebar_btn_rects['toggle_cliff_dir'].collidepoint(event.pos):
+                self._toggle_cliff_direction()
+                return
+
     def _edit_object_position(self):
         """선택된 오브젝트의 좌표 수정"""
         if not self.selected_object:
@@ -2201,6 +2236,26 @@ class MapEditor:
                 obj.tags = new_tags
                 # 현재 선택된 태그도 업데이트
                 self.current_collider_tags = list(new_tags)
+
+    def _toggle_cliff_direction(self):
+        """Ledge 콜라이더의 절벽 방향 토글 (-1 → 0 → 1 → -1)"""
+        if not self.selected_object:
+            return
+
+        obj_type, obj = self.selected_object
+        if obj_type != 'box_collider':
+            return
+
+        if 'Ledge' not in obj.tags:
+            return
+
+        # -1 → 0 → 1 → -1 순환
+        if obj.cliff_direction == -1:
+            obj.cliff_direction = 0
+        elif obj.cliff_direction == 0:
+            obj.cliff_direction = 1
+        else:
+            obj.cliff_direction = -1
 
     def run(self):
         while self.running:

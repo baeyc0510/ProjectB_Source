@@ -22,6 +22,7 @@ struct BoxColliderData
 {
 	Rect rect;
 	vector<string> tags;
+	int cliffDirection = 0;  // Ledge용: -1=왼쪽 절벽, 0=양방향, 1=오른쪽 절벽
 
 	bool HasTag(const string& tag) const
 	{
