@@ -132,20 +132,22 @@ void CPlayer::OnEnable()
 void CPlayer::Update()
 {
 	CCharacter::Update();
+
+	ProcessActiveInput();
+	UpdatePlayerStates();
+	ProcessPassiveAbilities();
+	UpdateAnimation();
+}
+
+void CPlayer::LateUpdate()
+{
+	CheckVelocityChanged();
+}
+
+void CPlayer::ProcessActiveInput()
+{
 	HandleCombatInput();
 	HandleActionInput();
-	UpdateMovement();
-	UpdateStates();
-	UpdateCanClimbLedge();
-
-	// Ledge 자동 매달리기
-	if (stateSystem->HasTag(Tag_CanClimbLedge))
-	{
-		abilitySystem->TryActivateAbility(EAbility::HangOnLedge);
-	}
-
-	CheckVelocityChanged();
-	UpdateAnimation();
 }
 
 void CPlayer::HandleCombatInput()
@@ -229,7 +231,14 @@ void CPlayer::HandleActionInput()
 	}
 }
 
-void CPlayer::UpdateMovement()
+void CPlayer::UpdatePlayerStates()
+{
+	UpdateMovementState();
+	UpdateStates();
+	UpdateLedgeState();
+}
+
+void CPlayer::UpdateMovementState()
 {
 	// 정지 상태
 	if (stateSystem->HasTag(Tag_StopVelocity) || stateSystem->HasTag(Tag_BlockMovement))
@@ -269,6 +278,53 @@ void CPlayer::UpdateMovement()
 		stateSystem->RemoveTag(Tag_Moving);
 	}
 	bWasMovingInput = bIsMovingInput;
+}
+
+void CPlayer::UpdateLedgeState()
+{
+	bool bIsFalling = rigidbody->GetVelocity().y > 0;
+	bool bCanMove = !stateSystem->HasTag(Tag_BlockMovement);
+
+	if (!bOverlapWithLedge || !bIsFalling || !bCanMove)
+	{
+		stateSystem->RemoveTag(Tag_CanClimbLedge);
+		return;
+	}
+
+	// 방향 체크: 바라보는 방향과 ledge 방향이 일치해야 함
+	if (GetForward() != ledgeDirection)
+	{
+		stateSystem->RemoveTag(Tag_CanClimbLedge);
+		return;
+	}
+
+	Vec2 playerPos = collider->GetPos();
+	Vec2 playerHalfScale = collider->GetScale() * 0.5f;
+	float playerTop = playerPos.y - playerHalfScale.y;
+	float checkY = playerTop + LEDGE_CLIMB_THRESHOLD;
+
+	// 기준점이 ledgeTop보다 낮은 경우 CanClimb
+	if (checkY < ledgeTop)
+	{
+		stateSystem->AddTagUnique(Tag_CanClimbLedge);
+	}
+	else
+	{
+		stateSystem->RemoveTag(Tag_CanClimbLedge);
+	}
+}
+
+void CPlayer::ProcessPassiveAbilities()
+{
+	TryAutoLedgeClimb();
+}
+
+void CPlayer::TryAutoLedgeClimb()
+{
+	if (stateSystem->HasTag(Tag_CanClimbLedge))
+	{
+		abilitySystem->TryActivateAbility(EAbility::HangOnLedge);
+	}
 }
 
 void CPlayer::UpdateAnimation()
@@ -481,23 +537,27 @@ void CPlayer::UpdateMP(float& attribute, float value) const
 void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 {
 	CCharacter::OnStateChanged(oldTags, newTags);
-	
-	// 앉기
-	if (TagAdded(oldTags, newTags, Tag_Crouching) || TagAdded(oldTags, newTags, Tag_Sliding))
+
+	// 작은 collider가 필요한 태그들
+	const EStateTag smallColliderTags = Tag_Crouching | Tag_Sliding | Tag_Squashed;
+	bool hadSmallCollider = HasAnyTag(oldTags,smallColliderTags);
+	bool needsSmallCollider = HasAnyTag(newTags, smallColliderTags);
+
+	// 작은 collider 진입
+	if (!hadSmallCollider && needsSmallCollider)
 	{
 		Vec2 crouchScale = characterScale * Vec2(1.0f, 0.5f);
 		Vec2 crouchOffset = colOffset + crouchScale * Vec2(0.0f, 0.5f);
 		collider->SetScale(crouchScale);
 		collider->SetOffset(crouchOffset);
 	}
-	// 앉기 해제
-	else if (TagRemoved(oldTags, newTags, Tag_Crouching) || TagRemoved(oldTags, newTags, Tag_Sliding))
+	// 작은 collider 해제 (모든 관련 태그가 없어졌을 때만)
+	else if (hadSmallCollider && !needsSmallCollider)
 	{
 		collider->SetScale(characterScale);
 		collider->SetOffset(colOffset);
-		
 	}
-	
+
 	// 착지
 	if (TagAdded(oldTags, newTags, Tag_Grounded))
 	{
@@ -561,9 +621,6 @@ void CPlayer::CheckLedge(CCollider* other)
 	if (ledge)
 	{
 		int cliffDir = ledge->GetCliffDirection();
-		// cliffDir != 0이면 특정 방향에서만 매달리기 가능
-		// cliffDir == 1 (오른쪽 절벽): 플레이어가 오른쪽에서 접근해야 함 (direction == -1)
-		// cliffDir == -1 (왼쪽 절벽): 플레이어가 왼쪽에서 접근해야 함 (direction == 1)
 		if (cliffDir != 0 && cliffDir != -direction)
 		{
 			return;
@@ -575,40 +632,6 @@ void CPlayer::CheckLedge(CCollider* other)
 	ledgeTop = otherTop;
 	ledgeX = otherPos.x;
 	ledgeDirection = direction;
-}
-
-void CPlayer::UpdateCanClimbLedge()
-{
-	bool bIsFalling = rigidbody->GetVelocity().y > 0;
-	bool bCanMove = !stateSystem->HasTag(Tag_BlockMovement);
-	
-	if (!bOverlapWithLedge || !bIsFalling || !bCanMove)
-	{
-		stateSystem->RemoveTag(Tag_CanClimbLedge);
-		return;
-	}
-
-	// 방향 체크: 바라보는 방향과 ledge 방향이 일치해야 함
-	if (GetForward() != ledgeDirection)
-	{
-		stateSystem->RemoveTag(Tag_CanClimbLedge);
-		return;
-	}
-
-	Vec2 playerPos = collider->GetPos();
-	Vec2 playerHalfScale = collider->GetScale() * 0.5f;
-	float playerTop = playerPos.y - playerHalfScale.y;
-	float checkY = playerTop + LEDGE_CLIMB_THRESHOLD;
-
-	// 기준점이 ledgeTop보다 낮은 경우 CanClimb
-	if (checkY < ledgeTop)
-	{
-		stateSystem->AddTagUnique(Tag_CanClimbLedge);
-	}
-	else
-	{
-		stateSystem->RemoveTag(Tag_CanClimbLedge);
-	}
 }
 
 void CPlayer::ClearLedge()

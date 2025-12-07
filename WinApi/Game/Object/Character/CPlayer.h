@@ -42,7 +42,7 @@ protected:
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
-	
+	void LateUpdate() override;
 	void Render() override;
 	void OnDisable() override;
 	void Release() override;
@@ -66,22 +66,34 @@ protected:
 	wstring GetPlayerHitVfxKey(EDamageType damageType);
 	
 private:
-	// 입력 처리
+	// Active Input
+	void ProcessActiveInput();
 	void HandleCombatInput();
-	void UpdateMovement();
 	void HandleActionInput();
 
-	// 상태 처리
-	void UpdateAnimation();
+	// State Updates
+	void UpdatePlayerStates();
+	void UpdateMovementState();
+	void UpdateLedgeState();
+
+	// Passive Abilities
+	void ProcessPassiveAbilities();
+	void TryAutoLedgeClimb();
+
+	// Post Update
+	void PostUpdate();
 	void CheckVelocityChanged();
 
+	// Animation
+	void UpdateAnimation();
+
+	// Ledge Collision
 	void CheckLedge(CCollider* other);
-	void UpdateCanClimbLedge();
 	void ClearLedge();
 private:
 	// 상수
 	static constexpr float MOVE_SPEED = 250.f;
-	static constexpr float JUMP_FORCE = 470.f;
+	static constexpr float JUMP_FORCE = 490.f;
 	static constexpr float KNOCKBACK_POWER = 100.f;
 	static constexpr float MAX_HP = 100.f;
 	static constexpr float MAX_MP = 100.f;
