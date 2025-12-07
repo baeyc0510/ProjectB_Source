@@ -3,36 +3,13 @@
 
 CAnimator::CAnimator()
 {
-	curAnimation	= nullptr;
-	playing			= false;
-	ratio			= 1;
-	curFrame		= 0;
-	curTime			= 0;
-	flipX			= false;
-	reverse			= false;
-	isFinished		= false;
 }
 
 CAnimator::~CAnimator()
 {
 }
 
-void CAnimator::Reset()
-{
-	curAnimation	= nullptr;
-	playing			= false;
-	ratio			= 1;
-	curFrame		= 0;
-	curTime			= 0;
-	flipX			= false;
-	reverse			= false;
-	isFinished		= false;
-
-	ReleaseAnimations();
-	onFinished.Clear();
-	onInterrupted.Clear();
-}
-
+// Animation 관리
 void CAnimator::AddAnimation(const wstring& aniName, CAnimation* animation)
 {
 	CAnimation* ani = FindAnimation(aniName);
@@ -46,24 +23,18 @@ void CAnimator::AddAnimation(const wstring& aniName, CAnimation* animation)
 void CAnimator::RemoveAnimation(const wstring& aniName)
 {
 	CAnimation* ani = FindAnimation(aniName);
+	if (ani == nullptr)
+		return;
 
-	if (nullptr != ani)
-	{
-		animationMap.erase(aniName);
-		if (!ani->IsCached())
-		{
-			delete ani;
-		}
-	}
+	animationMap.erase(aniName);
+	if (!ani->IsCached())
+		delete ani;
 }
 
 CAnimation* CAnimator::FindAnimation(const wstring& aniName)
 {
 	auto iter = animationMap.find(aniName);
-	if (iter == animationMap.end())
-		return nullptr;
-	else
-		return iter->second;
+	return (iter != animationMap.end()) ? iter->second : nullptr;
 }
 
 void CAnimator::CreateAnimation(const wstring& aniName, CImage* image, float stepTime, UINT count, bool repeat, Vec2 pos, Vec2 scale, Vec2 step)
@@ -73,39 +44,34 @@ void CAnimator::CreateAnimation(const wstring& aniName, CImage* image, float ste
 	AddAnimation(aniName, ani);
 }
 
+// 재생 제어
 void CAnimator::Play(const wstring& aniName, bool reset,
 	Delegate<>::EventFunc onFinishedCallback,
 	Delegate<>::EventFunc onInterruptedCallback)
 {
-	// 현재 애니메이션이 플레이하고자 하는 애니메이션이며
-	// reset 아닐 경우 현재 애니메이션을 변경하지 않음
-	// reset : 같은 애니메이션을 처음부터 재생
-	// (ex. 공격 모션처럼 누를때마다 처음부터 재생해야하는 애니메이션)
-	if (playing && aniName == curAnimation->GetKey() && !reset)
+	// 동일 애니메이션이 재생 중이고 reset이 아니면 무시
+	if (bPlaying && currentAnimation && aniName == currentAnimation->GetKey() && !reset)
 		return;
 
 	CAnimation* animation = FindAnimation(aniName);
-	assert(nullptr != animation && "Animation no exist");
+	assert(animation && "Animation not found");
 
-	// 애니메이션이 변경되는 경우 (중단)
-	if (curAnimation != nullptr && curAnimation != animation)
+	// 이전 애니메이션 중단 처리
+	if (currentAnimation && currentAnimation != animation && !bFinished)
 	{
-		// 이전 애니메이션이 완료되지 않았다면 중단 이벤트 호출
-		if (!isFinished && onInterrupted.IsBound())
-		{
+		if (onInterrupted.IsBound())
 			onInterrupted.Invoke();
-		}
 	}
 
-	// reset 일 경우 처음부터 재생 (역재생이면 마지막 프레임에서 시작)
-	if (reset || curAnimation != animation)
+	// 프레임 초기화
+	if (reset || currentAnimation != animation)
 	{
-		curFrame = reverse ? static_cast<UINT>(animation->frames.size() - 1) : 0;
-		curTime = 0;
-		isFinished = false;
+		currentFrame = bReverse ? static_cast<UINT>(animation->frames.size() - 1) : 0;
+		currentTime = 0.f;
+		bFinished = false;
 	}
 
-	// 새로운 콜백 등록
+	// 콜백 등록
 	if (onFinishedCallback)
 		onFinished.Bind(onFinishedCallback);
 	else
@@ -116,32 +82,44 @@ void CAnimator::Play(const wstring& aniName, bool reset,
 	else
 		onInterrupted.Clear();
 
-	curAnimation = animation;
-	playing = true;
+	currentAnimation = animation;
+	bPlaying = true;
 }
 
 void CAnimator::Stop()
 {
-	// 애니메이션이 완료되지 않았다면 중단 이벤트 호출
-	if (playing && curAnimation != nullptr && !isFinished && onInterrupted.IsBound())
-	{
+	if (bPlaying && currentAnimation && !bFinished && onInterrupted.IsBound())
 		onInterrupted.Invoke();
-	}
 
-	playing = false;
+	bPlaying = false;
 }
 
-void CAnimator::SetCurrentFrame(UINT inFrame)
+void CAnimator::Reset()
 {
-	if (curAnimation == nullptr)
-	{
-		return;
-	}
-	
-	UINT maxFrame = static_cast<UINT>(curAnimation->frames.size() - 1);
-	curFrame = max(inFrame, maxFrame);
+	currentAnimation = nullptr;
+	bPlaying = false;
+	ratio = 1.f;
+	currentFrame = 0;
+	currentTime = 0.f;
+	bFlipX = false;
+	bReverse = false;
+	bFinished = false;
+
+	ReleaseAnimations();
+	onFinished.Clear();
+	onInterrupted.Clear();
 }
 
+void CAnimator::SetCurrentFrame(UINT frame)
+{
+	if (currentAnimation == nullptr)
+		return;
+
+	UINT maxFrame = static_cast<UINT>(currentAnimation->frames.size() - 1);
+	currentFrame = min(frame, maxFrame);
+}
+
+// Component Interface
 void CAnimator::ComponentInit()
 {
 }
@@ -153,117 +131,34 @@ void CAnimator::ComponentOnEnable()
 
 void CAnimator::ComponentUpdate()
 {
-	if (curAnimation == nullptr)
-	{
+	if (!currentAnimation || !bPlaying)
 		return;
-	}
-	if (!playing)
+
+	currentTime += DT;
+
+	// 현재 프레임 시간이 지나면 다음 프레임으로
+	if (currentTime >= currentAnimation->frames[currentFrame].time)
 	{
-		return;
-	}
-
-	// 현재 플레이중인 프레임의 누적시간
-	curTime += DT;
-
-	// 누적시간이 현재 플레이중인 프레임의 지속시간보다 커졌을 경우
-	// -> 다음 프레임을 보여줘야 하는 경우
-	if (curAnimation->frames[curFrame].time < curTime)
-	{
-		curTime = 0;	// 현재 플레이중인 프레임의 누적시간 초기화
-
-		// 역재생
-		if (reverse)
-		{
-			if (curFrame == 0)
-			{
-				// 첫 프레임에 도달
-				if (curAnimation->repeat)
-				{
-					curFrame = static_cast<UINT>(curAnimation->frames.size() - 1);
-				}
-				else
-				{
-					// 반복 아니면 0에서 멈춤
-					if (isFinished)
-					{
-						return;
-					}
-
-					isFinished = true;
-
-					if (onFinished.IsBound())
-					{
-						onFinished.Invoke();
-					}
-				}
-			}
-			else
-			{
-				curFrame--;
-			}
-		}
-		// 정방향 재생
-		else
-		{
-			UINT prevFrame = curFrame;
-			curFrame++;
-
-			if (!isFinished)
-			{
-				// 프레임 이벤트 실행
-				for (const wstring& eventName : curAnimation->frames[prevFrame].events)
-				{
-					OnFrameEvent.Broadcast(eventName);
-				}
-			}
-
-			// 만약 플레이중인 프레임이 마지막 프레임이었을 경우
-			if (curFrame == curAnimation->frames.size())
-			{
-				// 반복 애니메이션이라면 처음부터, 아니라면 마지막을 다시 재생
-				if (curAnimation->repeat)
-				{
-					curFrame = 0;
-				}
-				else
-				{
-					curFrame--;
-
-					if (isFinished)
-					{
-						return;
-					}
-
-					isFinished = true;
-
-					// 애니메이션 완료 이벤트 호출
-					if (onFinished.IsBound())
-					{
-						onFinished.Invoke();
-					}
-				}
-			}
-		}
+		currentTime = 0.f;
+		AdvanceFrame();
 	}
 }
 
 void CAnimator::ComponentRender()
 {
-	if (curAnimation == nullptr)
-	{
+	if (currentAnimation == nullptr)
 		return;
-	}
-	
-	Vec2 pos = GetOwner()->GetRenderPos();				// 애니메이션이 그려질 위치 확인
-	AniFrame frame = curAnimation->frames[curFrame];	// 애니메이션이 그려질 프레임 확인
-	
-	float pivotX = !flipX ?  frame.pivot.x : frame.scale.x - frame.pivot.x;
+
+	Vec2 pos = GetOwner()->GetRenderPos();
+	AniFrame& frame = currentAnimation->frames[currentFrame];
+
+	float pivotX = bFlipX ? (frame.scale.x - frame.pivot.x) : frame.pivot.x;
 	float pivotY = frame.pivot.y;
 	float startX = pos.x - pivotX;
 	float startY = pos.y - frame.scale.y + pivotY;
-	
+
 	RENDER->FrameImage(
-		curAnimation->image,
+		currentAnimation->image,
 		startX,
 		startY,
 		startX + frame.scale.x * ratio,
@@ -272,7 +167,7 @@ void CAnimator::ComponentRender()
 		frame.pos.y,
 		frame.pos.x + frame.scale.x,
 		frame.pos.y + frame.scale.y,
-		flipX
+		bFlipX
 	);
 }
 
@@ -281,20 +176,89 @@ void CAnimator::ComponentOnDisable()
 	Component::ComponentOnDisable();
 }
 
-void CAnimator::ReleaseAnimations()
-{
-	for (pair<wstring, CAnimation*> kvp : animationMap)
-	{
-		auto ani = kvp.second;
-		if (ani != nullptr && !ani->IsCached())
-		{
-			delete ani;
-		}
-	}
-	animationMap.clear();
-}
-
 void CAnimator::ComponentRelease()
 {
 	ReleaseAnimations();
+}
+
+// 프레임 진행
+void CAnimator::AdvanceFrame()
+{
+	if (bReverse)
+		AdvanceFrameReverse();
+	else
+		AdvanceFrameForward();
+}
+
+void CAnimator::AdvanceFrameForward()
+{
+	BroadcastFrameEvents(currentFrame);
+	currentFrame++;
+
+	UINT frameCount = static_cast<UINT>(currentAnimation->frames.size());
+	if (currentFrame >= frameCount)
+	{
+		if (currentAnimation->repeat)
+		{
+			currentFrame = 0;
+		}
+		else
+		{
+			currentFrame = frameCount - 1;
+			HandleAnimationEnd();
+		}
+	}
+}
+
+void CAnimator::AdvanceFrameReverse()
+{
+	BroadcastFrameEvents(currentFrame);
+
+	if (currentFrame == 0)
+	{
+		if (currentAnimation->repeat)
+		{
+			currentFrame = static_cast<UINT>(currentAnimation->frames.size() - 1);
+		}
+		else
+		{
+			HandleAnimationEnd();
+		}
+	}
+	else
+	{
+		currentFrame--;
+	}
+}
+
+void CAnimator::BroadcastFrameEvents(UINT frame)
+{
+	if (bFinished)
+		return;
+
+	for (const wstring& eventName : currentAnimation->frames[frame].events)
+	{
+		OnFrameEvent.Broadcast(eventName);
+	}
+}
+
+void CAnimator::HandleAnimationEnd()
+{
+	if (bFinished)
+		return;
+
+	bFinished = true;
+
+	if (onFinished.IsBound())
+		onFinished.Invoke();
+}
+
+void CAnimator::ReleaseAnimations()
+{
+	for (auto& [key, ani] : animationMap)
+	{
+		if (ani && !ani->IsCached())
+			delete ani;
+	}
+	animationMap.clear();
 }
