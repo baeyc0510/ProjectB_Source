@@ -194,11 +194,7 @@ void CEnemy::OnDamage(CGameObject* source, const CombatContext& context)
 		{
 			vfx->PlayVFX();
 		}
-
-		// Hitstop + Camera Shake
-		TIMER->SetTimeScale(0.0f, 0.04f);
-		CAMERA->Shake(ShakePreset::Light);
-
+		
 		// Hit Reaction
 		abilitySystem->CancelAbilitiesWithTag(Tag_Hit);
 		abilitySystem->TryActivateAbility(EAbility::Hit);

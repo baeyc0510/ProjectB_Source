@@ -36,8 +36,8 @@ void CSFXManager::PreLoad()
 
     // 플레이어 - 패리
     LOADSOUND(SFXKey::PlayerStartParry, TEXT("Sound/penitent/PENITENT_START_PARRY.wav"));
-    LOADSOUND(SFXKey::PlayerParryCounterHit, TEXT("Sound/penitent/PENITENT_PARRY_COUNTER_HIT.wav"));
-    LOADSOUND(SFXKey::PlayerParrySuccess, TEXT("Sound/penitent/PENITENT_PARRY_SUCCESS.wav"));
+    LOADSOUND(SFXKey::PlayerParryCounterHit, TEXT("Sound/penitent/PENITENT_PARRY_HIT.wav"));
+    LOADSOUND(SFXKey::PlayerParrySuccess, TEXT("Sound/penitent/PENITENT_PARRY_SLOW.wav"));
     LOADSOUND(SFXKey::PlayerGuard, TEXT("Sound/penitent/PENITENT_GUARD.wav"));
 
     // 플레이어 - 기타

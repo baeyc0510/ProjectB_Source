@@ -317,8 +317,9 @@ void CCameraManager::UpdateShake()
 		return;
 	}
 
-	shakeRemaining -= DT;
-	shakeElapsed += DT;
+	float unscaledDT = TIMER->GetUnscaledDT();
+	shakeRemaining -= unscaledDT;
+	shakeElapsed += unscaledDT;
 
 	// 감쇠 계산 (1에서 0으로)
 	float progress = shakeElapsed / shakeParams.duration;
