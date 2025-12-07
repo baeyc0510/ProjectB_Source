@@ -178,7 +178,7 @@ void CCharacter::UpdateStates()
     }
     bWasOnSteepSlope = bIsOnSteepSlope;
 
-    // 끼임 상태 (낮은 천장에서 슬라이드 후)
+    // 끼임 상태
     bool bIsSquashed = movement->IsBeingSquashed();
     if (bIsSquashed)
     {

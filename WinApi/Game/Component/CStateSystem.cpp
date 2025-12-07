@@ -10,10 +10,7 @@ CStateSystem::~CStateSystem()
 {
 }
 
-//========================================
 // 태그 관리
-//========================================
-
 void CStateSystem::AddTag(EStateTag tag)
 {
 	EStateTag oldTags = currentTags;
@@ -106,10 +103,7 @@ void CStateSystem::ClearTags()
 		OnStateChanged.Broadcast(oldTags, currentTags);
 }
 
-//========================================
 // 태그 검사
-//========================================
-
 bool CStateSystem::HasTag(EStateTag tag) const
 {
 	return (currentTags & tag) == tag;
@@ -125,10 +119,7 @@ bool CStateSystem::HasAnyTag(EStateTag tags) const
 	return (currentTags & tags) != Tag_None;
 }
 
-//========================================
 // 디버그
-//========================================
-
 wstring CStateSystem::GetStateTagString() const
 {
 	wstring result;
@@ -158,10 +149,7 @@ wstring CStateSystem::GetStateTagString() const
 	return result.empty() ? L"None" : result;
 }
 
-//========================================
 // Component 인터페이스
-//========================================
-
 void CStateSystem::ComponentInit()
 {
 	currentTags = Tag_None;

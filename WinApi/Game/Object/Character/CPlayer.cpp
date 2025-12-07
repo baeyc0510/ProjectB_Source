@@ -243,13 +243,7 @@ void CPlayer::UpdateMovementState()
 	// 정지 상태
 	if (stateSystem->HasTag(Tag_StopVelocity) || stateSystem->HasTag(Tag_BlockMovement))
 		return;
-
-	// 사다리 타기 중
-	if (stateSystem->HasTag(Tag_Climbing))
-		return;
 	
-	// 매달리기 
-
 	// 이동 입력 처리
 	float moveDir = 0.f;
 	if (INPUT->ButtonStay('A'))
@@ -316,22 +310,14 @@ void CPlayer::UpdateLedgeState()
 
 void CPlayer::ProcessPassiveAbilities()
 {
-	TryAutoLedgeClimb();
-}
-
-void CPlayer::TryAutoLedgeClimb()
-{
-	if (stateSystem->HasTag(Tag_CanClimbLedge))
-	{
-		abilitySystem->TryActivateAbility(EAbility::HangOnLedge);
-	}
+	abilitySystem->TryActivateAbility(EAbility::HangOnLedge); // 매달리기
 }
 
 void CPlayer::UpdateAnimation()
 {
 	animator->SetDirection(GetForward());
 
-	// Ability가 애니메이션을 제어 중이면 스킵 (사다리 포함)
+	// Ability가 애니메이션을 제어 중이면 스킵
 	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
 

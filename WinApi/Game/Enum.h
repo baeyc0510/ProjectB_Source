@@ -1,9 +1,6 @@
 ﻿#pragma once
 
-//========================================
-//##				게임씬				##
-//========================================
-
+// 게임 씬
 enum ESceneType
 {
 	Title,
@@ -14,10 +11,7 @@ enum ESceneType
 	Stage_Boss01,
 };
 
-//========================================
-//##				레이어				##
-//========================================
-
+// 레이어
 enum ELayer
 {
 	Default,
@@ -31,10 +25,7 @@ enum ELayer
 	LayerSize,
 };
 
-//========================================
-//##			StateTag (비트필드)		##
-//========================================
-
+// StateTag (비트필드)
 enum EStateTag
 {
 	Tag_None				= 0,
@@ -103,10 +94,7 @@ inline bool TagRemoved(EStateTag oldTags, EStateTag newTags, EStateTag tag)
 	return HasTag(oldTags, tag) && !HasTag(newTags, tag);
 }
 
-//========================================
-//##			Ability 이름			##
-//========================================
-
+// Ability 이름
 enum class EAbility
 {
 	None,
@@ -130,10 +118,7 @@ enum class EAbility
 	AI_Attack,
 };
 
-//========================================
-//##			Game 이벤트				##
-//========================================
-
+// Game 이벤트
 enum class EGameEvent
 {
 	None,
@@ -168,10 +153,7 @@ enum class EGameEvent
 	AI_PatrolPointReached,	// 순찰 지점 도달
 };
 
-//========================================
-//##			Damage Types			##
-//========================================
-
+// Damage Types
 enum class EDamageType
 {
 	None,
@@ -179,10 +161,7 @@ enum class EDamageType
 	Parry,
 };
 
-//========================================
-//##			Overlay UI Types		##
-//========================================
-
+// Overlay UI Types
 enum class EOverlayUI
 {
 	None,

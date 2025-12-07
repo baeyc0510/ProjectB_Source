@@ -12,10 +12,7 @@ CAbilitySystem::~CAbilitySystem()
 {
 }
 
-//========================================
 // Ability 관리
-//========================================
-
 void CAbilitySystem::AddAbility(EAbility abilityType, Ability* ability)
 {
 	abilities[abilityType] = unique_ptr<Ability>(ability);
@@ -135,29 +132,20 @@ void CAbilitySystem::CancelAbilitiesWithTag(EStateTag tag)
 	}
 }
 
-//========================================
 // 이벤트 중계
-//========================================
-
 void CAbilitySystem::TriggerEvent(EGameEvent eventType, CGameObject* source)
 {
 	OnEvent.Broadcast(eventType, source);
 }
 
-//========================================
 // 상태 조회
-//========================================
-
 bool CAbilitySystem::IsAbilityActive(EAbility abilityType) const
 {
 	Ability* ability = GetAbility(abilityType);
 	return ability && ability->IsActive();
 }
 
-//========================================
 // Component 인터페이스
-//========================================
-
 void CAbilitySystem::ComponentInit()
 {
 	// StateSystem 캐싱
@@ -170,10 +158,7 @@ void CAbilitySystem::ComponentRelease()
 	activeAbilities.clear();
 }
 
-//========================================
 // Component 업데이트
-//========================================
-
 void CAbilitySystem::ComponentUpdate()
 {
 	// 모든 Ability 쿨다운 업데이트
@@ -184,10 +169,7 @@ void CAbilitySystem::ComponentUpdate()
 	}
 }
 
-//========================================
 // 내부 함수
-//========================================
-
 void CAbilitySystem::OnAbilityEnded(Ability* ability)
 {
 	// 태그 자동 제거

@@ -87,11 +87,10 @@ private:
 	// Animation
 	void UpdateAnimation();
 
-	// Ledge Collision
 	void CheckLedge(CCollider* other);
 	void ClearLedge();
+
 private:
-	// 상수
 	static constexpr float MOVE_SPEED = 250.f;
 	static constexpr float JUMP_FORCE = 490.f;
 	static constexpr float KNOCKBACK_POWER = 100.f;
@@ -99,38 +98,29 @@ private:
 	static constexpr float MAX_MP = 100.f;
 	static constexpr int MAX_FLASK = 2;
 	static constexpr float LEDGE_CLIMB_THRESHOLD = 10.f;
-	
-	// Crouch collider 설정
+
 	Vec2 characterScale;
 	Vec2 colOffset;
-	
-	// status
+
 	float currentHP;
 	float maxHP;
-	
 	float currentMP;
 	float maxMP;
-	
 	int currentFlask;
 	int maxFlask;
-	
 	float jumpForce;
 
-	// velocity 변경 감지용
 	Vec2 prevVelocity;
-	
-	// 사다리 정보
+
 	float ladderX;
 	float ladderTopY;
 	float ladderBottomY;
-	
-	// Ledge(땅 끄트머리 턱) 정보
+
 	bool bOverlapWithLedge = false;
 	UINT ledgeId = 0;
 	float ledgeX = -FLT_MAX;
 	float ledgeTop = -FLT_MAX;
-	int ledgeDirection = 0;  // ledge가 플레이어 기준 왼쪽(-1) 또는 오른쪽(1)
-	
-	// 입력 상태 변화 감지용
+	int ledgeDirection = 0;
+
 	bool bWasMovingInput;
 };

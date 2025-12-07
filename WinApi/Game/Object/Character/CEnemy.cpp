@@ -111,7 +111,7 @@ void CEnemy::HandleMovementEvents()
 
 void CEnemy::UpdateAIMovement()
 {
-	// 이동 불가 상태 (CCharacter::Update에서 Tag_StopVelocity 처리됨)
+	// 이동 불가 상태
 	if (stateSystem->HasAnyTag(Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement))
 	{
 		rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
@@ -171,9 +171,6 @@ void CEnemy::UpdateAIMovement()
 
 void CEnemy::OnDamage(CGameObject* source, const CombatContext& context)
 {
-	// DEBUG
-	Logger::Debug(name + TEXT(" Hit!"));
-
 	// Trigger Event
 	abilitySystem->TriggerEvent(EGameEvent::Hit, source);
 
