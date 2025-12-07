@@ -7,8 +7,11 @@ void Ability_HitReaction::OnActivate()
 {
     Ability::OnActivate();
     
-    CAnimator* animator =  owner->GetComponent<CAnimator>();
-    animator->Play(GetHitAnimKey(),true, BIND(this,EndAbility), BIND(this, EndAbility));
+    GetAnimator()->Play(GetHitAnimKey(),true, BIND(this,EndAbility), BIND(this, EndAbility));
+    
+    // Hitstop + Camera Shake
+    TIMER->SetTimeScale(0.0f, 0.05f);
+    CAMERA->Shake(ShakePreset::Medium);
     
     WaitEvent(EGameEvent::Recover, BIND_EVENT(this,StopKnockback));
 }

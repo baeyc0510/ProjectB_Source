@@ -1,7 +1,7 @@
 {
     "image": "Image/Penitent/penitent_hangonledge_anim.bmp",
     "pivot": [66.0, 3.0],
-    "frame_interval": 0.0833,
+    "frame_interval": 0.05,
     "frames": [
         {"rect": [0, 0, 104, 83], "events": []},
         {"rect": [104, 0, 104, 83], "events": []},

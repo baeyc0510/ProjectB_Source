@@ -79,10 +79,8 @@ private:
 
 	// Passive Abilities
 	void ProcessPassiveAbilities();
-	void TryAutoLedgeClimb();
 
-	// Post Update
-	void PostUpdate();
+	// Late Update
 	void CheckVelocityChanged();
 
 	// Animation

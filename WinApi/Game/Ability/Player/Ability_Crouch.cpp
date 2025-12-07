@@ -13,7 +13,7 @@ void Ability_Crouch::OnActivate()
 {
     Ability::OnActivate();
 
-    GetAnimator()->Play(AnimKey::Crouch, true, nullptr, BIND(this, EndAbility));
+    GetAnimator()->Play(AnimKey::Crouch, true);
 
     WaitEvent(EGameEvent::Input_Jump_Pressed, BIND_EVENT(this, OnJumpPressed));
     WaitEvent(EGameEvent::Input_Crouch_Released, BIND_EVENT(this, OnCrouchReleased));

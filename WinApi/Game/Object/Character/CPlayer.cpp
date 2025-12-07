@@ -426,15 +426,18 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 		// // Spawn Hit VFX
 		if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
 		{
-			vfx->PlayVFX();	
+			vfx->PlayVFX();
 		}
-		
+
 		// Spawn Blood VFX
 		if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
 		{
 			vfx->PlayVFX();
 		}
-		
+
+		// Camera Shake
+		CAMERA->Shake(ShakePreset::Medium);
+
 		// Apply damage
 		float newHP = currentHP - context.value;
 		SetCurrentHP(newHP);
