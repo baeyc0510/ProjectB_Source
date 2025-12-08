@@ -8,6 +8,7 @@ enum ESceneType
 	Stage02,
 	Stage03,
 	Stage04,
+	Stage05,
 	Stage_Boss01,
 };
 

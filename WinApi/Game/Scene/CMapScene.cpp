@@ -69,13 +69,6 @@ void CMapScene::Enter()
 
 void CMapScene::Update()
 {
-    // TEMP
-    // ESC: UI가 처리 안 했으면 씬 전환
-    if (!GAMEUI->ConsumeEscapeInput() && INPUT->ButtonDown(VK_ESCAPE))
-    {
-        CAMERA->FadeOut(0.5f);
-        WORLD->ChangeScene(ESceneType::Title, 0.5f);
-    }
 }
 
 void CMapScene::Render()

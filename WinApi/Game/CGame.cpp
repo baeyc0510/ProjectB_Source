@@ -7,9 +7,9 @@
 #include "Manager/CSFXManager.h"
 #include "Manager/CMapManager.h"
 #include "Manager/CGameUIManager.h"
-#include "Scene/CStage01.h"
+#include "Scene/CStage_Beginning.h"
 #include "Scene/CSceneTitle.h"
-#include "Scene/CStage02.h"
+#include "Scene/CSimpleStage.h"
 #include "Scene/CStage_Boss01.h"
 
 const Vec2 CGame::WINSTART		= Vec2(100, 100);
@@ -89,8 +89,11 @@ void CGame::Init(HINSTANCE hInstance)
 
 	// TODO : 씬 추가
 	SINGLE(CSceneManager)->AddScene(ESceneType::Title,	new CSceneTitle());
-	SINGLE(CSceneManager)->AddScene(ESceneType::Stage01,	new CStage01());
-	SINGLE(CSceneManager)->AddScene(ESceneType::Stage02,	new CStage02());
+	SINGLE(CSceneManager)->AddScene(ESceneType::Stage01,	new CStage_Beginning());
+	SINGLE(CSceneManager)->AddScene(ESceneType::Stage02,	new CSimpleStage(TEXT("Maps/stage02.json")));
+	SINGLE(CSceneManager)->AddScene(ESceneType::Stage03,	new CSimpleStage(TEXT("Maps/stage03.json")));
+	SINGLE(CSceneManager)->AddScene(ESceneType::Stage04,	new CSimpleStage(TEXT("Maps/stage04.json")));
+	SINGLE(CSceneManager)->AddScene(ESceneType::Stage05,	new CSimpleStage(TEXT("Maps/stage05.json")));
 	SINGLE(CSceneManager)->AddScene(ESceneType::Stage_Boss01,	new CStage_Boss01());
 
 	// TODO : 충돌 레이어 설정

@@ -1,24 +1,33 @@
 #include "pch.h"
-#include "CStage02.h"
+#include "CSimpleStage.h"
 
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CSFXManager.h"
 
-CStage02::CStage02()
-{
-    mapFilePath = TEXT("Maps/stage02.json");
-}
-
-CStage02::~CStage02()
+CSimpleStage::CSimpleStage()
 {
 }
 
-void CStage02::Init()
+CSimpleStage::CSimpleStage(const wstring& inMapPath)
+{
+    mapFilePath = inMapPath;
+}
+
+CSimpleStage::~CSimpleStage()
+{
+}
+
+void CSimpleStage::SetMapFilePath(const wstring& path)
+{
+    mapFilePath = path;
+}
+
+void CSimpleStage::Init()
 {
     CMapScene::Init();
 }
 
-void CStage02::OnLoadMap()
+void CSimpleStage::OnLoadMap()
 {
     CMapScene::OnLoadMap();
     
@@ -27,7 +36,7 @@ void CStage02::OnLoadMap()
     SpawnPlayer();
 }
 
-void CStage02::Enter()
+void CSimpleStage::Enter()
 {
     CMapScene::Enter();
     

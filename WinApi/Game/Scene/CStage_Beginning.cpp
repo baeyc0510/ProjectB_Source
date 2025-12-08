@@ -1,33 +1,30 @@
 ﻿#include "pch.h"
-#include "CStage01.h"
+#include "CStage_Beginning.h"
 
 #include "Game/AnimKey.h"
 #include "Game/Object/Character/CPlayer.h"
 #include "Game/Component/CStateSystem.h"
-#include "Game/Object/Character/CEnemy.h"
 #include "Game/Manager/CGameUIManager.h"
-#include "Game/Manager/CMapManager.h"
 #include "Game/Manager/CSFXManager.h"
-#include "Game/Object/Character/CEnemy_Acorite.h"
 
 class CCameraController;
 class CPlayer;
 
-CStage01::CStage01() : _player(nullptr), _stateSystem(nullptr)
+CStage_Beginning::CStage_Beginning() : _player(nullptr), _stateSystem(nullptr)
 {
 	mapFilePath = TEXT("Maps/stage01.json");
 }
 
-CStage01::~CStage01()
+CStage_Beginning::~CStage_Beginning()
 {
 }
 
-void CStage01::Init()
+void CStage_Beginning::Init()
 {
 	CMapScene::Init();
 }
 
-void CStage01::Enter()
+void CStage_Beginning::Enter()
 {
 	CMapScene::Enter();
 	
@@ -61,12 +58,12 @@ void CStage01::Enter()
 	}
 }
 
-void CStage01::Update()
+void CStage_Beginning::Update()
 {
 	CMapScene::Update();
 }
 
-void CStage01::Render()
+void CStage_Beginning::Render()
 {
 	CMapScene::Render();
 	// // // 디버그: 플레이어 state 출력
@@ -74,17 +71,17 @@ void CStage01::Render()
 	// RENDER->Text(40, 55, debugPlayer);
 }
 
-void CStage01::Exit()
+void CStage_Beginning::Exit()
 {
 	CMapScene::Exit();
 }
 
-void CStage01::Release()
+void CStage_Beginning::Release()
 {
 	CMapScene::Release();
 }
 
-void CStage01::OnLoadMap()
+void CStage_Beginning::OnLoadMap()
 {
 	CMapScene::OnLoadMap();
 	

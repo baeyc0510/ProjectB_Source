@@ -26,7 +26,7 @@ void CSceneTitle::Update()
 	if (INPUT->ButtonDown(VK_SPACE))
 	{
 		CAMERA->FadeOut(0.5f);
-		WORLD->ChangeScene(ESceneType::Stage_Boss01, 0.5f);
+		WORLD->ChangeScene(ESceneType::Stage02, 0.5f);
 	}
 }
 

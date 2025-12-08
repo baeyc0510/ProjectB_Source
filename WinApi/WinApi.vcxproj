@@ -215,8 +215,8 @@
     <ClInclude Include="Game\Object\World\CTransitionArea.h" />
     <ClInclude Include="Game\Object\World\CWorldCollider.h" />
     <ClInclude Include="Game\Scene\CMapScene.h" />
-    <ClInclude Include="Game\Scene\CStage01.h" />
-    <ClInclude Include="Game\Scene\CStage02.h" />
+    <ClInclude Include="Game\Scene\CStage_Beginning.h" />
+    <ClInclude Include="Game\Scene\CSimpleStage.h" />
     <ClInclude Include="Game\Scene\CSceneTitle.h" />
     <ClInclude Include="Game\Scene\CStage_Boss01.h" />
     <ClInclude Include="Game\SFXKeys.h" />
@@ -437,8 +437,8 @@
     <ClCompile Include="Game\Object\World\CTransitionArea.cpp" />
     <ClCompile Include="Game\Object\World\CWorldCollider.cpp" />
     <ClCompile Include="Game\Scene\CMapScene.cpp" />
-    <ClCompile Include="Game\Scene\CStage01.cpp" />
-    <ClCompile Include="Game\Scene\CStage02.cpp" />
+    <ClCompile Include="Game\Scene\CStage_Beginning.cpp" />
+    <ClCompile Include="Game\Scene\CSimpleStage.cpp" />
     <ClCompile Include="Game\Scene\CSceneTitle.cpp" />
     <ClCompile Include="Game\Scene\CStage_Boss01.cpp" />
     <ClCompile Include="Game\UI\CBossHUD.cpp" />
