@@ -3,7 +3,6 @@
 #include "Game/Object/Character/CBoss_TenPiedad.h"
 #include "Game/Object/Character/CEnemy_Acorite.h"
 
-
 CCharacter* CharacterFactory::CreateCharacter(const string& characterType)
 {
     CCharacter* character = nullptr;

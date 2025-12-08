@@ -32,6 +32,8 @@ protected:
 	void DealDamageToPlayer(CGameObject* player);
 
 	void DestroySelf();
+	
+	void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 
 protected:
 	CAnimator* animator = nullptr;

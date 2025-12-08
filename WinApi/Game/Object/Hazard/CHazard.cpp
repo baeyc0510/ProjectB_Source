@@ -128,3 +128,12 @@ void CHazard::DestroySelf()
 	bIsDestroyed = true;
 	WORLD->Delete(GetScene(), this);
 }
+
+void CHazard::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
+{
+	assert(animator);
+	CAnimation* animation = LOADANIMATION(name + L"_" + aniName, path);
+	assert(animation);
+	animation->SetRepeat(bShouldRepeat);
+	animator->AddAnimation(aniName, animation);
+}

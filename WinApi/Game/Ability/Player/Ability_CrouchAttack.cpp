@@ -42,7 +42,7 @@ void Ability_CrouchAttack::OnCrouchReleased()
 void Ability_CrouchAttack::OnHitCheck()
 {
     vector<HitResult> hitResults;
-    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, AttackData, ELayer::Monster, hitResults);
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, AttackData, {Monster,Projectile}, hitResults);
     
     // Play Sound
     if (bHit)

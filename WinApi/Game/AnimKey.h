@@ -5,7 +5,7 @@ namespace AnimKey
 	// Common
 	constexpr const wchar_t* Idle			= L"Idle";
 	constexpr const wchar_t* Hit			= L"Hit";
-	constexpr const wchar_t* ParryHit			= L"ParryHit";
+	constexpr const wchar_t* ParryHit		= L"ParryHit";
 	constexpr const wchar_t* Walk			= L"Walk";
 	
 
@@ -24,6 +24,9 @@ namespace AnimKey
 	constexpr const wchar_t* Climbing		= L"Climbing";
 	constexpr const wchar_t* LedgeHang		= L"LedgeHang";
 	constexpr const wchar_t* LedgeClimbOver	= L"LedgeClimbOver";
+	
+	constexpr const wchar_t* Pushback		= L"Pushback";
+	constexpr const wchar_t* Pushback_Land	= L"Pushback_Land";
 
 	// Player Attack
 	constexpr const wchar_t* Combo1			= L"Combo1";
@@ -39,6 +42,7 @@ namespace AnimKey
 
 	// Player Special Action
 	constexpr const wchar_t* UseFlask		= L"UseFlask";
+	constexpr const wchar_t* Rising			= L"Rising";
 	
 	// Monster
 	constexpr const wchar_t* Attack			= L"Attack";
@@ -54,4 +58,11 @@ namespace AnimKey
 	constexpr const wchar_t* BossStomp				= L"BossStomp";
 	constexpr const wchar_t* BossGroundSmash		= L"BossGroundSmash";
 	constexpr const wchar_t* BossGroundSmashToIdle	= L"BossGroundSmashToIdle";
+	
+	// Projectile
+	constexpr const wchar_t* ThornBall	= L"ThornBall";
+	constexpr const wchar_t* ThornBallDestroyed	= L"ThornBallDestroyed";
+	constexpr const wchar_t* ThornGrowth	= L"ThornGrowth";
+	constexpr const wchar_t* ThornGrowthDestroyed	= L"ThornGrowthDestroyed";
+	constexpr const wchar_t* ThornThrust = L"ThornThrust";
 }

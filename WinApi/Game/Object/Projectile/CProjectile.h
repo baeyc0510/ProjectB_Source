@@ -15,7 +15,7 @@ public:
 	void SetProjectileOwner(CGameObject* inOwner) { projectileOwner = inOwner; }
 	void SetVelocity(Vec2 vel);
 	void SetDamage(float dmg) { damage = dmg; }
-	void SetLifetime(float time) { lifetime = time; bHasLifetime = true; }
+	void SetLifetime(float time) {remainingLifetime = time;  lifetime = time; bHasLifetime = true; }
 
 	void Launch(Vec2 velocity);
 
@@ -29,17 +29,20 @@ protected:
 	void Release() override;
 
 	void OnCollisionEnter(CCollider* other) override;
+	void OnCollisionStay(CCollider* other) override;
 
 	/*~ ICombatInterface ~*/
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 
-	/*~ CProjectile Interface (Virtual) ~*/
+	/*~ CProjectile Interface ~*/
 	virtual void OnHitGround(Vec2 hitPos);
 	virtual void OnHitWall(Vec2 hitPos);
 	virtual void OnHitPlayer(CGameObject* player);
 	virtual void OnDestroyed();
 
+	void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 	void DestroySelf();
+	
 
 protected:
 	CGameObject* projectileOwner = nullptr;

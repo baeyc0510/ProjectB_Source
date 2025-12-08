@@ -45,7 +45,7 @@ enum EStateTag
 	Tag_Jumping				= 1 << 11,	// 점프 중
 	Tag_AbilityAnimation	= 1 << 12,	// Ability가 애니메이션 제어 중
 	Tag_BlockMovement		= 1 << 13,
-	Tag_StopVelocity 		= 1 << 14,
+	Tag_BlockAbility		= 1 << 14,
 	Tag_Crouching			= 1 << 15,
 	Tag_ShouldCrouch		= 1 << 16,
 	Tag_AirAttackExhausted	= 1 << 17,	// 공중 공격 소진
@@ -59,6 +59,8 @@ enum EStateTag
 	Tag_AIChase				= 1 << 23,	// AI: 추격 중
 	Tag_CanClimbLedge		= 1 << 24,
 	Tag_BossAppearing		= 1 << 27,	// 보스 등장 중
+	Tag_FixedVelocity		= 1 << 28,
+	Tag_StopVelocity 		= 1 << 29,
 };
 
 inline EStateTag operator|(EStateTag a, EStateTag b)
@@ -111,7 +113,7 @@ enum class EAbility
 	Climb,
 	Parry,
 	CounterAttack,
-	Hit,
+	HitReact,
 	ParryHit,
 	Death,
 	HangOnLedge,
@@ -145,6 +147,7 @@ enum class EGameEvent
 	DoAction,
 	Footstep,
 	Grab,
+	PlaySFX,
 	// 게임플레이 이벤트
 	Hit,
 	EndCrouch,
@@ -172,6 +175,8 @@ enum class EDamageType
 {
 	None,
 	Slash,
+	Heavy,
+	SuperHeavy,
 	Parry,
 };
 

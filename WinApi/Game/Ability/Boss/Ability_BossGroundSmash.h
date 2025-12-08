@@ -8,12 +8,13 @@ public:
 	EStateTag GetRequiredTags() const override { return Tag_Grounded; }
 	EStateTag GetBlockedTags() const override { return Tag_Airborne | Tag_Hit; }
 	EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
-	float GetCooldown() const override { return 6.0f; }
+	float GetCooldown() const override { return 5.0f; }
 
 	void OnActivate() override;
 	void OnEnd() override;
 
 private:
+	void PlaySmashSound();
 	void OnSmashImpact();
 	void OnSmashToIdle();
 	void SpawnSpikes();

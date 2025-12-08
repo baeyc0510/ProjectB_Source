@@ -22,6 +22,6 @@ private:
 	int currentSpitCount = 0;
 	int maxSpitCount = 3;
 
-	static constexpr float PROJECTILE_SPEED = 300.f;
+	static constexpr float PROJECTILE_SPEED = 500.f;
 	static constexpr float PROJECTILE_ANGLE = 30.f;  // degrees
 };

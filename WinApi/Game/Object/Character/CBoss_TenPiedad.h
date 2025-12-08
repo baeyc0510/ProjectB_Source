@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "CBoss.h"
 
 class CBoss_TenPiedad : public CBoss
@@ -12,7 +12,8 @@ protected:
 	void UpdateBossAI() override;
 	void UpdateBossAnimation() override;
 	bool CheckEncounterPlayer() override;
-
+	void OnDamage(CGameObject* source, const CombatContext& context) override;
+	
 private:
 	void RegisterAnimations();
 	void RegisterAbilities();
@@ -24,14 +25,11 @@ private:
 	void StartTurnaround();			// 턴어라운드 애니메이션 시작
 	void OnTurnaroundComplete();	// 턴어라운드 완료 콜백
 
-	// 추격 상태
-	bool bIsChasing = false;
-	bool bIsTurningAround = false;
-
+private:
 	// 공격 범위 상수
-	static constexpr float ENCOUNTER_RANGE = 500.f;
-	static constexpr float SLASH_RANGE = 80.f;
-	static constexpr float STOMP_RANGE = 60.f;
+	static constexpr float ENCOUNTER_RANGE = 400.f;
+	static constexpr float SLASH_RANGE = 240.f;
+	static constexpr float STOMP_RANGE = 200.f;
 	static constexpr float SPIT_MIN_RANGE = 250.f;
 	static constexpr float GROUND_SMASH_RANGE = 100.f;
 
@@ -39,4 +37,10 @@ private:
 	static constexpr float CHASE_SPEED = 100.0f;
 	static constexpr float CHASE_RANGE = 400.0f;	// 추격 시작 거리
 	static constexpr float STOP_RANGE = 70.0f;		// 정지 거리 (근접 공격 범위)
+	
+	// 추격 상태
+	bool bIsChasing = false;
+	bool bIsTurningAround = false;
+	
+	CImage* nameImg = nullptr;
 };

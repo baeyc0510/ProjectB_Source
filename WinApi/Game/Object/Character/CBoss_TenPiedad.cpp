@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CBoss_TenPiedad.h"
 
 #include "Game/AnimKey.h"
@@ -14,7 +14,9 @@
 #include "Game/Ability/Boss/Ability_BossGroundSmash.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CMapManager.h"
+#include "Game/Manager/CSFXManager.h"
 
 CBoss_TenPiedad::CBoss_TenPiedad()
 {
@@ -30,15 +32,21 @@ void CBoss_TenPiedad::Init()
 	collider->SetOffset(Vec2(0, -75));
 	collider->SetLayer(ELayer::Monster);
 
+	// 이름 이미지
+	 nameImg = LOADIMAGE(L"Ten_Piedad_Name", L"Image/Sheet/boss_tenpiedad_name.bmp");
+	
 	RegisterAnimations();
 	RegisterAbilities();
 	ConfigureAI();
 	
-	SetForward(-1);
+	// Stats
+	currentHP = 1000.0f;
+	maxHP = 1000.0f;
 	
 	// 등장 장면 첫 프레임에 고정
 	animator->Play(AnimKey::BossAppear,true);
 	animator->Stop();
+	SetForward(-1);
 }
 
 void CBoss_TenPiedad::RegisterAnimations()
@@ -104,9 +112,14 @@ void CBoss_TenPiedad::ConfigureAI()
 void CBoss_TenPiedad::OnAppearanceComplete()
 {
 	CBoss::OnAppearanceComplete();
-
+	
+	GAMEUI->SetBossName(nameImg);
+	
 	// 등장 완료 후 idle 애니메이션 시작
 	animator->Play(AnimKey::Idle);
+	
+	// BGM 재생
+	SFX->PlayBGM(SFXKey::BGM_Piedad, 0.8f);
 }
 
 void CBoss_TenPiedad::UpdateBossAnimation()
@@ -138,6 +151,18 @@ bool CBoss_TenPiedad::CheckEncounterPlayer()
 	}
 
 	return false;
+}
+
+void CBoss_TenPiedad::OnDamage(CGameObject* source, const CombatContext& context)
+{
+	if (!bHasAppeared)
+		return;
+	
+	CBoss::OnDamage(source, context);
+	
+	// Hitstop + Camera Shake
+	TIMER->SetTimeScale(0.0f, 0.05f);
+	CAMERA->Shake(ShakePreset::Medium);
 }
 
 void CBoss_TenPiedad::UpdateBossAI()
@@ -234,6 +259,8 @@ void CBoss_TenPiedad::StartTurnaround()
 
 	// 턴어라운드 애니메이션 재생, 완료 시 콜백
 	animator->Play(AnimKey::Turnaround, false, [this]() { OnTurnaroundComplete(); });
+	
+	SFX->PlayOnce(SFXKey::PiedadTurn);
 }
 
 void CBoss_TenPiedad::OnTurnaroundComplete()

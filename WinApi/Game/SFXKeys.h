@@ -43,4 +43,22 @@ namespace SFXKey
     constexpr const wchar_t* PlayerRespawn = L"PlayerRespawn";
     constexpr const wchar_t* PlayerGetItem = L"PlayerGetItem";
     constexpr const wchar_t* PlayerOverthrow = L"PlayerOverthrow";
+    
+    // 보스 - Piedad
+    constexpr const wchar_t* PiedadSlash = L"PiedadSlash";
+    constexpr const wchar_t* PiedadSmash = L"PiedadSmash";
+    constexpr const wchar_t* PiedadSmashVoice = L"PiedadSmashVoice";
+    constexpr const wchar_t* PiedadSmashGetUp = L"PiedadSmashGetUp";
+    constexpr const wchar_t* PiedadSmashGetUpVoice = L"PiedadSmashGetUpVoice";
+    constexpr const wchar_t* PiedadSpitVoice = L"PiedadSpitVoice";
+    constexpr const wchar_t* PiedadStomp = L"PiedadStomp";
+    constexpr const wchar_t* PiedadTurn = L"PiedadTurn";
+    constexpr const wchar_t* PiedadWakeUp = L"PiedadWakeUp";
+    
+    
+    // BGM - 보스
+    constexpr const wchar_t* BGM_Piedad = L"BGM_Piedad";
+    
+    // 기타
+    constexpr const wchar_t* MapEnter = L"BGM_RoomEnter";
 }

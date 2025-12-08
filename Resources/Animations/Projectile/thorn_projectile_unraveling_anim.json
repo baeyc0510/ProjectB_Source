@@ -1,7 +1,7 @@
 {
     "image": "Image/Pietat/thorn_projectile_unraveling_anim.bmp",
     "pivot": [31.0, 15.0],
-    "frame_interval": 0.0833,
+    "frame_interval": 0.05,
     "frames": [
         {"rect": [0, 0, 64, 45], "events": []},
         {"rect": [64, 0, 64, 45], "events": []},

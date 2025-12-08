@@ -17,9 +17,9 @@ public:
 
 protected:
     virtual wstring GetHitAnimKey() const;
-
-private:
-    void StopKnockback();
+    virtual void OnFinishedReaction();
+    virtual void OnInterruptedReaction();
+    virtual void OnRecover();
 };
 
 class Ability_ParryHitReaction : public Ability_HitReaction
@@ -30,9 +30,20 @@ public:
 protected:
     /*~ Ability_HitReaction Interface ~*/
     wstring GetHitAnimKey() const override { return AnimKey::ParryHit; }
+};
 
+class Ability_PlayerPushback : public Ability_HitReaction
+{
+protected:
+    void OnActivate() override;
+    void OnEnd() override;
+    
+    wstring GetHitAnimKey() const override;
+    void OnFinishedReaction() override;
+    void OnInterruptedReaction() override;
 private:
-    void ApplyPushback();
-
-    static constexpr float PUSHBACK_FORCE = 200.f;
+    void OnLanded();
+    
+private:
+    bool bIsGettingUp = false;
 };

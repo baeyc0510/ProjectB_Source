@@ -32,7 +32,5 @@ protected:
 
 protected:
     wstring mapFilePath;
-
-private:
     int spawnId;
 };

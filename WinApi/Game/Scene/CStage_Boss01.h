@@ -8,4 +8,6 @@ public:
     
 protected:
     void OnLoadMap() override;
+    void Enter() override;
+    void Exit() override;
 };

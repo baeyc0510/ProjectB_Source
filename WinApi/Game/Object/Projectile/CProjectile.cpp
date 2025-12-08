@@ -92,41 +92,28 @@ void CProjectile::OnCollisionEnter(CCollider* other)
 		return;
 
 	UINT otherLayer = other->GetLayer();
-
-	// 플레이어와 충돌
-	if (otherLayer == ELayer::Player)
-	{
-		CGameObject* player = other->GetOwner();
-		OnHitPlayer(player);
-		DestroySelf();
-	}
 	// 땅과 충돌
-	else if (otherLayer == ELayer::Ground)
+	if (otherLayer == ELayer::Ground)
 	{
 		OnHitGround(GetPos());
-		DestroySelf();
 	}
 	// 벽과 충돌 (플랫폼 측면 등)
 	// Ground와 동일하게 처리하되 별도의 이벤트 호출
 }
 
+void CProjectile::OnCollisionStay(CCollider* other)
+{
+	UINT otherLayer = other->GetLayer();
+	// 플레이어와 충돌
+	if (otherLayer == ELayer::Player)
+	{
+		CGameObject* player = other->GetOwner();
+		OnHitPlayer(player);
+	}
+}
+
 void CProjectile::OnDamage(CGameObject* source, const CombatContext& context)
 {
-	// 플레이어 공격에 의해 파괴됨
-	if (bIsDestroyed)
-		return;
-
-	// VFX 생성
-	if (!context.vfxKey.empty())
-	{
-		if (CVFX* vfx = VFX->CreateVFX(context.vfxKey, GetPos(), source->GetForward()))
-		{
-			vfx->PlayVFX();
-		}
-	}
-
-	OnDestroyed();
-	DestroySelf();
 }
 
 void CProjectile::OnHitGround(Vec2 hitPos)
@@ -141,21 +128,20 @@ void CProjectile::OnHitWall(Vec2 hitPos)
 
 void CProjectile::OnHitPlayer(CGameObject* player)
 {
-	// 플레이어에게 데미지
-	ICombatInterface* combat = dynamic_cast<ICombatInterface*>(player);
-	if (combat && damage > 0.f)
-	{
-		CombatContext context;
-		context.damageType = EDamageType::Slash;
-		context.value = damage;
-		context.vfxKey = VFXKey::AttackHit1;
-		combat->OnDamage(projectileOwner, context);
-	}
 }
 
 void CProjectile::OnDestroyed()
 {
 	// 기본 구현: 없음 (파생 클래스에서 오버라이드)
+}
+
+void CProjectile::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
+{
+	assert(animator);
+	CAnimation* animation = LOADANIMATION(name + L"_" + aniName, path);
+	assert(animation);
+	animation->SetRepeat(bShouldRepeat);
+	animator->AddAnimation(aniName, animation);
 }
 
 void CProjectile::DestroySelf()

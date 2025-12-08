@@ -7,6 +7,7 @@
 #include "Game/Component/CStateSystem.h"
 #include "Game/Component/CBossAIController.h"
 #include "Game/Component/CCharacterMovement.h"
+#include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CVFXManager.h"
 #include "Game/Object/CVFX.h"
 
@@ -73,6 +74,7 @@ void CBoss::Render()
 void CBoss::OnDisable()
 {
 	CCharacter::OnDisable();
+	GAMEUI->ShowBossHUD(false);
 }
 
 void CBoss::Release()
@@ -94,6 +96,8 @@ void CBoss::OnAppearanceComplete()
 {
 	bHasAppeared = true;
 	stateSystem->RemoveTag(Tag_BossAppearing);
+	GAMEUI->ShowBossHUD(true);
+	GAMEUI->SetBossHP(currentHP,maxHP);
 }
 
 void CBoss::UpdateBossAnimation()
@@ -150,10 +154,20 @@ void CBoss::OnDamage(CGameObject* source, const CombatContext& context)
 		{
 			vfx->PlayVFX();
 		}
+		
+		// Apply Damage
+		float newHP = currentHP - context.value;
+		SetHP(newHP);
 	}
 }
 
 void CBoss::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 {
 	CCharacter::OnStateChanged(oldTags, newTags);
+}
+
+void CBoss::SetHP(float newHP)
+{
+	currentHP = max(0,min(newHP, maxHP));
+	GAMEUI->SetBossHP(currentHP,maxHP);
 }

@@ -4,6 +4,7 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Manager/CSFXManager.h"
 
 void Ability_BossSlash::OnActivate()
 {
@@ -12,6 +13,8 @@ void Ability_BossSlash::OnActivate()
 	GetAnimator()->Play(AnimKey::BossSlash, true, BIND(this, EndAbility), BIND(this, EndAbility));
 
 	WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));
+	
+	SFX->PlayOnce(SFXKey::PiedadSlash);
 }
 
 void Ability_BossSlash::OnEnd()
@@ -34,7 +37,7 @@ void Ability_BossSlash::OnHitCheck()
 		if (combat)
 		{
 			CombatContext context;
-			context.damageType = EDamageType::Slash;
+			context.damageType = EDamageType::Heavy;
 			context.hitResult = result;
 			context.value = DAMAGE;
 			context.vfxKey = VFXKey::AttackHit1;

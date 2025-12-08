@@ -16,6 +16,10 @@ const Vec2 CGame::WINSTART		= Vec2(100, 100);
 const Vec2 CGame::WINSIZE		= Vec2(1280, 720);	// 실제 윈도우 크기
 const Vec2 CGame::VIRTUALSIZE	= Vec2(640, 360);	// 가상 해상도
 
+const Vec2 CGame::DEFAULT_CAMERA_OFFSET = Vec2(0.f,-100.f); 
+const Vec2 CGame::DEFAULT_CAMERA_DEADZONE = Vec2(100.f,100.f);
+const float CGame::DEFAULT_CAMERA_SMOOTH = 5.f;
+
 CGame::CGame()
 {
 	hInst	= 0;
@@ -74,7 +78,7 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CCollisionManager)->Init();
 	SINGLE(CPathManager)->Init();
 	SINGLE(CResourceManager)->Init();
-	// 리소스 경로 설정 (리소스 로드 전에 반드시 먼저 설정)
+	// 리소스 경로 설정
 	SINGLE(CResourceManager)->SetResourceFolder(PATH + TEXT("\\..\\Resources\\"));
 
 	SINGLE(CCameraManager)->Init();
@@ -92,12 +96,14 @@ void CGame::Init(HINSTANCE hInstance)
 	// TODO : 충돌 레이어 설정
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Monster);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ground);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Ground);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Transition);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ladder);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Platform);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ledge);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Ground);
 	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Platform);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Projectile, ELayer::Ground);
+	SINGLE(CCollisionManager)->CheckLayer(ELayer::Projectile, ELayer::Player);
 
 	// 리소스 프리로드
 	SINGLE(CVFXManager)->PreLoad();

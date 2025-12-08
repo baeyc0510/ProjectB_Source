@@ -1,0 +1,14 @@
+{
+    "image": "Image/Penitent/penitent_pushback_anim.bmp",
+    "pivot": [60.0, 10.0],
+    "frame_interval": 0.06,
+    "frames": [
+        {"rect": [0, 0, 92, 76], "events": []},
+        {"rect": [92, 0, 92, 76], "events": []},
+        {"rect": [184, 0, 92, 76], "events": []},
+        {"rect": [276, 0, 92, 76], "events": []},
+        {"rect": [368, 0, 92, 76], "events": []},
+        {"rect": [460, 0, 92, 76], "events": []},
+        {"rect": [552, 0, 92, 76], "events": []}
+    ]
+}

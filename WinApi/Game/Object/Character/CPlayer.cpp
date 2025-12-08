@@ -4,6 +4,7 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
+#include "Game/Ability/Ability_HitReaction.h"
 #include "Game/Manager/CSFXManager.h"
 #include "Game/Ability/Player/Ability_AirAttack.h"
 #include "Game/Ability/Player/Ability_ComboAttack.h"
@@ -29,10 +30,12 @@ CPlayer::CPlayer() : currentHP(0), maxHP(0), currentMP(0), maxMP(0), currentFlas
 	name = TEXT("플레이어");
 	jumpForce = JUMP_FORCE;
 	isPersistent = true;
+	pushbackForce = Vec2(300.f,150.f);
 }
 
 CPlayer::~CPlayer()
 {
+	
 }
 
 void CPlayer::Init()
@@ -40,7 +43,7 @@ void CPlayer::Init()
 	CCharacter::Init();
 	
 	// Rigidbody
-	rigidbody->SetGravityScale(1.6f);
+	rigidbody->SetGravityScale(PLAYER_GRAVITY_SCALE);
 
 	// Collider
 	characterScale = Vec2(42, 66);
@@ -70,6 +73,7 @@ void CPlayer::Init()
 	AddAbility<Ability_Jump>(EAbility::Jump);
 	AddAbility<Ability_Climb>(EAbility::Climb);
 	AddAbility<Ability_LedgeClimb>(EAbility::HangOnLedge);
+	AddAbility<Ability_PlayerPushback>(EAbility::HitReact);
 	
 	// Animations
 	AddAnimation(AnimKey::Idle, TEXT("Animations/Penitent/penitent_idle_anim.json"), true);
@@ -96,6 +100,9 @@ void CPlayer::Init()
 	AddAnimation(AnimKey::Climbing,TEXT("Animations/Penitent/penitent_ladder_climb_loop_anim.json"), true);
 	AddAnimation(AnimKey::LedgeHang, TEXT("Animations/Penitent/penitent_hangonledge_anim.json"), false);
 	AddAnimation(AnimKey::LedgeClimbOver, TEXT("Animations/Penitent/penitent_climbledge.json"), false);
+	AddAnimation(AnimKey::Pushback, TEXT("Animations/Penitent/penitent_pushback_anim.json"), false);
+	AddAnimation(AnimKey::Pushback_Land, TEXT("Animations/Penitent/penitent_pushback_land_anim.json"), false);
+	AddAnimation(AnimKey::Rising, TEXT("Animations/Penitent/player_rising.json"), false);
 	
 	// 초기 스탯값 적용
 	InitStartupStats();
@@ -126,15 +133,15 @@ void CPlayer::OnEnable()
 		abilitySystem->CancelAbilitiesWithTag(Tag_AbilityAnimation);
 		abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
 	}
-	
-
-	animator->Play(AnimKey::Idle, false);
 }
 
 void CPlayer::Update()
 {
+	if (bIsDown)
+		return;
+	
 	CCharacter::Update();
-
+	
 	ProcessActiveInput();
 	UpdatePlayerStates();
 	ProcessPassiveAbilities();
@@ -243,37 +250,44 @@ void CPlayer::UpdatePlayerStates()
 void CPlayer::UpdateMovementState()
 {
 	// 정지 상태
-	if (stateSystem->HasTag(Tag_StopVelocity) || stateSystem->HasTag(Tag_BlockMovement))
+	if (stateSystem->HasTag(Tag_StopVelocity))
 		return;
 	
-	// 이동 입력 처리
-	float moveDir = 0.f;
-	if (INPUT->ButtonStay('A'))
+	if (!stateSystem->HasTag(Tag_BlockMovement))
 	{
-		moveDir = -1.f;
-		SetForward(-1);
-	}
-	else if (INPUT->ButtonStay('D'))
-	{
-		moveDir = 1.f;
-		SetForward(1);
-	}
+		// 이동 입력 처리
+		float moveDir = 0.f;
+		if (INPUT->ButtonStay('A'))
+		{
+			moveDir = -1.f;
+			SetForward(-1);
+		}
+		else if (INPUT->ButtonStay('D'))
+		{
+			moveDir = 1.f;
+			SetForward(1);
+		}
 
-	// Movement 컴포넌트에 위임
-	movement->AddMoveInput(moveDir);
-	movement->ProcessMovement();
+		// Movement 컴포넌트에 위임
+		movement->AddMoveInput(moveDir);
 
-	// Tag 업데이트
-	bool bIsMovingInput = (moveDir != 0.f);
-	if (bIsMovingInput && !bWasMovingInput)
-	{
-		stateSystem->AddTag(Tag_Moving);
+		// Tag 업데이트
+		bool bIsMovingInput = (moveDir != 0.f);
+		if (bIsMovingInput && !bWasMovingInput)
+		{
+			stateSystem->AddTag(Tag_Moving);
+		}
+		else if (!bIsMovingInput && bWasMovingInput)
+		{
+			stateSystem->RemoveTag(Tag_Moving);
+		}
+		bWasMovingInput = bIsMovingInput;
 	}
-	else if (!bIsMovingInput && bWasMovingInput)
+	
+	if (!stateSystem->HasTag(Tag_FixedVelocity))
 	{
-		stateSystem->RemoveTag(Tag_Moving);
+		movement->ProcessMovement();	
 	}
-	bWasMovingInput = bIsMovingInput;
 }
 
 void CPlayer::UpdateLedgeState()
@@ -417,31 +431,74 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 {
 	abilitySystem->TriggerEvent(EGameEvent::Hit,source);
 	
+	if (context.value <= 0.0001f)
+	{
+		return;
+	}
+	
+	bool bShouldHitReact = !stateSystem->HasTag(Tag_Parrying);
+	Vec2 force = GetPushbackForce();
+	
+	// 넉백
+	float dir = GetPos().x - source->GetPos().x;
+	dir = dir < 0 ? -1.0f : 1.0f;
+	
+	if (context.damageType == EDamageType::SuperHeavy)
+	{
+		if (stateSystem->HasTag(Tag_Parrying))
+		{
+			abilitySystem->CancelAbilitiesWithTag(Tag_Parrying);
+			bShouldHitReact = true;
+		}
+		force *= 1.6f;
+	}
+	else if (context.damageType == EDamageType::Heavy)
+	{
+		if (stateSystem->HasTag(Tag_Parrying))
+		{
+			// 옆으로만 밀려남
+			SetForward(-dir);
+			rigidbody->SetVelocity(Vec2(2 * force.x * dir, 0.f));
+		}
+	}
+	
+	if (bShouldHitReact)
+	{
+		abilitySystem->TryActivateAbility(EAbility::HitReact);
+		// 넉백 적용
+		SetForward(-dir);
+		rigidbody->SetVelocity(Vec2(force.x * dir, -force.y));
+		
+		if (context.damageType == EDamageType::SuperHeavy || context.damageType == EDamageType::Heavy)
+		{
+			SFX->PlayOnce(SFXKey::PlayerHeavyDamage);	
+		}
+	}
+	
 	// Spawn VFX
 	Vec2 spawnPos = context.hitResult.hitCenter;
 	int spawnDirection = source->GetForward();
 	
-	if (context.value > 0.0001f)
+	// // Spawn Hit VFX
+	if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
 	{
-		// // Spawn Hit VFX
-		if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
-		{
-			vfx->PlayVFX();
-		}
-
-		// Spawn Blood VFX
-		if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
-		{
-			vfx->PlayVFX();
-		}
-
-		// Camera Shake
-		CAMERA->Shake(ShakePreset::Medium);
-
-		// Apply damage
-		float newHP = currentHP - context.value;
-		SetCurrentHP(newHP);
+		vfx->PlayVFX();
 	}
+
+	// Spawn Blood VFX
+	if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
+	{
+		vfx->PlayVFX();
+	}
+		
+	if (!CAMERA->IsShaking())
+	{
+		CAMERA->Shake(ShakePreset::Light);	
+	}
+
+	// Apply damage
+	float newHP = currentHP - context.value;
+	SetCurrentHP(newHP);
 }
 
 void CPlayer::InitStartupStats()

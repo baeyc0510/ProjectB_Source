@@ -81,7 +81,7 @@ void Ability_ComboAttack::OnHitCheck()
 {
     const FAttackData& data = GetAttackData();
     vector<HitResult> hitResults;
-    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, ELayer::Monster, hitResults);
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {Monster,Projectile}, hitResults);
 
     // Play Sound
     static const wchar_t* AirSounds[] = {

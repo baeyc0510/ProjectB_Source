@@ -22,7 +22,9 @@ public:
 	bool HasAppeared() const { return bHasAppeared; }
 	void TriggerAppearance();
 	virtual void OnAppearanceComplete();
-	
+
+	// 상태
+	float GetHP() const { return currentHP; }
 protected:
 	/*~ CGameObject Interface ~*/
 	void Init() override;
@@ -34,7 +36,8 @@ protected:
 
 	/*~ CCharacter Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
-
+	void SetHP(float newHP);
+	
 	/*~ ICombatInterface ~*/
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 
@@ -53,4 +56,7 @@ protected:
 	// 상태
 	bool bHasAppeared = false;
 	bool bHasEncountered = false;
+	
+	float currentHP = 0.f;
+	float maxHP = 0.f;
 };

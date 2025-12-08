@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "CHazard_Spike.h"
 
+#include "Game/AnimKey.h"
+
 CHazard_Spike::CHazard_Spike()
 {
 	name = TEXT("Spike");
@@ -18,7 +20,7 @@ void CHazard_Spike::Init()
 	damageInterval = 0.3f;
 
 	// TODO: Spike 애니메이션 설정
-	// AddAnimation(...)
+	AddAnimation(AnimKey::ThornThrust, TEXT("Animations/Projectile/thorns_tower_anim.json"), false);
 }
 
 void CHazard_Spike::Update()
@@ -43,15 +45,12 @@ void CHazard_Spike::OnSpawn()
 	if (!bHasSpawned)
 		return;
 
-	// 콜라이더 활성화
-	collider->SetScale(Vec2(30, 80));
-
 	// 생성 애니메이션 재생
-	// animator->Play(TEXT("SpikeEmerge"), true, ...)
+	animator->Play(AnimKey::ThornThrust, true, BIND(this,OnExpire));
 }
 
 void CHazard_Spike::OnExpire()
 {
 	// 사라지는 애니메이션 재생 후 삭제
-	// animator->Play(TEXT("SpikeRetract"), true, ...)
+	SetLifetime(0.1f);
 }

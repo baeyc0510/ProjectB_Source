@@ -2,6 +2,7 @@
 #include "Game/Enum.h"
 #include <stack>
 
+class CBossHUD;
 class CUI;
 class CPlayerStatusHUD;
 
@@ -24,6 +25,11 @@ public:
 	void SetPlayerMP(float current, float max);
 	void SetPlayerFlask(int current, int max);
 
+	
+	// 보스 상태 업데이트
+	void SetBossHP(float current, float max);
+	void SetBossName(CImage* nameImg);
+	
 	// Overlay UI 관리
 	void OpenUI(EOverlayUI type);
 	void CloseUI();
@@ -35,7 +41,8 @@ public:
 	bool ConsumeEscapeInput();
 
 	// HUD 표시 여부
-	void ShowHUD(bool show);
+	void ShowPlayerHUD(bool show);
+	void ShowBossHUD(bool show);
 
 private:
 	void AddUI(CUI* ui);
@@ -45,11 +52,15 @@ private:
 private:
 	list<CUI*> uiList;
 	CPlayerStatusHUD* statusHUD;
+	CBossHUD* bossHUD;
+	
 	std::stack<std::pair<EOverlayUI, CUI*>> overlayStack;
-	bool hudVisible;
 
 	static constexpr float STATUS_HUD_X = 20.f;
 	static constexpr float STATUS_HUD_Y = 20.f;
+	
+	static constexpr float BOSS_HUD_X = 250.f;
+	static constexpr float BOSS_HUD_Y = 600.f;
 };
 
 #define GAMEUI	CGameUIManager::GetInstance()

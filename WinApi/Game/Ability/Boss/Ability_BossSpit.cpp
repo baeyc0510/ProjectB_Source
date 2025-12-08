@@ -5,6 +5,8 @@
 #include "Game/Object/Projectile/CProjectile_Spit.h"
 #include <cmath>
 
+#include "Game/Manager/CSFXManager.h"
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -13,12 +15,14 @@ void Ability_BossSpit::OnActivate()
 {
 	Ability::OnActivate();
 
-	// 발사 횟수 랜덤 결정 (2-3회)
+	// 발사 횟수 랜덤 결정
 	currentSpitCount = 0;
-	maxSpitCount = 2 + (rand() % 2);
+	maxSpitCount = 2;
 
 	// spit_start 애니메이션 재생
 	GetAnimator()->Play(AnimKey::BossSpitStart, true, BIND(this, OnSpitStart), BIND(this, EndAbility));
+	
+	SFX->PlayOnce(SFXKey::PiedadSpitVoice);
 }
 
 void Ability_BossSpit::OnEnd()
@@ -64,15 +68,18 @@ void Ability_BossSpit::SpawnProjectile()
 		return;
 
 	// 투사체 생성 위치 (보스 입 위치 근처)
-	Vec2 spawnOffset(50.f * owner->GetForward(), -60.f);
+	Vec2 spawnOffset(50.f * owner->GetForward(), -120.f);
 	Vec2 spawnPos = owner->GetWorldPos() + spawnOffset;
 
 	// 투사체 속도 계산 (각도 기반)
 	float angleRad = PROJECTILE_ANGLE * static_cast<float>(M_PI) / 180.f;
 	float dirX = static_cast<float>(owner->GetForward());
 	Vec2 velocity;
-	velocity.x = PROJECTILE_SPEED * cos(angleRad) * dirX;
-	velocity.y = -PROJECTILE_SPEED * sin(angleRad);
+	
+	
+	float speed = float(currentSpitCount + 1) / (maxSpitCount + 1) * PROJECTILE_SPEED;  
+	velocity.x = speed * cos(angleRad) * dirX;
+	velocity.y = -speed * sin(angleRad);
 
 	// 투사체 생성
 	CProjectile_Spit* projectile = new CProjectile_Spit();

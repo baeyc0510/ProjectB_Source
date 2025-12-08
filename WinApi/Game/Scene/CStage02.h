@@ -10,4 +10,6 @@ public:
 protected:
     void Init() override;
     void OnLoadMap() override;
+    
+    void Enter() override;
 };
