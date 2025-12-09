@@ -4,21 +4,34 @@
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
 #include "Game/Manager/CSFXManager.h"
-
-const ComboData Ability_ComboAttack::ComboTable[3] = {
-   { { {40.f, -30.f}, {60.f, 20.f}, VFXKey::AttackHit1, BASE_DAMAGE },AnimKey::Combo1 },
-    {{ {30.f, -30.f}, {60.f, 20.f}, VFXKey::AttackHit2, BASE_DAMAGE },  AnimKey::Combo2},
-    {{ {50.f, -30.f}, {80.f, 30.f}, VFXKey::AttackHit3, BASE_DAMAGE }, AnimKey::Combo3},
-};
+#include "Game/Object/Character/CPlayer.h"
 
 Ability_ComboAttack::Ability_ComboAttack()
 {
+    ComboTable = {
+         {{ {40.f, -30.f}, {60.f, 20.f}, VFXKey::AttackHit1, 1 },AnimKey::Combo1 },
+         {{ {30.f, -30.f}, {60.f, 20.f}, VFXKey::AttackHit2, 1 },  AnimKey::Combo2},
+         {{ {50.f, -30.f}, {80.f, 30.f}, VFXKey::AttackHit3, 1 }, AnimKey::Combo3},
+     };
 }
 
 void Ability_ComboAttack::OnActivate()
 {
     Ability::OnActivate();
 
+    CPlayer* player = dynamic_cast<CPlayer*>(owner);
+    if (!player)
+    {
+        EndAbility();
+        return;
+    }
+    
+    // AttackData 설정
+    float baseAttack = player->GetBaseAttackPower();
+    ComboTable[0].attackData.damage = baseAttack * 1.0f;
+    ComboTable[1].attackData.damage = baseAttack * 1.1f;
+    ComboTable[2].attackData.damage = baseAttack * 1.2f;
+    
     // 이벤트 바인딩
     WaitEvent(EGameEvent::Input_Attack_Pressed, BIND_EVENT(this, OnInputAttack));
     WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));

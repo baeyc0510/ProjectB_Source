@@ -133,7 +133,7 @@ wstring CStateSystem::GetStateTagString() const
 	if (currentTags & Tag_CanCombo)			result += L"CanCombo|";
 	if (currentTags & Tag_Hit)				result += L"Hit|";
 	if (currentTags & Tag_Sliding)			result += L"Sliding|";
-	if (currentTags & Tag_Parrying)			result += L"Parrying|";
+	if (currentTags & Tag_Guard)			result += L"Parrying|";
 	if (currentTags & Tag_Jumping)			result += L"Jumping|";
 	if (currentTags & Tag_AbilityAnimation)	result += L"AbilityPlaying|";
 	if (currentTags & Tag_BlockMovement)	result += L"BlockMovement|";

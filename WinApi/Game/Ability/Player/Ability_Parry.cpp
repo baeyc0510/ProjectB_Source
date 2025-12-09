@@ -6,6 +6,7 @@
 #include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Object/Character/CPlayer.h"
 #include "Game/Util/CombatHelper.h"
 
 Ability_Parry::Ability_Parry()
@@ -118,14 +119,17 @@ void Ability_Parry::OnCounterClose()
 
 void Ability_Parry::OnCounterHitCheck()
 {
-    const float COUNTER_DAMAGE = 10.f;
+    CPlayer* player = dynamic_cast<CPlayer*>(owner);
+    if (!player)
+        return;
+    
     const Vec2 TRACE_OFFSET = {50.f, -30.f};
     const Vec2 TRACE_SIZE = {50.f, 30.f};
 
     AttackData data;
     data.traceOffset = TRACE_OFFSET;
     data.traceSize = TRACE_SIZE;
-    data.damage = COUNTER_DAMAGE;
+    data.damage = player->GetBaseAttackPower() * 1.5f;
     data.damageType = EDamageType::Slash;
     data.vfxKey = VFXKey::AttackHit1;
     

@@ -15,7 +15,7 @@ public:
 
     /*~ Ability Interface ~*/
     EStateTag GetRequiredTags() const override { return Tag_Grounded; }
-    EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit | Tag_SpecialAction; }
+    EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit; }
     EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
     EStateTag GetTagsToRemove() const override { return Tag_None; }
     EStateTag GetCancelTags() const override { return Tag_Crouching; }
@@ -36,8 +36,7 @@ protected:
     virtual const wstring& GetAnimKey() const;
     
 protected:
-    static constexpr float BASE_DAMAGE = 10.f;
-    static const ComboData ComboTable[3];
+    vector<ComboData>ComboTable;
 
     int comboCnt = 0;
     int maxComboCnt = 3;

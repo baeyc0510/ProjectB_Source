@@ -26,4 +26,6 @@ private:
     CBoxCollider* collider;
     ESceneType targetScene;
     int spawnId;
+    
+    SafeTimerHandle transitionTimerHandle;
 };

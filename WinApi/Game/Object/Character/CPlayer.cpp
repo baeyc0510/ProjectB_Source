@@ -26,12 +26,10 @@
 #include "Game/Object/CVFX.h"
 #include "Game/Object/World/CLedge.h"
 
-CPlayer::CPlayer() : currentHP(0), maxHP(0), currentMP(0), maxMP(0), currentFlask(0), maxFlask(0), prevVelocity(0, 0), bWasMovingInput(false), ladderX(0), ladderTopY(0), ladderBottomY(0)
+CPlayer::CPlayer()
 {
 	name = TEXT("플레이어");
-	jumpForce = JUMP_FORCE;
 	isPersistent = true;
-	pushbackForce = Vec2(300.f,150.f);
 }
 
 CPlayer::~CPlayer()
@@ -442,7 +440,7 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 		return;
 	}
 	
-	bool bShouldHitReact = !stateSystem->HasTag(Tag_Parrying);
+	bool bShouldHitReact = !stateSystem->HasTag(Tag_Guard);
 	Vec2 force = GetPushbackForce();
 	
 	// 넉백
@@ -451,16 +449,16 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 	
 	if (context.damageType == EDamageType::SuperHeavy)
 	{
-		if (stateSystem->HasTag(Tag_Parrying))
+		if (stateSystem->HasTag(Tag_Guard))
 		{
-			abilitySystem->CancelAbilitiesWithTag(Tag_Parrying);
+			abilitySystem->CancelAbilitiesWithTag(Tag_Guard);
 			bShouldHitReact = true;
 		}
 		force *= 1.6f;
 	}
 	else if (context.damageType == EDamageType::Heavy)
 	{
-		if (stateSystem->HasTag(Tag_Parrying))
+		if (stateSystem->HasTag(Tag_Guard))
 		{
 			// 옆으로만 밀려남
 			SetForward(-dir);
@@ -509,6 +507,11 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 
 void CPlayer::InitStartupStats()
 {
+	// stats
+	pushbackForce = Vec2(300.f,150.f);
+	jumpForce = 490.f;
+	baseAttackPower = 100.f;
+	
 	SetMaxHP(MAX_HP);
 	SetCurrentHP(MAX_HP);
 	SetMaxMP(MAX_MP);

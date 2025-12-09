@@ -8,8 +8,8 @@ public:
 
     /*~ Ability Interface ~*/
     EStateTag GetRequiredTags() const override { return Tag_Grounded | Tag_FlaskRemaining; }
-    EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit | Tag_SpecialAction; }
-    EStateTag GetTagsToAdd() const override { return Tag_SpecialAction | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
+    EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit; }
+    EStateTag GetTagsToAdd() const override { return Tag_BlockAbility | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
 
     void OnActivate() override;
     void OnEnd() override;

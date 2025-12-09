@@ -9,7 +9,7 @@ public:
     
     EStateTag GetBlockedTags() const override { return Tag_Invincible; }
     EStateTag GetTagsToAdd() const override { return Tag_Dead | Tag_BlockMovement | Tag_BlockAbility | Tag_AbilityAnimation; }
-    EStateTag GetCancelTags() const override { return Tag_Attacking | Tag_Moving | Tag_SpecialAction |Tag_AbilityAnimation; }
+    EStateTag GetCancelTags() const override { return Tag_AbilityAnimation; }
     
     void OnActivate() override;
     void OnEnd() override;

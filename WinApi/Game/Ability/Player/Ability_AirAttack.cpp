@@ -3,20 +3,34 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Object/Character/CPlayer.h"
 
-const ComboData Ability_AirAttack::AirComboTable[2] = {
-    {{ {30.f, -60.f}, {40.f, 30.f},VFXKey::AttackHit1, Ability_ComboAttack::BASE_DAMAGE }, AnimKey::AirCombo1},
-    {{ {10.f, -40.f}, {50.f, 25.f}, VFXKey::AttackHit2, Ability_ComboAttack::BASE_DAMAGE },AnimKey::AirCombo2},
-};
 
 Ability_AirAttack::Ability_AirAttack()
 {
+    AirComboTable = {
+        {{ {30.f, -60.f}, {40.f, 30.f},VFXKey::AttackHit1 }, AnimKey::AirCombo1},
+        {{ {10.f, -40.f}, {50.f, 25.f}, VFXKey::AttackHit2}, AnimKey::AirCombo2},
+    };    
     maxComboCnt = 2;
 }
 
 void Ability_AirAttack::OnActivate()
 {
     Ability_ComboAttack::OnActivate();
+    
+    CPlayer* player = dynamic_cast<CPlayer*>(owner);
+    if (!player)
+    {
+        EndAbility();
+        return;
+    }
+    
+    // AttackData 설정
+    float baseAttack = player->GetBaseAttackPower();
+    AirComboTable[0].attackData.damage = baseAttack * 1.1f;
+    AirComboTable[1].attackData.damage = baseAttack * 1.2f;
+    
     WaitEvent(EGameEvent::Landed, BIND_ARGS(this, OnLanded));
 }
 

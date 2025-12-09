@@ -18,6 +18,7 @@ public:
 	void SetMaxFlask(int value);
 	void SetJumpForce(float value) { jumpForce = value; }
 	void SetLadderInfo(float x, float topY, float bottomY) { ladderX = x; ladderTopY = topY; ladderBottomY = bottomY; }
+	
 	float GetLadderX() const { return ladderX; }
 	float GetLadderTopY() const { return ladderTopY; }
 	float GetLadderBottomY() const { return ladderBottomY; }
@@ -29,6 +30,7 @@ public:
 	int GetLedgeDirection() const { return ledgeDirection; }
 	void ResetLedgeInfo() { ClearLedge(); }
 	
+	// Stats
 	float GetCurrentHP() const {return currentHP;}
 	float GetMaxHP() const {return maxHP;}
 	float GetCurrentMP() const {return currentMP;}
@@ -36,6 +38,7 @@ public:
 	int GetCurrentFlask() const {return currentFlask;}
 	int GetMaxFlask() const {return maxFlask;}
 	float GetJumpForce() const {return jumpForce;}
+	float GetBaseAttackPower() const {return baseAttackPower;}
 	
 	// Down 연출
 	void SetIsDown(bool value) { bIsDown = value; }
@@ -100,7 +103,6 @@ public:
 	
 private:
 	static constexpr float MOVE_SPEED = 250.f;
-	static constexpr float JUMP_FORCE = 490.f;
 	static constexpr float KNOCKBACK_POWER = 100.f;
 	static constexpr float MAX_HP = 300.f;
 	static constexpr float MAX_MP = 100.f;
@@ -109,20 +111,21 @@ private:
 
 	Vec2 characterScale;
 	Vec2 colOffset;
-
-	float currentHP;
-	float maxHP;
-	float currentMP;
-	float maxMP;
-	int currentFlask;
-	int maxFlask;
-	float jumpForce;
-
 	Vec2 prevVelocity;
-
-	float ladderX;
-	float ladderTopY;
-	float ladderBottomY;
+	
+	// Stats
+	float currentHP = 0;
+	float maxHP = 0;
+	float currentMP = 0;
+	float maxMP = 0;
+	int currentFlask = 0;
+	int maxFlask = 0;
+	float jumpForce = 0;
+	float baseAttackPower = 0;
+	
+	float ladderX = 0;
+	float ladderTopY = 0;
+	float ladderBottomY = 0;
 
 	bool bOverlapWithLedge = false;
 	UINT ledgeId = 0;
@@ -130,6 +133,6 @@ private:
 	float ledgeTop = -FLT_MAX;
 	int ledgeDirection = 0;
 
-	bool bWasMovingInput;
-	bool bIsDown;
+	bool bWasMovingInput = false;
+	bool bIsDown = false;
 };
