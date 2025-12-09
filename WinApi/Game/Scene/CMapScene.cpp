@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CMapScene.h"
 
+#include "Game/CGame.h"
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CMapManager.h"
 #include "Game/Object/Character/CPlayer.h"
@@ -52,10 +53,11 @@ void CMapScene::Enter()
     MAP->LoadMap(mapFilePath);
 
     OnLoadMap();
-
-    CAMERA->SetOffset(Vec2(0.f,-100.f));
-    CAMERA->SetDeadZone(Vec2(100.f,100.f));
-    CAMERA->SetSmoothSpeed(16.f);  // 부드러운 카메라 따라가기
+    
+    // 카메라 세팅
+    CAMERA->SetOffset(CGame::DEFAULT_CAMERA_OFFSET);
+    CAMERA->SetDeadZone(CGame::DEFAULT_CAMERA_DEADZONE);
+    CAMERA->SetSmoothSpeed(CGame::DEFAULT_CAMERA_SMOOTH);
     CAMERA->SetBounds(MAP->GetBounds());
 
     CPlayer* player = FindObjectByType<CPlayer>();
@@ -67,13 +69,6 @@ void CMapScene::Enter()
 
 void CMapScene::Update()
 {
-    // TEMP
-    // ESC: UI가 처리 안 했으면 씬 전환
-    if (!GAMEUI->ConsumeEscapeInput() && INPUT->ButtonDown(VK_ESCAPE))
-    {
-        CAMERA->FadeOut(0.5f);
-        WORLD->ChangeScene(ESceneType::Title, 0.5f);
-    }
 }
 
 void CMapScene::Render()

@@ -26,7 +26,7 @@ void Ability_MonsterAttack::OnHitCheck()
     Vec2 center = owner->GetWorldPos() + offset;
 
     vector<HitResult> hitResults;
-    CombatHelper::ApplyDamageInBox(owner, center, GetTraceSize(), ELayer::Player, GetDamage(), hitResults);
+    CombatHelper::ApplyDamageInBox(owner, center, GetTraceSize(), {ELayer::Player}, GetDamage(), hitResults);
 }
 
 Vec2 Ability_MonsterAttack::GetTraceOffset()

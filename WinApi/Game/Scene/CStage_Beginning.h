@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "CMapScene.h"
 
-class CStage01 : public CMapScene
+class CStage_Beginning : public CMapScene
 {
 public:
-	CStage01();
-	~CStage01() override;
+	CStage_Beginning();
+	~CStage_Beginning() override;
 
 public:
 	void Init()		override;

@@ -16,6 +16,7 @@ public:
 
 	bool TryActivateAbility(EAbility abilityType);
 	bool CanActivateAbility(Ability* ability) const;
+	bool CanActivateAbility(EAbility abilityType) const;
 	void ActivateAbility(Ability* ability);
 
 	void CancelAbility(EAbility abilityType);

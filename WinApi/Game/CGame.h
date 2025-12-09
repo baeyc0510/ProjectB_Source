@@ -12,6 +12,10 @@ public:
 	static const Vec2		WINSIZE;
 	static const Vec2		VIRTUALSIZE;	// 가상 해상도 (게임 로직 기준)
 	static const DWORD		WINSTYLE = WS_SYSMENU | WS_MINIMIZEBOX;
+	
+	static const Vec2		DEFAULT_CAMERA_OFFSET;
+	static const Vec2		DEFAULT_CAMERA_DEADZONE;
+	static const float		DEFAULT_CAMERA_SMOOTH;
 
 public:
 	void			Init(HINSTANCE hInstance);

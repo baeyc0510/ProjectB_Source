@@ -1,6 +1,6 @@
 {
     "image": "Image/Pietat/pietat_appear.bmp",
-    "pivot": [210.0, 20.0],
+    "pivot": [210.0, 35.0],
     "frame_interval": 0.0833,
     "frames": [
         {"rect": [0, 0, 514, 285], "events": []},

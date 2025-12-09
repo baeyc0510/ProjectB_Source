@@ -37,6 +37,9 @@ public:
 	int GetMaxFlask() const {return maxFlask;}
 	float GetJumpForce() const {return jumpForce;}
 	
+	// Down 연출
+	void SetIsDown(bool value) { bIsDown = value; }
+	
 protected:
 	/*~ CGameObject Interface ~*/
 	void Init() override;
@@ -92,6 +95,9 @@ private:
 	void CheckLedge(CCollider* other);
 	void ClearLedge();
 
+public:
+	static constexpr float PLAYER_GRAVITY_SCALE = 1.6f;
+	
 private:
 	static constexpr float MOVE_SPEED = 250.f;
 	static constexpr float JUMP_FORCE = 490.f;
@@ -125,4 +131,5 @@ private:
 	int ledgeDirection = 0;
 
 	bool bWasMovingInput;
+	bool bIsDown;
 };

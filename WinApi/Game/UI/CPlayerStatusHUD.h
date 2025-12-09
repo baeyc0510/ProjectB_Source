@@ -35,11 +35,11 @@ private:
 	static constexpr float FLASK_SPACE_X =  10.0f;
 	
 	// Images
-	CImage* imgFrame;		// Player_Status.bmp (foreground frame)
-	CImage* imgHPBar;		// Player_HP.bmp (background)
-	CImage* imgMPBar;		// Player_MP.bmp (background)
-	CImage* imgFlaskEmpty;
-	CImage* imgFlaskFull;
+	CImage* imgPlayerFrame;		// Player_Status.bmp (foreground frame)
+	CImage* imgPlayerHPBar;		// Player_HP.bmp (background)
+	CImage* imgPlayerMPBar;		// Player_MP.bmp (background)
+	CImage* imgPlayerFlaskEmpty;
+	CImage* imgPlayerFlaskFull;
 
 	// HP/MP values
 	float currentHP;

@@ -1,7 +1,7 @@
 {
     "image": "Image/Pietat/pietat_turnaround.bmp",
     "pivot": [70.0, 15.0],
-    "frame_interval": 0.0833,
+    "frame_interval": 0.07,
     "frames": [
         {"rect": [0, 0, 146, 228], "events": []},
         {"rect": [146, 0, 146, 228], "events": []},

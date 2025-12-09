@@ -67,6 +67,6 @@ void CTransitionArea::OnCollisionEnter(CCollider* other)
         
         CAMERA->FadeOut(0.5f);
         WORLD->ChangeScene(targetScene, 0.5f);
-        GAMEUI->ShowHUD(false);
+        GAMEUI->ShowPlayerHUD(false);
     }
 }

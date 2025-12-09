@@ -24,7 +24,7 @@ void CEnemy_Acorite::Init()
 	
     // Abilities
     AddAbility<Ability_MonsterAttack>(EAbility::Attack);
-    AddAbility<Ability_HitReaction>(EAbility::Hit);
+    AddAbility<Ability_HitReaction>(EAbility::HitReact);
     AddAbility<Ability_ParryHitReaction>(EAbility::ParryHit);
 	AddAbility<Ability_Die>(EAbility::Die);
 	

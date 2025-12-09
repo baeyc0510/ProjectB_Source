@@ -16,7 +16,6 @@ void Ability_Slide::OnActivate()
     Ability::OnActivate();
 
     SFX->PlayOnce(SFXKey::PlayerSlide);
-
     GetAnimator()->Play(AnimKey::Slide, true, BIND(this, OnFinishedAnim), BIND(this, OnInterruptedAnim));
 
     Vec2 velocity = GetRigidbody()->GetVelocity();

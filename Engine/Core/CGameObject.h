@@ -25,7 +25,7 @@ public:
 	void			SetPos(const Vec2& pos)			{ this->pos = pos; }
 	void			SetScale(const Vec2& scale)		{ this->scale = scale; }
 
-	int				GetForward()					{ return forward; }
+	int				GetForward() const { return forward; }
 	void			SetForward(int inForward)		{ this->forward = inForward > 0 ? 1 : -1; }
 	void			SetForward(float inForward)		{ this->forward = inForward > 0 ? 1 : -1; }
 

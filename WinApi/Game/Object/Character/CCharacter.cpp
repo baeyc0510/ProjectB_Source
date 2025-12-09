@@ -42,6 +42,13 @@ void CCharacter::SetIsGrounded(bool grounded)
     }
 }
 
+bool CCharacter::IsGrounded() const
+{
+    if (movement)
+        return movement->IsGrounded();
+    return false;
+}
+
 UINT CCharacter::GetCurrentGroundID() const
 {
     return movement ? movement->GetActiveGroundID() : 0;

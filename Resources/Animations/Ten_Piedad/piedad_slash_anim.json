@@ -1,7 +1,7 @@
 {
     "image": "Image/Pietat/pietat_slash_anim.bmp",
     "pivot": [150.0, 15.0],
-    "frame_interval": 0.0833,
+    "frame_interval": 0.05,
     "frames": [
         {"rect": [0, 0, 342, 228], "events": []},
         {"rect": [342, 0, 342, 228], "events": []},
@@ -17,7 +17,7 @@
         {"rect": [3762, 0, 342, 228], "events": []},
         {"rect": [4104, 0, 342, 228], "events": []},
         {"rect": [4446, 0, 342, 228], "events": []},
-        {"rect": [4788, 0, 342, 228], "events": []},
+        {"rect": [4788, 0, 342, 228], "events": ["HitCheck"]},
         {"rect": [5130, 0, 342, 228], "events": []},
         {"rect": [5472, 0, 342, 228], "events": []},
         {"rect": [5814, 0, 342, 228], "events": []},
