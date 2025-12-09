@@ -28,7 +28,6 @@ void CHazard::Init()
 
 void CHazard::OnEnable()
 {
-	remainingLifetime = lifetime;
 	lastDamageTime = 0.f;
 	bIsDestroyed = false;
 	OnSpawn();
@@ -36,21 +35,6 @@ void CHazard::OnEnable()
 
 void CHazard::Update()
 {
-	if (bIsDestroyed)
-		return;
-
-	// 수명 체크
-	if (bHasLifetime)
-	{
-		remainingLifetime -= DT;
-		if (remainingLifetime <= 0.f)
-		{
-			OnExpire();
-			DestroySelf();
-			return;
-		}
-	}
-
 	// 데미지 인터벌 타이머
 	lastDamageTime += DT;
 }
@@ -114,21 +98,6 @@ void CHazard::OnSpawn()
 {
 	// 기본 구현: 없음 (파생 클래스에서 오버라이드)
 }
-
-void CHazard::OnExpire()
-{
-	// 기본 구현: 없음 (파생 클래스에서 오버라이드)
-}
-
-void CHazard::DestroySelf()
-{
-	if (bIsDestroyed)
-		return;
-
-	bIsDestroyed = true;
-	WORLD->Delete(GetScene(), this);
-}
-
 void CHazard::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
 	assert(animator);

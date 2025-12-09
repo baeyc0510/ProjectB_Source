@@ -35,25 +35,10 @@ void CProjectile::Init()
 
 void CProjectile::OnEnable()
 {
-	remainingLifetime = lifetime;
-	bIsDestroyed = false;
 }
 
 void CProjectile::Update()
 {
-	if (bIsDestroyed)
-		return;
-
-	// 수명 체크
-	if (bHasLifetime)
-	{
-		remainingLifetime -= DT;
-		if (remainingLifetime <= 0.f)
-		{
-			DestroySelf();
-			return;
-		}
-	}
 }
 
 void CProjectile::Render()
@@ -88,7 +73,7 @@ void CProjectile::Launch(Vec2 velocity)
 
 void CProjectile::OnCollisionEnter(CCollider* other)
 {
-	if (bIsDestroyed)
+	if (IsReservedDelete())
 		return;
 
 	UINT otherLayer = other->GetLayer();
@@ -130,11 +115,6 @@ void CProjectile::OnHitPlayer(CGameObject* player)
 {
 }
 
-void CProjectile::OnDestroyed()
-{
-	// 기본 구현: 없음 (파생 클래스에서 오버라이드)
-}
-
 void CProjectile::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
 	assert(animator);
@@ -142,13 +122,4 @@ void CProjectile::AddAnimation(const wstring& aniName, const wstring& path, bool
 	assert(animation);
 	animation->SetRepeat(bShouldRepeat);
 	animator->AddAnimation(aniName, animation);
-}
-
-void CProjectile::DestroySelf()
-{
-	if (bIsDestroyed)
-		return;
-
-	bIsDestroyed = true;
-	WORLD->Delete(GetScene(), this);
 }

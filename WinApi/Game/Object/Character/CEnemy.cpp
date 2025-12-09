@@ -191,6 +191,9 @@ void CEnemy::UpdateAIMovement()
 
 void CEnemy::OnDamage(CGameObject* source, const CombatContext& context)
 {
+	if (stateSystem->HasTag(Tag_Dead))
+		return;
+	
 	// Trigger Event
 	abilitySystem->TriggerEvent(EGameEvent::Hit, source);
 
@@ -227,4 +230,11 @@ void CEnemy::OnDamage(CGameObject* source, const CombatContext& context)
 void CEnemy::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 {
 	CCharacter::OnStateChanged(oldTags, newTags);
+}
+
+void CEnemy::OnDieComplete()
+{
+	CCharacter::OnDieComplete();
+	
+	SetLifetime(2.0f);
 }

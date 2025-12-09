@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "CVFX.h"
 
-CVFX::CVFX() : animator(nullptr), lifetime(0), remainingLifetime(0), bHasLifetime(false), bIsPlaying(false),
-               bLooping(false)
+CVFX::CVFX() : animator(nullptr), animation(nullptr), bIsPlaying(false), bLooping(false)
 {
 }
 
@@ -22,17 +21,7 @@ void CVFX::OnEnable()
 
 void CVFX::Update()
 {
-    if (bIsPlaying && bHasLifetime)
-    {
-        remainingLifetime -= DT;
-        remainingLifetime = max(remainingLifetime, 0.0f);
-    }
-    
-    if (bHasLifetime && IsNearlyEqual(remainingLifetime, 0.0f))
-    {
-        WORLD->Delete(GetScene(), this);
-        return;
-    }
+    // Lifetime 처리는 CGameObject::ComponentUpdate에서 자동으로 수행
 }
 
 void CVFX::Render()
@@ -48,17 +37,6 @@ void CVFX::Release()
 {
 }
 
-void CVFX::SetLifetime(float inLifetime)
-{
-    lifetime = inLifetime;
-    bHasLifetime = true;
-}
-
-float CVFX::GetRemainingLifetime() const
-{
-    return remainingLifetime;
-}
-
 void CVFX::SetLooping(bool inLooping)
 {
     bLooping = inLooping;
@@ -70,8 +48,7 @@ void CVFX::SetLooping(bool inLooping)
 
 void CVFX::PlayVFX()
 {
-    remainingLifetime = lifetime;
-    bIsPlaying = true; 
+    bIsPlaying = true;
     animator->Play(TEXT("VFX"), true, BIND(this, OnFinishedAnimation));
     animator->SetDirection(GetForward());
 }
@@ -84,9 +61,10 @@ void CVFX::StopVFX()
 
 void CVFX::OnFinishedAnimation()
 {
-    if (!bHasLifetime)
+    // Lifetime이 없으면 애니메이션 종료 시 삭제
+    if (!HasLifetime())
     {
-        WORLD->Delete(GetScene(), this);
+        Destroy();
     }
 }
 
@@ -95,7 +73,7 @@ void CVFX::SetAnimation(CAnimation* inAnimation)
     assert(inAnimation);
     animation = inAnimation;
     animation->SetRepeat(bLooping);
-    
+
     animator->Reset();
     animator->AddAnimation(TEXT("VFX"), animation);
 }

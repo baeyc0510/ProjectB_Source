@@ -11,7 +11,6 @@ public:
 
 	/*~ CHazard Interface ~*/
 	void SetDamage(float dmg) { damage = dmg; }
-	void SetLifetime(float time) { lifetime = time; bHasLifetime = true; }
 	void SetDamageInterval(float interval) { damageInterval = interval; }
 
 protected:
@@ -28,10 +27,7 @@ protected:
 
 	/*~ CHazard Interface (Virtual) ~*/
 	virtual void OnSpawn();
-	virtual void OnExpire();
 	void DealDamageToPlayer(CGameObject* player);
-
-	void DestroySelf();
 	
 	void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 
@@ -40,10 +36,7 @@ protected:
 	CBoxCollider* collider = nullptr;
 
 	float damage = 10.f;
-	float lifetime = 5.f;
-	float remainingLifetime = 0.f;
 	float damageInterval = 1.f;
 	float lastDamageTime = 0.f;
-	bool bHasLifetime = true;
 	bool bIsDestroyed = false;
 };

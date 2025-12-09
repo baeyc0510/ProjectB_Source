@@ -432,6 +432,9 @@ void CPlayer::OnCollisionExit(CCollider* other)
 
 void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 {
+	if (stateSystem->HasTag(Tag_Dead))
+		return;
+	
 	abilitySystem->TriggerEvent(EGameEvent::Hit,source);
 	
 	if (context.value <= 0.0001f)

@@ -5,16 +5,15 @@ class CVFX : public CGameObject
 public:
     CVFX();
     ~CVFX() override;
-    
+
     /*~ CVFX Interface ~*/
-    void SetLifetime(float inLifetime);
-    float GetRemainingLifetime() const;
-    
+    // SetLifetime, GetRemainingLifetime은 CGameObject에서 상속
+
     void SetLooping(bool inLooping);
     bool IsLooping() const { return bLooping; }
-    
+
     void SetAnimation(CAnimation* inAnimation);
-    
+
     void PlayVFX();
     void StopVFX();
 
@@ -26,16 +25,13 @@ protected:
     void Render() override;
     void OnDisable() override;
     void Release() override;
-    
+
     /*~ CVFX Interface ~*/
     virtual void OnFinishedAnimation();
-    
+
 private:
     CAnimator* animator;
     CAnimation* animation;
-    float lifetime;
-    float remainingLifetime;
-    bool bHasLifetime;
     bool bIsPlaying;
     bool bLooping;
 };

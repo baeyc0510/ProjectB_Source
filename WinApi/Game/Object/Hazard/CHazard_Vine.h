@@ -9,5 +9,4 @@ public:
 protected:
 	void Init() override;
 	void OnSpawn() override;
-	void OnExpire() override;
 };

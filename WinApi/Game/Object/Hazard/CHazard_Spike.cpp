@@ -24,7 +24,6 @@ void CHazard_Spike::Init()
 	collider->SetScale(Vec2(30, 80));
 	collider->SetOffset(Vec2(0, -40));
 	damage = 15.f;
-	lifetime = 2.f;
 	damageInterval = 0.3f;
 	
 	// animator 설정

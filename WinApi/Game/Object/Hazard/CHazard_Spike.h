@@ -16,8 +16,8 @@ protected:
 	void Init() override;
 	void Update() override;
 	void OnSpawn() override;
-	void OnExpire() override;
 	
+	void OnExpire();
 	void OnGameEvent(EGameEvent event);
 	
 private:

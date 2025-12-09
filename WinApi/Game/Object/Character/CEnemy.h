@@ -31,7 +31,8 @@ protected:
 
 	/*~ CCharacter Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
-
+	void OnDieComplete() override;
+	
 	/*~ ICombatInterface ~*/
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 

@@ -10,7 +10,6 @@ protected:
 	void Init() override;
 	void OnHitGround(Vec2 hitPos) override;
 	void OnHitWall(Vec2 hitPos) override;
-	void OnDestroyed() override;
 	void OnHitPlayer(CGameObject* player) override;
 	void OnDisable() override;
 	void Release() override;
@@ -23,6 +22,7 @@ private:
 	bool bIsThorn = false;
 	bool bGrowthFinished;
 	bool bSpikeSpawned = false;
+	bool bIsDestroyed = false;
 	Vec2 groundHitPos;
 	
 	SafeTimerHandle timerHandle;

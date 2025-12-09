@@ -28,6 +28,9 @@ void CProjectile_Spit::Init()
 
 void CProjectile_Spit::OnHitGround(Vec2 hitPos)
 {
+	if (bIsDestroyed)
+		return;
+	
 	bIsThorn = true;
 	groundHitPos = hitPos;
 	rigidbody->SetVelocity(Vec2(0, 0));
@@ -47,17 +50,16 @@ void CProjectile_Spit::OnHitGround(Vec2 hitPos)
 
 void CProjectile_Spit::OnHitWall(Vec2 hitPos)
 {
+	if (bIsDestroyed)
+		return;
+	
 	// 벽에 닿으면 그냥 파괴 (아무것도 안함)
-	animator->Play(AnimKey::ThornBallDestroyed,true,BIND(this, DestroySelf));
-}
-
-void CProjectile_Spit::OnDestroyed()
-{
+	animator->Play(AnimKey::ThornBallDestroyed, true, BIND(this, Destroy));
 }
 
 void CProjectile_Spit::OnHitPlayer(CGameObject* player)
 {
-	if (bSpikeSpawned)
+	if (bIsDestroyed || bSpikeSpawned)
 	{
 		return;
 	}
@@ -90,16 +92,21 @@ void CProjectile_Spit::OnDamage(CGameObject* source, const CombatContext& contex
 {
 	CProjectile::OnDamage(source, context);
 	
+	if (bIsDestroyed)
+		return;
+	
 	CAMERA->Shake(ShakePreset::Light);
 	
-	if (bIsThorn) 
+	if (bIsThorn)
 	{
-		animator->Play(AnimKey::ThornGrowthDestroyed,true,BIND(this, DestroySelf));
+		animator->Play(AnimKey::ThornGrowthDestroyed, true, BIND(this, Destroy));
 	}
 	else
 	{
-		animator->Play(AnimKey::ThornBallDestroyed,true,BIND(this, DestroySelf));
+		animator->Play(AnimKey::ThornBallDestroyed, true, BIND(this, Destroy));
 	}
+	
+	bIsDestroyed = true;
 }
 
 void CProjectile_Spit::SpawnSpike(Vec2 spawnPos)
