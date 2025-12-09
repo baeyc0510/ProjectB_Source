@@ -1,7 +1,7 @@
 {
     "image": "Image/Penitent/penitent_parry_counter.bmp",
     "pivot": [47.0, 1.0],
-    "frame_interval": 0.06,
+    "frame_interval": 0.04,
     "frames": [
         {"rect": [0, 0, 166, 106], "events": []},
         {"rect": [166, 0, 166, 106], "events": []},

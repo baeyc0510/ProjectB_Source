@@ -9,7 +9,7 @@ public:
 	/*~ Ability Interface ~*/
 	EStateTag GetRequiredTags() const override { return Tag_CanClimbLedge; }
 	EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_BlockMovement | Tag_Hit | Tag_Attacking; }
-	EStateTag GetTagsToAdd() const override { return Tag_HangingLedge | Tag_AbilityAnimation | Tag_BlockMovement; }
+	EStateTag GetTagsToAdd() const override { return Tag_HangingLedge | Tag_AbilityAnimation | Tag_BlockMovement | Tag_BlockAbility; }
 	EStateTag GetCancelTags() const override { return Tag_Moving; }
 
 	void OnActivate() override;

@@ -30,13 +30,13 @@ private:
 	static constexpr float ENCOUNTER_RANGE = 400.f;
 	static constexpr float SLASH_RANGE = 240.f;
 	static constexpr float STOMP_RANGE = 200.f;
-	static constexpr float SPIT_MIN_RANGE = 250.f;
+	static constexpr float SPIT_MIN_RANGE = 220.f;
 	static constexpr float GROUND_SMASH_RANGE = 100.f;
 
 	// 추격 설정 상수
 	static constexpr float CHASE_SPEED = 100.0f;
 	static constexpr float CHASE_RANGE = 400.0f;	// 추격 시작 거리
-	static constexpr float STOP_RANGE = 70.0f;		// 정지 거리 (근접 공격 범위)
+	static constexpr float STOP_RANGE = 20.0f;		// 정지 거리 (근접 공격 범위)
 	
 	// 추격 상태
 	bool bIsChasing = false;

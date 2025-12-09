@@ -41,14 +41,6 @@ void Ability_Parry::OnEnd()
 
 void Ability_Parry::OnEndParryAnim()
 {
-    if (bShouldCounter)
-    {
-        bShouldCounter = false;
-        GetAnimator()->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
-        WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnCounterHitCheck));
-        return;
-    }
-
     EndAbility();
 }
 
@@ -117,6 +109,13 @@ void Ability_Parry::OnCounterClose()
     EndWaitEvent(onCounterInputHandle);
     EndWaitEvent(onCounterOpenHandle);
     EndWaitEvent(onCounterCloseHandle);
+    
+    if (bShouldCounter)
+    {
+        bShouldCounter = false;
+        GetAnimator()->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
+        WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnCounterHitCheck));
+    }
 }
 
 void Ability_Parry::OnCounterHitCheck()
