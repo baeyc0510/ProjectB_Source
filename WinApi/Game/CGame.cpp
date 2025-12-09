@@ -79,7 +79,8 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CPathManager)->Init();
 	SINGLE(CResourceManager)->Init();
 	// 리소스 경로 설정
-	SINGLE(CResourceManager)->SetResourceFolder(PATH + TEXT("\\..\\Resources\\"));
+	// x64\Debug 또는 x64\Release에서 실행되므로 두 단계 위로 올라가야 함
+	SINGLE(CResourceManager)->SetResourceFolder(PATH + TEXT("\\..\\..\\Resources\\"));
 
 	SINGLE(CCameraManager)->Init();
 	SINGLE(CSoundManager)->Init();
