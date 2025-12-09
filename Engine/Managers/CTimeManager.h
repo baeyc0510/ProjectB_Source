@@ -22,6 +22,38 @@ private:
 	unsigned long long handle;
 };
 
+// RAII 패턴 SafeTimerHandle - 소멸 시 자동으로 타이머 정리
+// 멤버 변수로 선언하면 객체 파괴 시 자동으로 타이머가 클리어됨
+class SafeTimerHandle
+{
+public:
+	SafeTimerHandle() = default;
+	~SafeTimerHandle();
+
+	// 복사 금지 (타이머 소유권 명확화)
+	SafeTimerHandle(const SafeTimerHandle&) = delete;
+	SafeTimerHandle& operator=(const SafeTimerHandle&) = delete;
+
+	// 이동 허용
+	SafeTimerHandle(SafeTimerHandle&& other) noexcept;
+	SafeTimerHandle& operator=(SafeTimerHandle&& other) noexcept;
+
+	// TimerHandle 할당
+	SafeTimerHandle& operator=(const TimerHandle& handle);
+
+	// 명시적 클리어
+	void Clear();
+
+	// 유효성 검사
+	bool IsValid() const { return handle.IsValid(); }
+
+	// 내부 핸들 접근 (읽기 전용)
+	const TimerHandle& Get() const { return handle; }
+
+private:
+	TimerHandle handle;
+};
+
 // TimerHandle 해시 함수
 namespace std
 {

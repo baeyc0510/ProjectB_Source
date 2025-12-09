@@ -1,11 +1,13 @@
 ﻿#include "pch.h"
 #include "CGameUIManager.h"
+
+#include "Game/UI/CBossHUD.h"
 #include "Game/UI/CPlayerStatusHUD.h"
 #include "Game/UI/CInventoryUI.h"
+#include "Game/UI/Buttons/CButton_MainMenu.h"
 
 CGameUIManager::CGameUIManager()
 	: statusHUD(nullptr)
-	, hudVisible(true)
 {
 }
 
@@ -18,8 +20,14 @@ void CGameUIManager::Init()
 	statusHUD = new CPlayerStatusHUD();
 	statusHUD->SetPos(Vec2(STATUS_HUD_X, STATUS_HUD_Y));
 	statusHUD->SetScreenFixed(true);
-	AddUI(statusHUD);
 	statusHUD->SetVisibility(false);
+	AddUI(statusHUD);
+	
+	bossHUD = new CBossHUD();
+	bossHUD->SetPos(Vec2(BOSS_HUD_X, BOSS_HUD_Y));
+	bossHUD->SetScreenFixed(true);
+	bossHUD->SetVisibility(false);
+	AddUI(bossHUD);
 }
 
 void CGameUIManager::Update()
@@ -88,13 +96,29 @@ void CGameUIManager::SetPlayerFlask(int current, int max)
 		statusHUD->SetFlask(current, max);
 }
 
-void CGameUIManager::ShowHUD(bool show)
+void CGameUIManager::SetBossHP(float current, float max)
 {
-	hudVisible = show;
+	if (bossHUD)
+		bossHUD->SetHP(current, max);
+}
+
+void CGameUIManager::SetBossName(CImage* nameImg)
+{
+	if (bossHUD)
+		bossHUD->SetBossNameImage(nameImg);
+}
+
+void CGameUIManager::ShowPlayerHUD(bool show)
+{
 	if (statusHUD)
 		statusHUD->SetVisibility(show);
 }
 
+void CGameUIManager::ShowBossHUD(bool show)
+{
+	if (bossHUD)
+		bossHUD->SetVisibility(show);
+}
 void CGameUIManager::AddUI(CUI* ui)
 {
 	uiList.push_back(ui);

@@ -10,9 +10,6 @@ public:
     void PreLoad();
     CVFX* CreateVFX(const wstring& key);
     CVFX* CreateVFX(const wstring& key, Vec2 pos, int direction);
-    
-private:
-    CScene* currentScene;
 };
 
 #define VFX	CVFXManager::GetInstance()

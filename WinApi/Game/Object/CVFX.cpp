@@ -71,7 +71,7 @@ void CVFX::SetLooping(bool inLooping)
 void CVFX::PlayVFX()
 {
     remainingLifetime = lifetime;
-    bIsPlaying = true;
+    bIsPlaying = true; 
     animator->Play(TEXT("VFX"), true, BIND(this, OnFinishedAnimation));
     animator->SetDirection(GetForward());
 }

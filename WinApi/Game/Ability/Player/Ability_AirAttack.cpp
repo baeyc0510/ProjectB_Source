@@ -4,9 +4,9 @@
 #include "Game/VFXKeys.h"
 #include "Game/Component/CStateSystem.h"
 
-const FAttackData Ability_AirAttack::AirComboTable[2] = {
-    { {30.f, -60.f}, {40.f, 30.f}, AnimKey::AirCombo1, VFXKey::AttackHit1, Ability_ComboAttack::BASE_DAMAGE },
-    { {10.f, -40.f}, {50.f, 25.f}, AnimKey::AirCombo2, VFXKey::AttackHit2, Ability_ComboAttack::BASE_DAMAGE },
+const ComboData Ability_AirAttack::AirComboTable[2] = {
+    {{ {30.f, -60.f}, {40.f, 30.f},VFXKey::AttackHit1, Ability_ComboAttack::BASE_DAMAGE }, AnimKey::AirCombo1},
+    {{ {10.f, -40.f}, {50.f, 25.f}, VFXKey::AttackHit2, Ability_ComboAttack::BASE_DAMAGE },AnimKey::AirCombo2},
 };
 
 Ability_AirAttack::Ability_AirAttack()
@@ -37,9 +37,14 @@ void Ability_AirAttack::OnComboCountUpdated(int oldCnt, int newCnt)
     }
 }
 
-const FAttackData& Ability_AirAttack::GetAttackData() const
+const AttackData& Ability_AirAttack::GetAttackData() const
 {
-    return AirComboTable[comboCnt];
+    return AirComboTable[comboCnt].attackData;
+}
+
+const wstring& Ability_AirAttack::GetAnimKey() const
+{
+    return AirComboTable[comboCnt].animKey;
 }
 
 void Ability_AirAttack::OnLanded(CGameObject* source)

@@ -58,12 +58,6 @@ void CCharacterMovement::SetGrounded(bool value)
 {
 	groundState.bIsGrounded = value;
 
-	// // 착지 해제 시 지면 상태 리셋
-	// if (!groundState.bIsGrounded)
-	// {
-	// 	ResetGroundState();
-	// }
-
 	if (rigidbody)
 	{
 		rigidbody->SetGrounded(groundState.bIsGrounded);

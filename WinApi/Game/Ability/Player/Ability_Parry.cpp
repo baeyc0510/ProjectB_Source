@@ -6,6 +6,7 @@
 #include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Util/CombatHelper.h"
 
 Ability_Parry::Ability_Parry()
 {
@@ -121,28 +122,18 @@ void Ability_Parry::OnCounterHitCheck()
     const Vec2 TRACE_OFFSET = {50.f, -30.f};
     const Vec2 TRACE_SIZE = {50.f, 30.f};
 
-    Vec2 offset = TRACE_OFFSET;
-    offset.x *= owner->GetForward();
-    Vec2 center = owner->GetWorldPos() + offset;
-
-    auto results = COLLISION->BoxTrace(center, TRACE_SIZE, ELayer::Monster, true);
-    for (auto& result : results)
-    {
-        CGameObject* target = result.collider->GetOwner();
-        ICombatInterface* combat = dynamic_cast<ICombatInterface*>(target);
-        if (combat)
-        {
-            CombatContext context;
-            context.damageType = EDamageType::Slash;
-            context.hitResult = result;
-            context.value = COUNTER_DAMAGE;
-            context.vfxKey = VFXKey::AttackHit1;
-            combat->OnDamage(owner, context);
-        }
-    }
+    AttackData data;
+    data.traceOffset = TRACE_OFFSET;
+    data.traceSize = TRACE_SIZE;
+    data.damage = COUNTER_DAMAGE;
+    data.damageType = EDamageType::Slash;
+    data.vfxKey = VFXKey::AttackHit1;
+    
+    vector<HitResult> hitResults;
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {Monster,Projectile}, hitResults);
 
     // 사운드 재생
-    if (!results.empty())
+    if (bHit)
         SFX->PlayOnce(SFXKey::PlayerParryCounterHit);
     else
         SFX->PlayOnce(SFXKey::PlayerHeavySlash);

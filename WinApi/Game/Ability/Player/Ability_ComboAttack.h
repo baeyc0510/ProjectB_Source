@@ -2,6 +2,12 @@
 #include "Game/Ability/Ability.h"
 #include "Game/Util/CombatHelper.h"
 
+struct ComboData
+{
+    AttackData attackData;
+    wstring animKey;
+};
+
 class Ability_ComboAttack : public Ability
 {
 public:
@@ -9,7 +15,7 @@ public:
 
     /*~ Ability Interface ~*/
     EStateTag GetRequiredTags() const override { return Tag_Grounded; }
-    EStateTag GetBlockedTags() const override { return Tag_Airborne | Tag_Hit | Tag_SpecialAction; }
+    EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit | Tag_SpecialAction; }
     EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
     EStateTag GetTagsToRemove() const override { return Tag_None; }
     EStateTag GetCancelTags() const override { return Tag_Crouching; }
@@ -26,11 +32,12 @@ protected:
     virtual void OnInputAttack();
     virtual void OnHitCheck();
     virtual void OnComboCountUpdated(int oldCnt, int newCnt) {}
-    virtual const FAttackData& GetAttackData() const;
-
+    virtual const AttackData& GetAttackData() const;
+    virtual const wstring& GetAnimKey() const;
+    
 protected:
     static constexpr float BASE_DAMAGE = 10.f;
-    static const FAttackData ComboTable[3];
+    static const ComboData ComboTable[3];
 
     int comboCnt = 0;
     int maxComboCnt = 3;

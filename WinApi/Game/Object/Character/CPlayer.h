@@ -96,7 +96,7 @@ private:
 	static constexpr float MOVE_SPEED = 250.f;
 	static constexpr float JUMP_FORCE = 490.f;
 	static constexpr float KNOCKBACK_POWER = 100.f;
-	static constexpr float MAX_HP = 100.f;
+	static constexpr float MAX_HP = 300.f;
 	static constexpr float MAX_MP = 100.f;
 	static constexpr int MAX_FLASK = 2;
 	static constexpr float LEDGE_CLIMB_THRESHOLD = 10.f;

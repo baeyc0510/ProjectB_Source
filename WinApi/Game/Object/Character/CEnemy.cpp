@@ -13,10 +13,30 @@
 CEnemy::CEnemy()
 {
 	name = TEXT("몬스터");
+	pushbackForce = Vec2(0.f,0.f);
 }
 
 CEnemy::~CEnemy()
 {
+}
+
+void CEnemy::SetCurrentHP(float value)
+{
+	currentHP = max(0, min(value,maxHP));
+	
+	if (IsNearlyEqual(currentHP,0))
+	{
+		abilitySystem->TryActivateAbility(EAbility::Die);
+	}
+	else if (stateSystem->HasTag(Tag_Dead))
+	{
+		abilitySystem->CancelAbilitiesWithTag(Tag_Dead);
+	}
+}
+
+void CEnemy::SetMaxHP(float value)
+{
+	maxHP = max(0,value);
 }
 
 void CEnemy::Init()
@@ -72,7 +92,7 @@ void CEnemy::UpdateAnimation()
 {
 	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
-
+	
 	// 이동 중이면 Walk, 아니면 Idle
 	if (stateSystem->HasAnyTag(Tag_AIPatrol | Tag_AIChase))
 	{
@@ -197,18 +217,14 @@ void CEnemy::OnDamage(CGameObject* source, const CombatContext& context)
 		
 		// Hit Reaction
 		abilitySystem->CancelAbilitiesWithTag(Tag_Hit);
-		abilitySystem->TryActivateAbility(EAbility::Hit);
+		abilitySystem->TryActivateAbility(EAbility::HitReact);
+		
+		float newHP = currentHP - context.value;
+		SetCurrentHP(newHP);
 	}
 }
 
 void CEnemy::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 {
 	CCharacter::OnStateChanged(oldTags, newTags);
-}
-
-Vec2 CEnemy::GetKnockbackVelocity(CGameObject* source, const CombatContext& context)
-{
-	Vec2 direction = GetPos() - source->GetPos();
-	float dirX = direction.x > 0 ? 1.f : -1.f;
-	return Vec2(KNOCKBACK_POWER * dirX, KNOCKBACK_POWER * -0.6f);
 }

@@ -5,10 +5,10 @@
 #include "Game/SFXKeys.h"
 #include "Game/Manager/CSFXManager.h"
 
-const FAttackData Ability_ComboAttack::ComboTable[3] = {
-    { {40.f, -30.f}, {60.f, 20.f}, AnimKey::Combo1, VFXKey::AttackHit1, BASE_DAMAGE },
-    { {30.f, -30.f}, {60.f, 20.f}, AnimKey::Combo2, VFXKey::AttackHit2, BASE_DAMAGE },
-    { {50.f, -30.f}, {80.f, 30.f}, AnimKey::Combo3, VFXKey::AttackHit3, BASE_DAMAGE },
+const ComboData Ability_ComboAttack::ComboTable[3] = {
+   { { {40.f, -30.f}, {60.f, 20.f}, VFXKey::AttackHit1, BASE_DAMAGE },AnimKey::Combo1 },
+    {{ {30.f, -30.f}, {60.f, 20.f}, VFXKey::AttackHit2, BASE_DAMAGE },  AnimKey::Combo2},
+    {{ {50.f, -30.f}, {80.f, 30.f}, VFXKey::AttackHit3, BASE_DAMAGE }, AnimKey::Combo3},
 };
 
 Ability_ComboAttack::Ability_ComboAttack()
@@ -42,9 +42,7 @@ void Ability_ComboAttack::OnEnd()
 void Ability_ComboAttack::Attack()
 {
     bSavedCombo = false;
-
-    const FAttackData& data = GetAttackData();
-    GetAnimator()->Play(data.animKey, true, BIND(this, OnFinishedAnim), BIND(this, OnFinishedAnim));
+    GetAnimator()->Play(GetAnimKey(), true, BIND(this, OnFinishedAnim), BIND(this, OnFinishedAnim));
 }
 
 void Ability_ComboAttack::OnComboWindowOpen()
@@ -79,7 +77,7 @@ void Ability_ComboAttack::OnFinishedAnim()
 
 void Ability_ComboAttack::OnHitCheck()
 {
-    const FAttackData& data = GetAttackData();
+    const AttackData& data = GetAttackData();
     vector<HitResult> hitResults;
     bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, ELayer::Monster, hitResults);
 
@@ -108,7 +106,12 @@ void Ability_ComboAttack::OnHitCheck()
     soundIndex++;
 }
 
-const FAttackData& Ability_ComboAttack::GetAttackData() const
+const AttackData& Ability_ComboAttack::GetAttackData() const
 {
-    return ComboTable[comboCnt];
+    return ComboTable[comboCnt].attackData;
+}
+
+const wstring& Ability_ComboAttack::GetAnimKey() const
+{
+    return ComboTable[comboCnt].animKey;
 }

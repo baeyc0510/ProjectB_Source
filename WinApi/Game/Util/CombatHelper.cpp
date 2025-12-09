@@ -6,14 +6,22 @@ bool CombatHelper::ApplyDamageInBox(
     CGameObject* source,
     const Vec2& center,
     const Vec2& size,
-    ELayer targetLayer,
+    std::initializer_list<ELayer> targetLayers,
     float damage,
     vector<HitResult>& outHitResults,
     EDamageType damageType,
     const wchar_t* vfxKey)
 {
-    outHitResults = COLLISION->BoxTrace(center, size, targetLayer, true);
+    outHitResults.clear();
 
+    // 모든 레이어에 대해 BoxTrace 수행 후 결과 합침
+    for (ELayer layer : targetLayers)
+    {
+        vector<HitResult> layerResults = COLLISION->BoxTrace(center, size, static_cast<UINT>(layer), true);
+        outHitResults.insert(outHitResults.end(), layerResults.begin(), layerResults.end());
+    }
+
+    // 히트된 대상에 데미지 적용
     for (auto& result : outHitResults)
     {
         CGameObject* target = result.collider->GetOwner();
@@ -34,8 +42,8 @@ bool CombatHelper::ApplyDamageInBox(
 
 bool CombatHelper::ApplyDamageWithAttackData(
     CGameObject* source,
-    const FAttackData& attackData,
-    ELayer targetLayer,
+    const AttackData& attackData,
+    std::initializer_list<ELayer> targetLayers,
     vector<HitResult>& outHitResults)
 {
     Vec2 offset = attackData.traceOffset;
@@ -46,7 +54,7 @@ bool CombatHelper::ApplyDamageWithAttackData(
         source,
         center,
         attackData.traceSize,
-        targetLayer,
+        targetLayers,
         attackData.damage,
         outHitResults,
         attackData.damageType,

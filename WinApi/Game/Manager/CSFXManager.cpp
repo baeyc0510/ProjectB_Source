@@ -45,6 +45,22 @@ void CSFXManager::PreLoad()
     LOADSOUND(SFXKey::PlayerRespawn, TEXT("Sound/penitent/PENITENT_RESPAWN.wav"));
     LOADSOUND(SFXKey::PlayerGetItem, TEXT("Sound/penitent/GET_FLOOR_ITEM.wav"));
     LOADSOUND(SFXKey::PlayerOverthrow, TEXT("Sound/penitent/PENITENT_OVERTHROW_DEFAULT.wav"));
+    
+    // // 보스 - Piedad
+    LOADSOUND(SFXKey::PiedadSlash, TEXT("Sound/ten_piedad/PIEDAD_SLASH.wav"));
+    LOADSOUND(SFXKey::PiedadSmash, TEXT("Sound/ten_piedad/PIEDAD_Smash.wav"));
+    LOADSOUND(SFXKey::PiedadSmashVoice, TEXT("Sound/ten_piedad/PIEDAD_SMASH_VOICE.wav"));
+    LOADSOUND(SFXKey::PiedadSmashGetUp, TEXT("Sound/ten_piedad/PIEDAD_SmashGetUp.wav"));
+    LOADSOUND(SFXKey::PiedadSmashGetUpVoice, TEXT("Sound/ten_piedad/PIEDAD_SMASH_GET_UP_VOICE.wav"));
+    LOADSOUND(SFXKey::PiedadSpitVoice, TEXT("Sound/ten_piedad/PIEDAD_SPIT_VOICE.wav"));
+    LOADSOUND(SFXKey::PiedadStomp, TEXT("Sound/ten_piedad/PIEDAD_STOMP.wav"));
+    LOADSOUND(SFXKey::PiedadTurn, TEXT("Sound/ten_piedad/PIEDAD_TURN.wav"));
+    LOADSOUND(SFXKey::PiedadWakeUp, TEXT("Sound/ten_piedad/PIEDAD_WakeUp.wav"));
+    
+    // BGM
+    LOADSOUND(SFXKey::BGM_Piedad, TEXT("Sound/ten_piedad/PIEDAD_MASTER.wav"));
+    LOADSOUND(SFXKey::BGM_Title, TEXT("Sound/TITLE.wav"));
+    LOADSOUND(SFXKey::MapEnter, TEXT("Sound/ZONE_INFO.wav"));
 }
 
 void CSFXManager::PlayOnce(const wstring& key, float volume)
@@ -73,6 +89,16 @@ void CSFXManager::Stop(const wstring& key)
 void CSFXManager::StopAll()
 {
     SOUND->StopAll();
+}
+
+void CSFXManager::PlayBGM(const wstring& key, float volume)
+{
+    if (currentBGM == key)
+        return;
+    
+    Stop(currentBGM);
+    currentBGM = key;
+    PlayLoop(key, volume);
 }
 
 CSound* CSFXManager::GetSound(const wstring& key)

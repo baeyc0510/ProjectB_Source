@@ -14,17 +14,23 @@ public:
 
     /*~ CCharacter Interface ~*/
     CStateSystem* GetStateSystem() const { return stateSystem; }
+    CAbilitySystem* GetAbilitySystem() const {return abilitySystem;}
     CCharacterMovement* GetMovement() const { return movement; }
     virtual wstring GetRandomBloodVfxKey() const;
 
     void SetIgnorePlatform(UINT platformID);
     void SetIsGrounded(bool grounded);
+    bool IsGrounded() const;
     UINT GetCurrentGroundID() const;
     
     float GetPlatformMinX() const;
     float GetPlatformMaxX() const;
     bool HasPlatformBounds() const;
 
+    Vec2 GetPushbackForce() const { return pushbackForce; }
+    
+    virtual void OnDieComplete() {}
+    
 protected:
     /*~ CGameObject Interface ~*/
     void Init() override;
@@ -65,4 +71,5 @@ protected:
 
     // 이전 프레임 상태 (변화 감지용)
     bool bWasOnSteepSlope = false;
+    Vec2 pushbackForce;
 };

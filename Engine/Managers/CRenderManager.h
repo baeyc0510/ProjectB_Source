@@ -23,6 +23,7 @@ public:
 	// UI 레이어 (윈도우 해상도에 직접 렌더링)
 	void		BeginUI();
 	void		EndUI();
+	void		FinalizeUI();	// 프레임 끝에서 UI 모드 리셋
 	HDC			GetUIDC() { return hUIMemDC; }
 
 	void		Pixel(float x, float y, COLORREF color);						// 픽셀 그리기
@@ -65,6 +66,7 @@ private:
 	HDC				hUIMemDC;		// UI 백버퍼 DC
 	HBITMAP			hUIBMP;			// UI 백버퍼 비트맵
 	HDC				hCurrentDC;		// 현재 렌더링 대상 DC
+	bool			bUIMode;		// UI 모드 플래그 (중복 클리어 방지)
 
 	// 합성용 버퍼 (윈도우 해상도) - 더블 버퍼링
 	HDC				hCompositeDC;	// 최종 합성 버퍼 DC

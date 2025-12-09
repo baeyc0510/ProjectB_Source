@@ -7,6 +7,7 @@ namespace AnimKey
 	constexpr const wchar_t* Hit			= L"Hit";
 	constexpr const wchar_t* ParryHit			= L"ParryHit";
 	constexpr const wchar_t* Walk			= L"Walk";
+	constexpr const wchar_t* Dead			= L"Dead";
 	
 
 	// Player Movement

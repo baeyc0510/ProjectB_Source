@@ -7,15 +7,15 @@
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Manager/CSFXManager.h"
 
-const FAttackData Ability_CrouchAttack::AttackData = {
-    {50.f, -10.f}, {30.f, 20.f}, AnimKey::CrouchAttack, VFXKey::AttackHit1, 10.f
+const AttackData Ability_CrouchAttack::AttackData = {
+    {50.f, -10.f}, {30.f, 20.f}, VFXKey::AttackHit1, 10.f
 };
 
 void Ability_CrouchAttack::OnActivate()
 {
     Ability::OnActivate();
 
-    GetAnimator()->Play(AttackData.animKey, true, BIND(this, EndAbility), BIND(this, EndAbility));
+    GetAnimator()->Play(AnimKey::CrouchAttack, true, BIND(this, EndAbility), BIND(this, EndAbility));
 
     WaitEvent(EGameEvent::Input_Crouch_Released, BIND_EVENT(this, OnCrouchReleased));
     WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));

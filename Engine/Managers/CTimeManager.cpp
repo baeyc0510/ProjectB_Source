@@ -212,3 +212,42 @@ float CTimeManager::GetTimerRemaining(const TimerHandle& handle) const
 	}
 	return 0.0f;
 }
+
+// ========== SafeTimerHandle ==========
+
+SafeTimerHandle::~SafeTimerHandle()
+{
+	Clear();
+}
+
+SafeTimerHandle::SafeTimerHandle(SafeTimerHandle&& other) noexcept
+	: handle(other.handle)
+{
+	other.handle.Invalidate();
+}
+
+SafeTimerHandle& SafeTimerHandle::operator=(SafeTimerHandle&& other) noexcept
+{
+	if (this != &other)
+	{
+		Clear();
+		handle = other.handle;
+		other.handle.Invalidate();
+	}
+	return *this;
+}
+
+SafeTimerHandle& SafeTimerHandle::operator=(const TimerHandle& newHandle)
+{
+	Clear();
+	handle = newHandle;
+	return *this;
+}
+
+void SafeTimerHandle::Clear()
+{
+	if (handle.IsValid())
+	{
+		TIMER->ClearTimer(handle);
+	}
+}

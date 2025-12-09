@@ -12,7 +12,14 @@ public:
 
 	/*~ CEnemy Interface ~*/
 	CAIController* GetAIController() const { return aiController; }
-
+	Vec2 GetParryPushbackForce() const { return parryPushbackForce; }
+	
+	virtual void SetCurrentHP(float value);
+	virtual void SetMaxHP(float value);
+	
+	float GetCurrentHP() const { return currentHP; }
+	float GetMaxHP() const { return maxHP; }
+	
 protected:
 	/*~ CGameObject Interface ~*/
 	void Init() override;
@@ -32,9 +39,12 @@ private:
 	void UpdateAnimation();
 	void UpdateAIMovement();
 	void HandleMovementEvents();
-	Vec2 GetKnockbackVelocity(CGameObject* source, const CombatContext& context);
 
-	static constexpr float KNOCKBACK_POWER = 1.0f;
-
+protected:
+	Vec2 parryPushbackForce = Vec2(200.f,0.f);
 	CAIController* aiController = nullptr;
+	
+	// 상태
+	float currentHP;
+	float maxHP;
 };

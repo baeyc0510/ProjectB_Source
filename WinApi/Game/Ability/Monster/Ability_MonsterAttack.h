@@ -6,7 +6,7 @@ class Ability_MonsterAttack : public Ability
 public:
     /*~ Ability Interface ~*/
     EStateTag GetRequiredTags() const override { return Tag_Grounded; }
-    EStateTag GetBlockedTags() const override { return Tag_Airborne | Tag_Hit; }
+    EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit; }
     EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
 
     void OnActivate() override;
