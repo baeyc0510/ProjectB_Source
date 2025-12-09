@@ -14,6 +14,9 @@ protected:
 	bool CheckEncounterPlayer() override;
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 	
+	void OnDieStart() override;
+	void OnDieComplete() override;
+	
 private:
 	void RegisterAnimations();
 	void RegisterAbilities();

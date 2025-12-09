@@ -34,6 +34,11 @@ void Ability_Die::OnEnd()
 
 void Ability_Die::PlayDie()
 {
+    if (CCharacter* character = dynamic_cast<CCharacter*>(GetOwner()))
+    {
+        character->OnDieStart();
+    }
+    
     GetStateSystem()->AddTag(Tag_StopVelocity);
     GetAnimator()->Play(AnimKey::Dead, true, BIND(this,OnFinishedAnimation));
     bHasPlayDie = true;

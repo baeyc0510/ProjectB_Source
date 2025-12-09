@@ -4,6 +4,7 @@
 #include "Game/UI/CBossHUD.h"
 #include "Game/UI/CPlayerStatusHUD.h"
 #include "Game/UI/CInventoryUI.h"
+#include "Game/UI/COverlay_BossDefeat.h"
 #include "Game/UI/Buttons/CButton_MainMenu.h"
 
 CGameUIManager::CGameUIManager()
@@ -177,6 +178,8 @@ CUI* CGameUIManager::CreateOverlay(EOverlayUI type)
 	{
 	case EOverlayUI::Inventory:
 		return new CInventoryUI();
+	case EOverlayUI::BossDefeat:
+		return new COverlay_BossDefeat();
 	default:
 		return nullptr;
 	}

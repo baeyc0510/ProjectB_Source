@@ -63,6 +63,8 @@ namespace SFXKey
     constexpr const wchar_t* PiedadStomp = L"PiedadStomp";
     constexpr const wchar_t* PiedadTurn = L"PiedadTurn";
     constexpr const wchar_t* PiedadWakeUp = L"PiedadWakeUp";
+    constexpr const wchar_t* PiedadDeath = L"PiedadDeath";
+    constexpr const wchar_t* PiedadDeathVoice = L"PiedadDeathVoice";
     
     
     // BGM
@@ -71,5 +73,6 @@ namespace SFXKey
     
     
     // 기타
-    constexpr const wchar_t* MapEnter = L"BGM_RoomEnter";
+    constexpr const wchar_t* MapEnter = L"MapEnter";
+    constexpr const wchar_t* ClearBoss = L"ClearBoss";
 }

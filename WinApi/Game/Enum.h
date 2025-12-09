@@ -185,4 +185,5 @@ enum class EOverlayUI
 {
 	None,
 	Inventory,
+	BossDefeat,
 };

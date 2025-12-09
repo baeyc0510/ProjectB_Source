@@ -160,11 +160,45 @@ void CBoss_TenPiedad::OnDamage(CGameObject* source, const CombatContext& context
 	if (!bHasAppeared)
 		return;
 	
+	if (stateSystem->HasTag(Tag_Dead))
+		return;
+	
 	CBoss::OnDamage(source, context);
 	
 	// Hitstop + Camera Shake
 	TIMER->SetTimeScale(0.0f, 0.05f);
 	CAMERA->Shake(ShakePreset::Medium);
+}
+
+void CBoss_TenPiedad::OnDieStart()
+{
+	CBoss::OnDieStart();
+	
+	// SFX 효과
+	SFX->StopBGM();
+	SFX->PlayOnce(SFXKey::PiedadDeath);
+	SFX->PlayOnce(SFXKey::PiedadDeathVoice);
+}
+
+void CBoss_TenPiedad::OnDieComplete()
+{
+	CBoss::OnDieComplete();
+	
+	// 클리어 연출
+	SFX->PlayOnce(SFXKey::ClearBoss);
+	GAMEUI->OpenUI(EOverlayUI::BossDefeat);
+	GAMEUI->ShowPlayerHUD(false);
+	GAMEUI->ShowBossHUD(false);
+	CAMERA->FadeOut(1.5f);
+	TIMER->SetTimer([this]()
+	{
+		CAMERA->FadeIn(1.5f);
+		TIMER->SetTimer([this]()
+		{
+			GAMEUI->CloseUI();
+			GAMEUI->ShowPlayerHUD(true);
+		},1.5f);
+	},1.5f);
 }
 
 void CBoss_TenPiedad::UpdateBossAI()

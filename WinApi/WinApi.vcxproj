@@ -226,6 +226,7 @@
     <ClInclude Include="Game\UI\CBossHUD.h" />
     <ClInclude Include="Game\UI\CInventoryUI.h" />
     <ClInclude Include="Game\UI\COverlayUI.h" />
+    <ClInclude Include="Game\UI\COverlay_BossDefeat.h" />
     <ClInclude Include="Game\UI\CPlayerStatusHUD.h" />
     <ClInclude Include="Game\Util\AnimEventHelper.h" />
     <ClInclude Include="Game\Util\CharacterFactory.h" />
@@ -375,6 +376,7 @@
     <ClCompile Include="Game\UI\CBossHUD.cpp" />
     <ClCompile Include="Game\UI\CInventoryUI.cpp" />
     <ClCompile Include="Game\UI\COverlayUI.cpp" />
+    <ClCompile Include="Game\UI\COverlay_BossDefeat.cpp" />
     <ClCompile Include="Game\UI\CPlayerStatusHUD.cpp" />
     <ClCompile Include="Game\Util\AnimEventHelper.cpp" />
     <ClCompile Include="Game\Util\CharacterFactory.cpp" />

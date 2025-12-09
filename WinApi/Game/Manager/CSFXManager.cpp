@@ -64,11 +64,14 @@ void CSFXManager::PreLoad()
     LOADSOUND(SFXKey::PiedadStomp, TEXT("Sound/ten_piedad/PIEDAD_STOMP.wav"));
     LOADSOUND(SFXKey::PiedadTurn, TEXT("Sound/ten_piedad/PIEDAD_TURN.wav"));
     LOADSOUND(SFXKey::PiedadWakeUp, TEXT("Sound/ten_piedad/PIEDAD_WakeUp.wav"));
+    LOADSOUND(SFXKey::PiedadDeath, TEXT("Sound/ten_piedad/PIEDAD_DEATH.wav"));
+    LOADSOUND(SFXKey::PiedadDeathVoice, TEXT("Sound/ten_piedad/PIEDAD_DEATH_VOICE.wav"));
     
     // BGM
     LOADSOUND(SFXKey::BGM_Piedad, TEXT("Sound/ten_piedad/PIEDAD_MASTER.wav"));
     LOADSOUND(SFXKey::BGM_Title, TEXT("Sound/TITLE.wav"));
     LOADSOUND(SFXKey::MapEnter, TEXT("Sound/ZONE_INFO.wav"));
+    LOADSOUND(SFXKey::ClearBoss, TEXT("Sound/Boss_Clear.wav"));
 }
 
 void CSFXManager::PlayOnce(const wstring& key, float volume)
@@ -107,6 +110,14 @@ void CSFXManager::PlayBGM(const wstring& key, float volume)
     Stop(currentBGM);
     currentBGM = key;
     PlayLoop(key, volume);
+}
+
+void CSFXManager::StopBGM()
+{
+    if (currentBGM.empty())
+        return;
+    
+    Stop(currentBGM);
 }
 
 CSound* CSFXManager::GetSound(const wstring& key)
