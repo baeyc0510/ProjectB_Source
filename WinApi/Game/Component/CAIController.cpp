@@ -151,7 +151,19 @@ int CAIController::GetDirectionToTarget() const
 
 bool CAIController::IsTargetInAttackRange() const
 {
-	return GetDistanceToTarget() <= config.attackRange;
+	if (GetDistanceToTarget() > config.attackRange)
+		return false;
+
+	// 타겟이 앞에 있어야 하는 경우 방향 체크
+	if (config.requireFacingTarget && owner)
+	{
+		int facingDir = (owner->GetScale().x >= 0) ? 1 : -1;
+		int targetDir = GetDirectionToTarget();
+		if (facingDir != targetDir)
+			return false;
+	}
+
+	return true;
 }
 
 bool CAIController::IsAtPatrolBoundary() const

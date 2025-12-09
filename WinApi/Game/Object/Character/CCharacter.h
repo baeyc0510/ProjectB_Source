@@ -29,6 +29,7 @@ public:
 
     Vec2 GetPushbackForce() const { return pushbackForce; }
     
+    virtual void OnDieStart() {}
     virtual void OnDieComplete() {}
     
 protected:

@@ -15,7 +15,6 @@ public:
 	void SetProjectileOwner(CGameObject* inOwner) { projectileOwner = inOwner; }
 	void SetVelocity(Vec2 vel);
 	void SetDamage(float dmg) { damage = dmg; }
-
 	void Launch(Vec2 velocity);
 
 protected:

@@ -1,7 +1,7 @@
 #pragma once
 #include "Game/Ability/Ability.h"
 
-class Ability_MonsterAttack : public Ability
+class Ability_AcolyteAttack : public Ability
 {
 public:
     /*~ Ability Interface ~*/

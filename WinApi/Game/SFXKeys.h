@@ -31,6 +31,7 @@ namespace SFXKey
     constexpr const wchar_t* PlayerRun1 = L"PlayerRun1";
     constexpr const wchar_t* PlayerRun2 = L"PlayerRun2";
     constexpr const wchar_t* PlayerClimbLadder = L"PlayerClimbLadder";
+    constexpr const wchar_t* PlayerLedgeGrab = L"PlayerLedgeGrab";
 
     // 플레이어 - 패리
     constexpr const wchar_t* PlayerStartParry = L"PlayerStartParry";
@@ -43,6 +44,14 @@ namespace SFXKey
     constexpr const wchar_t* PlayerRespawn = L"PlayerRespawn";
     constexpr const wchar_t* PlayerGetItem = L"PlayerGetItem";
     constexpr const wchar_t* PlayerOverthrow = L"PlayerOverthrow";
+    
+    // Acolyte
+    constexpr const wchar_t* AcolyteDeath = L"AcolyteDeath";
+    constexpr const wchar_t* AcolyteStep1 = L"AcolyteStep1";
+    constexpr const wchar_t* AcolyteStep2 = L"AcolyteStep2";
+    constexpr const wchar_t* AcolytePrepareAttack = L"AcolytePrepareAttack";
+    constexpr const wchar_t* AcolyteReleaseAttack = L"AcolyteReleaseAttack";
+    
     
     // 보스 - Piedad
     constexpr const wchar_t* PiedadSlash = L"PiedadSlash";

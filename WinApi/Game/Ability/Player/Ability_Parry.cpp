@@ -73,22 +73,24 @@ void Ability_Parry::OnParryWindowClose()
 void Ability_Parry::OnHit(CGameObject* source)
 {
     if (!bParryWindowOpen)
+    {
+        SFX->PlayOnce(SFXKey::PlayerGuard);
         return;
-
+    }
+    
     if (!source)
         return;
-
-    SFX->PlayOnce(SFXKey::PlayerParrySuccess);
 
     // source의 패링 리액션 발동
     if (CAbilitySystem* sourceAbilitySystem = source->GetComponent<CAbilitySystem>())
     {
         sourceAbilitySystem->TryActivateAbility(EAbility::ParryHit);
     }
-
-    // player의 패링 성공 애니메이션 재생
+    
+    // 플레이어의 리액션
     GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
-
+    SFX->PlayOnce(SFXKey::PlayerParrySuccess);
+    
     onCounterOpenHandle = WaitEvent(EGameEvent::ComboWindowOpen, BIND_EVENT(this, OnCounterOpen));
     onCounterCloseHandle = WaitEvent(EGameEvent::ComboWindowClose, BIND_EVENT(this, OnCounterClose));
     bParrySuccess = true;

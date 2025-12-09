@@ -166,7 +166,7 @@
     <ClInclude Include="Game\Ability\Boss\Ability_BossAppear.h" />
     <ClInclude Include="Game\Ability\Common\Ability_Die.h" />
     <ClInclude Include="Game\Ability\Common\Ability_HitReaction.h" />
-    <ClInclude Include="Game\Ability\Monster\Ability_MonsterAttack.h" />
+    <ClInclude Include="Game\Ability\Monster\Ability_AcolyteAttack.h" />
     <ClInclude Include="Game\Ability\Boss\Ability_BossSlash.h" />
     <ClInclude Include="Game\Ability\Boss\Ability_BossSpit.h" />
     <ClInclude Include="Game\Ability\Boss\Ability_BossStomp.h" />
@@ -202,7 +202,7 @@
     <ClInclude Include="Game\Object\Character\CBoss_TenPiedad.h" />
     <ClInclude Include="Game\Object\Character\CCharacter.h" />
     <ClInclude Include="Game\Object\Character\CEnemy.h" />
-    <ClInclude Include="Game\Object\Character\CEnemy_Acorite.h" />
+    <ClInclude Include="Game\Object\Character\CEnemy_Acolyte.h" />
     <ClInclude Include="Game\Object\Character\CPlayer.h" />
     <ClInclude Include="Game\Object\CVFX.h" />
     <ClInclude Include="Game\Object\Hazard\CHazard.h" />
@@ -318,7 +318,7 @@
       <AdditionalIncludeDirectories>C:\ycbae\Project_B\WinApi\</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
-    <ClCompile Include="Game\Ability\Monster\Ability_MonsterAttack.cpp" />
+    <ClCompile Include="Game\Ability\Monster\Ability_AcolyteAttack.cpp" />
     <ClCompile Include="Game\Ability\Boss\Ability_BossSlash.cpp" />
     <ClCompile Include="Game\Ability\Boss\Ability_BossSpit.cpp" />
     <ClCompile Include="Game\Ability\Boss\Ability_BossStomp.cpp" />
@@ -352,7 +352,7 @@
     <ClCompile Include="Game\Object\Character\CBoss_TenPiedad.cpp" />
     <ClCompile Include="Game\Object\Character\CCharacter.cpp" />
     <ClCompile Include="Game\Object\Character\CEnemy.cpp" />
-    <ClCompile Include="Game\Object\Character\CEnemy_Acorite.cpp" />
+    <ClCompile Include="Game\Object\Character\CEnemy_Acolyte.cpp" />
     <ClCompile Include="Game\Object\Character\CPlayer.cpp" />
     <ClCompile Include="Game\Object\CVFX.cpp" />
     <ClCompile Include="Game\Object\Hazard\CHazard.cpp" />
