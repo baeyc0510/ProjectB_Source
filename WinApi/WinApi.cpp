@@ -5,7 +5,7 @@
 #include "framework.h"
 #include "WinApi.h"
 
-#include "Game/CGame.h"
+#include "Game/Game.h"
 
 #define MAX_LOADSTRING 100
 
@@ -72,7 +72,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 	*/
 
-	CGame game;
+	Game game;
 	game.Init(hInstance);
 
 	MSG msg;

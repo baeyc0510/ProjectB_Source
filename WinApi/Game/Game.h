@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "Enum.h"
 
-class CGame
+class Game
 {
 public:
-	CGame();
-	virtual ~CGame();
+	Game();
+	virtual ~Game();
 
 public:
 	static const Vec2		WINSTART;

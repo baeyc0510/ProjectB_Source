@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "MapScene.h"
 
-#include "Game/CGame.h"
+#include "Game/Game.h"
 #include "Game/Manager/GameUIManager.h"
 #include "Game/Manager/MapManager.h"
 #include "Game/Object/Character/Player.h"
@@ -55,9 +55,9 @@ void MapScene::Enter()
     OnLoadMap();
     
     // 카메라 세팅
-    CAMERA->SetOffset(CGame::DEFAULT_CAMERA_OFFSET);
-    CAMERA->SetDeadZone(CGame::DEFAULT_CAMERA_DEADZONE);
-    CAMERA->SetSmoothSpeed(CGame::DEFAULT_CAMERA_SMOOTH);
+    CAMERA->SetOffset(Game::DEFAULT_CAMERA_OFFSET);
+    CAMERA->SetDeadZone(Game::DEFAULT_CAMERA_DEADZONE);
+    CAMERA->SetSmoothSpeed(Game::DEFAULT_CAMERA_SMOOTH);
     CAMERA->SetBounds(MAP->GetBounds());
 
     Player* player = FindObjectByType<Player>();
