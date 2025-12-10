@@ -232,6 +232,7 @@
     <ClInclude Include="Game\UI\CPlayerStatusHUD.h" />
     <ClInclude Include="Game\Util\AnimEventHelper.h" />
     <ClInclude Include="Game\Util\CharacterFactory.h" />
+    <ClInclude Include="Game\Util\CLedgeHelper.h" />
     <ClInclude Include="Game\Util\CombatHelper.h" />
     <ClInclude Include="Game\Util\TransitionHelper.h" />
     <ClInclude Include="Game\VFXKeys.h" />
@@ -307,6 +308,7 @@
     <ClCompile Include="Game\UI\CPlayerStatusHUD.cpp" />
     <ClCompile Include="Game\Util\AnimEventHelper.cpp" />
     <ClCompile Include="Game\Util\CharacterFactory.cpp" />
+    <ClCompile Include="Game\Util\CLedgeHelper.cpp" />
     <ClCompile Include="Game\Util\CombatHelper.cpp" />
     <ClCompile Include="Game\Util\TransitionHelper.cpp" />
     <ClCompile Include="pch.cpp">

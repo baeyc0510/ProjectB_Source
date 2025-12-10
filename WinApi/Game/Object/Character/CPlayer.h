@@ -3,6 +3,7 @@
 #include "Game/Enum.h"
 #include "Game/Interface/CombatInterface.h"
 #include "Game/Component/CStatComponent.h"
+#include "Game/Util/CLedgeHelper.h"
 
 class CPlayer : public CCharacter, public ICombatInterface
 {
@@ -19,10 +20,10 @@ public:
 	Vec2 GetCharacterScale() const { return characterScale; }
 
 	// Ledge 정보
-	float GetLedgeX() const { return ledgeX; }
-	float GetLedgeTop() const { return ledgeTop; }
-	int GetLedgeDirection() const { return ledgeDirection; }
-	void ResetLedgeInfo() { ClearLedge(); }
+	float GetLedgeX() const { return ledgeHelper.GetLedgeX(); }
+	float GetLedgeTop() const { return ledgeHelper.GetLedgeTop(); }
+	int GetLedgeDirection() const { return ledgeHelper.GetLedgeDirection(); }
+	void ResetLedgeInfo() { ledgeHelper.ClearLedge(); }
 
 	
 	// Down 연출
@@ -84,9 +85,6 @@ private:
 	// Events
 	void OnFootstep();
 
-	void CheckLedge(CCollider* other);
-	void ClearLedge();
-
 public:
 	static constexpr float PLAYER_GRAVITY_SCALE = 1.6f;
 
@@ -125,11 +123,8 @@ private:
 	float ladderTopY = 0;
 	float ladderBottomY = 0;
 
-	bool bOverlapWithLedge = false;
-	UINT ledgeId = 0;
-	float ledgeX = -FLT_MAX;
-	float ledgeTop = -FLT_MAX;
-	int ledgeDirection = 0;
+	// Ledge 헬퍼
+	CLedgeHelper ledgeHelper;
 
 	bool bWasMovingInput = false;
 	bool bIsDown = false;

@@ -25,7 +25,6 @@
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CVFXManager.h"
 #include "Game/Object/CVFX.h"
-#include "Game/Object/World/CLedge.h"
 
 CPlayer::CPlayer()
 {
@@ -297,14 +296,14 @@ void CPlayer::UpdateLedgeState()
 	bool bIsFalling = rigidbody->GetVelocity().y > 0;
 	bool bCanMove = !stateSystem->HasTag(Tag_BlockMovement);
 
-	if (!bOverlapWithLedge || !bIsFalling || !bCanMove)
+	if (!ledgeHelper.IsOverlappingLedge() || !bIsFalling || !bCanMove)
 	{
 		stateSystem->RemoveTag(Tag_CanClimbLedge);
 		return;
 	}
 
 	// 방향 체크: 바라보는 방향과 ledge 방향이 일치해야 함
-	if (GetForward() != ledgeDirection)
+	if (GetForward() != ledgeHelper.GetLedgeDirection())
 	{
 		stateSystem->RemoveTag(Tag_CanClimbLedge);
 		return;
@@ -316,7 +315,7 @@ void CPlayer::UpdateLedgeState()
 	float checkY = playerTop + LEDGE_CLIMB_THRESHOLD;
 
 	// 기준점이 ledgeTop보다 낮은 경우 CanClimb
-	if (checkY < ledgeTop)
+	if (checkY < ledgeHelper.GetLedgeTop())
 	{
 		stateSystem->AddTagUnique(Tag_CanClimbLedge);
 	}
@@ -408,24 +407,25 @@ void CPlayer::OnCollisionEnter(CCollider* other)
 
 void CPlayer::OnCollisionStay(CCollider* other)
 {
-	ELayer layer = static_cast<ELayer>( other->GetLayer());
+	ELayer layer = static_cast<ELayer>(other->GetLayer());
 	if (layer == ELayer::Ledge)
 	{
-		CheckLedge(other);
+		Vec2 playerHalfScale = collider->GetScale() * 0.5f;
+		ledgeHelper.CheckLedge(other, GetPos(), playerHalfScale);
 	}
-	
+
 	CCharacter::OnCollisionStay(other);
 }
 
 void CPlayer::OnCollisionExit(CCollider* other)
 {
 	// 설정한 ledge에서 벗어난 경우 ledge정보 초기화
-	ELayer layer = static_cast<ELayer>( other->GetLayer());
-	if (layer == ELayer::Ledge && ledgeId == other->GetID())
+	ELayer layer = static_cast<ELayer>(other->GetLayer());
+	if (layer == ELayer::Ledge && ledgeHelper.ShouldClearOnExit(other))
 	{
-		ClearLedge();
+		ledgeHelper.ClearLedge();
 	}
-	
+
 	CCharacter::OnCollisionExit(other);
 }
 
@@ -619,58 +619,3 @@ void CPlayer::CheckVelocityChanged()
 	prevVelocity = curVelocity;
 }
 
-void CPlayer::CheckLedge(CCollider* other)
-{
-	if (!other || !collider)
-		return;
-
-	// 이미 ledge로 마크되어 있는 경우 early return
-	if (bOverlapWithLedge && ledgeId == other->GetID())
-		return;
-
-	// 매달리기 조건 판별
-	Vec2 otherPos = other->GetPos();
-	Vec2 otherHalf = other->GetScale() * 0.5f;
-	float otherTop = otherPos.y - otherHalf.y;
-
-	Vec2 playerPos = collider->GetPos();
-	float playerCenterY = playerPos.y;
-
-	if (playerCenterY < otherTop)
-		return;
-
-	// 이미 겹쳐있는 다른 Ledge가 있고 해당 ledge보다 낮으면 갱신 x
-	if (bOverlapWithLedge && otherTop > ledgeTop)
-	{
-		return;
-	}
-
-	// 방향 계산: ledge가 플레이어 기준 왼쪽(-1) 또는 오른쪽(1)
-	int direction = (otherPos.x > playerPos.x) ? 1 : -1;
-
-	// CLedge의 절벽 방향 확인
-	CLedge* ledge = dynamic_cast<CLedge*>(other->GetOwner());
-	if (ledge)
-	{
-		int cliffDir = ledge->GetCliffDirection();
-		if (cliffDir != 0 && cliffDir != -direction)
-		{
-			return;
-		}
-	}
-
-	bOverlapWithLedge = true;
-	ledgeId = other->GetID();
-	ledgeTop = otherTop;
-	ledgeX = otherPos.x;
-	ledgeDirection = direction;
-}
-
-void CPlayer::ClearLedge()
-{
-	bOverlapWithLedge = false;
-	ledgeId = 0;
-	ledgeTop = -FLT_MAX;
-	ledgeX = -FLT_MAX;
-	ledgeDirection = 0;
-}
