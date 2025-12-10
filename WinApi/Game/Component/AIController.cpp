@@ -38,6 +38,10 @@ void AIController::ComponentOnEnable()
 
 void AIController::ComponentUpdate()
 {
+	// 업데이트 조건 체크 (화면 밖이고 멀면 스킵)
+	if (!ShouldUpdate())
+		return;
+
 	// 피격/스턴/공격 중에는 AI 업데이트 중지
 	if (stateSystem->HasAnyTag(TAG_AI_BLOCKED))
 		return;
@@ -199,4 +203,28 @@ bool AIController::IsAtBoundary(int dir) const
 
 	float currentX = owner->GetPos().x;
 	return (dir > 0 && currentX >= GetSafeMaxX()) || (dir < 0 && currentX <= GetSafeMinX());
+}
+
+bool AIController::ShouldUpdate() const
+{
+	// 타겟이 없으면 항상 업데이트 (탐색 필요)
+	if (!target)
+		return true;
+
+	// 화면 내 또는 가까운 거리면 업데이트
+	return IsOnScreen() || GetDistanceToTarget() <= MAX_UPDATE_DISTANCE;
+}
+
+bool AIController::IsOnScreen() const
+{
+	if (!owner)
+		return false;
+
+	Vec2 screenPos = CAMERA->WorldToScreen(owner->GetPos());
+	Vec2 screenSize = CAMERA->GetScreenSize();
+
+	return screenPos.x >= -SCREEN_MARGIN
+		&& screenPos.x <= screenSize.x + SCREEN_MARGIN
+		&& screenPos.y >= -SCREEN_MARGIN
+		&& screenPos.y <= screenSize.y + SCREEN_MARGIN;
 }

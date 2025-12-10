@@ -58,6 +58,14 @@ private:
 	void UpdatePatrol();
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags);
 
+	// 조건부 업데이트 (성능 최적화)
+	bool ShouldUpdate() const;
+	bool IsOnScreen() const;
+
+	// 업데이트 최적화 상수
+	static constexpr float MAX_UPDATE_DISTANCE = 500.f;
+	static constexpr float SCREEN_MARGIN = 50.f;
+
 private:
 	FAIConfig config;
 
