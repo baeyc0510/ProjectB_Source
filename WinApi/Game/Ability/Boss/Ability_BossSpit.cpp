@@ -3,7 +3,7 @@
 
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Object/Projectile/CProjectile_Spit.h"
+#include "Game/Object/Projectile/Projectile_Spit.h"
 #include <cmath>
 
 #ifndef M_PI
@@ -81,7 +81,7 @@ void Ability_BossSpit::SpawnProjectile()
 	velocity.y = -speed * sin(angleRad);
 
 	// 투사체 생성
-	CProjectile_Spit* projectile = new CProjectile_Spit();
+	Projectile_Spit* projectile = new Projectile_Spit();
 	projectile->SetPos(spawnPos);
 	projectile->SetProjectileOwner(owner);
 	projectile->SetLifetime(10.f);

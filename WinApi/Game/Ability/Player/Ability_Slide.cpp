@@ -3,8 +3,8 @@
 
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Component/CRigidbody.h"
-#include "Game/Component/CStateSystem.h"
+#include "Game/Component/Rigidbody.h"
+#include "Game/Component/StateSystem.h"
 
 Ability_Slide::Ability_Slide()
 {

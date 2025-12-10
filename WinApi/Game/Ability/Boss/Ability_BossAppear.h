@@ -12,7 +12,7 @@ private:
     void OnHitGround();
     
 private:
-    class CBoss* boss = nullptr;
-    class CBossAIController* bossAI = nullptr;
-    class CPlayer* player = nullptr;
+    class Boss* boss = nullptr;
+    class BossAIController* bossAI = nullptr;
+    class Player* player = nullptr;
 };

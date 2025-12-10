@@ -29,7 +29,7 @@ void Ability_BossSlash::OnHitCheck()
 	Vec2 center = owner->GetWorldPos() + offset;
 	Vec2 size = GetTraceSize();
 
-	auto results = COLLISION->BoxTrace(center, size, ELayer::Player, true);
+	auto results = COLLISION->BoxTrace(center, size, (UINT)ELayer::Player, true);
 	for (auto& result : results)
 	{
 		CGameObject* target = result.collider->GetOwner();

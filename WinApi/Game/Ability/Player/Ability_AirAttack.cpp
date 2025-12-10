@@ -2,8 +2,8 @@
 #include "Ability_AirAttack.h"
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
-#include "Game/Component/CStateSystem.h"
-#include "Game/Component/CStatComponent.h"
+#include "Game/Component/StateSystem.h"
+#include "Game/Component/StatComponent.h"
 
 namespace
 {

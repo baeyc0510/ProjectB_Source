@@ -3,9 +3,9 @@
 
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Component/CRigidbody.h"
-#include "Game/Component/CStatComponent.h"
-#include "Game/Object/Character/CPlayer.h"
+#include "Game/Component/Rigidbody.h"
+#include "Game/Component/StatComponent.h"
+#include "Game/Object/Character/Player.h"
 
 Ability_Jump::Ability_Jump()
 {
@@ -19,7 +19,7 @@ void Ability_Jump::OnActivate()
 
     Vec2 velocity = GetRigidbody()->GetVelocity();
 
-    if (CStatComponent* stat = GetStatComponent())
+    if (StatComponent* stat = GetStatComponent())
     {
         float jumpForce = stat->GetCurrent(EStatType::JumpForce);
         GetRigidbody()->SetVelocity(Vec2(velocity.x, -jumpForce));

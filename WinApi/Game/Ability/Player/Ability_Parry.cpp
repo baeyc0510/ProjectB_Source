@@ -3,8 +3,8 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
-#include "Game/Component/CAbilitySystem.h"
-#include "Game/Component/CStatComponent.h"
+#include "Game/Component/AbilitySystem.h"
+#include "Game/Component/StatComponent.h"
 #include "Game/Interface/CombatInterface.h"
 #include "Game/Util/CombatHelper.h"
 
@@ -78,7 +78,7 @@ void Ability_Parry::OnHit(CGameObject* source)
         return;
 
     // source의 패링 리액션 발동
-    if (CAbilitySystem* sourceAbilitySystem = source->GetComponent<CAbilitySystem>())
+    if (AbilitySystem* sourceAbilitySystem = source->GetComponent<AbilitySystem>())
     {
         sourceAbilitySystem->TryActivateAbility(EAbility::ParryHit);
     }
@@ -137,7 +137,7 @@ void Ability_Parry::OnCounterHitCheck()
     data.vfxKey = VFXKey::AttackHit1;
 
     vector<HitResult> hitResults;
-    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {Monster,Projectile}, hitResults);
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {ELayer::Monster,ELayer::Projectile}, hitResults);
 
     // 사운드 재생
     if (bHit)

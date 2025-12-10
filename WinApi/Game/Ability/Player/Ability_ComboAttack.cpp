@@ -3,7 +3,7 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
-#include "Game/Component/CStatComponent.h"
+#include "Game/Component/StatComponent.h"
 
 namespace
 {
@@ -91,7 +91,7 @@ void Ability_ComboAttack::OnHitCheck()
 {
     const AttackData& data = GetAttackData();
     vector<HitResult> hitResults;
-    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {Monster,Projectile}, hitResults);
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {ELayer::Monster,ELayer::Projectile}, hitResults);
 
     // Play Sound
     static const wchar_t* AirSounds[] = {

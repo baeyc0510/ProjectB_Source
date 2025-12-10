@@ -5,8 +5,8 @@
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
-#include "Game/Component/CRigidbody.h"
-#include "Game/Component/CStateSystem.h"
+#include "Game/Component/Rigidbody.h"
+#include "Game/Component/StateSystem.h"
 
 void Ability_BossStomp::OnActivate()
 {
@@ -33,7 +33,7 @@ void Ability_BossStomp::OnHitCheck()
 	Vec2 center = owner->GetWorldPos() + offset;
 	Vec2 size = GetTraceSize();
 
-	auto results = COLLISION->BoxTrace(center, size, ELayer::Player, true);
+	auto results = COLLISION->BoxTrace(center, size, (UINT)ELayer::Player, true);
 	for (auto& result : results)
 	{
 		CGameObject* player = result.collider->GetOwner();

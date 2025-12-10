@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "AnimEventHelper.h"
-#include "Game/Component/CAbilitySystem.h"
+#include "Game/Component/AbilitySystem.h"
 
 EGameEvent AnimEventHelper::ToGameEvent(const wstring& str)
 {
@@ -22,7 +22,7 @@ EGameEvent AnimEventHelper::ToGameEvent(const wstring& str)
 	return EGameEvent::None;
 }
 
-void AnimEventHelper::ConnectAbilitySystem(CAnimator* animator, CAbilitySystem* abilitySystem)
+void AnimEventHelper::ConnectAbilitySystem(CAnimator* animator, AbilitySystem* abilitySystem)
 {
 	assert(animator && abilitySystem);
 

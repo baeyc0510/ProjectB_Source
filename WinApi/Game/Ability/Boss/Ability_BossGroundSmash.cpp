@@ -5,9 +5,9 @@
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
-#include "Game/Object/Hazard/CHazard_Spike.h"
-#include "Game/Component/CBossAIController.h"
-#include "Game/Object/Character/CBoss.h"
+#include "Game/Object/Hazard/Hazard_Spike.h"
+#include "Game/Component/BossAIController.h"
+#include "Game/Object/Character/Boss.h"
 
 void Ability_BossGroundSmash::OnActivate()
 {
@@ -47,7 +47,7 @@ void Ability_BossGroundSmash::OnSmashImpact()
 	Vec2 center = owner->GetWorldPos() + offset;
 	Vec2 size(150.f, 50.f);
 
-	auto results = COLLISION->BoxTrace(center, size, ELayer::Player, true);
+	auto results = COLLISION->BoxTrace(center, size, (UINT)ELayer::Player, true);
 	for (auto& result : results)
 	{
 		CGameObject* target = result.collider->GetOwner();
@@ -87,13 +87,13 @@ void Ability_BossGroundSmash::SpawnSpikes()
 		float delay = static_cast<float>(i) * SPIKE_SPAWN_DELAY_INTERVAL;
 
 		// 오른쪽 가시
-		CHazard_Spike* spikeRight = new CHazard_Spike();
+		Hazard_Spike* spikeRight = new Hazard_Spike();
 		spikeRight->SetPos(Vec2(bossPos.x + i * SPIKE_SPACING, bossPos.y));
 		spikeRight->SetSpawnDelay(delay);
 		owner->GetScene()->AddGameObject(spikeRight);
 
 		// 왼쪽 가시
-		CHazard_Spike* spikeLeft = new CHazard_Spike();
+		Hazard_Spike* spikeLeft = new Hazard_Spike();
 		spikeLeft->SetPos(Vec2(bossPos.x - i * SPIKE_SPACING, bossPos.y));
 		spikeLeft->SetSpawnDelay(delay);
 		owner->GetScene()->AddGameObject(spikeLeft);
@@ -103,7 +103,7 @@ void Ability_BossGroundSmash::SpawnSpikes()
 int Ability_BossGroundSmash::CalculateSpikeCount() const
 {
 	// 보스 AI 컨트롤러에서 플레이어 거리 가져오기
-	CBoss* boss = dynamic_cast<CBoss*>(owner);
+	Boss* boss = dynamic_cast<Boss*>(owner);
 	if (!boss || !boss->GetBossAI())
 		return MAX_SPIKES_PER_SIDE;
 

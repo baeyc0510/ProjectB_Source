@@ -2,15 +2,15 @@
 #include "Ability_Die.h"
 
 #include "Game/AnimKey.h"
-#include "Game/Component/CRigidbody.h"
-#include "Game/Component/CStateSystem.h"
-#include "Game/Object/Character/CCharacter.h"
+#include "Game/Component/Rigidbody.h"
+#include "Game/Component/StateSystem.h"
+#include "Game/Object/Character/Character.h"
 
 void Ability_Die::OnActivate()
 {
     Ability::OnActivate();
     
-    CCharacter* character = dynamic_cast<CCharacter*>(GetOwner());
+    Character* character = dynamic_cast<Character*>(GetOwner());
     if (character && character->IsGrounded())
     {
         PlayDie();
@@ -34,7 +34,7 @@ void Ability_Die::OnEnd()
 
 void Ability_Die::PlayDie()
 {
-    if (CCharacter* character = dynamic_cast<CCharacter*>(GetOwner()))
+    if (Character* character = dynamic_cast<Character*>(GetOwner()))
     {
         character->OnDieStart();
     }
@@ -46,7 +46,7 @@ void Ability_Die::PlayDie()
 
 void Ability_Die::OnFinishedAnimation()
 {
-    if (CCharacter* character = dynamic_cast<CCharacter*>(owner))
+    if (Character* character = dynamic_cast<Character*>(owner))
     {
         character->OnDieComplete();
     }

@@ -35,7 +35,7 @@ private:
     float ladderX = 0.f;
     float ladderTopY = 0.f;
     float ladderBottomY = 0.f;
-    class CPlayer* player = nullptr;
+    class Player* player = nullptr;
     bool bClimbBeginHandled = false;
     bool bHoldDown = false;
     bool bHoldUp = false;

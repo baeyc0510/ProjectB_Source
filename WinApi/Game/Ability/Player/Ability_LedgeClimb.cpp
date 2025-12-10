@@ -3,9 +3,9 @@
 
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Component/CRigidbody.h"
-#include "Game/Component/CStateSystem.h"
-#include "Game/Object/Character/CPlayer.h"
+#include "Game/Component/Rigidbody.h"
+#include "Game/Component/StateSystem.h"
+#include "Game/Object/Character/Player.h"
 
 Ability_LedgeClimb::Ability_LedgeClimb()
 {
@@ -15,7 +15,7 @@ void Ability_LedgeClimb::OnActivate()
 {
 	Ability::OnActivate();
 
-	player = dynamic_cast<CPlayer*>(owner);
+	player = dynamic_cast<Player*>(owner);
 	if (!player)
 	{
 		EndAbility();

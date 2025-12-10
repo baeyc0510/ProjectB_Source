@@ -4,8 +4,8 @@
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
 #include "Game/VFXKeys.h"
-#include "Game/Component/CAbilitySystem.h"
-#include "Game/Component/CStatComponent.h"
+#include "Game/Component/AbilitySystem.h"
+#include "Game/Component/StatComponent.h"
 
 Ability_CrouchAttack::Ability_CrouchAttack()
 {
@@ -49,7 +49,7 @@ void Ability_CrouchAttack::OnCrouchReleased()
 void Ability_CrouchAttack::OnHitCheck()
 {
     vector<HitResult> hitResults;
-    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, AttackData, {Monster,Projectile}, hitResults);
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, AttackData, {ELayer::Monster,ELayer::Projectile}, hitResults);
 
     // Play Sound
     if (bHit)

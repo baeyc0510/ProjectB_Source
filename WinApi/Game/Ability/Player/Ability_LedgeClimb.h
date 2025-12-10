@@ -22,7 +22,7 @@ private:
 	void DropFromLedge();
 
 private:
-	class CPlayer* player = nullptr;
+	class Player* player = nullptr;
 	float ledgeX = 0.f;
 	float ledgeTop = 0.f;
 	int ledgeDirection = 0;

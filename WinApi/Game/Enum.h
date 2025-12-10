@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // 게임 씬
-enum ESceneType
+enum class ESceneType
 {
 	Title,
 	Stage01,
@@ -13,7 +13,7 @@ enum ESceneType
 };
 
 // 레이어
-enum ELayer
+enum class ELayer : UINT
 {
 	Default,
 	Player,

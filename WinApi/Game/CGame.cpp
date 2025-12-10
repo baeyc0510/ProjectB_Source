@@ -3,16 +3,16 @@
 
 #include "Enum.h"
 #include "Resource.h"
-#include "Manager/CVFXManager.h"
-#include "Manager/CSFXManager.h"
-#include "Manager/CMapManager.h"
-#include "Manager/CGameUIManager.h"
-#include "Manager/CEventBus.h"
-#include "Object/CVFX.h"
-#include "Scene/CStage_Beginning.h"
-#include "Scene/CSceneTitle.h"
-#include "Scene/CSimpleStage.h"
-#include "Scene/CStage_Boss01.h"
+#include "Manager/VFXManager.h"
+#include "Manager/SFXManager.h"
+#include "Manager/MapManager.h"
+#include "Manager/GameUIManager.h"
+#include "Manager/EventBusManager.h"
+#include "Object/VFXObject.h"
+#include "Scene/Stage_Beginning.h"
+#include "Scene/SceneTitle.h"
+#include "Scene/SimpleStage.h"
+#include "Scene/Stage_Boss01.h"
 
 const Vec2 CGame::WINSTART		= Vec2(100, 100);
 const Vec2 CGame::WINSIZE		= Vec2(1280, 720);	// 실제 윈도우 크기
@@ -87,8 +87,8 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CCameraManager)->Init();
 	SINGLE(CSoundManager)->Init();
 	SINGLE(CUIManager)->Init();
-	SINGLE(CMapManager)->Init();
-	SINGLE(CGameUIManager)->Init();
+	SINGLE(MapManager)->Init();
+	SINGLE(GameUIManager)->Init();
 
 	// Event Bus 리스너 등록
 	EVENT->OnPlaySFX.Add([](CGameObject* source, const wstring& key) {
@@ -101,7 +101,7 @@ void CGame::Init(HINSTANCE hInstance)
 		SFX->StopBGM();
 	});
 	EVENT->OnSpawnVFX.Add([](CGameObject* source, const wstring& key, Vec2 pos, int dir) {
-		if (CVFX* vfx = VFX->CreateVFX(key, pos, dir))
+		if (VFXObject* vfx = VFX->CreateVFX(key, pos, dir))
 		{
 			vfx->PlayVFX();
 		}
@@ -120,32 +120,32 @@ void CGame::Init(HINSTANCE hInstance)
 	});
 
 	// TODO : 씬 추가
-	SINGLE(CSceneManager)->AddScene(ESceneType::Title,	new CSceneTitle());
-	SINGLE(CSceneManager)->AddScene(ESceneType::Stage01,	new CStage_Beginning());
-	SINGLE(CSceneManager)->AddScene(ESceneType::Stage02,	new CSimpleStage(TEXT("Maps/stage02.json")));
-	SINGLE(CSceneManager)->AddScene(ESceneType::Stage03,	new CSimpleStage(TEXT("Maps/stage03.json")));
-	SINGLE(CSceneManager)->AddScene(ESceneType::Stage04,	new CSimpleStage(TEXT("Maps/stage04.json")));
-	SINGLE(CSceneManager)->AddScene(ESceneType::Stage05,	new CSimpleStage(TEXT("Maps/stage05.json")));
-	SINGLE(CSceneManager)->AddScene(ESceneType::Stage_Boss01,	new CStage_Boss01());
+	SINGLE(CSceneManager)->AddScene((int)ESceneType::Title,	new SceneTitle());
+	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage01,	new Stage_Beginning());
+	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage02,	new SimpleStage(TEXT("Maps/stage02.json")));
+	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage03,	new SimpleStage(TEXT("Maps/stage03.json")));
+	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage04,	new SimpleStage(TEXT("Maps/stage04.json")));
+	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage05,	new SimpleStage(TEXT("Maps/stage05.json")));
+	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage_Boss01,	new Stage_Boss01());
 
-	// TODO : 충돌 레이어 설정
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Monster);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ground);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Transition);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ladder);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Platform);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Player, ELayer::Ledge);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Ground);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Monster, ELayer::Platform);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Projectile, ELayer::Ground);
-	SINGLE(CCollisionManager)->CheckLayer(ELayer::Projectile, ELayer::Player);
+	// 충돌 레이어 설정
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Monster);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ground);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Transition);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ladder);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Platform);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ledge);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Ground);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Platform);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Ground);
+	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Player);
 
 	// 리소스 프리로드
-	SINGLE(CVFXManager)->PreLoad();
-	SINGLE(CSFXManager)->PreLoad();
+	SINGLE(VFXManager)->PreLoad();
+	SINGLE(SFXManager)->PreLoad();
 	
 	// 씬 시작
-	SINGLE(CSceneManager)->SetStartScene(ESceneType::Title);
+	SINGLE(CSceneManager)->SetStartScene((int)ESceneType::Title);
 }
 
 void CGame::Run()
@@ -174,8 +174,8 @@ void CGame::Release()
 	SINGLE(CCameraManager)->Release();
 	SINGLE(CSoundManager)->Release();
 	SINGLE(CUIManager)->Release();
-	SINGLE(CMapManager)->Release();
-	SINGLE(CGameUIManager)->Release();
+	SINGLE(MapManager)->Release();
+	SINGLE(GameUIManager)->Release();
 }
 
 void CGame::Input()
@@ -192,7 +192,7 @@ void CGame::Update()
 	SINGLE(CWorldManager)->Update();
 	SINGLE(CTimeManager)->Update();
 	SINGLE(CUIManager)->Update();
-	SINGLE(CGameUIManager)->Update();
+	SINGLE(GameUIManager)->Update();
 	SINGLE(CSceneManager)->Update();
 	SINGLE(CCameraManager)->Update();
 	SINGLE(CSoundManager)->Update();
@@ -211,7 +211,7 @@ void CGame::Render()
 	SINGLE(CCollisionManager)->RenderDebug();
 
 	// Game UI
-	SINGLE(CGameUIManager)->Render();
+	SINGLE(GameUIManager)->Render();
 
 	// 게임의 우상단에 게임 FPS 출력 (60프레임 이상을 목표로 최적화 해야함)
 	wstring frame = to_wstring(FPS);

@@ -2,9 +2,9 @@
 #include "Ability_HitReaction.h"
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Component/CRigidbody.h"
-#include "Game/Object/Character/CCharacter.h"
-#include "Game/Object/Character/CPlayer.h"
+#include "Game/Component/Rigidbody.h"
+#include "Game/Object/Character/Character.h"
+#include "Game/Object/Character/Player.h"
 
 void Ability_HitReaction::OnActivate()
 {
@@ -43,7 +43,7 @@ void Ability_HitReaction::OnInterruptedReaction()
 
 void Ability_HitReaction::OnRecover()
 {
-    auto rigidbody = owner->GetComponent<CRigidbody>();
+    auto rigidbody = owner->GetComponent<Rigidbody>();
     rigidbody->SetVelocity(Vec2(0,0));
 }
 
@@ -66,7 +66,7 @@ void Ability_PlayerPushback::OnEnd()
 {
     Ability_HitReaction::OnEnd();
     bIsGettingUp = false;
-    GetRigidbody()->SetGravityScale(CPlayer::PLAYER_GRAVITY_SCALE);
+    GetRigidbody()->SetGravityScale(Player::PLAYER_GRAVITY_SCALE);
 }
 
 wstring Ability_PlayerPushback::GetHitAnimKey() const
@@ -80,7 +80,7 @@ void Ability_PlayerPushback::OnFinishedReaction()
     velocity.x = 0;
     GetRigidbody()->SetVelocity(velocity);
     
-    CCharacter* character = dynamic_cast<CCharacter*>(owner);
+    Character* character = dynamic_cast<Character*>(owner);
     if (!character)
         return;
     

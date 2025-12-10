@@ -1,10 +1,10 @@
 ﻿#include "pch.h"
 #include "Ability.h"
-#include "Game/Component/CAbilitySystem.h"
-#include "Game/Component/CRigidbody.h"
-#include "Game/Component/CStateSystem.h"
-#include "Game/Component/CStatComponent.h"
-#include "Game/Manager/CEventBus.h"
+#include "Game/Component/AbilitySystem.h"
+#include "Game/Component/Rigidbody.h"
+#include "Game/Component/StateSystem.h"
+#include "Game/Component/StatComponent.h"
+#include "Game/Manager/EventBusManager.h"
 
 Ability::Ability()
 	: owner(nullptr)
@@ -19,7 +19,7 @@ Ability::~Ability()
 	ClearEventHandles();
 }
 
-void Ability::Init(CGameObject* inOwner, CAbilitySystem* inAbilitySystem)
+void Ability::Init(CGameObject* inOwner, AbilitySystem* inAbilitySystem)
 {
 	owner = inOwner;
 	abilitySystem = inAbilitySystem;
@@ -123,11 +123,11 @@ CAnimator* Ability::GetAnimator() const
 	return cachedAnimator;
 }
 
-CRigidbody* Ability::GetRigidbody() const
+Rigidbody* Ability::GetRigidbody() const
 {
 	if (!cachedRigidbody && owner)
 	{
-		cachedRigidbody = owner->GetComponent<CRigidbody>();
+		cachedRigidbody = owner->GetComponent<Rigidbody>();
 	}
 	return cachedRigidbody;
 }
@@ -141,20 +141,20 @@ CBoxCollider* Ability::GetCollider() const
 	return cachedCollider;
 }
 
-CStateSystem* Ability::GetStateSystem() const
+StateSystem* Ability::GetStateSystem() const
 {
 	if (!cachedStateSystem && owner)
 	{
-		cachedStateSystem = owner->GetComponent<CStateSystem>();
+		cachedStateSystem = owner->GetComponent<StateSystem>();
 	}
 	return cachedStateSystem;
 }
 
-CStatComponent* Ability::GetStatComponent() const
+StatComponent* Ability::GetStatComponent() const
 {
 	if (!cachedStatComponent && owner)
 	{
-		cachedStatComponent = owner->GetComponent<CStatComponent>();
+		cachedStatComponent = owner->GetComponent<StatComponent>();
 	}
 	return cachedStatComponent;
 }

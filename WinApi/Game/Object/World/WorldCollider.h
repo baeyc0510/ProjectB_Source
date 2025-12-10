@@ -1,0 +1,30 @@
+#pragma once
+#include "Game/Enum.h"
+
+// 월드 콜라이더 베이스 클래스 - 지형 충돌 오브젝트의 공통 기능
+class WorldCollider : public CGameObject
+{
+public:
+	WorldCollider();
+	virtual ~WorldCollider();
+
+	/*~ CWorldCollider Interface ~*/
+	CCollider* GetCollider() { return collider; }
+
+protected:
+	/*~ CGameObject Interface ~*/
+	void Init() override {}
+	void OnEnable() override {}
+	void Update() override {}
+	void OnDisable() override {}
+	void Release() override {}
+	void Render() override {}
+	
+	/*~ CWorldCollider Interface ~*/
+	void SetBoxCollider(const Vec2& center, const Vec2& size, ELayer layer);
+	void SetLineCollider(const Vec2& start, const Vec2& end, ELayer layer);
+
+protected:
+	CCollider* collider = nullptr;
+	bool isLineCollider = false;
+};

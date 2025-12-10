@@ -3,7 +3,7 @@
 
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Object/Character/CPlayer.h"
+#include "Game/Object/Character/Player.h"
 
 Ability_UseFlask::Ability_UseFlask()
 {
@@ -26,7 +26,7 @@ void Ability_UseFlask::OnEnd()
 
 void Ability_UseFlask::UseFlask()
 {
-    if (CStatComponent* stat = GetStatComponent())
+    if (StatComponent* stat = GetStatComponent())
     {
         int newFlask = stat->GetCurrent(EStatType::Flask) - 1;
         stat->SetCurrent(EStatType::Flask, newFlask);

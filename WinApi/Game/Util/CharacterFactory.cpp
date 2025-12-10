@@ -1,15 +1,15 @@
 #include "pch.h"
 #include "CharacterFactory.h"
-#include "Game/Object/Character/CBoss_TenPiedad.h"
-#include "Game/Object/Character/CEnemy_Acolyte.h"
+#include "Game/Object/Character/Boss_TenPiedad.h"
+#include "Game/Object/Character/Enemy_Acolyte.h"
 
-CCharacter* CharacterFactory::CreateCharacter(const string& characterType)
+Character* CharacterFactory::CreateCharacter(const string& characterType)
 {
-    CCharacter* character = nullptr;
+    Character* character = nullptr;
     
     // TODO: character 타입 추가
-    if (characterType == "Acorite") character = new CEnemy_Acolyte();
-    if (characterType == "Piedad") character = new CBoss_TenPiedad();
+    if (characterType == "Acorite") character = new Enemy_Acolyte();
+    if (characterType == "Piedad") character = new Boss_TenPiedad();
     
     assert(character && TEXT("Invalid character Type!"));
     return character;

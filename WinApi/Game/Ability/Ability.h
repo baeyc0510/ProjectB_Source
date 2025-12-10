@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Game/Enum.h"
-#include "Game/Component/CAbilitySystem.h"
+#include "Game/Component/AbilitySystem.h"
 
 // 인자 없는 멤버 함수를 이벤트 콜백으로 바인딩 (source 무시)
 #define BIND_EVENT(Object, Function) \
@@ -8,10 +8,10 @@
 
 class CGameObject;
 class CAnimator;
-class CRigidbody;
+class Rigidbody;
 class CBoxCollider;
-class CStateSystem;
-class CStatComponent;
+class StateSystem;
+class StatComponent;
 struct FShakeParams;
 
 class Ability
@@ -21,7 +21,7 @@ public:
 	virtual ~Ability();
 
 	/*~ Ability Interface ~*/
-	void Init(CGameObject* inOwner, CAbilitySystem* inAbilitySystem);
+	void Init(CGameObject* inOwner, AbilitySystem* inAbilitySystem);
 
 	// 발동 조건
 	virtual EStateTag GetRequiredTags() const { return Tag_None; }
@@ -50,7 +50,7 @@ public:
 	// 상태 조회
 	bool IsActive() const { return isActive; }
 	CGameObject* GetOwner() const { return owner; }
-	CAbilitySystem* GetAbilitySystem() const { return abilitySystem; }
+	AbilitySystem* GetAbilitySystem() const { return abilitySystem; }
 
 	// 종료 이벤트
 	Delegate<> OnEnded;
@@ -58,10 +58,10 @@ public:
 protected:
 	// 컴포넌트 접근 (지연 캐싱)
 	CAnimator* GetAnimator() const;
-	CRigidbody* GetRigidbody() const;
+	Rigidbody* GetRigidbody() const;
 	CBoxCollider* GetCollider() const;
-	CStateSystem* GetStateSystem() const;
-	CStatComponent* GetStatComponent() const;
+	StateSystem* GetStateSystem() const;
+	StatComponent* GetStatComponent() const;
 
 	// 이벤트 브로드캐스트 헬퍼
 	void PlaySFX(const wstring& key);
@@ -73,14 +73,14 @@ protected:
 
 protected:
 	CGameObject* owner;
-	CAbilitySystem* abilitySystem;
+	AbilitySystem* abilitySystem;
 	bool isActive;
 	float cooldownRemaining;
 	vector<DelegateHandle> eventHandles;
 
 	mutable CAnimator* cachedAnimator = nullptr;
-	mutable CRigidbody* cachedRigidbody = nullptr;
+	mutable Rigidbody* cachedRigidbody = nullptr;
 	mutable CBoxCollider* cachedCollider = nullptr;
-	mutable CStateSystem* cachedStateSystem = nullptr;
-	mutable CStatComponent* cachedStatComponent = nullptr;
+	mutable StateSystem* cachedStateSystem = nullptr;
+	mutable StatComponent* cachedStatComponent = nullptr;
 };

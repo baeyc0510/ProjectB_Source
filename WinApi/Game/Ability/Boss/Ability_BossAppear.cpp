@@ -4,18 +4,18 @@
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
 #include "Game/CGame.h"
-#include "Game/Component/CBossAIController.h"
-#include "Game/Component/CStateSystem.h"
-#include "Game/Object/Character/CBoss.h"
-#include "Game/Object/Character/CPlayer.h"
-#include "Game/Component/CAbilitySystem.h"
-#include "Game/Component/CRigidbody.h"
+#include "Game/Component/BossAIController.h"
+#include "Game/Component/StateSystem.h"
+#include "Game/Object/Character/Boss.h"
+#include "Game/Object/Character/Player.h"
+#include "Game/Component/AbilitySystem.h"
+#include "Game/Component/Rigidbody.h"
 
 void Ability_BossAppear::OnActivate()
 {
     Ability::OnActivate();
     
-    boss = dynamic_cast<CBoss*>(GetOwner());
+    boss = dynamic_cast<Boss*>(GetOwner());
     if (!boss)
     {
         EndAbility();
@@ -29,7 +29,7 @@ void Ability_BossAppear::OnActivate()
         return;
     }
     
-    player = dynamic_cast<CPlayer*>(bossAI->GetTarget());
+    player = dynamic_cast<Player*>(bossAI->GetTarget());
     if (!player)
     {
         EndAbility();
@@ -46,7 +46,7 @@ void Ability_BossAppear::OnActivate()
     CAMERA->SetTargetPos(owner->GetPos());
     
     // 플레이어 정지
-    player->GetComponent<CRigidbody>()->SetVelocity(Vec2(0.f,0.f));
+    player->GetComponent<Rigidbody>()->SetVelocity(Vec2(0.f,0.f));
     player->GetStateSystem()->AddTag(Tag_BlockMovement);
     player->GetAbilitySystem()->CancelAbilitiesWithTag(Tag_Moving);
 }

@@ -1,9 +1,9 @@
 #pragma once
 
-class CCharacter;
+class Character;
 
 class CharacterFactory
 {
 public:
-    static CCharacter* CreateCharacter(const string& characterType);
+    static Character* CreateCharacter(const string& characterType);
 };

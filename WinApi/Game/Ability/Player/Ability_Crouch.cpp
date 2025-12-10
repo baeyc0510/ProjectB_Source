@@ -2,8 +2,8 @@
 #include "Ability_Crouch.h"
 
 #include "Game/AnimKey.h"
-#include "Game/Component/CStateSystem.h"
-#include "Game/Object/Character/CPlayer.h"
+#include "Game/Component/StateSystem.h"
+#include "Game/Object/Character/Player.h"
 
 Ability_Crouch::Ability_Crouch()
 {
@@ -28,7 +28,7 @@ void Ability_Crouch::OnEnd()
 
 void Ability_Crouch::OnJumpPressed()
 {
-    if (CPlayer* player = dynamic_cast<CPlayer*>(owner))
+    if (Player* player = dynamic_cast<Player*>(owner))
     {
         player->SetIgnorePlatform(player->GetCurrentGroundID());
         EndAbility();
