@@ -126,8 +126,8 @@ package "AI Layer" {
     }
 
     class BossAIController <<ai>> {
-        - attacks: vector<FBossAttackData>
-        - chaseConfig: FBossChaseConfig
+        - attacks: vector<BossAttackData>
+        - chaseConfig: BossChaseConfig
         --
         + RegisterAttack(ability, range, weight)
         + SelectNextAttack(): EAbility

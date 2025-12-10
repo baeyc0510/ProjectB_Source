@@ -50,7 +50,7 @@ void BossAIController::ComponentUpdate()
 
 void BossAIController::RegisterAttack(EAbility ability, float minRange, float maxRange, float weight)
 {
-	FBossAttackData data;
+	BossAttackData data;
 	data.ability = ability;
 	data.minRange = minRange;
 	data.maxRange = maxRange;
@@ -87,7 +87,7 @@ EAbility BossAIController::SelectNextAttack()
 	float distance = GetDistanceToTarget();
 
 	// 사용 가능한 공격 목록 수집
-	vector<FBossAttackData*> validAttacks;
+	vector<BossAttackData*> validAttacks;
 	for (auto& attack : attacks)
 	{
 		// 거리 체크
@@ -115,7 +115,7 @@ EAbility BossAIController::SelectNextAttack()
 	return selected;
 }
 
-float BossAIController::GetTotalWeight(const vector<FBossAttackData*>& validAttacks) const
+float BossAIController::GetTotalWeight(const vector<BossAttackData*>& validAttacks) const
 {
 	float total = 0.f;
 	for (const auto* attack : validAttacks)
@@ -125,7 +125,7 @@ float BossAIController::GetTotalWeight(const vector<FBossAttackData*>& validAtta
 	return total;
 }
 
-EAbility BossAIController::SelectByWeight(const vector<FBossAttackData*>& validAttacks, float totalWeight) const
+EAbility BossAIController::SelectByWeight(const vector<BossAttackData*>& validAttacks, float totalWeight) const
 {
 	float random = static_cast<float>(rand()) / RAND_MAX * totalWeight;
 	float accumulated = 0.f;
