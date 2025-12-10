@@ -2,6 +2,7 @@
 #include "CCharacter.h"
 #include "Game/Enum.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Component/CStatComponent.h"
 
 class CPlayer : public CCharacter, public ICombatInterface
 {
@@ -10,15 +11,8 @@ public:
 	~CPlayer() override;
 
 	/*~ Player Interface ~*/
-	void SetCurrentHP(float value);
-	void SetMaxHP(float value);
-	void SetCurrentMP(float value);
-	void SetMaxMP(float value);
-	void SetCurrentFlask(int value);
-	void SetMaxFlask(int value);
-	void SetJumpForce(float value) { jumpForce = value; }
 	void SetLadderInfo(float x, float topY, float bottomY) { ladderX = x; ladderTopY = topY; ladderBottomY = bottomY; }
-	
+
 	float GetLadderX() const { return ladderX; }
 	float GetLadderTopY() const { return ladderTopY; }
 	float GetLadderBottomY() const { return ladderBottomY; }
@@ -29,16 +23,7 @@ public:
 	float GetLedgeTop() const { return ledgeTop; }
 	int GetLedgeDirection() const { return ledgeDirection; }
 	void ResetLedgeInfo() { ClearLedge(); }
-	
-	// Stats
-	float GetCurrentHP() const {return currentHP;}
-	float GetMaxHP() const {return maxHP;}
-	float GetCurrentMP() const {return currentMP;}
-	float GetMaxMP() const {return maxMP;}
-	int GetCurrentFlask() const {return currentFlask;}
-	int GetMaxFlask() const {return maxFlask;}
-	float GetJumpForce() const {return jumpForce;}
-	float GetBaseAttackPower() const {return baseAttackPower;}
+
 	
 	// Down 연출
 	void SetIsDown(bool value) { bIsDown = value; }
@@ -66,9 +51,8 @@ protected:
 
 	/*~ Player Interface ~*/
 	void InitStartupStats();
-	void UpdateHP(float& attribute, float value) const;
-	void UpdateMP(float& attribute, float value) const;
-	
+	void OnStatChanged(EStatType type, float current, float max);
+
 	Vec2 GetKnockbackVelocity(CGameObject* source, const CombatContext& context);
 	wstring GetPlayerHitVfxKey(EDamageType damageType);
 	
@@ -112,17 +96,8 @@ private:
 	Vec2 characterScale;
 	Vec2 colOffset;
 	Vec2 prevVelocity;
-	
-	// Stats
-	float currentHP = 0;
-	float maxHP = 0;
-	float currentMP = 0;
-	float maxMP = 0;
-	int currentFlask = 0;
-	int maxFlask = 0;
-	float jumpForce = 0;
-	float baseAttackPower = 0;
-	
+
+	// Ladder 정보
 	float ladderX = 0;
 	float ladderTopY = 0;
 	float ladderBottomY = 0;

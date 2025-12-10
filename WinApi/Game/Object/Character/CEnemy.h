@@ -14,12 +14,6 @@ public:
 	CAIController* GetAIController() const { return aiController; }
 	Vec2 GetParryPushbackForce() const { return parryPushbackForce; }
 	
-	virtual void SetCurrentHP(float value);
-	virtual void SetMaxHP(float value);
-	
-	float GetCurrentHP() const { return currentHP; }
-	float GetMaxHP() const { return maxHP; }
-	
 protected:
 	/*~ CGameObject Interface ~*/
 	void Init() override;
@@ -42,10 +36,6 @@ private:
 	void HandleMovementEvents();
 
 protected:
-	Vec2 parryPushbackForce = Vec2(200.f,0.f);
+	Vec2 parryPushbackForce = Vec2(200.f, 0.f);
 	CAIController* aiController = nullptr;
-	
-	// 상태
-	float currentHP;
-	float maxHP;
 };

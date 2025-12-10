@@ -1,8 +1,10 @@
 #pragma once
 #include "Game/Component/CAbilitySystem.h"
+#include "Game/Interface/CombatInterface.h"
 
 class CAbilitySystem;
 class CStateSystem;
+class CStatComponent;
 class CRigidbody;
 class CCharacterMovement;
 
@@ -14,7 +16,8 @@ public:
 
     /*~ CCharacter Interface ~*/
     CStateSystem* GetStateSystem() const { return stateSystem; }
-    CAbilitySystem* GetAbilitySystem() const {return abilitySystem;}
+    CAbilitySystem* GetAbilitySystem() const { return abilitySystem; }
+    CStatComponent* GetStatComponent() const { return statComponent; }
     CCharacterMovement* GetMovement() const { return movement; }
     virtual wstring GetRandomBloodVfxKey() const;
 
@@ -31,7 +34,10 @@ public:
     
     virtual void OnDieStart() {}
     virtual void OnDieComplete() {}
-    
+
+    // VFX Helper
+    void SpawnDamageVFX(const CombatContext& context, int spawnDirection);
+
 protected:
     /*~ CGameObject Interface ~*/
     void Init() override;
@@ -65,6 +71,7 @@ protected:
     // 공통 컴포넌트
     CAnimator* animator = nullptr;
     CStateSystem* stateSystem = nullptr;
+    CStatComponent* statComponent = nullptr;
     CAbilitySystem* abilitySystem = nullptr;
     CRigidbody* rigidbody = nullptr;
     CBoxCollider* collider = nullptr;

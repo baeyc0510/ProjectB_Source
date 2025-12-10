@@ -1,6 +1,7 @@
 #pragma once
 #include "CCharacter.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Component/CStatComponent.h"
 
 class CBossAIController;
 
@@ -23,12 +24,6 @@ public:
 	void TriggerAppearance();
 	virtual void OnAppearanceComplete();
 
-	// 상태
-	virtual void SetCurrentHP(float value);
-	virtual void SetMaxHP(float value);
-
-	float GetCurrentHP() const { return currentHP; }
-	float GetMaxHP() const { return maxHP; }
 	
 protected:
 	/*~ CGameObject Interface ~*/
@@ -49,6 +44,7 @@ protected:
 	virtual void UpdateBossAnimation();
 	virtual void UpdateBossAI();
 	virtual bool CheckEncounterPlayer() = 0;
+	void OnStatChanged(EStatType type, float current, float max);
 	
 protected:
 	CBossAIController* bossAI = nullptr;
@@ -60,7 +56,4 @@ protected:
 	// 상태
 	bool bHasAppeared = false;
 	bool bHasEncountered = false;
-	
-	float currentHP = 0.f;
-	float maxHP = 0.f;
 };

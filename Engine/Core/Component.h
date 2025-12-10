@@ -27,13 +27,14 @@ public:
 	virtual ~Component() {}
 
 public:
-	virtual void	ComponentInit()			= 0;
+	// 선택적 오버라이드 - 자식 클래스에서 필요한 경우에만 구현
+	virtual void	ComponentInit()			{}
 	virtual void	ComponentOnEnable()		{ active = true; }
-	virtual void	ComponentUpdate()		= 0;
+	virtual void	ComponentUpdate()		{}
 	virtual void	ComponentLateUpdate()	{}
-	virtual void	ComponentRender()		= 0;
+	virtual void	ComponentRender()		{}
 	virtual void	ComponentOnDisable()	{ active = false; }
-	virtual void	ComponentRelease()		= 0;
+	virtual void	ComponentRelease()		{}
 
 public:
 	T*				GetOwner()				{ return owner; }

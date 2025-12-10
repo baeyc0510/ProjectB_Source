@@ -5,11 +5,10 @@
 #include "Game/Enum.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Component/CBossAIController.h"
 #include "Game/Component/CCharacterMovement.h"
 #include "Game/Manager/CGameUIManager.h"
-#include "Game/Manager/CVFXManager.h"
-#include "Game/Object/CVFX.h"
 
 CBoss::CBoss()
 {
@@ -32,6 +31,11 @@ void CBoss::Init()
 	moveConfig.bFlipDirectionAtEdge = false;
 	moveConfig.bFlipDirectionAtWall = false;
 	movement->SetConfig(moveConfig);
+
+	// StatComponent 이벤트 바인딩
+	statComponent->OnStatChanged.Add([this](EStatType type, float current, float max) {
+		OnStatChanged(type, current, max);
+	});
 
 	// Boss AI Controller
 	bossAI = new CBossAIController();
@@ -97,27 +101,16 @@ void CBoss::OnAppearanceComplete()
 	bHasAppeared = true;
 	stateSystem->RemoveTag(Tag_BossAppearing);
 	GAMEUI->ShowBossHUD(true);
-	GAMEUI->SetBossHP(currentHP,maxHP);
+	// HP 이벤트 강제 발생 (UI 초기 업데이트)
+	GAMEUI->SetBossHP(statComponent->GetCurrent(EStatType::HP), statComponent->GetMax(EStatType::HP));
 }
 
-void CBoss::SetCurrentHP(float value)
+void CBoss::OnStatChanged(EStatType type, float current, float max)
 {
-	currentHP = max(0,min(value, maxHP));
-	GAMEUI->SetBossHP(currentHP,maxHP);
-	
-	if (IsNearlyEqual(currentHP,0))
+	if (type == EStatType::HP && bHasAppeared)
 	{
-		abilitySystem->TryActivateAbility(EAbility::Die);
+		GAMEUI->SetBossHP(current, max);
 	}
-	else if (stateSystem->HasTag(Tag_Dead))
-	{
-		abilitySystem->CancelAbilitiesWithTag(Tag_Dead);
-	}
-}
-
-void CBoss::SetMaxHP(float value)
-{
-	maxHP = max(0,value);
 }
 
 void CBoss::UpdateBossAnimation()
@@ -155,29 +148,12 @@ void CBoss::OnDamage(CGameObject* source, const CombatContext& context)
 	abilitySystem->TriggerEvent(EGameEvent::Hit, source);
 
 	// Spawn VFX
-	Vec2 spawnPos = context.hitResult.hitCenter;
-	int spawnDirection = source->GetForward();
-
-	// Spawn Hit VFX
-	if (!context.vfxKey.empty())
-	{
-		if (CVFX* vfx = VFX->CreateVFX(context.vfxKey, spawnPos, spawnDirection))
-		{
-			vfx->PlayVFX();
-		}
-	}
+	SpawnDamageVFX(context, source->GetForward());
 
 	if (context.value > 0.0001f)
 	{
-		// Spawn Blood VFX
-		if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
-		{
-			vfx->PlayVFX();
-		}
-		
-		// Apply Damage
-		float newHP = currentHP - context.value;
-		SetCurrentHP(newHP);
+		// Apply Damage (OnStatChanged handles UI update)
+		statComponent->TakeDamage(context.value);
 	}
 }
 

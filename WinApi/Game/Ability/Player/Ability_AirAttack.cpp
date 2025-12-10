@@ -3,7 +3,13 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/Component/CStateSystem.h"
-#include "Game/Object/Character/CPlayer.h"
+#include "Game/Component/CStatComponent.h"
+
+namespace
+{
+    constexpr float AIR_COMBO1_DAMAGE_MULTIPLIER = 1.1f;
+    constexpr float AIR_COMBO2_DAMAGE_MULTIPLIER = 1.2f;
+}
 
 
 Ability_AirAttack::Ability_AirAttack()
@@ -18,19 +24,12 @@ Ability_AirAttack::Ability_AirAttack()
 void Ability_AirAttack::OnActivate()
 {
     Ability_ComboAttack::OnActivate();
-    
-    CPlayer* player = dynamic_cast<CPlayer*>(owner);
-    if (!player)
-    {
-        EndAbility();
-        return;
-    }
-    
+
     // AttackData 설정
-    float baseAttack = player->GetBaseAttackPower();
-    AirComboTable[0].attackData.damage = baseAttack * 1.1f;
-    AirComboTable[1].attackData.damage = baseAttack * 1.2f;
-    
+    float baseAttack = GetStatComponent()->GetCurrent(EStatType::AttackPower);
+    AirComboTable[0].attackData.damage = baseAttack * AIR_COMBO1_DAMAGE_MULTIPLIER;
+    AirComboTable[1].attackData.damage = baseAttack * AIR_COMBO2_DAMAGE_MULTIPLIER;
+
     WaitEvent(EGameEvent::Landed, BIND_ARGS(this, OnLanded));
 }
 

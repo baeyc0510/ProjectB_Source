@@ -3,8 +3,15 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Manager/CSFXManager.h"
-#include "Game/Object/Character/CPlayer.h"
+
+namespace
+{
+    constexpr float COMBO1_DAMAGE_MULTIPLIER = 1.0f;
+    constexpr float COMBO2_DAMAGE_MULTIPLIER = 1.1f;
+    constexpr float COMBO3_DAMAGE_MULTIPLIER = 1.2f;
+}
 
 Ability_ComboAttack::Ability_ComboAttack()
 {
@@ -19,19 +26,12 @@ void Ability_ComboAttack::OnActivate()
 {
     Ability::OnActivate();
 
-    CPlayer* player = dynamic_cast<CPlayer*>(owner);
-    if (!player)
-    {
-        EndAbility();
-        return;
-    }
-    
     // AttackData 설정
-    float baseAttack = player->GetBaseAttackPower();
-    ComboTable[0].attackData.damage = baseAttack * 1.0f;
-    ComboTable[1].attackData.damage = baseAttack * 1.1f;
-    ComboTable[2].attackData.damage = baseAttack * 1.2f;
-    
+    float baseAttack = GetStatComponent()->GetCurrent(EStatType::AttackPower);
+    ComboTable[0].attackData.damage = baseAttack * COMBO1_DAMAGE_MULTIPLIER;
+    ComboTable[1].attackData.damage = baseAttack * COMBO2_DAMAGE_MULTIPLIER;
+    ComboTable[2].attackData.damage = baseAttack * COMBO3_DAMAGE_MULTIPLIER;
+
     // 이벤트 바인딩
     WaitEvent(EGameEvent::Input_Attack_Pressed, BIND_EVENT(this, OnInputAttack));
     WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));

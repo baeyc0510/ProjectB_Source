@@ -3,6 +3,7 @@
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Component/CStatComponent.h"
 
 Ability::Ability()
 	: owner(nullptr)
@@ -146,4 +147,13 @@ CStateSystem* Ability::GetStateSystem() const
 		cachedStateSystem = owner->GetComponent<CStateSystem>();
 	}
 	return cachedStateSystem;
+}
+
+CStatComponent* Ability::GetStatComponent() const
+{
+	if (!cachedStatComponent && owner)
+	{
+		cachedStatComponent = owner->GetComponent<CStatComponent>();
+	}
+	return cachedStatComponent;
 }

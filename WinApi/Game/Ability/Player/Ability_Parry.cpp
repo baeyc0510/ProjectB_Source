@@ -5,9 +5,14 @@
 #include "Game/SFXKeys.h"
 #include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CAbilitySystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Interface/CombatInterface.h"
-#include "Game/Object/Character/CPlayer.h"
 #include "Game/Util/CombatHelper.h"
+
+namespace
+{
+    constexpr float COUNTER_DAMAGE_MULTIPLIER = 1.5f;
+}
 
 Ability_Parry::Ability_Parry()
 {
@@ -120,20 +125,18 @@ void Ability_Parry::OnCounterClose()
 
 void Ability_Parry::OnCounterHitCheck()
 {
-    CPlayer* player = dynamic_cast<CPlayer*>(owner);
-    if (!player)
-        return;
-    
     const Vec2 TRACE_OFFSET = {50.f, -30.f};
     const Vec2 TRACE_SIZE = {50.f, 30.f};
+
+    float baseAttack = GetStatComponent()->GetCurrent(EStatType::AttackPower);
 
     AttackData data;
     data.traceOffset = TRACE_OFFSET;
     data.traceSize = TRACE_SIZE;
-    data.damage = player->GetBaseAttackPower() * 1.5f;
+    data.damage = baseAttack * COUNTER_DAMAGE_MULTIPLIER;
     data.damageType = EDamageType::Slash;
     data.vfxKey = VFXKey::AttackHit1;
-    
+
     vector<HitResult> hitResults;
     bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {Monster,Projectile}, hitResults);
 

@@ -5,7 +5,10 @@
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Component/CCharacterMovement.h"
+#include "Game/Manager/CVFXManager.h"
+#include "Game/Object/CVFX.h"
 #include "Game/Util/AnimEventHelper.h"
 
 CCharacter::CCharacter()
@@ -90,6 +93,10 @@ void CCharacter::Init()
         OnStateChanged(oldTags, newTags);
     });
     AddChild(stateSystem);
+
+    // StatComponent
+    statComponent = new CStatComponent();
+    AddChild(statComponent);
 
     // AbilitySystem
     abilitySystem = new CAbilitySystem();
@@ -222,4 +229,27 @@ void CCharacter::AddAnimation(const wstring& aniName, const wstring& path, bool 
     assert(animation);
     animation->SetRepeat(bShouldRepeat);
     animator->AddAnimation(aniName, animation);
+}
+
+void CCharacter::SpawnDamageVFX(const CombatContext& context, int spawnDirection)
+{
+    Vec2 spawnPos = context.hitResult.hitCenter;
+
+    // Hit VFX
+    if (!context.vfxKey.empty())
+    {
+        if (CVFX* vfx = VFX->CreateVFX(context.vfxKey, spawnPos, spawnDirection))
+        {
+            vfx->PlayVFX();
+        }
+    }
+
+    // Blood VFX (only if actual damage)
+    if (context.value > 0.0001f)
+    {
+        if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
+        {
+            vfx->PlayVFX();
+        }
+    }
 }

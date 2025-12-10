@@ -19,6 +19,7 @@
 #include "Game/Ability/Player/Ability_LedgeClimb.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CCharacterMovement.h"
 #include "Game/Manager/CGameUIManager.h"
@@ -497,27 +498,46 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 		
 	if (!CAMERA->IsShaking())
 	{
-		CAMERA->Shake(ShakePreset::Light);	
+		CAMERA->Shake(ShakePreset::Light);
 	}
 
 	// Apply damage
-	float newHP = currentHP - context.value;
-	SetCurrentHP(newHP);
+	statComponent->TakeDamage(context.value);
 }
 
 void CPlayer::InitStartupStats()
 {
-	// stats
-	pushbackForce = Vec2(300.f,150.f);
-	jumpForce = 490.f;
-	baseAttackPower = 100.f;
-	
-	SetMaxHP(MAX_HP);
-	SetCurrentHP(MAX_HP);
-	SetMaxMP(MAX_MP);
-	SetCurrentMP(MAX_MP);
-	SetMaxFlask(MAX_FLASK);
-	SetCurrentFlask(MAX_FLASK);
+	pushbackForce = Vec2(300.f, 150.f);
+
+	// StatComponent 이벤트 바인딩
+	statComponent->OnStatChanged.Add([this](EStatType type, float current, float max) {
+		OnStatChanged(type, current, max);
+	});
+
+	// 스탯 초기화
+	statComponent->InitStat(EStatType::HP, MAX_HP);
+	statComponent->InitStat(EStatType::MP, MAX_MP);
+	statComponent->InitStat(EStatType::Flask, static_cast<float>(MAX_FLASK));
+	statComponent->InitStat(EStatType::JumpForce, 490.f, 490.f);
+	statComponent->InitStat(EStatType::AttackPower, 100.f, 100.f);
+}
+
+void CPlayer::OnStatChanged(EStatType type, float current, float max)
+{
+	switch (type)
+	{
+	case EStatType::HP:
+		GAMEUI->SetPlayerHP(current, max);
+		break;
+	case EStatType::MP:
+		GAMEUI->SetPlayerMP(current, max);
+		break;
+	case EStatType::Flask:
+		GAMEUI->SetPlayerFlask(static_cast<int>(current), static_cast<int>(max));
+		break;
+	default:
+		break;
+	}
 }
 
 Vec2 CPlayer::GetKnockbackVelocity(CGameObject* source, const CombatContext& context)
@@ -530,95 +550,6 @@ Vec2 CPlayer::GetKnockbackVelocity(CGameObject* source, const CombatContext& con
 wstring CPlayer::GetPlayerHitVfxKey(EDamageType damageType)
 {
 	return VFXKey::PlayerHit;
-}
-
-void CPlayer::SetCurrentHP(float value)
-{
-	value = min(value,maxHP);
-	UpdateHP(currentHP, value);
-	
-	if (IsNearlyEqual(currentHP,0))
-	{
-		abilitySystem->TryActivateAbility(EAbility::Die);
-	}
-	else if (stateSystem->HasTag(Tag_Dead))
-	{
-		abilitySystem->CancelAbilitiesWithTag(Tag_Dead);
-	}
-}
-
-void CPlayer::SetMaxHP(float value)
-{
-	UpdateHP(maxHP, value);
-}
-
-void CPlayer::SetCurrentMP(float value)
-{
-	value = min(value, maxMP);
-	UpdateMP(currentMP, value);
-}
-
-void CPlayer::SetMaxMP(float value)
-{
-	UpdateMP(maxMP, value);
-}
-
-void CPlayer::SetCurrentFlask(int value)
-{
-	int oldValue = currentFlask;
-	currentFlask = max(value, 0);
-	currentFlask = min(currentFlask, maxFlask);
-	
-	if (oldValue != currentFlask)
-	{
-		GAMEUI->SetPlayerFlask(currentFlask,maxFlask);
-	}
-	
-	if (currentFlask > 0)
-	{
-		stateSystem->AddTagUnique(Tag_FlaskRemaining);
-	}
-	else
-	{
-		stateSystem->RemoveTag(Tag_FlaskRemaining);
-	}
-}
-
-void CPlayer::SetMaxFlask(int value)
-{
-	int oldValue = maxFlask;
-	maxFlask = max(0,value);
-	
-	if (oldValue != maxFlask)
-	{
-		GAMEUI->SetPlayerFlask(currentFlask,maxFlask);
-	}
-}
-
-void CPlayer::UpdateHP(float& attribute, float value) const
-{
-	value = max(value, 0.0f);
-	
-	float oldValue = attribute;
-	attribute = value;
-	
-	if (!IsNearlyEqual(attribute, oldValue))
-	{
-		GAMEUI->SetPlayerHP(currentHP,maxHP);
-	}
-}
-
-void CPlayer::UpdateMP(float& attribute, float value) const
-{
-	value = max(value, 0.0f);
-	
-	float oldValue = attribute;
-	attribute = value;
-	
-	if (!IsNearlyEqual(attribute, oldValue))
-	{
-		GAMEUI->SetPlayerMP(currentMP,maxMP);
-	}
 }
 
 void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)

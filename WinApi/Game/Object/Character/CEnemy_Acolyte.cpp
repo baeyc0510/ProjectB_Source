@@ -5,19 +5,21 @@
 #include "Game/Ability/Common/Ability_HitReaction.h"
 #include "Game/Ability/Monster/Ability_AcolyteAttack.h"
 #include "Game/Component/CAIController.h"
+#include "Game/Component/CStatComponent.h"
 
 
 CEnemy_Acolyte::CEnemy_Acolyte()
 {
 	name = TEXT("Acorite");
-	currentHP = 50;
-	maxHP = 50;
 }
 
 void CEnemy_Acolyte::Init()
 {
     CEnemy::Init();
-    
+
+    // Stats
+    statComponent->InitStat(EStatType::HP, 50.f);
+
     // Collider
     collider->SetScale(Vec2(32, 66));
     collider->SetOffset(Vec2(0, -33));

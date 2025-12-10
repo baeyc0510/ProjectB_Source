@@ -11,6 +11,7 @@ class CAnimator;
 class CRigidbody;
 class CBoxCollider;
 class CStateSystem;
+class CStatComponent;
 
 class Ability
 {
@@ -59,6 +60,7 @@ protected:
 	CRigidbody* GetRigidbody() const;
 	CBoxCollider* GetCollider() const;
 	CStateSystem* GetStateSystem() const;
+	CStatComponent* GetStatComponent() const;
 
 protected:
 	CGameObject* owner;
@@ -71,4 +73,5 @@ protected:
 	mutable CRigidbody* cachedRigidbody = nullptr;
 	mutable CBoxCollider* cachedCollider = nullptr;
 	mutable CStateSystem* cachedStateSystem = nullptr;
+	mutable CStatComponent* cachedStatComponent = nullptr;
 };

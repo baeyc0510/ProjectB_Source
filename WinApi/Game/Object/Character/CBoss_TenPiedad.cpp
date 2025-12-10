@@ -38,11 +38,10 @@ void CBoss_TenPiedad::Init()
 	RegisterAnimations();
 	RegisterAbilities();
 	ConfigureAI();
-	
+
 	// Stats
-	currentHP = 1000.0f;
-	maxHP = 1000.0f;
-	
+	statComponent->InitStat(EStatType::HP, 1000.f);
+
 	// 등장 장면 첫 프레임에 고정
 	animator->Play(AnimKey::BossAppear,true);
 	animator->Stop();

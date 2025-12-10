@@ -5,8 +5,8 @@
 #include "Game/SFXKeys.h"
 #include "Game/VFXKeys.h"
 #include "Game/Component/CAbilitySystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Manager/CSFXManager.h"
-#include "Game/Object/Character/CPlayer.h"
 
 Ability_CrouchAttack::Ability_CrouchAttack()
 {
@@ -19,17 +19,10 @@ void Ability_CrouchAttack::OnActivate()
 {
     Ability::OnActivate();
 
-    CPlayer* player = dynamic_cast<CPlayer*>(owner);
-    if (!player)
-    {
-        EndAbility();
-        return;
-    }
-    
     // AttackData 설정
-    float baseAttack = player->GetBaseAttackPower();
+    float baseAttack = GetStatComponent()->GetCurrent(EStatType::AttackPower);
     AttackData.damage = baseAttack;
-    
+
     GetAnimator()->Play(AnimKey::CrouchAttack, true, BIND(this, EndAbility), BIND(this, EndAbility));
 
     WaitEvent(EGameEvent::Input_Crouch_Released, BIND_EVENT(this, OnCrouchReleased));

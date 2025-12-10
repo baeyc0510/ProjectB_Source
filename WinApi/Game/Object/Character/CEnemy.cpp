@@ -5,10 +5,9 @@
 #include "Game/Enum.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Component/CAIController.h"
 #include "Game/Component/CCharacterMovement.h"
-#include "Game/Manager/CVFXManager.h"
-#include "Game/Object/CVFX.h"
 
 CEnemy::CEnemy()
 {
@@ -18,25 +17,6 @@ CEnemy::CEnemy()
 
 CEnemy::~CEnemy()
 {
-}
-
-void CEnemy::SetCurrentHP(float value)
-{
-	currentHP = max(0, min(value,maxHP));
-	
-	if (IsNearlyEqual(currentHP,0))
-	{
-		abilitySystem->TryActivateAbility(EAbility::Die);
-	}
-	else if (stateSystem->HasTag(Tag_Dead))
-	{
-		abilitySystem->CancelAbilitiesWithTag(Tag_Dead);
-	}
-}
-
-void CEnemy::SetMaxHP(float value)
-{
-	maxHP = max(0,value);
 }
 
 void CEnemy::Init()
@@ -193,37 +173,21 @@ void CEnemy::OnDamage(CGameObject* source, const CombatContext& context)
 {
 	if (stateSystem->HasTag(Tag_Dead))
 		return;
-	
+
 	// Trigger Event
 	abilitySystem->TriggerEvent(EGameEvent::Hit, source);
 
 	// Spawn VFX
-	Vec2 spawnPos = context.hitResult.hitCenter;
-	int spawnDirection = source->GetForward();
-
-	// Spawn Hit VFX
-	if (!context.vfxKey.empty())
-	{
-		if (CVFX* vfx = VFX->CreateVFX(context.vfxKey, spawnPos, spawnDirection))
-		{
-			vfx->PlayVFX();
-		}
-	}
+	SpawnDamageVFX(context, source->GetForward());
 
 	if (context.value > 0.0001f)
 	{
-		// Spawn Blood VFX
-		if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
-		{
-			vfx->PlayVFX();
-		}
-		
 		// Hit Reaction
 		abilitySystem->CancelAbilitiesWithTag(Tag_Hit);
 		abilitySystem->TryActivateAbility(EAbility::HitReact);
-		
-		float newHP = currentHP - context.value;
-		SetCurrentHP(newHP);
+
+		// Apply Damage
+		statComponent->TakeDamage(context.value);
 	}
 }
 
