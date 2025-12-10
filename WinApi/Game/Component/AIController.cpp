@@ -222,9 +222,8 @@ bool AIController::IsOnScreen() const
 	if (!owner)
 		return false;
 
-	// 화면 크기 상수 (가상 해상도 기준)
-	static constexpr float SCREEN_HALF_WIDTH = 320.f;
-	static constexpr float SCREEN_HALF_HEIGHT = 180.f;
+	Vec2 virtualSize = SINGLE(EngineInstance)->GetVirtualSize();
+	Vec2 halfScreen = virtualSize * 0.5f;
 
 	Vec2 ownerPos = owner->GetPos();
 	Vec2 cameraPos = CAMERA->GetLookAt();
@@ -232,6 +231,6 @@ bool AIController::IsOnScreen() const
 	float dx = abs(ownerPos.x - cameraPos.x);
 	float dy = abs(ownerPos.y - cameraPos.y);
 
-	return dx <= SCREEN_HALF_WIDTH + SCREEN_MARGIN
-		&& dy <= SCREEN_HALF_HEIGHT + SCREEN_MARGIN;
+	return dx <= halfScreen.x + SCREEN_MARGIN
+		&& dy <= halfScreen.y + SCREEN_MARGIN;
 }
