@@ -26,12 +26,12 @@ void Ability_UseFlask::OnEnd()
 
 void Ability_UseFlask::UseFlask()
 {
-    if (CPlayer* player = dynamic_cast<CPlayer*>(owner))
+    if (CStatComponent* stat = GetStatComponent())
     {
-        int newFlask = player->GetCurrentFlask() - 1;
-        player->SetCurrentFlask(newFlask);
+        int newFlask = stat->GetCurrent(EStatType::Flask) - 1;
+        stat->SetCurrent(EStatType::Flask, newFlask);
         
-        float newHP = player->GetCurrentHP() + HEAL_AMOUNT;
-        player->SetCurrentHP(newHP);
+        float newHP = stat->GetCurrent(EStatType::HP) + HEAL_AMOUNT;
+        stat->SetCurrent(EStatType::HP, newHP);
     }
 }

@@ -5,6 +5,7 @@
 #include "Game/SFXKeys.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStatComponent.h"
+#include "Game/Object/Character/CPlayer.h"
 
 Ability_Jump::Ability_Jump()
 {
@@ -18,9 +19,9 @@ void Ability_Jump::OnActivate()
 
     Vec2 velocity = GetRigidbody()->GetVelocity();
 
-    if (CPlayer* player = dynamic_cast<CPlayer*>(owner))
+    if (CStatComponent* stat = GetStatComponent())
     {
-        float jumpForce = player->GetJumpForce();
+        float jumpForce = stat->GetCurrent(EStatType::JumpForce);
         GetRigidbody()->SetVelocity(Vec2(velocity.x, -jumpForce));
     }
 
