@@ -1,5 +1,7 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "AIController.h"
+
+#include "AbilitySystem.h"
 #include "StateSystem.h"
 
 namespace
@@ -220,11 +222,16 @@ bool AIController::IsOnScreen() const
 	if (!owner)
 		return false;
 
-	Vec2 screenPos = CAMERA->WorldToScreen(owner->GetPos());
-	Vec2 screenSize = CAMERA->GetScreenSize();
+	// 화면 크기 상수 (가상 해상도 기준)
+	static constexpr float SCREEN_HALF_WIDTH = 320.f;
+	static constexpr float SCREEN_HALF_HEIGHT = 180.f;
 
-	return screenPos.x >= -SCREEN_MARGIN
-		&& screenPos.x <= screenSize.x + SCREEN_MARGIN
-		&& screenPos.y >= -SCREEN_MARGIN
-		&& screenPos.y <= screenSize.y + SCREEN_MARGIN;
+	Vec2 ownerPos = owner->GetPos();
+	Vec2 cameraPos = CAMERA->GetLookAt();
+
+	float dx = abs(ownerPos.x - cameraPos.x);
+	float dy = abs(ownerPos.y - cameraPos.y);
+
+	return dx <= SCREEN_HALF_WIDTH + SCREEN_MARGIN
+		&& dy <= SCREEN_HALF_HEIGHT + SCREEN_MARGIN;
 }
