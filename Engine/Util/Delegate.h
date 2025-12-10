@@ -164,3 +164,63 @@ public:
         return callback != nullptr;
     }
 };
+
+// RAII 기반 델리게이트 핸들 - 소멸 시 자동 구독 해제
+template<typename... Args>
+class SafeDelegateHandle
+{
+public:
+    SafeDelegateHandle() = default;
+
+    SafeDelegateHandle(MulticastDelegate<Args...>& delegate, std::function<void(Args...)> callback)
+        : delegatePtr(&delegate)
+    {
+        handle = delegate.Add(callback);
+    }
+
+    ~SafeDelegateHandle()
+    {
+        Release();
+    }
+
+    // 이동 허용
+    SafeDelegateHandle(SafeDelegateHandle&& other) noexcept
+        : delegatePtr(other.delegatePtr), handle(other.handle)
+    {
+        other.delegatePtr = nullptr;
+        other.handle = DelegateHandle();
+    }
+
+    SafeDelegateHandle& operator=(SafeDelegateHandle&& other) noexcept
+    {
+        if (this != &other)
+        {
+            Release();
+            delegatePtr = other.delegatePtr;
+            handle = other.handle;
+            other.delegatePtr = nullptr;
+            other.handle = DelegateHandle();
+        }
+        return *this;
+    }
+
+    // 복사 금지
+    SafeDelegateHandle(const SafeDelegateHandle&) = delete;
+    SafeDelegateHandle& operator=(const SafeDelegateHandle&) = delete;
+
+    // 수동 해제
+    void Release()
+    {
+        if (delegatePtr && handle.IsValid())
+        {
+            delegatePtr->Remove(handle);
+            delegatePtr = nullptr;
+        }
+    }
+
+    bool IsValid() const { return handle.IsValid(); }
+
+private:
+    MulticastDelegate<Args...>* delegatePtr = nullptr;
+    DelegateHandle handle;
+};
