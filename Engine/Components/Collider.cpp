@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Collider.h"
 
 UINT Collider::colliderCount = 0;

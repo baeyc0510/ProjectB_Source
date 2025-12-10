@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "TransitionHelper.h"
 
 ESceneType TransitionHelper::ToSceneType(const wstring& str)

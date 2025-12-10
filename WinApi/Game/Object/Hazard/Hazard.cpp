@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Hazard.h"
 
 #include "Game/Data/VFXKeys.h"

@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "VFXObject.h"
 
 VFXObject::VFXObject() : animator(nullptr), animation(nullptr), bIsPlaying(false), bLooping(false)

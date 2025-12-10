@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class EngineInstance : public SingleTon<EngineInstance>
 {
 	friend SingleTon<EngineInstance>;

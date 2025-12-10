@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CombatHelper.h"
 #include "Game/Interface/CombatInterface.h"
 
