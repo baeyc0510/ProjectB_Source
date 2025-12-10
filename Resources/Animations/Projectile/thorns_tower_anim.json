@@ -1,7 +1,7 @@
 {
     "image": "Image/Pietat/thorns_tower_anim.bmp",
-    "pivot": [32.0, 12.0],
-    "frame_interval": 0.0833,
+    "pivot": [32.0, 15.0],
+    "frame_interval": 0.03,
     "frames": [
         {"rect": [0, 0, 64, 126], "events": []},
         {"rect": [64, 0, 64, 126], "events": []},
@@ -27,7 +27,7 @@
         {"rect": [64, 252, 64, 126], "events": []},
         {"rect": [128, 252, 64, 126], "events": []},
         {"rect": [192, 252, 64, 126], "events": []},
-        {"rect": [256, 252, 64, 126], "events": []},
+        {"rect": [256, 252, 64, 126], "events": ["HitCheck"]},
         {"rect": [320, 252, 64, 126], "events": []},
         {"rect": [384, 252, 64, 126], "events": []},
         {"rect": [448, 252, 64, 126], "events": []},

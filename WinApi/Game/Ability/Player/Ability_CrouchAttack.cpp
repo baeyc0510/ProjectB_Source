@@ -5,17 +5,24 @@
 #include "Game/SFXKeys.h"
 #include "Game/VFXKeys.h"
 #include "Game/Component/CAbilitySystem.h"
-#include "Game/Manager/CSFXManager.h"
+#include "Game/Component/CStatComponent.h"
 
-const FAttackData Ability_CrouchAttack::AttackData = {
-    {50.f, -10.f}, {30.f, 20.f}, AnimKey::CrouchAttack, VFXKey::AttackHit1, 10.f
-};
+Ability_CrouchAttack::Ability_CrouchAttack()
+{
+    AttackData = {
+        {50.f, -10.f}, {30.f, 20.f}, VFXKey::AttackHit1
+    };
+}
 
 void Ability_CrouchAttack::OnActivate()
 {
     Ability::OnActivate();
 
-    GetAnimator()->Play(AttackData.animKey, true, BIND(this, EndAbility), BIND(this, EndAbility));
+    // AttackData 설정
+    float baseAttack = GetStatComponent()->GetCurrent(EStatType::AttackPower);
+    AttackData.damage = baseAttack;
+
+    GetAnimator()->Play(AnimKey::CrouchAttack, true, BIND(this, EndAbility), BIND(this, EndAbility));
 
     WaitEvent(EGameEvent::Input_Crouch_Released, BIND_EVENT(this, OnCrouchReleased));
     WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));
@@ -42,15 +49,15 @@ void Ability_CrouchAttack::OnCrouchReleased()
 void Ability_CrouchAttack::OnHitCheck()
 {
     vector<HitResult> hitResults;
-    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, AttackData, ELayer::Monster, hitResults);
-    
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, AttackData, {Monster,Projectile}, hitResults);
+
     // Play Sound
     if (bHit)
     {
-        SFX->PlayOnce(SFXKey::PlayerEnemyHit1);
+        PlaySFX(SFXKey::PlayerEnemyHit1);
     }
     else
     {
-        SFX->PlayOnce(SFXKey::PlayerSlashAir1);
+        PlaySFX(SFXKey::PlayerSlashAir1);
     }
 }

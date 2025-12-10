@@ -48,7 +48,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -151,6 +151,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -162,8 +163,14 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="Game\Ability\Ability.h" />
-    <ClInclude Include="Game\Ability\Ability_HitReaction.h" />
-    <ClInclude Include="Game\Ability\Monster\Ability_MonsterAttack.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossAppear.h" />
+    <ClInclude Include="Game\Ability\Common\Ability_Die.h" />
+    <ClInclude Include="Game\Ability\Common\Ability_HitReaction.h" />
+    <ClInclude Include="Game\Ability\Monster\Ability_AcolyteAttack.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossSlash.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossSpit.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossStomp.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossGroundSmash.h" />
     <ClInclude Include="Game\Ability\Player\Ability_AirAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_ComboAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Crouch.h" />
@@ -179,23 +186,32 @@
     <ClInclude Include="Game\CGame.h" />
     <ClInclude Include="Game\Component\CAbilitySystem.h" />
     <ClInclude Include="Game\Component\CAIController.h" />
+    <ClInclude Include="Game\Component\CBossAIController.h" />
     <ClInclude Include="Game\Component\CCharacterMovement.h" />
     <ClInclude Include="Game\Component\CRigidbody.h" />
+    <ClInclude Include="Game\Component\CStatComponent.h" />
     <ClInclude Include="Game\Component\CStateSystem.h" />
     <ClInclude Include="Game\Enum.h" />
     <ClInclude Include="Game\Interface\CombatInterface.h" />
+    <ClInclude Include="Game\Manager\CEventBus.h" />
     <ClInclude Include="Game\Manager\CGameUIManager.h" />
     <ClInclude Include="Game\Manager\CMapManager.h" />
     <ClInclude Include="Game\Manager\CSFXManager.h" />
     <ClInclude Include="Game\Manager\CVFXManager.h" />
     <ClInclude Include="Game\Map\CMap.h" />
     <ClInclude Include="Game\Map\CMapLayer.h" />
+    <ClInclude Include="Game\Object\Character\CBoss.h" />
+    <ClInclude Include="Game\Object\Character\CBoss_TenPiedad.h" />
     <ClInclude Include="Game\Object\Character\CCharacter.h" />
     <ClInclude Include="Game\Object\Character\CEnemy.h" />
-    <ClInclude Include="Game\Object\Character\CEnemy_Acorite.h" />
+    <ClInclude Include="Game\Object\Character\CEnemy_Acolyte.h" />
     <ClInclude Include="Game\Object\Character\CPlayer.h" />
-    <ClInclude Include="Game\Object\Character\CharacterFactory.h" />
     <ClInclude Include="Game\Object\CVFX.h" />
+    <ClInclude Include="Game\Object\Hazard\CHazard.h" />
+    <ClInclude Include="Game\Object\Hazard\CHazard_Spike.h" />
+    <ClInclude Include="Game\Object\Hazard\CHazard_Vine.h" />
+    <ClInclude Include="Game\Object\Projectile\CProjectile.h" />
+    <ClInclude Include="Game\Object\Projectile\CProjectile_Spit.h" />
     <ClInclude Include="Game\Object\World\CGround.h" />
     <ClInclude Include="Game\Object\World\CLadder.h" />
     <ClInclude Include="Game\Object\World\CLedge.h" />
@@ -203,15 +219,20 @@
     <ClInclude Include="Game\Object\World\CTransitionArea.h" />
     <ClInclude Include="Game\Object\World\CWorldCollider.h" />
     <ClInclude Include="Game\Scene\CMapScene.h" />
-    <ClInclude Include="Game\Scene\CStage01.h" />
-    <ClInclude Include="Game\Scene\CStage02.h" />
+    <ClInclude Include="Game\Scene\CStage_Beginning.h" />
+    <ClInclude Include="Game\Scene\CSimpleStage.h" />
     <ClInclude Include="Game\Scene\CSceneTitle.h" />
     <ClInclude Include="Game\Scene\CStage_Boss01.h" />
     <ClInclude Include="Game\SFXKeys.h" />
+    <ClInclude Include="Game\UI\Buttons\CButton_MainMenu.h" />
+    <ClInclude Include="Game\UI\CBossHUD.h" />
     <ClInclude Include="Game\UI\CInventoryUI.h" />
     <ClInclude Include="Game\UI\COverlayUI.h" />
+    <ClInclude Include="Game\UI\COverlay_BossDefeat.h" />
     <ClInclude Include="Game\UI\CPlayerStatusHUD.h" />
     <ClInclude Include="Game\Util\AnimEventHelper.h" />
+    <ClInclude Include="Game\Util\CharacterFactory.h" />
+    <ClInclude Include="Game\Util\CLedgeHelper.h" />
     <ClInclude Include="Game\Util\CombatHelper.h" />
     <ClInclude Include="Game\Util\TransitionHelper.h" />
     <ClInclude Include="Game\VFXKeys.h" />
@@ -222,8 +243,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Ability\Ability.cpp" />
-    <ClCompile Include="Game\Ability\Ability_HitReaction.cpp" />
-    <ClCompile Include="Game\Ability\Monster\Ability_MonsterAttack.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossAppear.cpp" />
+    <ClCompile Include="Game\Ability\Common\Ability_Die.cpp" />
+    <ClCompile Include="Game\Ability\Common\Ability_HitReaction.cpp" />
+    <ClCompile Include="Game\Ability\Monster\Ability_AcolyteAttack.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossSlash.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossSpit.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossStomp.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossGroundSmash.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_AirAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_ComboAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Crouch.cpp" />
@@ -234,162 +261,14 @@
     <ClCompile Include="Game\Ability\Player\Ability_Parry.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Slide.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_UseFlask.cpp" />
-    <ClCompile Include="Game\Camera\CCameraController.cpp">
-      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <Optimization>Disabled</Optimization>
-      <SupportJustMyCode>true</SupportJustMyCode>
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <AssemblerListingLocation>x64\Debug\</AssemblerListingLocation>
-      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-      <BrowseInformation>false</BrowseInformation>
-      <BrowseInformationFile>x64\Debug\</BrowseInformationFile>
-      <CompileAs>Default</CompileAs>
-      <ConformanceMode>true</ConformanceMode>
-      <DiagnosticsFormat>Column</DiagnosticsFormat>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <ErrorReporting>Prompt</ErrorReporting>
-      <ExpandAttributedSource>false</ExpandAttributedSource>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <EnableASAN>false</EnableASAN>
-      <EnableFuzzer>false</EnableFuzzer>
-      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <EnableVectorLength>NotSet</EnableVectorLength>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-      <GenerateModuleDependencies>false</GenerateModuleDependencies>
-      <GenerateSourceDependencies>false</GenerateSourceDependencies>
-      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>Default</LanguageStandard>
-      <LanguageStandard_C>Default</LanguageStandard_C>
-      <MinimalRebuild>false</MinimalRebuild>
-      <ModuleDependenciesFile>x64\Debug\</ModuleDependenciesFile>
-      <ModuleOutputFile>x64\Debug\</ModuleOutputFile>
-      <OmitDefaultLibName>false</OmitDefaultLibName>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <ObjectFileName>x64\Debug\</ObjectFileName>
-      <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>x64\Debug\vc143.pdb</ProgramDataBaseFileName>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>x64\Debug\WinApi.pch</PrecompiledHeaderOutputFile>
-      <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessKeepComments>false</PreprocessKeepComments>
-      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ShowIncludes>false</ShowIncludes>
-      <SourceDependenciesFile>x64\Debug\</SourceDependenciesFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
-      <SpectreMitigation>false</SpectreMitigation>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <TrackerLogDirectory>x64\Debug\WinApi.tlog\</TrackerLogDirectory>
-      <TranslateIncludes>false</TranslateIncludes>
-      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-      <TreatWarningAsError>false</TreatWarningAsError>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <UseFullPaths>true</UseFullPaths>
-      <WarningLevel>Level3</WarningLevel>
-      <XMLDocumentationFileName>x64\Debug\</XMLDocumentationFileName>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <IntelJCCErratum>false</IntelJCCErratum>
-      <BuildStlModules>false</BuildStlModules>
-      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
-      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
-      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
-      <LinkCompiled>true</LinkCompiled>
-    </ClCompile>
-    <ClCompile Include="Game\CGame.cpp">
-      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <Optimization>Disabled</Optimization>
-      <SupportJustMyCode>true</SupportJustMyCode>
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <AssemblerListingLocation>x64\Debug\</AssemblerListingLocation>
-      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-      <BrowseInformation>false</BrowseInformation>
-      <BrowseInformationFile>x64\Debug\</BrowseInformationFile>
-      <CompileAs>Default</CompileAs>
-      <ConformanceMode>true</ConformanceMode>
-      <DiagnosticsFormat>Column</DiagnosticsFormat>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <ErrorReporting>Prompt</ErrorReporting>
-      <ExpandAttributedSource>false</ExpandAttributedSource>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <EnableASAN>false</EnableASAN>
-      <EnableFuzzer>false</EnableFuzzer>
-      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <EnableVectorLength>NotSet</EnableVectorLength>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-      <GenerateModuleDependencies>false</GenerateModuleDependencies>
-      <GenerateSourceDependencies>false</GenerateSourceDependencies>
-      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>Default</LanguageStandard>
-      <LanguageStandard_C>Default</LanguageStandard_C>
-      <MinimalRebuild>false</MinimalRebuild>
-      <ModuleDependenciesFile>x64\Debug\</ModuleDependenciesFile>
-      <ModuleOutputFile>x64\Debug\</ModuleOutputFile>
-      <OmitDefaultLibName>false</OmitDefaultLibName>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <ObjectFileName>x64\Debug\</ObjectFileName>
-      <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>x64\Debug\vc143.pdb</ProgramDataBaseFileName>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>x64\Debug\WinApi.pch</PrecompiledHeaderOutputFile>
-      <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessKeepComments>false</PreprocessKeepComments>
-      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ShowIncludes>false</ShowIncludes>
-      <SourceDependenciesFile>x64\Debug\</SourceDependenciesFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
-      <SpectreMitigation>false</SpectreMitigation>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <TrackerLogDirectory>x64\Debug\WinApi.tlog\</TrackerLogDirectory>
-      <TranslateIncludes>false</TranslateIncludes>
-      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-      <TreatWarningAsError>false</TreatWarningAsError>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <UseFullPaths>true</UseFullPaths>
-      <WarningLevel>Level3</WarningLevel>
-      <XMLDocumentationFileName>x64\Debug\</XMLDocumentationFileName>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <IntelJCCErratum>false</IntelJCCErratum>
-      <BuildStlModules>false</BuildStlModules>
-      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
-      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
-      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
-      <LinkCompiled>true</LinkCompiled>
-    </ClCompile>
+    <ClCompile Include="Game\Camera\CCameraController.cpp" />
+    <ClCompile Include="Game\CGame.cpp" />
     <ClCompile Include="Game\Component\CAbilitySystem.cpp" />
     <ClCompile Include="Game\Component\CAIController.cpp" />
+    <ClCompile Include="Game\Component\CBossAIController.cpp" />
     <ClCompile Include="Game\Component\CCharacterMovement.cpp" />
     <ClCompile Include="Game\Component\CRigidbody.cpp" />
+    <ClCompile Include="Game\Component\CStatComponent.cpp" />
     <ClCompile Include="Game\Component\CStateSystem.cpp" />
     <ClCompile Include="Game\Interface\CombatInterface.cpp" />
     <ClCompile Include="Game\Manager\CGameUIManager.cpp" />
@@ -398,162 +277,18 @@
     <ClCompile Include="Game\Manager\CVFXManager.cpp" />
     <ClCompile Include="Game\Map\CMap.cpp" />
     <ClCompile Include="Game\Map\CMapLayer.cpp" />
+    <ClCompile Include="Game\Object\Character\CBoss.cpp" />
+    <ClCompile Include="Game\Object\Character\CBoss_TenPiedad.cpp" />
     <ClCompile Include="Game\Object\Character\CCharacter.cpp" />
-    <ClCompile Include="Game\Object\Character\CEnemy.cpp">
-      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <Optimization>Disabled</Optimization>
-      <SupportJustMyCode>true</SupportJustMyCode>
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <AssemblerListingLocation>x64\Debug\</AssemblerListingLocation>
-      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-      <BrowseInformation>false</BrowseInformation>
-      <BrowseInformationFile>x64\Debug\</BrowseInformationFile>
-      <CompileAs>Default</CompileAs>
-      <ConformanceMode>true</ConformanceMode>
-      <DiagnosticsFormat>Column</DiagnosticsFormat>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <ErrorReporting>Prompt</ErrorReporting>
-      <ExpandAttributedSource>false</ExpandAttributedSource>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <EnableASAN>false</EnableASAN>
-      <EnableFuzzer>false</EnableFuzzer>
-      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <EnableVectorLength>NotSet</EnableVectorLength>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-      <GenerateModuleDependencies>false</GenerateModuleDependencies>
-      <GenerateSourceDependencies>false</GenerateSourceDependencies>
-      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>Default</LanguageStandard>
-      <LanguageStandard_C>Default</LanguageStandard_C>
-      <MinimalRebuild>false</MinimalRebuild>
-      <ModuleDependenciesFile>x64\Debug\</ModuleDependenciesFile>
-      <ModuleOutputFile>x64\Debug\</ModuleOutputFile>
-      <OmitDefaultLibName>false</OmitDefaultLibName>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <ObjectFileName>x64\Debug\</ObjectFileName>
-      <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>x64\Debug\vc143.pdb</ProgramDataBaseFileName>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>x64\Debug\WinApi.pch</PrecompiledHeaderOutputFile>
-      <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessKeepComments>false</PreprocessKeepComments>
-      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ShowIncludes>false</ShowIncludes>
-      <SourceDependenciesFile>x64\Debug\</SourceDependenciesFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
-      <SpectreMitigation>false</SpectreMitigation>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <TrackerLogDirectory>x64\Debug\WinApi.tlog\</TrackerLogDirectory>
-      <TranslateIncludes>false</TranslateIncludes>
-      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-      <TreatWarningAsError>false</TreatWarningAsError>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <UseFullPaths>true</UseFullPaths>
-      <WarningLevel>Level3</WarningLevel>
-      <XMLDocumentationFileName>x64\Debug\</XMLDocumentationFileName>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <IntelJCCErratum>false</IntelJCCErratum>
-      <BuildStlModules>false</BuildStlModules>
-      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
-      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
-      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
-      <LinkCompiled>true</LinkCompiled>
-    </ClCompile>
-    <ClCompile Include="Game\Object\Character\CEnemy_Acorite.cpp" />
-    <ClCompile Include="Game\Object\Character\CPlayer.cpp">
-      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <Optimization>Disabled</Optimization>
-      <SupportJustMyCode>true</SupportJustMyCode>
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <AssemblerListingLocation>x64\Debug\</AssemblerListingLocation>
-      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-      <BrowseInformation>false</BrowseInformation>
-      <BrowseInformationFile>x64\Debug\</BrowseInformationFile>
-      <CompileAs>Default</CompileAs>
-      <ConformanceMode>true</ConformanceMode>
-      <DiagnosticsFormat>Column</DiagnosticsFormat>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <ErrorReporting>Prompt</ErrorReporting>
-      <ExpandAttributedSource>false</ExpandAttributedSource>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <EnableASAN>false</EnableASAN>
-      <EnableFuzzer>false</EnableFuzzer>
-      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <EnableVectorLength>NotSet</EnableVectorLength>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-      <GenerateModuleDependencies>false</GenerateModuleDependencies>
-      <GenerateSourceDependencies>false</GenerateSourceDependencies>
-      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>Default</LanguageStandard>
-      <LanguageStandard_C>Default</LanguageStandard_C>
-      <MinimalRebuild>false</MinimalRebuild>
-      <ModuleDependenciesFile>x64\Debug\</ModuleDependenciesFile>
-      <ModuleOutputFile>x64\Debug\</ModuleOutputFile>
-      <OmitDefaultLibName>false</OmitDefaultLibName>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <ObjectFileName>x64\Debug\</ObjectFileName>
-      <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>x64\Debug\vc143.pdb</ProgramDataBaseFileName>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>x64\Debug\WinApi.pch</PrecompiledHeaderOutputFile>
-      <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessKeepComments>false</PreprocessKeepComments>
-      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ShowIncludes>false</ShowIncludes>
-      <SourceDependenciesFile>x64\Debug\</SourceDependenciesFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
-      <SpectreMitigation>false</SpectreMitigation>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <TrackerLogDirectory>x64\Debug\WinApi.tlog\</TrackerLogDirectory>
-      <TranslateIncludes>false</TranslateIncludes>
-      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-      <TreatWarningAsError>false</TreatWarningAsError>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <UseFullPaths>true</UseFullPaths>
-      <WarningLevel>Level3</WarningLevel>
-      <XMLDocumentationFileName>x64\Debug\</XMLDocumentationFileName>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <IntelJCCErratum>false</IntelJCCErratum>
-      <BuildStlModules>false</BuildStlModules>
-      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
-      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
-      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_UNICODE;UNICODE;</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
-      <LinkCompiled>true</LinkCompiled>
-    </ClCompile>
-    <ClCompile Include="Game\Object\Character\CharacterFactory.cpp" />
+    <ClCompile Include="Game\Object\Character\CEnemy.cpp" />
+    <ClCompile Include="Game\Object\Character\CEnemy_Acolyte.cpp" />
+    <ClCompile Include="Game\Object\Character\CPlayer.cpp" />
     <ClCompile Include="Game\Object\CVFX.cpp" />
+    <ClCompile Include="Game\Object\Hazard\CHazard.cpp" />
+    <ClCompile Include="Game\Object\Hazard\CHazard_Spike.cpp" />
+    <ClCompile Include="Game\Object\Hazard\CHazard_Vine.cpp" />
+    <ClCompile Include="Game\Object\Projectile\CProjectile.cpp" />
+    <ClCompile Include="Game\Object\Projectile\CProjectile_Spit.cpp" />
     <ClCompile Include="Game\Object\World\CGround.cpp" />
     <ClCompile Include="Game\Object\World\CLadder.cpp" />
     <ClCompile Include="Game\Object\World\CLedge.cpp" />
@@ -561,14 +296,19 @@
     <ClCompile Include="Game\Object\World\CTransitionArea.cpp" />
     <ClCompile Include="Game\Object\World\CWorldCollider.cpp" />
     <ClCompile Include="Game\Scene\CMapScene.cpp" />
-    <ClCompile Include="Game\Scene\CStage01.cpp" />
-    <ClCompile Include="Game\Scene\CStage02.cpp" />
+    <ClCompile Include="Game\Scene\CStage_Beginning.cpp" />
+    <ClCompile Include="Game\Scene\CSimpleStage.cpp" />
     <ClCompile Include="Game\Scene\CSceneTitle.cpp" />
     <ClCompile Include="Game\Scene\CStage_Boss01.cpp" />
+    <ClCompile Include="Game\UI\Buttons\CButton_MainMenu.cpp" />
+    <ClCompile Include="Game\UI\CBossHUD.cpp" />
     <ClCompile Include="Game\UI\CInventoryUI.cpp" />
     <ClCompile Include="Game\UI\COverlayUI.cpp" />
+    <ClCompile Include="Game\UI\COverlay_BossDefeat.cpp" />
     <ClCompile Include="Game\UI\CPlayerStatusHUD.cpp" />
     <ClCompile Include="Game\Util\AnimEventHelper.cpp" />
+    <ClCompile Include="Game\Util\CharacterFactory.cpp" />
+    <ClCompile Include="Game\Util\CLedgeHelper.cpp" />
     <ClCompile Include="Game\Util\CombatHelper.cpp" />
     <ClCompile Include="Game\Util\TransitionHelper.cpp" />
     <ClCompile Include="pch.cpp">
@@ -585,9 +325,6 @@
   <ItemGroup>
     <Image Include="small.ico" />
     <Image Include="WinApi.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Game\Ability\Piedad\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

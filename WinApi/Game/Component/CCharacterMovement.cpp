@@ -6,6 +6,30 @@
 #include "Game/Object/Character/CCharacter.h"
 #include "Components/CLineCollider.h"
 
+namespace
+{
+	// 경사면 접촉 판정 범위
+	constexpr float MIN_SLOPE_CONTACT = -5.f;      // 경사면 위로 떠있는 허용 범위
+	constexpr float MAX_SLOPE_PENETRATION = 50.f;  // 경사면에 파묻힌 최대 허용 깊이
+
+	// 가파른 경사면 미끄러짐 속도
+	constexpr float STEEP_SLOPE_SLIDE_SPEED = 300.f;
+
+	// 끼임 상태에서 밀려나는 속도
+	constexpr float SQUASH_PUSH_SPEED = 150.f;
+
+	// 바닥 스냅 오프셋 (미세한 떨림 방지)
+	constexpr float GROUND_SNAP_OFFSET = 1.f;
+
+	// 단차 허용 높이 (벽으로 처리하지 않고 넘어갈 수 있는 높이)
+	constexpr float STEP_HEIGHT_TOLERANCE = 2.5f;
+
+	// 엣지 감지용 상수
+	constexpr float EDGE_CHECK_DISTANCE = 5.0f;
+	constexpr float EDGE_CHECK_SIZE = 5.0f;
+	constexpr float EDGE_SAFETY_MARGIN = 5.0f;
+}
+
 CCharacterMovement::CCharacterMovement()
 {
 }
@@ -58,12 +82,6 @@ void CCharacterMovement::SetGrounded(bool value)
 {
 	groundState.bIsGrounded = value;
 
-	// // 착지 해제 시 지면 상태 리셋
-	// if (!groundState.bIsGrounded)
-	// {
-	// 	ResetGroundState();
-	// }
-
 	if (rigidbody)
 	{
 		rigidbody->SetGrounded(groundState.bIsGrounded);
@@ -108,11 +126,12 @@ void CCharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPl
 	Vec2 characterColHalf = collider->GetScale() * 0.5f;
 	Vec2 velocity = rigidbody->GetVelocity();
 
-	float footY = characterColPos.y + characterColHalf.y;
-
+	// X 범위 체크
 	if (!lineCollider->IsInXRange(characterColPos.x))
 		return;
 
+	// 접촉 깊이 계산
+	float footY = characterColPos.y + characterColHalf.y;
 	float slopeY = lineCollider->GetYAt(characterColPos.x);
 	float penetration = footY - slopeY;
 
@@ -120,11 +139,11 @@ void CCharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPl
 	if (isPlatform && velocity.y < 0)
 		return;
 
-	// 슬로프 위에 있거나 약간 파고들었을 때
-	if (penetration <= -5.f || penetration >= 50.f)
+	// 경사면 접촉 범위를 벗어나면 무시
+	if (penetration <= MIN_SLOPE_CONTACT || penetration >= MAX_SLOPE_PENETRATION)
 		return;
 
-	// 더 아래(Y가 큰) 슬로프를 activeGround로 선택
+	// activeGround 갱신 (더 아래 슬로프 우선)
 	if (groundState.activeGroundID == 0 || slopeY > groundState.activeGroundTop)
 	{
 		groundState.activeGroundID = lineCollider->GetID();
@@ -139,58 +158,23 @@ void CCharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPl
 	if (lineCollider->GetID() != groundState.activeGroundID)
 		return;
 
-	// 착지 상태
 	SetGrounded(true);
 
-	// 슬로프 방향 판별
+	// 슬로프 방향 및 각도 계산
 	Vec2 slopeStart = lineCollider->GetWorldStart();
 	Vec2 slopeEnd = lineCollider->GetWorldEnd();
 	bool bIsUpRight = slopeEnd.y < slopeStart.y;
-
 	float slopeAngle = lineCollider->GetSlopeAngle();
 	bool bIsGoingUp = (velocity.x > 0 && bIsUpRight) || (velocity.x < 0 && !bIsUpRight);
 
-	// 가파른 경사면
+	// 경사면 타입에 따라 처리
 	if (slopeAngle > maxSlopeAngleRad)
 	{
-		groundState.bIsOnSteepSlope = true;
-
-		Vec2 newPos = owner->GetPos();
-		float snapY = lineCollider->GetYAt(newPos.x + collider->GetOffset().x);
-		newPos.y = snapY - characterColHalf.y - collider->GetOffset().y;
-		owner->SetPos(newPos);
-
-		constexpr float SLIDE_SPEED = 300.f;
-		float slideDir = bIsUpRight ? -1.f : 1.f;
-		velocity.x = slideDir * SLIDE_SPEED * cosf(slopeAngle);
-		velocity.y = SLIDE_SPEED * sinf(slopeAngle);
-		rigidbody->SetVelocity(velocity);
-		return;
+		HandleSteepSlope(lineCollider, velocity, bIsUpRight, slopeAngle);
 	}
-
-	// 완만한 경사면
-	groundState.bIsOnSteepSlope = false;
-
-	if (velocity.y < 0)
-		return;
-
-	// 경사면 속도 보정
-	Vec2 newCharacterPos = owner->GetPos();
-	if (bIsGoingUp && abs(velocity.x) > 0.1f)
+	else
 	{
-		float cosAngle = cosf(slopeAngle);
-		float velocityAdjust = velocity.x * (1.f - cosAngle) * DT;
-		newCharacterPos.x -= velocityAdjust;
-	}
-
-	float adjustedSlopeY = lineCollider->GetYAt(newCharacterPos.x + collider->GetOffset().x);
-	newCharacterPos.y = adjustedSlopeY - characterColHalf.y - collider->GetOffset().y;
-	owner->SetPos(newCharacterPos);
-
-	if (velocity.y > 0)
-	{
-		velocity.y = 0.f;
-		rigidbody->SetVelocity(velocity);
+		HandleGentleSlope(lineCollider, velocity, bIsGoingUp, slopeAngle);
 	}
 }
 
@@ -205,12 +189,10 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 	float otherTop = otherPos.y - otherHalf.y;
 	float otherBottom = otherPos.y + otherHalf.y;
 
-	Vec2 myPos = collider->GetPos();
-	Vec2 myHalf = collider->GetScale() * 0.5f;
-	float myHead = myPos.y - myHalf.y;
-	float myFoot = myPos.y + myHalf.y;
+	float myHead = characterColPos.y - characterColHalf.y;
+	float myFoot = characterColPos.y + characterColHalf.y;
 
-	// 더 아래 Ground를 activeGround로 선택
+	// activeGround 갱신 (더 아래 Ground 우선)
 	if (groundState.activeGroundID == 0 || otherTop > groundState.activeGroundTop)
 	{
 		groundState.activeGroundID = other->GetID();
@@ -219,13 +201,10 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 		groundState.groundMaxX = otherPos.x + otherHalf.x;
 	}
 
-	// 원웨이 플랫폼
+	// 원웨이 플랫폼: 상승 중이거나 이미 통과한 경우 무시
 	if (isPlatform)
 	{
-		if (velocity.y < 0)
-			return;
-
-		if (myFoot > otherBottom)
+		if (velocity.y < 0 || myFoot > otherBottom)
 			return;
 	}
 
@@ -236,98 +215,33 @@ void CCharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 	if (overlapX <= 0 || overlapY <= 0)
 		return;
 
-	// 수직 충돌 (바닥 또는 천장)
+	// 충돌 방향 결정: 수직 vs 수평
 	if (overlapY <= overlapX)
 	{
-		// 캐릭터가 장애물 안에 깊이 들어간 경우 (발이 장애물 바닥보다 낮음)
-		// -> 위로 순간이동시키지 않고 옆으로 부드럽게 밀어냄
+		// 끼임 상태 (발이 장애물 바닥보다 아래)
 		if (myFoot > otherBottom)
 		{
 			CCharacter* character = dynamic_cast<CCharacter*>(owner);
 			int pushDir = character ? character->GetForward() : 1;
-
-			// 끼임 상태 플래그 설정
-			frameFlags.bBeingSquashed = true;
-			frameFlags.squashPushDirection = pushDir;
-
-			// 부드러운 이동 (DT 기반)
-			constexpr float SQUASH_PUSH_SPEED = 150.f;
-			float pushAmount = SQUASH_PUSH_SPEED * DT;
-			pushAmount = min(pushAmount, overlapX);  // 겹침량 이상으로 밀지 않음
-
-			Vec2 newPos = owner->GetPos();
-			newPos.x += pushDir * pushAmount;
-			owner->SetPos(newPos);
+			HandleSquashState(pushDir, overlapX);
 			return;
 		}
 
 		// 바닥 충돌
 		if (myFoot >= otherTop)
 		{
-			if (velocity.y >= 0)
-			{
-				if (groundState.activeGroundID == 0 || otherTop > groundState.activeGroundTop)
-				{
-					groundState.activeGroundID = other->GetID();
-					groundState.activeGroundTop = otherTop;
-					groundState.groundMinX = otherPos.x - otherHalf.x;
-					groundState.groundMaxX = otherPos.x + otherHalf.x;
-				}
-
-				if (other->GetID() != groundState.activeGroundID)
-					return;
-
-				SetGrounded(true);
-
-				Vec2 newPos = owner->GetPos();
-				newPos.y = otherTop + 1.f;
-				owner->SetPos(newPos);
-
-				if (velocity.y > 0)
-				{
-					velocity.y = 0.f;
-					rigidbody->SetVelocity(velocity);
-				}
-			}
+			HandleFloorCollision(other, otherPos, otherHalf, overlapY);
 		}
 		// 천장 충돌
 		else if (myHead <= otherBottom)
 		{
-			if (velocity.y < 0)
-			{
-				velocity.y = 0.f;
-				rigidbody->SetVelocity(velocity);
-
-				Vec2 newPos = owner->GetPos();
-				newPos.y += overlapY;
-				owner->SetPos(newPos);
-			}
+			HandleCeilingCollision(overlapY);
 		}
 	}
-	// 수평 충돌 (벽)
+	// 벽 충돌
 	else
 	{
-		// 단차가 아주 작으면 넘어감
-		if (abs(otherTop - myFoot) < 2.5f)
-			return;
-
-		float pushDir = (characterColPos.x < otherPos.x) ? -1.f : 1.f;
-		int wallDir = (pushDir < 0) ? 1 : -1;
-
-		bool movingIntoWall = (pushDir < 0 && velocity.x > 0) || (pushDir > 0 && velocity.x < 0);
-		if (movingIntoWall)
-		{
-			velocity.x = 0.f;
-			rigidbody->SetVelocity(velocity);
-
-			// 벽 충돌 플래그 설정
-			frameFlags.bHitWall = true;
-			frameFlags.wallHitDirection = wallDir;
-		}
-
-		Vec2 newPos = owner->GetPos();
-		newPos.x += pushDir * overlapX;
-		owner->SetPos(newPos);
+		HandleWallCollision(other, overlapX);
 	}
 }
 
@@ -396,16 +310,15 @@ void CCharacterMovement::HandleGroundExit(CCollider* other)
 	Vec2 safePos = owner->GetPos();
 	float myHalfWidth = collider->GetScale().x * 0.5f;
 	Vec2 offset = collider->GetOffset();
-	constexpr float EDGE_MARGIN = 5.0f;
 
 	if (dir > 0)
 	{
-		float safeX = edgeMaxX - myHalfWidth - EDGE_MARGIN;
+		float safeX = edgeMaxX - myHalfWidth - EDGE_SAFETY_MARGIN;
 		safePos.x = safeX - offset.x;
 	}
 	else
 	{
-		float safeX = edgeMinX + myHalfWidth + EDGE_MARGIN;
+		float safeX = edgeMinX + myHalfWidth + EDGE_SAFETY_MARGIN;
 		safePos.x = safeX - offset.x;
 	}
 	owner->SetPos(safePos);
@@ -413,12 +326,9 @@ void CCharacterMovement::HandleGroundExit(CCollider* other)
 
 bool CCharacterMovement::CheckGroundAhead(int direction)
 {
-	constexpr float CHECK_AHEAD = 5.0f;
-	constexpr float CHECK_SIZE = 5.0f;
-
 	Vec2 traceCenter = owner->GetPos();
-	traceCenter.x += direction * CHECK_AHEAD;
-	Vec2 traceHalfSize = { CHECK_SIZE, CHECK_SIZE };
+	traceCenter.x += direction * EDGE_CHECK_DISTANCE;
+	Vec2 traceHalfSize = { EDGE_CHECK_SIZE, EDGE_CHECK_SIZE };
 
 	auto groundResults = COLLISION->BoxTrace(traceCenter, traceHalfSize, (UINT)ELayer::Ground);
 	auto platformResults = COLLISION->BoxTrace(traceCenter, traceHalfSize, (UINT)ELayer::Platform);
@@ -456,4 +366,151 @@ void CCharacterMovement::ProcessMovement()
 
 	// 입력 리셋 (매 프레임 호출되어야 함)
 	moveInput = 0.f;
+}
+
+// ============================================================================
+// HandleLineGround 헬퍼 함수
+// ============================================================================
+
+void CCharacterMovement::HandleSteepSlope(CLineCollider* lineCollider, const Vec2& velocity, bool bIsUpRight, float slopeAngle)
+{
+	Vec2 characterColHalf = collider->GetScale() * 0.5f;
+
+	groundState.bIsOnSteepSlope = true;
+
+	Vec2 newPos = owner->GetPos();
+	float snapY = lineCollider->GetYAt(newPos.x + collider->GetOffset().x);
+	newPos.y = snapY - characterColHalf.y - collider->GetOffset().y;
+	owner->SetPos(newPos);
+
+	float slideDir = bIsUpRight ? -1.f : 1.f;
+	Vec2 slideVel;
+	slideVel.x = slideDir * STEEP_SLOPE_SLIDE_SPEED * cosf(slopeAngle);
+	slideVel.y = STEEP_SLOPE_SLIDE_SPEED * sinf(slopeAngle);
+	rigidbody->SetVelocity(slideVel);
+}
+
+void CCharacterMovement::HandleGentleSlope(CLineCollider* lineCollider, Vec2& velocity, bool bIsGoingUp, float slopeAngle)
+{
+	Vec2 characterColHalf = collider->GetScale() * 0.5f;
+
+	groundState.bIsOnSteepSlope = false;
+
+	if (velocity.y < 0)
+		return;
+
+	// 경사면 속도 보정
+	Vec2 newCharacterPos = owner->GetPos();
+	if (bIsGoingUp && abs(velocity.x) > 0.1f)
+	{
+		float cosAngle = cosf(slopeAngle);
+		float velocityAdjust = velocity.x * (1.f - cosAngle) * DT;
+		newCharacterPos.x -= velocityAdjust;
+	}
+
+	float adjustedSlopeY = lineCollider->GetYAt(newCharacterPos.x + collider->GetOffset().x);
+	newCharacterPos.y = adjustedSlopeY - characterColHalf.y - collider->GetOffset().y;
+	owner->SetPos(newCharacterPos);
+
+	if (velocity.y > 0)
+	{
+		velocity.y = 0.f;
+		rigidbody->SetVelocity(velocity);
+	}
+}
+
+// ============================================================================
+// HandleBoxGround 헬퍼 함수
+// ============================================================================
+
+void CCharacterMovement::HandleSquashState(int pushDir, float overlapX)
+{
+	frameFlags.bBeingSquashed = true;
+	frameFlags.squashPushDirection = pushDir;
+
+	float pushAmount = SQUASH_PUSH_SPEED * DT;
+	pushAmount = min(pushAmount, overlapX);
+
+	Vec2 newPos = owner->GetPos();
+	newPos.x += pushDir * pushAmount;
+	owner->SetPos(newPos);
+}
+
+void CCharacterMovement::HandleFloorCollision(CCollider* other, const Vec2& otherPos, const Vec2& otherHalf, float overlapY)
+{
+	Vec2 velocity = rigidbody->GetVelocity();
+	float otherTop = otherPos.y - otherHalf.y;
+
+	if (velocity.y < 0)
+		return;
+
+	// activeGround 갱신
+	if (groundState.activeGroundID == 0 || otherTop > groundState.activeGroundTop)
+	{
+		groundState.activeGroundID = other->GetID();
+		groundState.activeGroundTop = otherTop;
+		groundState.groundMinX = otherPos.x - otherHalf.x;
+		groundState.groundMaxX = otherPos.x + otherHalf.x;
+	}
+
+	if (other->GetID() != groundState.activeGroundID)
+		return;
+
+	SetGrounded(true);
+
+	Vec2 newPos = owner->GetPos();
+	newPos.y = otherTop + GROUND_SNAP_OFFSET;
+	owner->SetPos(newPos);
+
+	if (velocity.y > 0)
+	{
+		velocity.y = 0.f;
+		rigidbody->SetVelocity(velocity);
+	}
+}
+
+void CCharacterMovement::HandleCeilingCollision(float overlapY)
+{
+	Vec2 velocity = rigidbody->GetVelocity();
+
+	if (velocity.y >= 0)
+		return;
+
+	velocity.y = 0.f;
+	rigidbody->SetVelocity(velocity);
+
+	Vec2 newPos = owner->GetPos();
+	newPos.y += overlapY;
+	owner->SetPos(newPos);
+}
+
+void CCharacterMovement::HandleWallCollision(CCollider* other, float overlapX)
+{
+	Vec2 characterColPos = collider->GetPos();
+	Vec2 otherPos = other->GetPos();
+	Vec2 otherHalf = other->GetScale() * 0.5f;
+	float otherTop = otherPos.y - otherHalf.y;
+	float myFoot = characterColPos.y + collider->GetScale().y * 0.5f;
+
+	// 단차가 아주 작으면 넘어감
+	if (abs(otherTop - myFoot) < STEP_HEIGHT_TOLERANCE)
+		return;
+
+	Vec2 velocity = rigidbody->GetVelocity();
+	float pushDir = (characterColPos.x < otherPos.x) ? -1.f : 1.f;
+	int wallDir = (pushDir < 0) ? 1 : -1;
+
+	bool movingIntoWall = (pushDir < 0 && velocity.x > 0) || (pushDir > 0 && velocity.x < 0);
+	if (movingIntoWall)
+	{
+		velocity.x = 0.f;
+		rigidbody->SetVelocity(velocity);
+
+		frameFlags.bHitWall = true;
+		frameFlags.wallHitDirection = wallDir;
+	}
+
+	Vec2 newPos = owner->GetPos();
+	newPos.x += pushDir * overlapX;
+	owner->SetPos(newPos);
 }

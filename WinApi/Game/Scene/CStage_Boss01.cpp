@@ -2,6 +2,7 @@
 #include "CStage_Boss01.h"
 
 #include "Game/Manager/CGameUIManager.h"
+#include "Game/Manager/CSFXManager.h"
 
 CStage_Boss01::CStage_Boss01()
 {
@@ -12,5 +13,16 @@ void CStage_Boss01::OnLoadMap()
 {
     CMapScene::OnLoadMap();
     SpawnPlayer();
-    GAMEUI->ShowHUD(true);
+    GAMEUI->ShowPlayerHUD(true);
+}
+
+void CStage_Boss01::Enter()
+{
+    CMapScene::Enter();
+}
+
+void CStage_Boss01::Exit()
+{
+    CMapScene::Exit();
+    SFX->Stop(SFXKey::BGM_Piedad);
 }

@@ -1,0 +1,12 @@
+{
+    "image": "Image/MainMenu/crisanta-fg-petals.bmp",
+    "pivot": [320.0, 180.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 640, 360], "events": []},
+        {"rect": [640, 0, 640, 360], "events": []},
+        {"rect": [1280, 0, 640, 360], "events": []},
+        {"rect": [1920, 0, 640, 360], "events": []},
+        {"rect": [2560, 0, 640, 360], "events": []}
+    ]
+}

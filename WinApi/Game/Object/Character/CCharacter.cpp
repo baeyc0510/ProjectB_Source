@@ -5,7 +5,10 @@
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Component/CCharacterMovement.h"
+#include "Game/Manager/CVFXManager.h"
+#include "Game/Object/CVFX.h"
 #include "Game/Util/AnimEventHelper.h"
 
 CCharacter::CCharacter()
@@ -42,6 +45,13 @@ void CCharacter::SetIsGrounded(bool grounded)
     }
 }
 
+bool CCharacter::IsGrounded() const
+{
+    if (movement)
+        return movement->IsGrounded();
+    return false;
+}
+
 UINT CCharacter::GetCurrentGroundID() const
 {
     return movement ? movement->GetActiveGroundID() : 0;
@@ -60,6 +70,12 @@ float CCharacter::GetPlatformMaxX() const
 bool CCharacter::HasPlatformBounds() const
 {
     return movement ? movement->HasGroundBounds() : false;
+}
+
+void CCharacter::StopHorizontalMovement()
+{
+    if (rigidbody)
+        rigidbody->SetVelocity(Vec2(0.f, rigidbody->GetVelocity().y));
 }
 
 void CCharacter::Init()
@@ -83,6 +99,14 @@ void CCharacter::Init()
         OnStateChanged(oldTags, newTags);
     });
     AddChild(stateSystem);
+
+    // StatComponent
+    statComponent = new CStatComponent();
+    // StatComponent 이벤트 바인딩
+    statComponent->OnStatChanged.Add([this](EStatType type, float current, float max) {
+        OnStatChanged(type, current, max);
+    });
+    AddChild(statComponent);
 
     // AbilitySystem
     abilitySystem = new CAbilitySystem();
@@ -208,6 +232,17 @@ void CCharacter::OnStateChanged(EStateTag oldTags, EStateTag newTags)
     }
 }
 
+void CCharacter::OnStatChanged(EStatType type, float current, float max)
+{
+    if (type == EStatType::HP)
+    {
+        if (IsNearlyEqual(current,0))
+        {
+            abilitySystem->TryActivateAbility(EAbility::Die);
+        }
+    }
+}
+
 void CCharacter::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
     assert(animator);
@@ -215,4 +250,27 @@ void CCharacter::AddAnimation(const wstring& aniName, const wstring& path, bool 
     assert(animation);
     animation->SetRepeat(bShouldRepeat);
     animator->AddAnimation(aniName, animation);
+}
+
+void CCharacter::SpawnDamageVFX(const CombatContext& context, int spawnDirection)
+{
+    Vec2 spawnPos = context.hitResult.hitCenter;
+
+    // Hit VFX
+    if (!context.vfxKey.empty())
+    {
+        if (CVFX* vfx = VFX->CreateVFX(context.vfxKey, spawnPos, spawnDirection))
+        {
+            vfx->PlayVFX();
+        }
+    }
+
+    // Blood VFX (only if actual damage)
+    if (context.value > 0.0001f)
+    {
+        if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
+        {
+            vfx->PlayVFX();
+        }
+    }
 }

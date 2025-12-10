@@ -1,8 +1,11 @@
 #pragma once
 #include "Game/Component/CAbilitySystem.h"
+#include "Game/Interface/CombatInterface.h"
 
+enum class EStatType;
 class CAbilitySystem;
 class CStateSystem;
+class CStatComponent;
 class CRigidbody;
 class CCharacterMovement;
 
@@ -14,16 +17,30 @@ public:
 
     /*~ CCharacter Interface ~*/
     CStateSystem* GetStateSystem() const { return stateSystem; }
+    CAbilitySystem* GetAbilitySystem() const { return abilitySystem; }
+    CStatComponent* GetStatComponent() const { return statComponent; }
     CCharacterMovement* GetMovement() const { return movement; }
     virtual wstring GetRandomBloodVfxKey() const;
 
     void SetIgnorePlatform(UINT platformID);
     void SetIsGrounded(bool grounded);
+    bool IsGrounded() const;
     UINT GetCurrentGroundID() const;
     
     float GetPlatformMinX() const;
     float GetPlatformMaxX() const;
     bool HasPlatformBounds() const;
+
+    Vec2 GetPushbackForce() const { return pushbackForce; }
+
+    // 수평 이동 정지 (y속도 유지)
+    void StopHorizontalMovement();
+
+    virtual void OnDieStart() {}
+    virtual void OnDieComplete() {}
+
+    // VFX Helper
+    void SpawnDamageVFX(const CombatContext& context, int spawnDirection);
 
 protected:
     /*~ CGameObject Interface ~*/
@@ -41,9 +58,10 @@ protected:
     /*~ CCharacter Interface ~*/
     virtual void UpdateStates();
     virtual void OnStateChanged(EStateTag oldTags, EStateTag newTags);
+    virtual void OnStatChanged(EStatType type, float current, float max);
     virtual void HandleAnimationEvent(EGameEvent event) {}
     virtual bool ShouldIgnorePlatform() const { return false; }
-
+    
     void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 
     template<typename AbilityType>
@@ -58,6 +76,7 @@ protected:
     // 공통 컴포넌트
     CAnimator* animator = nullptr;
     CStateSystem* stateSystem = nullptr;
+    CStatComponent* statComponent = nullptr;
     CAbilitySystem* abilitySystem = nullptr;
     CRigidbody* rigidbody = nullptr;
     CBoxCollider* collider = nullptr;
@@ -65,4 +84,5 @@ protected:
 
     // 이전 프레임 상태 (변화 감지용)
     bool bWasOnSteepSlope = false;
+    Vec2 pushbackForce;
 };

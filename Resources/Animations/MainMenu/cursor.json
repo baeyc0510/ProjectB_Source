@@ -1,0 +1,18 @@
+{
+    "image": "Image/MainMenu/cherub.bmp",
+    "pivot": [0.5, 1.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 51, 48], "events": []},
+        {"rect": [51, 0, 51, 48], "events": []},
+        {"rect": [102, 0, 51, 48], "events": []},
+        {"rect": [153, 0, 51, 48], "events": []},
+        {"rect": [0, 48, 51, 48], "events": []},
+        {"rect": [51, 48, 51, 48], "events": []},
+        {"rect": [102, 48, 51, 48], "events": []},
+        {"rect": [153, 48, 51, 48], "events": []},
+        {"rect": [0, 96, 51, 48], "events": []},
+        {"rect": [51, 96, 51, 48], "events": []},
+        {"rect": [102, 96, 51, 48], "events": []}
+    ]
+}

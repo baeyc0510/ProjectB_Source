@@ -31,6 +31,7 @@ namespace SFXKey
     constexpr const wchar_t* PlayerRun1 = L"PlayerRun1";
     constexpr const wchar_t* PlayerRun2 = L"PlayerRun2";
     constexpr const wchar_t* PlayerClimbLadder = L"PlayerClimbLadder";
+    constexpr const wchar_t* PlayerLedgeGrab = L"PlayerLedgeGrab";
 
     // 플레이어 - 패리
     constexpr const wchar_t* PlayerStartParry = L"PlayerStartParry";
@@ -43,4 +44,35 @@ namespace SFXKey
     constexpr const wchar_t* PlayerRespawn = L"PlayerRespawn";
     constexpr const wchar_t* PlayerGetItem = L"PlayerGetItem";
     constexpr const wchar_t* PlayerOverthrow = L"PlayerOverthrow";
+    
+    // Acolyte
+    constexpr const wchar_t* AcolyteDeath = L"AcolyteDeath";
+    constexpr const wchar_t* AcolyteStep1 = L"AcolyteStep1";
+    constexpr const wchar_t* AcolyteStep2 = L"AcolyteStep2";
+    constexpr const wchar_t* AcolytePrepareAttack = L"AcolytePrepareAttack";
+    constexpr const wchar_t* AcolyteReleaseAttack = L"AcolyteReleaseAttack";
+    
+    
+    // 보스 - Piedad
+    constexpr const wchar_t* PiedadSlash = L"PiedadSlash";
+    constexpr const wchar_t* PiedadSmash = L"PiedadSmash";
+    constexpr const wchar_t* PiedadSmashVoice = L"PiedadSmashVoice";
+    constexpr const wchar_t* PiedadSmashGetUp = L"PiedadSmashGetUp";
+    constexpr const wchar_t* PiedadSmashGetUpVoice = L"PiedadSmashGetUpVoice";
+    constexpr const wchar_t* PiedadSpitVoice = L"PiedadSpitVoice";
+    constexpr const wchar_t* PiedadStomp = L"PiedadStomp";
+    constexpr const wchar_t* PiedadTurn = L"PiedadTurn";
+    constexpr const wchar_t* PiedadWakeUp = L"PiedadWakeUp";
+    constexpr const wchar_t* PiedadDeath = L"PiedadDeath";
+    constexpr const wchar_t* PiedadDeathVoice = L"PiedadDeathVoice";
+    
+    
+    // BGM
+    constexpr const wchar_t* BGM_Piedad = L"BGM_Piedad"; // 보스
+    constexpr const wchar_t* BGM_Title  = L"BGM_Title"; // 타이틀
+    
+    
+    // 기타
+    constexpr const wchar_t* MapEnter = L"MapEnter";
+    constexpr const wchar_t* ClearBoss = L"ClearBoss";
 }

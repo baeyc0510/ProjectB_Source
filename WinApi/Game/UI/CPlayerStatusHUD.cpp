@@ -3,9 +3,9 @@
 #include "Asset/CImage.h"
 
 CPlayerStatusHUD::CPlayerStatusHUD()
-	: imgFrame(nullptr)
-	, imgHPBar(nullptr)
-	, imgMPBar(nullptr)
+	: imgPlayerFrame(nullptr)
+	, imgPlayerHPBar(nullptr)
+	, imgPlayerMPBar(nullptr)
 	, currentHP(100.f)
 	, maxHP(100.f)
 	, currentMP(100.f)
@@ -44,16 +44,16 @@ void CPlayerStatusHUD::SetFlask(int current, int max)
 
 void CPlayerStatusHUD::Init()
 {
-	imgFrame = LOADIMAGE(L"Player_Status", L"Image/Sheet/Player_Status.bmp");
-	imgHPBar = LOADIMAGE(L"Player_HP", L"Image/Sheet/Player_HP.bmp");
-	imgMPBar = LOADIMAGE(L"Player_MP", L"Image/Sheet/Player_MP.bmp");
-	imgFlaskFull = LOADIMAGE(L"Flask_Full", L"Image/Sheet/Full_Flask.bmp");
-	imgFlaskEmpty = LOADIMAGE(L"Flask_Empty", L"Image/Sheet/Empty_Flask.bmp");
+	imgPlayerFrame = LOADIMAGE(L"Player_Status", L"Image/Sheet/Player_Status.bmp");
+	imgPlayerHPBar = LOADIMAGE(L"Player_HP", L"Image/Sheet/Player_HP.bmp");
+	imgPlayerMPBar = LOADIMAGE(L"Player_MP", L"Image/Sheet/Player_MP.bmp");
+	imgPlayerFlaskFull = LOADIMAGE(L"Flask_Full", L"Image/Sheet/Full_Flask.bmp");
+	imgPlayerFlaskEmpty = LOADIMAGE(L"Flask_Empty", L"Image/Sheet/Empty_Flask.bmp");
 
 	// Set scale to frame size
-	if (imgFrame)
+	if (imgPlayerFrame)
 	{
-		scale = Vec2((float)imgFrame->GetBmpWidth(), (float)imgFrame->GetBmpHeight());
+		scale = Vec2((float)imgPlayerFrame->GetBmpWidth(), (float)imgPlayerFrame->GetBmpHeight());
 	}
 }
 
@@ -67,7 +67,7 @@ void CPlayerStatusHUD::Update()
 
 void CPlayerStatusHUD::Render()
 {
-	if (!imgFrame || !imgHPBar || !imgMPBar)
+	if (!imgPlayerFrame || !imgPlayerHPBar || !imgPlayerMPBar)
 		return;
 
 	// UI는 별도 레이어에서 윈도우 해상도(1280x720)로 직접 렌더링됨
@@ -77,30 +77,30 @@ void CPlayerStatusHUD::Render()
 
 	// 1. HP bar
 	float hpRatio = (maxHP > 0.f) ? (currentHP / maxHP) : 0.f;
-	float hpSrcWidth = (float)imgHPBar->GetBmpWidth() * hpRatio;
-	float hpSrcHeight = (float)imgHPBar->GetBmpHeight();
+	float hpSrcWidth = (float)imgPlayerHPBar->GetBmpWidth() * hpRatio;
+	float hpSrcHeight = (float)imgPlayerHPBar->GetBmpHeight();
 	float hpDstWidth = hpSrcWidth * s;
 	float hpDstHeight = hpSrcHeight * s;
 
 	float hpX = baseX + HP_BAR_OFFSET_X * s;
 	float hpY = baseY + HP_BAR_OFFSET_Y * s;
 
-	RENDER->FrameImage(imgHPBar,
+	RENDER->FrameImage(imgPlayerHPBar,
 		hpX, hpY, hpX + hpDstWidth, hpY + hpDstHeight,
 		0, 0, hpSrcWidth, hpSrcHeight,
 		false);
 
 	// 2. MP bar
 	float mpRatio = (maxMP > 0.f) ? (currentMP / maxMP) : 0.f;
-	float mpSrcWidth = (float)imgMPBar->GetBmpWidth() * mpRatio;
-	float mpSrcHeight = (float)imgMPBar->GetBmpHeight();
+	float mpSrcWidth = (float)imgPlayerMPBar->GetBmpWidth() * mpRatio;
+	float mpSrcHeight = (float)imgPlayerMPBar->GetBmpHeight();
 	float mpDstWidth = mpSrcWidth * s;
 	float mpDstHeight = mpSrcHeight * s;
 
 	float mpX = baseX + MP_BAR_OFFSET_X * s;
 	float mpY = baseY + MP_BAR_OFFSET_Y * s;
 
-	RENDER->FrameImage(imgMPBar,
+	RENDER->FrameImage(imgPlayerMPBar,
 		mpX, mpY, mpX + mpDstWidth, mpY + mpDstHeight,
 		0, 0, mpSrcWidth, mpSrcHeight,
 		false);
@@ -118,16 +118,16 @@ void CPlayerStatusHUD::Render()
 		// full flask
 		if (i < currentFlask)
 		{
-			imgFlask = imgFlaskFull;
-			flaskSrcWidth = (float)imgFlaskFull->GetBmpWidth();
-			flaskSrcHeight = (float)imgFlaskFull->GetBmpHeight();
+			imgFlask = imgPlayerFlaskFull;
+			flaskSrcWidth = (float)imgPlayerFlaskFull->GetBmpWidth();
+			flaskSrcHeight = (float)imgPlayerFlaskFull->GetBmpHeight();
 		}
 		// empty flask
 		else
 		{
-			imgFlask = imgFlaskEmpty;
-			flaskSrcWidth = (float)imgFlaskEmpty->GetBmpWidth();
-			flaskSrcHeight = (float)imgFlaskEmpty->GetBmpHeight();
+			imgFlask = imgPlayerFlaskEmpty;
+			flaskSrcWidth = (float)imgPlayerFlaskEmpty->GetBmpWidth();
+			flaskSrcHeight = (float)imgPlayerFlaskEmpty->GetBmpHeight();
 		}
 
 		float flaskDstWidth = flaskSrcWidth * s;
@@ -144,7 +144,7 @@ void CPlayerStatusHUD::Render()
 	// 4. portrait, frame
 	float frameW = scale.x * s;
 	float frameH = scale.y * s;
-	RENDER->TransparentImage(imgFrame,
+	RENDER->TransparentImage(imgPlayerFrame,
 		baseX, baseY,
 		baseX + frameW, baseY + frameH);
 }

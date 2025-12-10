@@ -2,11 +2,11 @@
 #include "CMapManager.h"
 
 #include "Game/Object/Character/CEnemy.h"
-#include "Game/Object/Character/CharacterFactory.h"
 #include "Game/Object/World/CGround.h"
 #include "Game/Object/World/CLadder.h"
 #include "Game/Object/World/CLedge.h"
 #include "Game/Object/World/CPlatform.h"
+#include "Game/Util/CharacterFactory.h"
 
 CMapManager::CMapManager()
 	: currentMap(nullptr)
@@ -227,10 +227,10 @@ void CMapManager::CreateWorldCharacters(CScene* scene)
 	
 	for (const auto& objData : currentMap->GetWorldObjects())
 	{
-		if (CEnemy* enemy = CharacterFactory::CreateEnemy(objData.name))
+		if (CCharacter* character = CharacterFactory::CreateCharacter(objData.name))
 		{
-			enemy->SetPos(PixelToWorld(objData.pos));
-			scene->AddGameObject(enemy);
+			character->SetPos(PixelToWorld(objData.pos));
+			scene->AddGameObject(character);
 		}
 	}
 }

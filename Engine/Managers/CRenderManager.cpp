@@ -13,6 +13,7 @@ CRenderManager::CRenderManager()
 	hUIMemDC = 0;
 	hUIBMP = 0;
 	hCurrentDC = 0;
+	bUIMode = false;
 
 	hCompositeDC = 0;
 	hCompositeBMP = 0;
@@ -89,6 +90,7 @@ void CRenderManager::BeginDraw()
 {
 	// 게임 버퍼로 렌더링 시작
 	hCurrentDC = hMemDC;
+	bUIMode = false;
 
 	// 백버퍼(가상 해상도 크기)를 회색으로 클리어
 	RECT rect = { 0, 0, (int)virtualSize.x, (int)virtualSize.y };
@@ -115,6 +117,15 @@ void CRenderManager::EndDraw()
 
 void CRenderManager::BeginUI()
 {
+	// 이미 UI 모드면 클리어하지 않음 (중복 호출 방지)
+	if (bUIMode)
+	{
+		hCurrentDC = hUIMemDC;
+		return;
+	}
+
+	bUIMode = true;
+
 	// UI 버퍼로 렌더링 대상 전환
 	hCurrentDC = hUIMemDC;
 
@@ -128,6 +139,13 @@ void CRenderManager::BeginUI()
 void CRenderManager::EndUI()
 {
 	// 게임 버퍼로 렌더링 대상 복귀
+	hCurrentDC = hMemDC;
+}
+
+void CRenderManager::FinalizeUI()
+{
+	// 프레임 끝에서 UI 모드 리셋
+	bUIMode = false;
 	hCurrentDC = hMemDC;
 }
 

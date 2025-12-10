@@ -2,8 +2,10 @@
 #include "CTransitionArea.h"
 
 #include "Game/Enum.h"
+#include "Game/Component/CStateSystem.h"
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Map/CMap.h"
+#include "Game/Object/Character/CPlayer.h"
 #include "Game/Scene/CMapScene.h"
 #include "Game/Util/TransitionHelper.h"
 
@@ -65,8 +67,22 @@ void CTransitionArea::OnCollisionEnter(CCollider* other)
             mapScene->SetSpawnId(spawnId);
         }
         
-        CAMERA->FadeOut(0.5f);
-        WORLD->ChangeScene(targetScene, 0.5f);
-        GAMEUI->ShowHUD(false);
+        const float changeDelay = 0.5f;
+        CAMERA->FadeOut(changeDelay);
+        WORLD->ChangeScene(targetScene, changeDelay);
+        GAMEUI->ShowPlayerHUD(false);
+        
+        // 플레이어 행동을 잠시 멈춤
+        if (CPlayer* player = dynamic_cast<CPlayer*>(other->GetOwner()))
+        {
+            player->GetStateSystem()->AddTag(Tag_BlockMovement);
+            player->GetStateSystem()->AddTag(Tag_BlockAbility);
+            
+            transitionTimerHandle = TIMER->SetTimer([this,player]()
+            {
+                player->GetStateSystem()->RemoveTag(Tag_BlockMovement);
+                player->GetStateSystem()->RemoveTag(Tag_BlockAbility);
+            }, changeDelay * 2.0f);
+        }
     }
 }

@@ -66,6 +66,12 @@ bool CAbilitySystem::CanActivateAbility(Ability* ability) const
 	return true;
 }
 
+bool CAbilitySystem::CanActivateAbility(EAbility abilityType) const
+{
+	Ability* ability = GetAbility(abilityType);
+	return CanActivateAbility(ability);
+}
+
 void CAbilitySystem::ActivateAbility(Ability* ability)
 {
 	// CancelTags에 해당하는 Ability들 취소

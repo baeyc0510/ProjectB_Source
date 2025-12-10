@@ -8,6 +8,7 @@ enum ESceneType
 	Stage02,
 	Stage03,
 	Stage04,
+	Stage05,
 	Stage_Boss01,
 };
 
@@ -22,6 +23,8 @@ enum ELayer
 	Platform,
 	Transition,
 	Ledge,		// (플랫폼 가장자리)
+	Projectile,	// 보스 투사체
+	Hazard,		// 환경 위험요소 (가시, 넝쿨 등)
 	LayerSize,
 };
 
@@ -33,29 +36,31 @@ enum EStateTag
 	Tag_Airborne			= 1 << 1,	// 공중
 	Tag_Attacking			= 1 << 2,	// 공격 중
 	Tag_Moving				= 1 << 3,	// 이동 중
-	Tag_SpecialAction		= 1 << 4,
-	Tag_Invincible			= 1 << 5,	// 무적
-	Tag_Stunned				= 1 << 6,	// 스턴
-	Tag_CanCombo			= 1 << 7,	// 콤보 가능
-	Tag_Hit					= 1 << 8,	// 피격
-	Tag_Sliding				= 1 << 9,	// 슬라이딩
-	Tag_Parrying			= 1 << 10,	// 패리 중
-	Tag_Jumping				= 1 << 11,	// 점프 중
-	Tag_AbilityAnimation	= 1 << 12,	// Ability가 애니메이션 제어 중
-	Tag_BlockMovement		= 1 << 13,
-	Tag_StopVelocity 		= 1 << 14,
-	Tag_Crouching			= 1 << 15,
-	Tag_ShouldCrouch		= 1 << 16,
-	Tag_AirAttackExhausted	= 1 << 17,	// 공중 공격 소진
-	Tag_FlaskRemaining		= 1 << 18,	// 잔여 플라스크 있음
-	Tag_Climbing			= 1 << 19,	// 사다리 타는 중
-	Tag_CanClimb			= 1 << 20,	// 사다리 진입 가능
-	Tag_HangingLedge		= 1 << 25,	// Ledge 매달리는 중
-	Tag_Squashed			= 1 << 26,	// 낮은 천장에 끼인 상태 (슬라이드 후)
+	Tag_Invincible			= 1 << 4,	// 무적
+	Tag_Stunned				= 1 << 5,	// 스턴
+	Tag_CanCombo			= 1 << 6,	// 콤보 가능
+	Tag_Hit					= 1 << 7,	// 피격
+	Tag_Sliding				= 1 << 8,	// 슬라이딩
+	Tag_Guard				= 1 << 9,	// 가드 중
+	Tag_Jumping				= 1 << 10,	// 점프 중
+	Tag_AbilityAnimation	= 1 << 11,	// Ability가 애니메이션 제어 중
+	Tag_BlockMovement		= 1 << 12,
+	Tag_BlockAbility		= 1 << 13,
+	Tag_Crouching			= 1 << 14,
+	Tag_AirAttackExhausted	= 1 << 15,	// 공중 공격 소진
+	Tag_FlaskRemaining		= 1 << 16,	// 잔여 플라스크 있음
+	Tag_Climbing			= 1 << 17,	// 사다리 타는 중
+	Tag_CanClimb			= 1 << 18,	// 사다리 진입 가능
+	Tag_HangingLedge		= 1 << 19,	// Ledge 매달리는 중
+	Tag_Squashed			= 1 << 20,	// 낮은 천장에 끼인 상태 (슬라이드 후)
 	Tag_HasTarget			= 1 << 21,	// AI: 타겟 보유
 	Tag_AIPatrol			= 1 << 22,	// AI: 순찰 중
 	Tag_AIChase				= 1 << 23,	// AI: 추격 중
 	Tag_CanClimbLedge		= 1 << 24,
+	Tag_BossAppearing		= 1 << 25,	// 보스 등장 중
+	Tag_FixedVelocity		= 1 << 26,
+	Tag_StopVelocity 		= 1 << 27,
+	Tag_Dead				= 1 << 28,
 };
 
 inline EStateTag operator|(EStateTag a, EStateTag b)
@@ -108,14 +113,20 @@ enum class EAbility
 	Climb,
 	Parry,
 	CounterAttack,
-	Hit,
+	HitReact,
 	ParryHit,
-	Death,
+	Die,
 	HangOnLedge,
 	// AI
 	AI_Patrol,
 	AI_Chase,
 	AI_Attack,
+	// Boss
+	Boss_Appear,
+	Boss_Slash,
+	Boss_Spit,
+	Boss_Stomp,
+	Boss_GroundSmash,
 };
 
 // Game 이벤트
@@ -136,6 +147,7 @@ enum class EGameEvent
 	DoAction,
 	Footstep,
 	Grab,
+	PlaySFX,
 	// 게임플레이 이벤트
 	Hit,
 	EndCrouch,
@@ -153,6 +165,9 @@ enum class EGameEvent
 	AI_TargetLost,			// 타겟 놓침
 	AI_TargetInAttackRange,	// 공격 범위 진입
 	AI_PatrolPointReached,	// 순찰 지점 도달
+	// Boss 이벤트
+	Boss_SpitProjectile,	// 투사체 발사
+	Boss_SmashImpact,		// 내려찍기 충격
 };
 
 // Damage Types
@@ -160,6 +175,8 @@ enum class EDamageType
 {
 	None,
 	Slash,
+	Heavy,
+	SuperHeavy,
 	Parry,
 };
 
@@ -168,4 +185,5 @@ enum class EOverlayUI
 {
 	None,
 	Inventory,
+	BossDefeat,
 };

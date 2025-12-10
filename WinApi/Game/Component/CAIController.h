@@ -17,6 +17,7 @@ struct FAIConfig
 	float patrolRange = 300.0f;		// 순찰 범위 (시작점 기준)
 	float patrolSpeed = 50.0f;		// 순찰 속도
 	float chaseSpeed = 100.0f;		// 추격 속도
+	bool requireFacingTarget = true;	// true면 공격 범위 판정 시 타겟이 앞에 있어야 함
 };
 
 class CAIController : public Component<CGameObject>
@@ -45,6 +46,7 @@ public:
 	float GetSafeMinX() const;
 	float GetSafeMaxX() const;
 	bool IsPositionSafe(float x) const;
+	bool IsAtBoundary(int dir) const;		// 해당 방향으로 이동 시 경계에 도달했는지
 
 	// 순찰
 	Vec2 GetPatrolOrigin() const { return patrolOrigin; }

@@ -3,7 +3,6 @@
 
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 #include "Game/Object/Character/CPlayer.h"
@@ -136,7 +135,7 @@ void Ability_Climb::OnJumpPressed()
 
 void Ability_Climb::OnGrab()
 {
-    SFX->PlayOnce(SFXKey::PlayerClimbLadder);
+    PlaySFX(SFXKey::PlayerClimbLadder);
 }
 
 void Ability_Climb::CheckAllInputReleased()

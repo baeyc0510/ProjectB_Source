@@ -123,6 +123,16 @@ private:
 	void HandleLineGround(CLineCollider* lineCollider, bool isPlatform);
 	void HandleGroundExit(CCollider* other);
 
+	// HandleLineGround 헬퍼
+	void HandleSteepSlope(CLineCollider* lineCollider, const Vec2& velocity, bool bIsUpRight, float slopeAngle);
+	void HandleGentleSlope(CLineCollider* lineCollider, Vec2& velocity, bool bIsGoingUp, float slopeAngle);
+
+	// HandleBoxGround 헬퍼
+	void HandleFloorCollision(CCollider* other, const Vec2& otherPos, const Vec2& otherHalf, float overlapY);
+	void HandleCeilingCollision(float overlapY);
+	void HandleWallCollision(CCollider* other, float overlapX);
+	void HandleSquashState(int pushDir, float overlapX);
+
 	// 엣지 감지 (AI용)
 	bool CheckGroundAhead(int direction);
 

@@ -12,7 +12,8 @@ public:
 
 	/*~ CEnemy Interface ~*/
 	CAIController* GetAIController() const { return aiController; }
-
+	Vec2 GetParryPushbackForce() const { return parryPushbackForce; }
+	
 protected:
 	/*~ CGameObject Interface ~*/
 	void Init() override;
@@ -24,7 +25,8 @@ protected:
 
 	/*~ CCharacter Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
-
+	void OnDieComplete() override;
+	
 	/*~ ICombatInterface ~*/
 	void OnDamage(CGameObject* source, const CombatContext& context) override;
 
@@ -32,9 +34,13 @@ private:
 	void UpdateAnimation();
 	void UpdateAIMovement();
 	void HandleMovementEvents();
-	Vec2 GetKnockbackVelocity(CGameObject* source, const CombatContext& context);
 
-	static constexpr float KNOCKBACK_POWER = 1.0f;
+	// UpdateAIMovement 헬퍼
+	void UpdatePatrolMovement();
+	void UpdateChaseMovement();
+	void MoveInDirection(int dir, float speed);
 
+protected:
+	Vec2 parryPushbackForce = Vec2(200.f, 0.f);
 	CAIController* aiController = nullptr;
 };

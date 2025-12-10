@@ -31,6 +31,17 @@ void CGameObject::ComponentUpdate()
 	if (IsReservedDelete())
 		return;
 
+	// Lifetime 처리: 시간이 다 되면 Destroy 호출
+	if (bHasLifetime)
+	{
+		remainingLifetime -= DT;
+		if (remainingLifetime <= 0.f)
+		{
+			Destroy();
+			return;
+		}
+	}
+
 	// 부모 게임오브젝트가 있는 경우, 위치는 부모를 기준으로한 상대위치
 	if (GetOwner() != nullptr)
 		worldPos = GetOwner()->GetWorldPos() + pos;
@@ -72,4 +83,20 @@ void CGameObject::ComponentRelease()
 {
 	Composite::ComponentRelease();
 	Release();
+}
+
+void CGameObject::SetLifetime(float seconds)
+{
+	lifetime = seconds;
+	remainingLifetime = seconds;
+	bHasLifetime = true;
+}
+
+void CGameObject::Destroy()
+{
+	if (IsReservedDelete())
+		return;
+
+	OnDestroy();
+	WORLD->Delete(GetScene(), this);
 }

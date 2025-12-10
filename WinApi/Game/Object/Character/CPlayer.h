@@ -2,6 +2,8 @@
 #include "CCharacter.h"
 #include "Game/Enum.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Component/CStatComponent.h"
+#include "Game/Util/CLedgeHelper.h"
 
 class CPlayer : public CCharacter, public ICombatInterface
 {
@@ -10,32 +12,22 @@ public:
 	~CPlayer() override;
 
 	/*~ Player Interface ~*/
-	void SetCurrentHP(float value);
-	void SetMaxHP(float value);
-	void SetCurrentMP(float value);
-	void SetMaxMP(float value);
-	void SetCurrentFlask(int value);
-	void SetMaxFlask(int value);
-	void SetJumpForce(float value) { jumpForce = value; }
 	void SetLadderInfo(float x, float topY, float bottomY) { ladderX = x; ladderTopY = topY; ladderBottomY = bottomY; }
+
 	float GetLadderX() const { return ladderX; }
 	float GetLadderTopY() const { return ladderTopY; }
 	float GetLadderBottomY() const { return ladderBottomY; }
 	Vec2 GetCharacterScale() const { return characterScale; }
 
 	// Ledge 정보
-	float GetLedgeX() const { return ledgeX; }
-	float GetLedgeTop() const { return ledgeTop; }
-	int GetLedgeDirection() const { return ledgeDirection; }
-	void ResetLedgeInfo() { ClearLedge(); }
+	float GetLedgeX() const { return ledgeHelper.GetLedgeX(); }
+	float GetLedgeTop() const { return ledgeHelper.GetLedgeTop(); }
+	int GetLedgeDirection() const { return ledgeHelper.GetLedgeDirection(); }
+	void ResetLedgeInfo() { ledgeHelper.ClearLedge(); }
+
 	
-	float GetCurrentHP() const {return currentHP;}
-	float GetMaxHP() const {return maxHP;}
-	float GetCurrentMP() const {return currentMP;}
-	float GetMaxMP() const {return maxMP;}
-	int GetCurrentFlask() const {return currentFlask;}
-	int GetMaxFlask() const {return maxFlask;}
-	float GetJumpForce() const {return jumpForce;}
+	// Down 연출
+	void SetIsDown(bool value) { bIsDown = value; }
 	
 protected:
 	/*~ CGameObject Interface ~*/
@@ -60,11 +52,15 @@ protected:
 
 	/*~ Player Interface ~*/
 	void InitStartupStats();
-	void UpdateHP(float& attribute, float value) const;
-	void UpdateMP(float& attribute, float value) const;
-	
+	void OnStatChanged(EStatType type, float current, float max) override;
+
 	Vec2 GetKnockbackVelocity(CGameObject* source, const CombatContext& context);
 	wstring GetPlayerHitVfxKey(EDamageType damageType);
+
+	// OnDamage 헬퍼
+	void SpawnPlayerDamageVFX(const CombatContext& context, int spawnDirection);
+	void ApplyHitReaction(float dir, Vec2 force, EDamageType damageType);
+	bool ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& outForce);
 	
 private:
 	// Active Input
@@ -89,40 +85,47 @@ private:
 	// Events
 	void OnFootstep();
 
-	void CheckLedge(CCollider* other);
-	void ClearLedge();
+public:
+	static constexpr float PLAYER_GRAVITY_SCALE = 1.6f;
 
 private:
+	// 기본 스탯
 	static constexpr float MOVE_SPEED = 250.f;
-	static constexpr float JUMP_FORCE = 490.f;
-	static constexpr float KNOCKBACK_POWER = 100.f;
-	static constexpr float MAX_HP = 100.f;
+	static constexpr float MAX_HP = 300.f;
 	static constexpr float MAX_MP = 100.f;
 	static constexpr int MAX_FLASK = 2;
+	static constexpr float JUMP_FORCE = 490.f;
+	static constexpr float ATTACK_POWER = 100.f;
+
+	// 넉백/피격
+	static constexpr float KNOCKBACK_POWER = 100.f;
+	static constexpr float PUSHBACK_FORCE_X = 300.f;
+	static constexpr float PUSHBACK_FORCE_Y = 150.f;
+	static constexpr float SUPER_HEAVY_KNOCKBACK_MULT = 1.6f;
+	static constexpr float HEAVY_GUARD_PUSHBACK_MULT = 2.0f;
+
+	// 캐릭터 크기
+	static constexpr float CHARACTER_WIDTH = 42.f;
+	static constexpr float CHARACTER_HEIGHT = 66.f;
+	static constexpr float COLLIDER_OFFSET_Y = -33.f;
+	static constexpr float CROUCH_HEIGHT_SCALE = 0.5f;
+
+	// 이동
+	static constexpr float MAX_SLOPE_ANGLE = 50.0f;
 	static constexpr float LEDGE_CLIMB_THRESHOLD = 10.f;
 
 	Vec2 characterScale;
 	Vec2 colOffset;
-
-	float currentHP;
-	float maxHP;
-	float currentMP;
-	float maxMP;
-	int currentFlask;
-	int maxFlask;
-	float jumpForce;
-
 	Vec2 prevVelocity;
 
-	float ladderX;
-	float ladderTopY;
-	float ladderBottomY;
+	// Ladder 정보
+	float ladderX = 0;
+	float ladderTopY = 0;
+	float ladderBottomY = 0;
 
-	bool bOverlapWithLedge = false;
-	UINT ledgeId = 0;
-	float ledgeX = -FLT_MAX;
-	float ledgeTop = -FLT_MAX;
-	int ledgeDirection = 0;
+	// Ledge 헬퍼
+	CLedgeHelper ledgeHelper;
 
-	bool bWasMovingInput;
+	bool bWasMovingInput = false;
+	bool bIsDown = false;
 };

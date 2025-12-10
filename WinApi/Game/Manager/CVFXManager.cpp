@@ -11,11 +11,17 @@ void CVFXManager::PreLoad()
     LOADANIMATION(VFXKey::PlayerHit,TEXT("Animations/Effects/playerhitspark.json"));
     LOADANIMATION(VFXKey::Blood1,TEXT("Animations/Effects/blood1.json"));
     LOADANIMATION(VFXKey::Blood2,TEXT("Animations/Effects/blood2.json"));
+    
+    // 타이틀 배경
+    LOADANIMATION(VFXKey::Title_Bg, TEXT("Animations/MainMenu/crisanta-bg.json"));
+    LOADANIMATION(VFXKey::Title_Main, TEXT("Animations/MainMenu/crisanta-main-menu-anim.json"));
+    LOADANIMATION(VFXKey::Title_Petals, TEXT("Animations/MainMenu/crisanta-petals.json"));
+    LOADANIMATION(VFXKey::Title_Fg, TEXT("Animations/MainMenu/crisanta-fg-petals.json"));
 }
 
 CVFX* CVFXManager::CreateVFX(const wstring& key)
 {
-    currentScene = SINGLE(CSceneManager)->GetCurScene();
+    CScene* currentScene = SINGLE(CSceneManager)->GetCurScene();
     if (currentScene == nullptr)
     {
         return nullptr;

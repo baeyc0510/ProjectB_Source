@@ -2,7 +2,7 @@
 #include "Ability_UseFlask.h"
 
 #include "Game/AnimKey.h"
-#include "Game/Manager/CSFXManager.h"
+#include "Game/SFXKeys.h"
 #include "Game/Object/Character/CPlayer.h"
 
 Ability_UseFlask::Ability_UseFlask()
@@ -14,7 +14,7 @@ void Ability_UseFlask::OnActivate()
     Ability::OnActivate();
 
     GetAnimator()->Play(AnimKey::UseFlask, true, BIND(this, EndAbility), BIND(this, EndAbility));
-    SFX->PlayOnce(SFXKey::PlayerHealing);
+    PlaySFX(SFXKey::PlayerHealing);
     WaitEvent(EGameEvent::DoAction, BIND_EVENT(this, UseFlask));
 }
 
@@ -26,12 +26,12 @@ void Ability_UseFlask::OnEnd()
 
 void Ability_UseFlask::UseFlask()
 {
-    if (CPlayer* player = dynamic_cast<CPlayer*>(owner))
+    if (CStatComponent* stat = GetStatComponent())
     {
-        int newFlask = player->GetCurrentFlask() - 1;
-        player->SetCurrentFlask(newFlask);
+        int newFlask = stat->GetCurrent(EStatType::Flask) - 1;
+        stat->SetCurrent(EStatType::Flask, newFlask);
         
-        float newHP = player->GetCurrentHP() + HEAL_AMOUNT;
-        player->SetCurrentHP(newHP);
+        float newHP = stat->GetCurrent(EStatType::HP) + HEAL_AMOUNT;
+        stat->SetCurrent(EStatType::HP, newHP);
     }
 }

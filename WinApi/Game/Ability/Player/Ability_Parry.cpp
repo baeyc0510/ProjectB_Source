@@ -3,9 +3,15 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
-#include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CAbilitySystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Util/CombatHelper.h"
+
+namespace
+{
+    constexpr float COUNTER_DAMAGE_MULTIPLIER = 1.5f;
+}
 
 Ability_Parry::Ability_Parry()
 {
@@ -18,7 +24,7 @@ void Ability_Parry::OnActivate()
 {
     Ability::OnActivate();
 
-    SFX->PlayOnce(SFXKey::PlayerStartParry);
+    PlaySFX(SFXKey::PlayerStartParry);
 
     GetAnimator()->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim));
 
@@ -39,14 +45,6 @@ void Ability_Parry::OnEnd()
 
 void Ability_Parry::OnEndParryAnim()
 {
-    if (bShouldCounter)
-    {
-        bShouldCounter = false;
-        GetAnimator()->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
-        WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnCounterHitCheck));
-        return;
-    }
-
     EndAbility();
 }
 
@@ -71,12 +69,13 @@ void Ability_Parry::OnParryWindowClose()
 void Ability_Parry::OnHit(CGameObject* source)
 {
     if (!bParryWindowOpen)
+    {
+        PlaySFX(SFXKey::PlayerGuard);
         return;
+    }
 
     if (!source)
         return;
-
-    SFX->PlayOnce(SFXKey::PlayerParrySuccess);
 
     // source의 패링 리액션 발동
     if (CAbilitySystem* sourceAbilitySystem = source->GetComponent<CAbilitySystem>())
@@ -84,9 +83,10 @@ void Ability_Parry::OnHit(CGameObject* source)
         sourceAbilitySystem->TryActivateAbility(EAbility::ParryHit);
     }
 
-    // player의 패링 성공 애니메이션 재생
+    // 플레이어의 리액션
     GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
-
+    PlaySFX(SFXKey::PlayerParrySuccess);
+    
     onCounterOpenHandle = WaitEvent(EGameEvent::ComboWindowOpen, BIND_EVENT(this, OnCounterOpen));
     onCounterCloseHandle = WaitEvent(EGameEvent::ComboWindowClose, BIND_EVENT(this, OnCounterClose));
     bParrySuccess = true;
@@ -113,37 +113,35 @@ void Ability_Parry::OnCounterClose()
     EndWaitEvent(onCounterInputHandle);
     EndWaitEvent(onCounterOpenHandle);
     EndWaitEvent(onCounterCloseHandle);
+    
+    if (bShouldCounter)
+    {
+        bShouldCounter = false;
+        GetAnimator()->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
+        WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnCounterHitCheck));
+    }
 }
 
 void Ability_Parry::OnCounterHitCheck()
 {
-    const float COUNTER_DAMAGE = 10.f;
     const Vec2 TRACE_OFFSET = {50.f, -30.f};
     const Vec2 TRACE_SIZE = {50.f, 30.f};
 
-    Vec2 offset = TRACE_OFFSET;
-    offset.x *= owner->GetForward();
-    Vec2 center = owner->GetWorldPos() + offset;
+    float baseAttack = GetStatComponent()->GetCurrent(EStatType::AttackPower);
 
-    auto results = COLLISION->BoxTrace(center, TRACE_SIZE, ELayer::Monster, true);
-    for (auto& result : results)
-    {
-        CGameObject* target = result.collider->GetOwner();
-        ICombatInterface* combat = dynamic_cast<ICombatInterface*>(target);
-        if (combat)
-        {
-            CombatContext context;
-            context.damageType = EDamageType::Slash;
-            context.hitResult = result;
-            context.value = COUNTER_DAMAGE;
-            context.vfxKey = VFXKey::AttackHit1;
-            combat->OnDamage(owner, context);
-        }
-    }
+    AttackData data;
+    data.traceOffset = TRACE_OFFSET;
+    data.traceSize = TRACE_SIZE;
+    data.damage = baseAttack * COUNTER_DAMAGE_MULTIPLIER;
+    data.damageType = EDamageType::Slash;
+    data.vfxKey = VFXKey::AttackHit1;
+
+    vector<HitResult> hitResults;
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {Monster,Projectile}, hitResults);
 
     // 사운드 재생
-    if (!results.empty())
-        SFX->PlayOnce(SFXKey::PlayerParryCounterHit);
+    if (bHit)
+        PlaySFX(SFXKey::PlayerParryCounterHit);
     else
-        SFX->PlayOnce(SFXKey::PlayerHeavySlash);
+        PlaySFX(SFXKey::PlayerHeavySlash);
 }

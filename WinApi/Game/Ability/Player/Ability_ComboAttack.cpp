@@ -3,21 +3,33 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
-#include "Game/Manager/CSFXManager.h"
+#include "Game/Component/CStatComponent.h"
 
-const FAttackData Ability_ComboAttack::ComboTable[3] = {
-    { {40.f, -30.f}, {60.f, 20.f}, AnimKey::Combo1, VFXKey::AttackHit1, BASE_DAMAGE },
-    { {30.f, -30.f}, {60.f, 20.f}, AnimKey::Combo2, VFXKey::AttackHit2, BASE_DAMAGE },
-    { {50.f, -30.f}, {80.f, 30.f}, AnimKey::Combo3, VFXKey::AttackHit3, BASE_DAMAGE },
-};
+namespace
+{
+    constexpr float COMBO1_DAMAGE_MULTIPLIER = 1.0f;
+    constexpr float COMBO2_DAMAGE_MULTIPLIER = 1.1f;
+    constexpr float COMBO3_DAMAGE_MULTIPLIER = 1.2f;
+}
 
 Ability_ComboAttack::Ability_ComboAttack()
 {
+    ComboTable = {
+         {{ {40.f, -30.f}, {60.f, 20.f}, VFXKey::AttackHit1, 1 },AnimKey::Combo1 },
+         {{ {30.f, -30.f}, {60.f, 20.f}, VFXKey::AttackHit2, 1 },  AnimKey::Combo2},
+         {{ {50.f, -30.f}, {80.f, 30.f}, VFXKey::AttackHit3, 1 }, AnimKey::Combo3},
+     };
 }
 
 void Ability_ComboAttack::OnActivate()
 {
     Ability::OnActivate();
+
+    // AttackData 설정
+    float baseAttack = GetStatComponent()->GetCurrent(EStatType::AttackPower);
+    ComboTable[0].attackData.damage = baseAttack * COMBO1_DAMAGE_MULTIPLIER;
+    ComboTable[1].attackData.damage = baseAttack * COMBO2_DAMAGE_MULTIPLIER;
+    ComboTable[2].attackData.damage = baseAttack * COMBO3_DAMAGE_MULTIPLIER;
 
     // 이벤트 바인딩
     WaitEvent(EGameEvent::Input_Attack_Pressed, BIND_EVENT(this, OnInputAttack));
@@ -42,9 +54,7 @@ void Ability_ComboAttack::OnEnd()
 void Ability_ComboAttack::Attack()
 {
     bSavedCombo = false;
-
-    const FAttackData& data = GetAttackData();
-    GetAnimator()->Play(data.animKey, true, BIND(this, OnFinishedAnim), BIND(this, OnFinishedAnim));
+    GetAnimator()->Play(GetAnimKey(), true, BIND(this, OnFinishedAnim), BIND(this, OnFinishedAnim));
 }
 
 void Ability_ComboAttack::OnComboWindowOpen()
@@ -79,9 +89,9 @@ void Ability_ComboAttack::OnFinishedAnim()
 
 void Ability_ComboAttack::OnHitCheck()
 {
-    const FAttackData& data = GetAttackData();
+    const AttackData& data = GetAttackData();
     vector<HitResult> hitResults;
-    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, ELayer::Monster, hitResults);
+    bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, data, {Monster,Projectile}, hitResults);
 
     // Play Sound
     static const wchar_t* AirSounds[] = {
@@ -94,7 +104,7 @@ void Ability_ComboAttack::OnHitCheck()
 
     if (bHit)
     {
-        SFX->PlayOnce(HitSounds[soundIndex % 2]);
+        PlaySFX(HitSounds[soundIndex % 2]);
 
         int oldComboCnt = comboCnt;
         comboCnt = (comboCnt + 1) % maxComboCnt;
@@ -102,13 +112,18 @@ void Ability_ComboAttack::OnHitCheck()
     }
     else
     {
-        SFX->PlayOnce(AirSounds[soundIndex % 4]);
+        PlaySFX(AirSounds[soundIndex % 4]);
     }
 
     soundIndex++;
 }
 
-const FAttackData& Ability_ComboAttack::GetAttackData() const
+const AttackData& Ability_ComboAttack::GetAttackData() const
 {
-    return ComboTable[comboCnt];
+    return ComboTable[comboCnt].attackData;
+}
+
+const wstring& Ability_ComboAttack::GetAnimKey() const
+{
+    return ComboTable[comboCnt].animKey;
 }

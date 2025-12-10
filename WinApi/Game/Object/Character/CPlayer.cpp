@@ -4,6 +4,8 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
+#include "Game/Ability/Common/Ability_Die.h"
+#include "Game/Ability/Common/Ability_HitReaction.h"
 #include "Game/Manager/CSFXManager.h"
 #include "Game/Ability/Player/Ability_AirAttack.h"
 #include "Game/Ability/Player/Ability_ComboAttack.h"
@@ -17,22 +19,22 @@
 #include "Game/Ability/Player/Ability_LedgeClimb.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
+#include "Game/Component/CStatComponent.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CCharacterMovement.h"
 #include "Game/Manager/CGameUIManager.h"
 #include "Game/Manager/CVFXManager.h"
 #include "Game/Object/CVFX.h"
-#include "Game/Object/World/CLedge.h"
 
-CPlayer::CPlayer() : currentHP(0), maxHP(0), currentMP(0), maxMP(0), currentFlask(0), maxFlask(0), prevVelocity(0, 0), bWasMovingInput(false), ladderX(0), ladderTopY(0), ladderBottomY(0)
+CPlayer::CPlayer()
 {
 	name = TEXT("플레이어");
-	jumpForce = JUMP_FORCE;
 	isPersistent = true;
 }
 
 CPlayer::~CPlayer()
 {
+	
 }
 
 void CPlayer::Init()
@@ -40,18 +42,18 @@ void CPlayer::Init()
 	CCharacter::Init();
 	
 	// Rigidbody
-	rigidbody->SetGravityScale(1.6f);
+	rigidbody->SetGravityScale(PLAYER_GRAVITY_SCALE);
 
 	// Collider
-	characterScale = Vec2(42, 66);
-	colOffset = Vec2(0, -33);
+	characterScale = Vec2(CHARACTER_WIDTH, CHARACTER_HEIGHT);
+	colOffset = Vec2(0, COLLIDER_OFFSET_Y);
 	collider->SetScale(characterScale);
 	collider->SetOffset(colOffset);
 	collider->SetLayer(ELayer::Player);
 
 	// Movement (Player 기본 설정: 드롭다운 가능, 엣지 블로킹 없음)
 	FMovementConfig moveConfig;
-	moveConfig.maxSlopeAngle = 50.0f;
+	moveConfig.maxSlopeAngle = MAX_SLOPE_ANGLE;
 	moveConfig.bCanDropThrough = true;
 	moveConfig.bBlockAtEdges = false;
 	moveConfig.bFlipDirectionAtEdge = false;
@@ -70,6 +72,8 @@ void CPlayer::Init()
 	AddAbility<Ability_Jump>(EAbility::Jump);
 	AddAbility<Ability_Climb>(EAbility::Climb);
 	AddAbility<Ability_LedgeClimb>(EAbility::HangOnLedge);
+	AddAbility<Ability_PlayerPushback>(EAbility::HitReact);
+	AddAbility<Ability_Die>(EAbility::Die);
 	
 	// Animations
 	AddAnimation(AnimKey::Idle, TEXT("Animations/Penitent/penitent_idle_anim.json"), true);
@@ -96,6 +100,10 @@ void CPlayer::Init()
 	AddAnimation(AnimKey::Climbing,TEXT("Animations/Penitent/penitent_ladder_climb_loop_anim.json"), true);
 	AddAnimation(AnimKey::LedgeHang, TEXT("Animations/Penitent/penitent_hangonledge_anim.json"), false);
 	AddAnimation(AnimKey::LedgeClimbOver, TEXT("Animations/Penitent/penitent_climbledge.json"), false);
+	AddAnimation(AnimKey::Pushback, TEXT("Animations/Penitent/penitent_pushback_anim.json"), false);
+	AddAnimation(AnimKey::Pushback_Land, TEXT("Animations/Penitent/penitent_pushback_land_anim.json"), false);
+	AddAnimation(AnimKey::Rising, TEXT("Animations/Penitent/player_rising.json"), false);
+	AddAnimation(AnimKey::Dead, TEXT("Animations/Penitent/penitent_death_anim.json"), false);
 	
 	// 초기 스탯값 적용
 	InitStartupStats();
@@ -126,15 +134,15 @@ void CPlayer::OnEnable()
 		abilitySystem->CancelAbilitiesWithTag(Tag_AbilityAnimation);
 		abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
 	}
-	
-
-	animator->Play(AnimKey::Idle, false);
 }
 
 void CPlayer::Update()
 {
+	if (bIsDown)
+		return;
+	
 	CCharacter::Update();
-
+	
 	ProcessActiveInput();
 	UpdatePlayerStates();
 	ProcessPassiveAbilities();
@@ -243,37 +251,44 @@ void CPlayer::UpdatePlayerStates()
 void CPlayer::UpdateMovementState()
 {
 	// 정지 상태
-	if (stateSystem->HasTag(Tag_StopVelocity) || stateSystem->HasTag(Tag_BlockMovement))
+	if (stateSystem->HasTag(Tag_StopVelocity))
 		return;
 	
-	// 이동 입력 처리
-	float moveDir = 0.f;
-	if (INPUT->ButtonStay('A'))
+	if (!stateSystem->HasTag(Tag_BlockMovement))
 	{
-		moveDir = -1.f;
-		SetForward(-1);
-	}
-	else if (INPUT->ButtonStay('D'))
-	{
-		moveDir = 1.f;
-		SetForward(1);
-	}
+		// 이동 입력 처리
+		float moveDir = 0.f;
+		if (INPUT->ButtonStay('A'))
+		{
+			moveDir = -1.f;
+			SetForward(-1);
+		}
+		else if (INPUT->ButtonStay('D'))
+		{
+			moveDir = 1.f;
+			SetForward(1);
+		}
 
-	// Movement 컴포넌트에 위임
-	movement->AddMoveInput(moveDir);
-	movement->ProcessMovement();
+		// Movement 컴포넌트에 위임
+		movement->AddMoveInput(moveDir);
 
-	// Tag 업데이트
-	bool bIsMovingInput = (moveDir != 0.f);
-	if (bIsMovingInput && !bWasMovingInput)
-	{
-		stateSystem->AddTag(Tag_Moving);
+		// Tag 업데이트
+		bool bIsMovingInput = (moveDir != 0.f);
+		if (bIsMovingInput && !bWasMovingInput)
+		{
+			stateSystem->AddTag(Tag_Moving);
+		}
+		else if (!bIsMovingInput && bWasMovingInput)
+		{
+			stateSystem->RemoveTag(Tag_Moving);
+		}
+		bWasMovingInput = bIsMovingInput;
 	}
-	else if (!bIsMovingInput && bWasMovingInput)
+	
+	if (!stateSystem->HasTag(Tag_FixedVelocity))
 	{
-		stateSystem->RemoveTag(Tag_Moving);
+		movement->ProcessMovement();	
 	}
-	bWasMovingInput = bIsMovingInput;
 }
 
 void CPlayer::UpdateLedgeState()
@@ -281,14 +296,14 @@ void CPlayer::UpdateLedgeState()
 	bool bIsFalling = rigidbody->GetVelocity().y > 0;
 	bool bCanMove = !stateSystem->HasTag(Tag_BlockMovement);
 
-	if (!bOverlapWithLedge || !bIsFalling || !bCanMove)
+	if (!ledgeHelper.IsOverlappingLedge() || !bIsFalling || !bCanMove)
 	{
 		stateSystem->RemoveTag(Tag_CanClimbLedge);
 		return;
 	}
 
 	// 방향 체크: 바라보는 방향과 ledge 방향이 일치해야 함
-	if (GetForward() != ledgeDirection)
+	if (GetForward() != ledgeHelper.GetLedgeDirection())
 	{
 		stateSystem->RemoveTag(Tag_CanClimbLedge);
 		return;
@@ -300,7 +315,7 @@ void CPlayer::UpdateLedgeState()
 	float checkY = playerTop + LEDGE_CLIMB_THRESHOLD;
 
 	// 기준점이 ledgeTop보다 낮은 경우 CanClimb
-	if (checkY < ledgeTop)
+	if (checkY < ledgeHelper.GetLedgeTop())
 	{
 		stateSystem->AddTagUnique(Tag_CanClimbLedge);
 	}
@@ -392,66 +407,151 @@ void CPlayer::OnCollisionEnter(CCollider* other)
 
 void CPlayer::OnCollisionStay(CCollider* other)
 {
-	ELayer layer = static_cast<ELayer>( other->GetLayer());
+	ELayer layer = static_cast<ELayer>(other->GetLayer());
 	if (layer == ELayer::Ledge)
 	{
-		CheckLedge(other);
+		Vec2 playerHalfScale = collider->GetScale() * 0.5f;
+		ledgeHelper.CheckLedge(other, GetPos(), playerHalfScale);
 	}
-	
+
 	CCharacter::OnCollisionStay(other);
 }
 
 void CPlayer::OnCollisionExit(CCollider* other)
 {
 	// 설정한 ledge에서 벗어난 경우 ledge정보 초기화
-	ELayer layer = static_cast<ELayer>( other->GetLayer());
-	if (layer == ELayer::Ledge && ledgeId == other->GetID())
+	ELayer layer = static_cast<ELayer>(other->GetLayer());
+	if (layer == ELayer::Ledge && ledgeHelper.ShouldClearOnExit(other))
 	{
-		ClearLedge();
+		ledgeHelper.ClearLedge();
 	}
-	
+
 	CCharacter::OnCollisionExit(other);
 }
 
 void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 {
-	abilitySystem->TriggerEvent(EGameEvent::Hit,source);
-	
-	// Spawn VFX
-	Vec2 spawnPos = context.hitResult.hitCenter;
-	int spawnDirection = source->GetForward();
-	
-	if (context.value > 0.0001f)
+	if (stateSystem->HasTag(Tag_Dead))
+		return;
+
+	abilitySystem->TriggerEvent(EGameEvent::Hit, source);
+
+	if (context.value <= 0.0001f)
+		return;
+
+	// 넉백 방향 계산
+	float dir = GetPos().x - source->GetPos().x;
+	dir = dir < 0 ? -1.0f : 1.0f;
+
+	// 가드 상호작용 처리
+	Vec2 force = GetPushbackForce();
+	bool bShouldHitReact = ProcessGuardInteraction(context.damageType, dir, force);
+
+	// 피격 반응 적용
+	if (bShouldHitReact)
 	{
-		// // Spawn Hit VFX
-		if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
+		ApplyHitReaction(dir, force, context.damageType);
+	}
+
+	// VFX 및 카메라 이펙트
+	SpawnPlayerDamageVFX(context, source->GetForward());
+	if (!CAMERA->IsShaking())
+	{
+		CAMERA->Shake(ShakePreset::Light);
+	}
+
+	// 데미지 적용
+	statComponent->TakeDamage(context.value);
+}
+
+bool CPlayer::ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& outForce)
+{
+	bool bIsGuarding = stateSystem->HasTag(Tag_Guard);
+	bool bShouldHitReact = !bIsGuarding;
+
+	if (damageType == EDamageType::SuperHeavy)
+	{
+		// 슈퍼헤비: 가드 파괴
+		if (bIsGuarding)
 		{
-			vfx->PlayVFX();
+			abilitySystem->CancelAbilitiesWithTag(Tag_Guard);
+			bShouldHitReact = true;
 		}
-
-		// Spawn Blood VFX
-		if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
+		outForce *= SUPER_HEAVY_KNOCKBACK_MULT;
+	}
+	else if (damageType == EDamageType::Heavy)
+	{
+		// 헤비: 가드 중이면 밀려남만
+		if (bIsGuarding)
 		{
-			vfx->PlayVFX();
+			SetForward(-dir);
+			rigidbody->SetVelocity(Vec2(HEAVY_GUARD_PUSHBACK_MULT * outForce.x * dir, 0.f));
 		}
+	}
 
-		// Camera Shake
-		CAMERA->Shake(ShakePreset::Medium);
+	return bShouldHitReact;
+}
 
-		// Apply damage
-		float newHP = currentHP - context.value;
-		SetCurrentHP(newHP);
+void CPlayer::ApplyHitReaction(float dir, Vec2 force, EDamageType damageType)
+{
+	abilitySystem->TryActivateAbility(EAbility::HitReact);
+
+	// 넉백 적용
+	SetForward(-dir);
+	rigidbody->SetVelocity(Vec2(force.x * dir, -force.y));
+
+	// 무거운 공격 사운드
+	if (damageType == EDamageType::SuperHeavy || damageType == EDamageType::Heavy)
+	{
+		SFX->PlayOnce(SFXKey::PlayerHeavyDamage);
+	}
+}
+
+void CPlayer::SpawnPlayerDamageVFX(const CombatContext& context, int spawnDirection)
+{
+	Vec2 spawnPos = context.hitResult.hitCenter;
+
+	// Hit VFX
+	if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
+	{
+		vfx->PlayVFX();
+	}
+
+	// Blood VFX
+	if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
+	{
+		vfx->PlayVFX();
 	}
 }
 
 void CPlayer::InitStartupStats()
 {
-	SetMaxHP(MAX_HP);
-	SetCurrentHP(MAX_HP);
-	SetMaxMP(MAX_MP);
-	SetCurrentMP(MAX_MP);
-	SetMaxFlask(MAX_FLASK);
-	SetCurrentFlask(MAX_FLASK);
+	pushbackForce = Vec2(PUSHBACK_FORCE_X, PUSHBACK_FORCE_Y);
+	
+	// 스탯 초기화
+	statComponent->InitStat(EStatType::HP, MAX_HP);
+	statComponent->InitStat(EStatType::MP, MAX_MP);
+	statComponent->InitStat(EStatType::Flask, static_cast<float>(MAX_FLASK));
+	statComponent->InitStat(EStatType::JumpForce, JUMP_FORCE, JUMP_FORCE);
+	statComponent->InitStat(EStatType::AttackPower, ATTACK_POWER, ATTACK_POWER);
+}
+
+void CPlayer::OnStatChanged(EStatType type, float current, float max)
+{
+	switch (type)
+	{
+	case EStatType::HP:
+		GAMEUI->SetPlayerHP(current, max);
+		break;
+	case EStatType::MP:
+		GAMEUI->SetPlayerMP(current, max);
+		break;
+	case EStatType::Flask:
+		GAMEUI->SetPlayerFlask(static_cast<int>(current), static_cast<int>(max));
+		break;
+	default:
+		break;
+	}
 }
 
 Vec2 CPlayer::GetKnockbackVelocity(CGameObject* source, const CombatContext& context)
@@ -466,86 +566,6 @@ wstring CPlayer::GetPlayerHitVfxKey(EDamageType damageType)
 	return VFXKey::PlayerHit;
 }
 
-void CPlayer::SetCurrentHP(float value)
-{
-	value = min(value,maxHP);
-	UpdateHP(currentHP, value);
-}
-
-void CPlayer::SetMaxHP(float value)
-{
-	UpdateHP(maxHP, value);
-}
-
-void CPlayer::SetCurrentMP(float value)
-{
-	value = min(value, maxMP);
-	UpdateMP(currentMP, value);
-}
-
-void CPlayer::SetMaxMP(float value)
-{
-	UpdateMP(maxMP, value);
-}
-
-void CPlayer::SetCurrentFlask(int value)
-{
-	int oldValue = currentFlask;
-	currentFlask = max(value, 0);
-	currentFlask = min(currentFlask, maxFlask);
-	
-	if (oldValue != currentFlask)
-	{
-		GAMEUI->SetPlayerFlask(currentFlask,maxFlask);
-	}
-	
-	if (currentFlask > 0)
-	{
-		stateSystem->AddTagUnique(Tag_FlaskRemaining);
-	}
-	else
-	{
-		stateSystem->RemoveTag(Tag_FlaskRemaining);
-	}
-}
-
-void CPlayer::SetMaxFlask(int value)
-{
-	int oldValue = maxFlask;
-	maxFlask = max(0,value);
-	
-	if (oldValue != maxFlask)
-	{
-		GAMEUI->SetPlayerFlask(currentFlask,maxFlask);
-	}
-}
-
-void CPlayer::UpdateHP(float& attribute, float value) const
-{
-	value = max(value, 0.0f);
-	
-	float oldValue = attribute;
-	attribute = value;
-	
-	if (!IsNearlyEqual(attribute, oldValue))
-	{
-		GAMEUI->SetPlayerHP(currentHP,maxHP);
-	}
-}
-
-void CPlayer::UpdateMP(float& attribute, float value) const
-{
-	value = max(value, 0.0f);
-	
-	float oldValue = attribute;
-	attribute = value;
-	
-	if (!IsNearlyEqual(attribute, oldValue))
-	{
-		GAMEUI->SetPlayerMP(currentMP,maxMP);
-	}
-}
-
 void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 {
 	CCharacter::OnStateChanged(oldTags, newTags);
@@ -558,8 +578,8 @@ void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 	// 작은 collider 진입
 	if (!hadSmallCollider && needsSmallCollider)
 	{
-		Vec2 crouchScale = characterScale * Vec2(1.0f, 0.5f);
-		Vec2 crouchOffset = colOffset + crouchScale * Vec2(0.0f, 0.5f);
+		Vec2 crouchScale = characterScale * Vec2(1.0f, CROUCH_HEIGHT_SCALE);
+		Vec2 crouchOffset = colOffset + crouchScale * Vec2(0.0f, CROUCH_HEIGHT_SCALE);
 		collider->SetScale(crouchScale);
 		collider->SetOffset(crouchOffset);
 	}
@@ -599,58 +619,3 @@ void CPlayer::CheckVelocityChanged()
 	prevVelocity = curVelocity;
 }
 
-void CPlayer::CheckLedge(CCollider* other)
-{
-	if (!other || !collider)
-		return;
-
-	// 이미 ledge로 마크되어 있는 경우 early return
-	if (bOverlapWithLedge && ledgeId == other->GetID())
-		return;
-
-	// 매달리기 조건 판별
-	Vec2 otherPos = other->GetPos();
-	Vec2 otherHalf = other->GetScale() * 0.5f;
-	float otherTop = otherPos.y - otherHalf.y;
-
-	Vec2 playerPos = collider->GetPos();
-	float playerCenterY = playerPos.y;
-
-	if (playerCenterY < otherTop)
-		return;
-
-	// 이미 겹쳐있는 다른 Ledge가 있고 해당 ledge보다 낮으면 갱신 x
-	if (bOverlapWithLedge && otherTop > ledgeTop)
-	{
-		return;
-	}
-
-	// 방향 계산: ledge가 플레이어 기준 왼쪽(-1) 또는 오른쪽(1)
-	int direction = (otherPos.x > playerPos.x) ? 1 : -1;
-
-	// CLedge의 절벽 방향 확인
-	CLedge* ledge = dynamic_cast<CLedge*>(other->GetOwner());
-	if (ledge)
-	{
-		int cliffDir = ledge->GetCliffDirection();
-		if (cliffDir != 0 && cliffDir != -direction)
-		{
-			return;
-		}
-	}
-
-	bOverlapWithLedge = true;
-	ledgeId = other->GetID();
-	ledgeTop = otherTop;
-	ledgeX = otherPos.x;
-	ledgeDirection = direction;
-}
-
-void CPlayer::ClearLedge()
-{
-	bOverlapWithLedge = false;
-	ledgeId = 0;
-	ledgeTop = -FLT_MAX;
-	ledgeX = -FLT_MAX;
-	ledgeDirection = 0;
-}

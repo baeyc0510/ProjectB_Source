@@ -20,6 +20,18 @@
     <Filter Include="Components">
       <UniqueIdentifier>{97368b03-0628-437f-a435-85fe4b253709}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Ability\Boss">
+      <UniqueIdentifier>{a1b2c3d4-1234-5678-9abc-def012345678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Object\Character">
+      <UniqueIdentifier>{b2c3d4e5-2345-6789-abcd-ef0123456789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Object\Projectile">
+      <UniqueIdentifier>{c3d4e5f6-3456-789a-bcde-f01234567890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Object\Hazard">
+      <UniqueIdentifier>{d4e5f6a7-4567-89ab-cdef-012345678901}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WinApi.h">
@@ -74,6 +86,42 @@
     <ClInclude Include="CComboSystem.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Ability\Boss\Ability_BossSlash.h">
+      <Filter>Game\Ability\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Ability\Boss\Ability_BossSpit.h">
+      <Filter>Game\Ability\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Ability\Boss\Ability_BossStomp.h">
+      <Filter>Game\Ability\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Ability\Boss\Ability_BossGroundSmash.h">
+      <Filter>Game\Ability\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Component\CBossAIController.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Object\Character\CBoss.h">
+      <Filter>Game\Object\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Object\Character\CBoss_TenPiedad.h">
+      <Filter>Game\Object\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Object\Projectile\CProjectile.h">
+      <Filter>Game\Object\Projectile</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Object\Projectile\CProjectile_Spit.h">
+      <Filter>Game\Object\Projectile</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Object\Hazard\CHazard.h">
+      <Filter>Game\Object\Hazard</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Object\Hazard\CHazard_Vine.h">
+      <Filter>Game\Object\Hazard</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Object\Hazard\CHazard_Spike.h">
+      <Filter>Game\Object\Hazard</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinApi.cpp">
@@ -115,6 +163,42 @@
     </ClCompile>
     <ClCompile Include="CComboSystem.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Ability\Boss\Ability_BossSlash.cpp">
+      <Filter>Game\Ability\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Ability\Boss\Ability_BossSpit.cpp">
+      <Filter>Game\Ability\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Ability\Boss\Ability_BossStomp.cpp">
+      <Filter>Game\Ability\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Ability\Boss\Ability_BossGroundSmash.cpp">
+      <Filter>Game\Ability\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Component\CBossAIController.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Object\Character\CBoss.cpp">
+      <Filter>Game\Object\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Object\Character\CBoss_TenPiedad.cpp">
+      <Filter>Game\Object\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Object\Projectile\CProjectile.cpp">
+      <Filter>Game\Object\Projectile</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Object\Projectile\CProjectile_Spit.cpp">
+      <Filter>Game\Object\Projectile</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Object\Hazard\CHazard.cpp">
+      <Filter>Game\Object\Hazard</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Object\Hazard\CHazard_Vine.cpp">
+      <Filter>Game\Object\Hazard</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Object\Hazard\CHazard_Spike.cpp">
+      <Filter>Game\Object\Hazard</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
