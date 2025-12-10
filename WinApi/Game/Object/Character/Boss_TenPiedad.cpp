@@ -83,7 +83,7 @@ void Boss_TenPiedad::ConfigureAI()
 	bossAI->SetDecisionInterval(1.0f);
 
 	// 추격 설정
-	FBossChaseConfig chaseConfig;
+	BossChaseConfig chaseConfig;
 	chaseConfig.chaseSpeed = Config::Chase::Speed;
 	chaseConfig.chaseRange = Config::Chase::Range;
 	chaseConfig.stopRange = Config::Chase::StopRange;

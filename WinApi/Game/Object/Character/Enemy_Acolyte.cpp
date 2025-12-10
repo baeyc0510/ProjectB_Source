@@ -39,7 +39,7 @@ void Enemy_Acolyte::Init()
     }
 	
 	// AI 설정
-	FAIConfig config;
+	AIConfig config;
 	config.attackRange = 70.0f;
 	config.detectRange = 200.0f;
 	config.detectRangeY = 50.0f;

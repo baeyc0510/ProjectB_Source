@@ -4,7 +4,7 @@
 #include "Game/Enum.h"
 
 // 보스 공격 데이터
-struct FBossAttackData
+struct BossAttackData
 {
 	EAbility ability = EAbility::None;
 	float minRange = 0.f;			// 최소 거리
@@ -13,7 +13,7 @@ struct FBossAttackData
 };
 
 // 보스 추격 설정
-struct FBossChaseConfig
+struct BossChaseConfig
 {
 	float chaseSpeed = 80.0f;		// 추격 속도
 	float chaseRange = 400.0f;		// 추격 시작 거리 (이 거리 이내면 추격)
@@ -42,8 +42,8 @@ public:
 	void SetDecisionInterval(float interval) { decisionInterval = interval; }
 
 	// 추격 시스템
-	void SetChaseConfig(const FBossChaseConfig& config) { chaseConfig = config; }
-	FBossChaseConfig& GetChaseConfig() { return chaseConfig; }
+	void SetChaseConfig(const BossChaseConfig& config) { chaseConfig = config; }
+	BossChaseConfig& GetChaseConfig() { return chaseConfig; }
 	bool ShouldChase() const;			// 추격해야 하는지 (공격 범위 밖, 추격 범위 안)
 	bool IsInStopRange() const;			// 정지 범위 내인지
 	float GetChaseSpeed() const { return chaseConfig.chaseSpeed; }
@@ -58,16 +58,16 @@ protected:
 	void ComponentRelease() override {}
 
 private:
-	float GetTotalWeight(const vector<FBossAttackData*>& validAttacks) const;
-	EAbility SelectByWeight(const vector<FBossAttackData*>& validAttacks, float totalWeight) const;
+	float GetTotalWeight(const vector<BossAttackData*>& validAttacks) const;
+	EAbility SelectByWeight(const vector<BossAttackData*>& validAttacks, float totalWeight) const;
 
 private:
-	vector<FBossAttackData> attacks;
+	vector<BossAttackData> attacks;
 
 	// 결정 타이머 (매 프레임 공격 체크 방지)
 	float decisionTimer = 0.f;
 	float decisionInterval = 0.5f;
 
 	// 추격 설정
-	FBossChaseConfig chaseConfig;
+	BossChaseConfig chaseConfig;
 };

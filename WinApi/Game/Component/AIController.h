@@ -3,7 +3,7 @@
 #include "Game/Enum.h"
 
 // AI 설정
-struct FAIConfig
+struct AIConfig
 {
 	float detectRange = 200.0f;		// 플레이어 감지 범위 (X축)
 	float detectRangeY = 50.0f;		// 플레이어 감지 범위 (Y축) - 다른 층 무시
@@ -24,8 +24,8 @@ public:
 
 	/*~ AIController Interface ~*/
 	// 설정
-	void SetConfig(const FAIConfig& inConfig) { config = inConfig; }
-	FAIConfig& GetConfig() { return config; }
+	void SetConfig(const AIConfig& inConfig) { config = inConfig; }
+	AIConfig& GetConfig() { return config; }
 
 	// 유틸리티 (Ability에서 사용)
 	bool IsTargetInAttackRange() const;
@@ -67,7 +67,7 @@ private:
 	static constexpr float SCREEN_MARGIN = 50.f;
 
 private:
-	FAIConfig config;
+	AIConfig config;
 
 	// 타겟 감지 상태
 	float detectionTimer = 0.f;
