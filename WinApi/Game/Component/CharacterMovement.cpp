@@ -50,6 +50,10 @@ void CharacterMovement::ComponentInit()
 	rigidbody = owner->GetComponent<Rigidbody>();
 	collider = owner->GetComponent<BoxCollider>();
 
+	// 필수 컴포넌트 검증
+	assert(rigidbody && "CharacterMovement requires Rigidbody");
+	assert(collider && "CharacterMovement requires BoxCollider");
+
 	// 기본 설정 적용
 	maxSlopeAngleRad = config.maxSlopeAngle * 3.14159265f / 180.0f;
 }
@@ -81,11 +85,7 @@ void CharacterMovement::ResetGroundState()
 void CharacterMovement::SetGrounded(bool value)
 {
 	groundState.bIsGrounded = value;
-
-	if (rigidbody)
-	{
-		rigidbody->SetGrounded(groundState.bIsGrounded);
-	}
+	rigidbody->SetGrounded(groundState.bIsGrounded);
 }
 
 void CharacterMovement::HandleCollisionEnter(Collider* other)
@@ -343,9 +343,6 @@ void CharacterMovement::AddMoveInput(float direction)
 
 void CharacterMovement::ProcessMovement()
 {
-	if (!rigidbody)
-		return;
-
 	Vec2 vel = rigidbody->GetVelocity();
 
 	// 입력이 있으면 속도 적용

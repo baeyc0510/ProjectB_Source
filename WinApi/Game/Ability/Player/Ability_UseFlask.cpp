@@ -26,12 +26,10 @@ void Ability_UseFlask::OnEnd()
 
 void Ability_UseFlask::UseFlask()
 {
-    if (StatComponent* stat = GetStatComponent())
-    {
-        int newFlask = stat->GetCurrent(EStatType::Flask) - 1;
-        stat->SetCurrent(EStatType::Flask, newFlask);
-        
-        float newHP = stat->GetCurrent(EStatType::HP) + HEAL_AMOUNT;
-        stat->SetCurrent(EStatType::HP, newHP);
-    }
+    StatComponent* stat = GetStatComponent();
+    int newFlask = static_cast<int>(stat->GetCurrent(EStatType::Flask)) - 1;
+    stat->SetCurrent(EStatType::Flask, static_cast<float>(newFlask));
+
+    float newHP = stat->GetCurrent(EStatType::HP) + HEAL_AMOUNT;
+    stat->SetCurrent(EStatType::HP, newHP);
 }

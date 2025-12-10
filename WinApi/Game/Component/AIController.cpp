@@ -25,13 +25,14 @@ void AIController::ComponentInit()
 	abilitySystem = owner->GetComponent<AbilitySystem>();
 	stateSystem = owner->GetComponent<StateSystem>();
 
+	// 필수 컴포넌트 검증
+	assert(stateSystem && "AIController requires StateSystem");
+	assert(abilitySystem && "AIController requires AbilitySystem");
+
 	// 상태 변경 이벤트 구독
-	if (stateSystem)
-	{
-		stateSystem->OnStateChanged.Add([this](EStateTag oldTags, EStateTag newTags) {
-			OnStateChanged(oldTags, newTags);
-		});
-	}
+	stateSystem->OnStateChanged.Add([this](EStateTag oldTags, EStateTag newTags) {
+		OnStateChanged(oldTags, newTags);
+	});
 
 	// 순찰 시작점 설정
 	patrolOrigin = owner->GetPos();
@@ -40,16 +41,13 @@ void AIController::ComponentInit()
 void AIController::ComponentOnEnable()
 {
 	// 초기 상태: 순찰
-	if (stateSystem)
-	{
-		stateSystem->AddTagUnique(Tag_AIPatrol);
-	}
+	stateSystem->AddTagUnique(Tag_AIPatrol);
 }
 
 void AIController::ComponentUpdate()
 {
 	// 피격/스턴/공격 중에는 AI 업데이트 중지
-	if (stateSystem && stateSystem->HasAnyTag(TAG_AI_BLOCKED))
+	if (stateSystem->HasAnyTag(TAG_AI_BLOCKED))
 		return;
 
 	UpdateTargetDetection();
@@ -67,7 +65,7 @@ void AIController::UpdateTargetDetection()
 	// 타겟이 없으면 리턴
 	if (!target)
 	{
-		if (hadTargetLastFrame && stateSystem)
+		if (hadTargetLastFrame)
 		{
 			stateSystem->RemoveTag(Tag_HasTarget);
 		}
@@ -85,14 +83,8 @@ void AIController::UpdateTargetDetection()
 	if (isOutOfRange)
 	{
 		target = nullptr;
-		if (stateSystem)
-		{
-			stateSystem->RemoveTag(Tag_HasTarget);
-		}
-		if (abilitySystem)
-		{
-			abilitySystem->TriggerEvent(EGameEvent::AI_TargetLost, nullptr);
-		}
+		stateSystem->RemoveTag(Tag_HasTarget);
+		abilitySystem->TriggerEvent(EGameEvent::AI_TargetLost, nullptr);
 		hadTargetLastFrame = false;
 		wasInAttackRange = false;
 		return;
@@ -101,24 +93,15 @@ void AIController::UpdateTargetDetection()
 	// 최초 감지
 	if (!hadTargetLastFrame && isInDetectRange)
 	{
-		if (stateSystem)
-		{
-			stateSystem->AddTagUnique(Tag_HasTarget);
-		}
-		if (abilitySystem)
-		{
-			abilitySystem->TriggerEvent(EGameEvent::AI_TargetDetected, target);
-		}
+		stateSystem->AddTagUnique(Tag_HasTarget);
+		abilitySystem->TriggerEvent(EGameEvent::AI_TargetDetected, target);
 		hadTargetLastFrame = true;
 	}
 
 	// 공격 범위 진입
 	if (!wasInAttackRange && isInAttackRange)
 	{
-		if (abilitySystem)
-		{
-			abilitySystem->TriggerEvent(EGameEvent::AI_TargetInAttackRange, target);
-		}
+		abilitySystem->TriggerEvent(EGameEvent::AI_TargetInAttackRange, target);
 		wasInAttackRange = true;
 	}
 	else if (wasInAttackRange && !isInAttackRange)
@@ -187,17 +170,14 @@ bool AIController::IsAtPatrolBoundary() const
 void AIController::UpdatePatrol()
 {
 	// 순찰 중이 아니면 리턴
-	if (!stateSystem || !stateSystem->HasTag(Tag_AIPatrol))
+	if (!stateSystem->HasTag(Tag_AIPatrol))
 		return;
 
 	// 순찰 경계 도달 시 방향 전환 + 이벤트 발생
 	if (IsAtPatrolBoundary())
 	{
 		FlipPatrolDirection();
-		if (abilitySystem)
-		{
-			abilitySystem->TriggerEvent(EGameEvent::AI_PatrolPointReached, nullptr);
-		}
+		abilitySystem->TriggerEvent(EGameEvent::AI_PatrolPointReached, nullptr);
 	}
 }
 

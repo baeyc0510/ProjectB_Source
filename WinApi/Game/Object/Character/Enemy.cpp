@@ -87,9 +87,6 @@ void Enemy::UpdateAnimation()
 
 void Enemy::HandleMovementEvents()
 {
-	if (!movement)
-		return;
-
 	// 순찰 중 벽 충돌 시 방향 전환
 	if (stateSystem->HasTag(Tag_AIPatrol))
 	{

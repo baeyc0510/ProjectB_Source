@@ -27,7 +27,7 @@ void Ability_Slide::OnFinishedAnim()
     // 끼임 상태면 슬라이드 유지
     if (GetStateSystem()->HasTag(Tag_Squashed))
     {
-        GetAnimator()->Play(AnimKey::Slide, true, BIND(this, OnFinishedAnim), BIND(this, OnInterruptedAnim));
+        GetAnimator()->Play(AnimKey::Slide, false, BIND(this, OnFinishedAnim), BIND(this, OnInterruptedAnim));
         return;
     }
     EndAbility();
@@ -38,7 +38,7 @@ void Ability_Slide::OnInterruptedAnim()
     // 끼임 상태면 슬라이드 유지
     if (GetStateSystem()->HasTag(Tag_Squashed))
     {
-        GetAnimator()->Play(AnimKey::Slide, true, BIND(this, OnFinishedAnim), BIND(this, OnInterruptedAnim));
+        GetAnimator()->Play(AnimKey::Slide, false, BIND(this, OnFinishedAnim), BIND(this, OnInterruptedAnim));
         return;
     }
     EndAbility();

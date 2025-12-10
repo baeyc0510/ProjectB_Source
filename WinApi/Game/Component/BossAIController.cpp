@@ -25,6 +25,10 @@ void BossAIController::ComponentInit()
 	// 컴포넌트 캐시
 	stateSystem = owner->GetComponent<StateSystem>();
 	abilitySystem = owner->GetComponent<AbilitySystem>();
+
+	// 필수 컴포넌트 검증
+	assert(stateSystem && "BossAIController requires StateSystem");
+	assert(abilitySystem && "BossAIController requires AbilitySystem");
 }
 
 void BossAIController::ComponentOnEnable()
@@ -36,9 +40,9 @@ void BossAIController::ComponentUpdate()
 {
 	// 보스 AI 업데이트 차단 태그 그룹
 	const EStateTag TAG_BOSS_AI_BLOCKED = Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BossAppearing;
-	
+
 	// 피격/스턴/공격 중에는 AI 업데이트 중지
-	if (stateSystem && stateSystem->HasAnyTag(TAG_BOSS_AI_BLOCKED))
+	if (stateSystem->HasAnyTag(TAG_BOSS_AI_BLOCKED))
 		return;
 
 	// 플레이어 찾기

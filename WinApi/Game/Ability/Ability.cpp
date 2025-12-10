@@ -23,6 +23,10 @@ void Ability::Init(GameObject* inOwner, AbilitySystem* inAbilitySystem)
 {
 	owner = inOwner;
 	abilitySystem = inAbilitySystem;
+
+	// 필수 참조 검증
+	assert(owner && "Ability requires owner");
+	assert(abilitySystem && "Ability requires AbilitySystem");
 }
 
 void Ability::UpdateCooldown(float deltaTime)
@@ -68,9 +72,6 @@ void Ability::CancelAbility()
 
 DelegateHandle Ability::WaitEvent(EGameEvent eventType, function<void(GameObject*)> callback)
 {
-	if (!abilitySystem)
-		return 0;
-
 	DelegateHandle handle = abilitySystem->OnEvent.Add(
 		[eventType, callback](EGameEvent triggeredEvent, GameObject* source)
 		{
@@ -86,9 +87,9 @@ DelegateHandle Ability::WaitEvent(EGameEvent eventType, function<void(GameObject
 
 void Ability::EndWaitEvent(DelegateHandle& handle)
 {
-	if (!abilitySystem || !handle.IsValid())
+	if (!handle.IsValid())
 	{
-		handle = DelegateHandle(); // 핸들 무효화
+		handle = DelegateHandle();
 		return;
 	}
 
@@ -98,8 +99,8 @@ void Ability::EndWaitEvent(DelegateHandle& handle)
 		abilitySystem->OnEvent.Remove(*iter);
 		eventHandles.erase(iter);
 	}
-	
-	handle = DelegateHandle(); // 핸들 무효화
+
+	handle = DelegateHandle();
 }
 
 void Ability::ClearEventHandles()

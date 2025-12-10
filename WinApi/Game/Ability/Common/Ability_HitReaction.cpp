@@ -43,8 +43,7 @@ void Ability_HitReaction::OnInterruptedReaction()
 
 void Ability_HitReaction::OnRecover()
 {
-    auto rigidbody = owner->GetComponent<Rigidbody>();
-    rigidbody->SetVelocity(Vec2(0,0));
+    GetRigidbody()->SetVelocity(Vec2(0, 0));
 }
 
 /*~ Ability_ParryHitReaction ~*/

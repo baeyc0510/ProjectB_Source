@@ -63,7 +63,7 @@ void Ability_BossSpit::OnSpitFinish()
 
 void Ability_BossSpit::SpawnProjectile()
 {
-	if (!owner || !owner->GetScene())
+	if (!owner->GetScene())
 		return;
 
 	// 투사체 생성 위치 (보스 입 위치 근처)

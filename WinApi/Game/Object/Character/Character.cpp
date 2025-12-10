@@ -123,6 +123,15 @@ void Character::Init()
     animator->OnFrameEvent.Add([this](const wstring& eventName) {
         HandleAnimationEvent(AnimEventHelper::ToGameEvent(eventName));
     });
+
+    // 필수 컴포넌트 검증
+    assert(rigidbody && "Character requires Rigidbody");
+    assert(collider && "Character requires Collider");
+    assert(movement && "Character requires CharacterMovement");
+    assert(stateSystem && "Character requires StateSystem");
+    assert(statComponent && "Character requires StatComponent");
+    assert(abilitySystem && "Character requires AbilitySystem");
+    assert(animator && "Character requires Animator");
 }
 
 void Character::OnEnable()
@@ -133,10 +142,9 @@ void Character::OnEnable()
 void Character::Update()
 {
 	// 속도 정지 태그 처리
-	if (stateSystem && stateSystem->HasTag(Tag_StopVelocity))
+	if (stateSystem->HasTag(Tag_StopVelocity))
 	{
-		if (rigidbody)
-			rigidbody->SetVelocity(Vec2(0.0f, 0.0f));
+		rigidbody->SetVelocity(Vec2(0.0f, 0.0f));
 	}
 }
 
@@ -154,33 +162,21 @@ void Character::Release()
 
 void Character::OnCollisionEnter(Collider* other)
 {
-    if (movement)
-    {
-        movement->HandleCollisionEnter(other);
-    }
+    movement->HandleCollisionEnter(other);
 }
 
 void Character::OnCollisionStay(Collider* other)
 {
-    if (movement)
-    {
-        movement->HandleCollisionStay(other);
-    }
+    movement->HandleCollisionStay(other);
 }
 
 void Character::OnCollisionExit(Collider* other)
 {
-    if (movement)
-    {
-        movement->HandleCollisionExit(other);
-    }
+    movement->HandleCollisionExit(other);
 }
 
 void Character::UpdateStates()
 {
-    if (!movement)
-        return;
-
     bool bIsGrounded = movement->IsGrounded();
     bool bIsOnSteepSlope = movement->IsOnSteepSlope();
 

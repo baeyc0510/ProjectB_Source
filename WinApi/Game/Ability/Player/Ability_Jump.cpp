@@ -18,12 +18,8 @@ void Ability_Jump::OnActivate()
     PlaySFX(SFXKey::PlayerJump);
 
     Vec2 velocity = GetRigidbody()->GetVelocity();
-
-    if (StatComponent* stat = GetStatComponent())
-    {
-        float jumpForce = stat->GetCurrent(EStatType::JumpForce);
-        GetRigidbody()->SetVelocity(Vec2(velocity.x, -jumpForce));
-    }
+    float jumpForce = GetStatComponent()->GetCurrent(EStatType::JumpForce);
+    GetRigidbody()->SetVelocity(Vec2(velocity.x, -jumpForce));
 
     const wchar_t* aniName = IsNearlyEqual(velocity.x, 0)
         ? AnimKey::JumpStart_Inplace

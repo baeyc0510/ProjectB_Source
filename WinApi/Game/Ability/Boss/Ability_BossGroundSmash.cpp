@@ -75,7 +75,7 @@ void Ability_BossGroundSmash::OnSmashToIdle()
 
 void Ability_BossGroundSmash::SpawnSpikes()
 {
-	if (!owner || !owner->GetScene())
+	if (!owner->GetScene())
 		return;
 
 	int spikeCount = CalculateSpikeCount();
