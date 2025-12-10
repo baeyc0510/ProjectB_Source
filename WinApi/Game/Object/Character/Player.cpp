@@ -26,6 +26,8 @@
 #include "Game/Manager/VFXManager.h"
 #include "Game/Object/VFXObject.h"
 
+/*~ Initialization ~*/
+
 Player::Player()
 {
 	name = TEXT("플레이어");
@@ -85,6 +87,8 @@ void Player::Init()
 	InitStartupStats();
 }
 
+/*~ Lifecycle ~*/
+
 void Player::OnEnable()
 {
 	Character::OnEnable();
@@ -117,6 +121,8 @@ void Player::LateUpdate()
 {
 	CheckVelocitySignChanged();
 }
+
+/*~ Input Processing ~*/
 
 void Player::ProcessActiveInput()
 {
@@ -204,6 +210,8 @@ void Player::HandleActionInput()
 		abilitySystem->TriggerEvent(EGameEvent::Input_Jump_Pressed);
 	}
 }
+
+/*~ State Updates ~*/
 
 void Player::UpdatePlayerStates()
 {
@@ -294,6 +302,8 @@ void Player::ProcessPassiveAbilities()
 	abilitySystem->TryActivateAbility(EAbility::HangOnLedge); // 매달리기
 }
 
+/*~ Animation ~*/
+
 void Player::HandleAnimationEvent(EGameEvent event)
 {
 	Character::HandleAnimationEvent(event);
@@ -364,6 +374,8 @@ void Player::Release()
 	Character::Release();
 }
 
+/*~ Collision ~*/
+
 void Player::OnCollisionEnter(Collider* other)
 {
 	Character::OnCollisionEnter(other);
@@ -392,6 +404,8 @@ void Player::OnCollisionExit(Collider* other)
 
 	Character::OnCollisionExit(other);
 }
+
+/*~ Combat ~*/
 
 void Player::OnDamage(GameObject* source, const CombatContext& context)
 {
@@ -499,6 +513,8 @@ void Player::InitStartupStats()
 	statComponent->InitStat(EStatType::JumpForce, JUMP_FORCE, JUMP_FORCE);
 	statComponent->InitStat(EStatType::AttackPower, ATTACK_POWER, ATTACK_POWER);
 }
+
+/*~ State Events ~*/
 
 void Player::OnStatChanged(EStatType type, float& current, float& max)
 {
