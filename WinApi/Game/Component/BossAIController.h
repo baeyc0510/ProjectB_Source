@@ -31,7 +31,7 @@ public:
 	BossAIController();
 	virtual ~BossAIController();
 
-	/*~ CBossAIController Interface ~*/
+	/*~ BossAIController Interface ~*/
 	// 공격 등록
 	void RegisterAttack(EAbility ability, float minRange, float maxRange, float weight = 1.f);
 

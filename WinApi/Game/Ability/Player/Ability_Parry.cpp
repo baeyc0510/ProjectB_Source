@@ -68,6 +68,7 @@ void Ability_Parry::OnParryWindowClose()
 
 void Ability_Parry::OnHit(GameObject* source)
 {
+    // 패리 윈도우가 아니면 일반 가드
     if (!bParryWindowOpen)
     {
         PlaySFX(SFXKey::PlayerGuard);
@@ -77,16 +78,16 @@ void Ability_Parry::OnHit(GameObject* source)
     if (!source)
         return;
 
-    // source의 패링 리액션 발동
+    // 패리 성공: 상대방 스턴
     if (AbilitySystem* sourceAbilitySystem = source->GetComponent<AbilitySystem>())
     {
         sourceAbilitySystem->TryActivateAbility(EAbility::ParryHit);
     }
 
-    // 플레이어의 리액션
+    // 패리 성공 연출 -> 카운터 윈도우 대기
     GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
     PlaySFX(SFXKey::PlayerParrySuccess);
-    
+
     onCounterOpenHandle = WaitEvent(EGameEvent::ComboWindowOpen, BIND_EVENT(this, OnCounterOpen));
     onCounterCloseHandle = WaitEvent(EGameEvent::ComboWindowClose, BIND_EVENT(this, OnCounterClose));
     bParrySuccess = true;
@@ -113,7 +114,8 @@ void Ability_Parry::OnCounterClose()
     EndWaitEvent(onCounterInputHandle);
     EndWaitEvent(onCounterOpenHandle);
     EndWaitEvent(onCounterCloseHandle);
-    
+
+    // 카운터 윈도우 동안 공격 입력이 있었으면 카운터 공격 실행
     if (bShouldCounter)
     {
         bShouldCounter = false;

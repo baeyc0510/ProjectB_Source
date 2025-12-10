@@ -6,8 +6,7 @@ public:
     VFXObject();
     ~VFXObject() override;
 
-    /*~ CVFX Interface ~*/
-    // SetLifetime, GetRemainingLifetime은 CGameObject에서 상속
+    /*~ VFXObject Interface ~*/
 
     void SetLooping(bool inLooping);
     bool IsLooping() const { return bLooping; }
@@ -18,7 +17,7 @@ public:
     void StopVFX();
 
 protected:
-    /*~ CGameObject Interface ~*/
+    /*~ GameObject Interface ~*/
     void Init() override;
     void OnEnable() override;
     void Update() override;
@@ -26,7 +25,7 @@ protected:
     void OnDisable() override;
     void Release() override;
 
-    /*~ CVFX Interface ~*/
+    /*~ VFXObject Interface ~*/
     virtual void OnFinishedAnimation();
 
 private:

@@ -62,7 +62,7 @@ void BossHUD::Render()
     float baseX = renderPos.x;
     float baseY = renderPos.y;
 
-    // 1. HP bar
+    // HP bar
     float hpRatio = (maxHP > 0.f) ? (currentHP / maxHP) : 0.f;
     float hpSrcWidth = (float)imgHPBar->GetBmpWidth() * hpRatio;
     float hpSrcHeight = (float)imgHPBar->GetBmpHeight();
@@ -77,14 +77,14 @@ void BossHUD::Render()
         0, 0, hpSrcWidth, hpSrcHeight,
         false);
 
-    // 2. frame
+    // Frame
     float frameW = scale.x * s;
     float frameH = scale.y * s;
     RENDER->TransparentImage(imgFrame,
         baseX, baseY,
         baseX + frameW, baseY + frameH);
 
-    // 3. Boss name (프레임 상단 가운데)
+    // Boss name (프레임 상단 가운데)
     if (imgName)
     {
         float nameDstW = nameWidth * s;

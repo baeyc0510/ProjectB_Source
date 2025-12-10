@@ -10,12 +10,12 @@ public:
 	Enemy();
 	~Enemy() override;
 
-	/*~ CEnemy Interface ~*/
+	/*~ Enemy Interface ~*/
 	AIController* GetAIController() const { return aiController; }
 	Vec2 GetParryPushbackForce() const { return parryPushbackForce; }
 	
 protected:
-	/*~ CGameObject Interface ~*/
+	/*~ GameObject Interface ~*/
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
@@ -23,7 +23,7 @@ protected:
 	void OnDisable() override;
 	void Release() override;
 
-	/*~ CCharacter Interface ~*/
+	/*~ Character Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 	void OnDieComplete() override;
 	

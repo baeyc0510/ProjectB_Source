@@ -11,14 +11,14 @@ public:
 	Projectile();
 	virtual ~Projectile();
 
-	/*~ CProjectile Interface ~*/
+	/*~ Projectile Interface ~*/
 	void SetProjectileOwner(GameObject* inOwner) { projectileOwner = inOwner; }
 	void SetVelocity(Vec2 vel);
 	void SetDamage(float dmg) { damage = dmg; }
 	void Launch(Vec2 velocity);
 
 protected:
-	/*~ CGameObject Interface ~*/
+	/*~ GameObject Interface ~*/
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
@@ -32,7 +32,7 @@ protected:
 	/*~ ICombatInterface ~*/
 	void OnDamage(GameObject* source, const CombatContext& context) override;
 
-	/*~ CProjectile Interface ~*/
+	/*~ Projectile Interface ~*/
 	virtual void OnHitGround(Vec2 hitPos);
 	virtual void OnHitWall(Vec2 hitPos);
 	virtual void OnHitPlayer(GameObject* player);

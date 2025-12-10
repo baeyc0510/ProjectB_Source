@@ -8,19 +8,19 @@ public:
 	WorldCollider();
 	virtual ~WorldCollider();
 
-	/*~ CWorldCollider Interface ~*/
+	/*~ WorldCollider Interface ~*/
 	Collider* GetCollider() { return collider; }
 
 protected:
-	/*~ CGameObject Interface ~*/
+	/*~ GameObject Interface ~*/
 	void Init() override {}
 	void OnEnable() override {}
 	void Update() override {}
 	void OnDisable() override {}
 	void Release() override {}
 	void Render() override {}
-	
-	/*~ CWorldCollider Interface ~*/
+
+	/*~ WorldCollider Interface ~*/
 	void SetBoxCollider(const Vec2& center, const Vec2& size, ELayer layer);
 	void SetLineCollider(const Vec2& start, const Vec2& end, ELayer layer);
 

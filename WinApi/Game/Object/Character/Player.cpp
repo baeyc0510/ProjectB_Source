@@ -34,7 +34,7 @@ Player::Player()
 
 Player::~Player()
 {
-	
+
 }
 
 void Player::Init()
@@ -151,7 +151,7 @@ void Player::Update()
 
 void Player::LateUpdate()
 {
-	CheckVelocityChanged();
+	CheckVelocitySignChanged();
 }
 
 void Player::ProcessActiveInput()
@@ -605,7 +605,7 @@ bool Player::ShouldIgnorePlatform() const
 	return (stateSystem->HasTag(Tag_Climbing));
 }
 
-void Player::CheckVelocityChanged()
+void Player::CheckVelocitySignChanged()
 {
 	Vec2 curVelocity = rigidbody->GetVelocity();
 

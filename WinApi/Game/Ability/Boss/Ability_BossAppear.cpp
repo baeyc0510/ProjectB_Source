@@ -62,12 +62,12 @@ void Ability_BossAppear::OnEnd()
     }
     
     boss->OnAppearanceComplete();
-    
-    // 플레이어 비추게 돌아감
+
+    // 카메라를 플레이어 쪽으로 복귀
     GameObject* playerObj = bossAI->GetTarget();
     CAMERA->SetTargetPos(bossAI->GetTarget()->GetPos() + CGame::DEFAULT_CAMERA_OFFSET);
-    
-    // 2초후
+
+    // 연출 종료 후 전투 시작
     TIMER->SetTimer([this, playerObj]()
     {
         // 플레이어 정지 해제

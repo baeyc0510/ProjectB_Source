@@ -26,7 +26,7 @@ public:
 	AIController();
 	virtual ~AIController();
 
-	/*~ CAIController Interface ~*/
+	/*~ AIController Interface ~*/
 	// 설정
 	void SetConfig(const FAIConfig& inConfig) { config = inConfig; }
 	FAIConfig& GetConfig() { return config; }

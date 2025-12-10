@@ -7,7 +7,7 @@ public:
 	StateSystem();
 	virtual ~StateSystem();
 
-	/*~ CStateSystem Interface ~*/
+	/*~ StateSystem Interface ~*/
 	void AddTag(EStateTag tag);
 	void AddTagUnique(EStateTag tag);
 	void RemoveTag(EStateTag tag);

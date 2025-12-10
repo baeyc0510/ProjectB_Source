@@ -15,7 +15,7 @@ public:
     Character();
     ~Character() override;
 
-    /*~ CCharacter Interface ~*/
+    /*~ Character Interface ~*/
     StateSystem* GetStateSystem() const { return stateSystem; }
     AbilitySystem* GetAbilitySystem() const { return abilitySystem; }
     StatComponent* GetStatComponent() const { return statComponent; }
@@ -43,7 +43,7 @@ public:
     void SpawnDamageVFX(const CombatContext& context, int spawnDirection);
 
 protected:
-    /*~ CGameObject Interface ~*/
+    /*~ GameObject Interface ~*/
     void Init() override;
     void OnEnable() override;
     void Update() override;
@@ -55,7 +55,7 @@ protected:
     void OnCollisionStay(Collider* other) override;
     void OnCollisionExit(Collider* other) override;
 
-    /*~ CCharacter Interface ~*/
+    /*~ Character Interface ~*/
     virtual void UpdateStates();
     virtual void OnStateChanged(EStateTag oldTags, EStateTag newTags);
     virtual void OnStatChanged(EStatType type, float& current, float& max);

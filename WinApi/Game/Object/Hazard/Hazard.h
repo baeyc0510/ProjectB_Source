@@ -9,12 +9,12 @@ public:
 	Hazard();
 	virtual ~Hazard();
 
-	/*~ CHazard Interface ~*/
+	/*~ Hazard Interface ~*/
 	void SetDamage(float dmg) { damage = dmg; }
 	void SetDamageInterval(float interval) { damageInterval = interval; }
 
 protected:
-	/*~ CGameObject Interface ~*/
+	/*~ GameObject Interface ~*/
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
@@ -25,7 +25,7 @@ protected:
 	void OnCollisionEnter(Collider* other) override;
 	void OnCollisionStay(Collider* other) override;
 
-	/*~ CHazard Interface (Virtual) ~*/
+	/*~ Hazard Interface ~*/
 	virtual void OnSpawn();
 	void DealDamageToPlayer(GameObject* player);
 	

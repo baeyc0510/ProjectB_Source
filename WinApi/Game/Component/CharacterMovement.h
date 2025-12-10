@@ -76,7 +76,7 @@ public:
 	void ComponentRender() override {}
 	void ComponentRelease() override {}
 
-	/*~ CCharacterMovement Interface ~*/
+	/*~ CharacterMovement Interface ~*/
 	// 설정
 	void SetConfig(const FMovementConfig& inConfig);
 	const FMovementConfig& GetConfig() const { return config; }

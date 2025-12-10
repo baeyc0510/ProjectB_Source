@@ -12,7 +12,6 @@ AbilitySystem::~AbilitySystem()
 {
 }
 
-// Ability 관리
 void AbilitySystem::AddAbility(EAbility abilityType, Ability* ability)
 {
 	abilities[abilityType] = unique_ptr<Ability>(ability);
@@ -138,20 +137,17 @@ void AbilitySystem::CancelAbilitiesWithTag(EStateTag tag)
 	}
 }
 
-// 이벤트 중계
 void AbilitySystem::TriggerEvent(EGameEvent eventType, GameObject* source)
 {
 	OnEvent.Broadcast(eventType, source);
 }
 
-// 상태 조회
 bool AbilitySystem::IsAbilityActive(EAbility abilityType) const
 {
 	Ability* ability = GetAbility(abilityType);
 	return ability && ability->IsActive();
 }
 
-// Component 인터페이스
 void AbilitySystem::ComponentInit()
 {
 	// StateSystem 캐싱
@@ -164,7 +160,6 @@ void AbilitySystem::ComponentRelease()
 	activeAbilities.clear();
 }
 
-// Component 업데이트
 void AbilitySystem::ComponentUpdate()
 {
 	// 모든 Ability 쿨다운 업데이트
@@ -175,7 +170,6 @@ void AbilitySystem::ComponentUpdate()
 	}
 }
 
-// 내부 함수
 void AbilitySystem::OnAbilityEnded(Ability* ability)
 {
 	// 태그 자동 제거

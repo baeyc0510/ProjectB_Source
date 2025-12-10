@@ -10,7 +10,7 @@ public:
 	virtual ~OverlayUI();
 
 protected:
-	/*~ CUI Interfaces ~*/
+	/*~ UIBase Interface ~*/
 	void Init() override {}
 	void OnEnable() override {}
 	void Update() override {}
@@ -18,7 +18,7 @@ protected:
 	void OnDisable() override {}
 	void Release() override {}
 
-	/*~ COverlayUI Interfaces ~*/
+	/*~ OverlayUI Interface ~*/
 	// 원본 이미지 크기 대비 화면 비율
 	Vec2 GetScaleRatio() const;
 

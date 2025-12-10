@@ -11,7 +11,7 @@ public:
 	Boss();
 	~Boss() override;
 
-	/*~ CBoss Interface ~*/
+	/*~ Boss Interface ~*/
 	BossAIController* GetBossAI() const { return bossAI; }
 
 	// 아레나 경계
@@ -27,7 +27,7 @@ public:
 
 	
 protected:
-	/*~ CGameObject Interface ~*/
+	/*~ GameObject Interface ~*/
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
@@ -35,13 +35,13 @@ protected:
 	void OnDisable() override;
 	void Release() override;
 
-	/*~ CCharacter Interface ~*/
+	/*~ Character Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 	
 	/*~ ICombatInterface ~*/
 	void OnDamage(GameObject* source, const CombatContext& context) override;
 
-	/*~ CBoss Interface ~*/
+	/*~ Boss Interface ~*/
 	virtual void UpdateBossAnimation();
 	virtual void UpdateBossAI();
 	virtual bool CheckEncounterPlayer() = 0;

@@ -10,7 +10,7 @@ public:
 	AbilitySystem();
 	virtual ~AbilitySystem();
 	
-	/*~ CAbilitySystem Interface ~*/
+	/*~ AbilitySystem Interface ~*/
 	void AddAbility(EAbility abilityType, Ability* ability);
 	Ability* GetAbility(EAbility abilityType) const;
 

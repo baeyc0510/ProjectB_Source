@@ -30,7 +30,7 @@ public:
 	void SetIsDown(bool value) { bIsDown = value; }
 	
 protected:
-	/*~ CGameObject Interface ~*/
+	/*~ GameObject Interface ~*/
 	void Init() override;
 	void OnEnable() override;
 	void Update() override;
@@ -42,7 +42,7 @@ protected:
 	void OnCollisionStay(Collider* other) override;
 	void OnCollisionExit(Collider* other) override;
 	
-	/*~ CCharacter Interface ~*/
+	/*~ Character Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 	void HandleAnimationEvent(EGameEvent event) override;
 	bool ShouldIgnorePlatform() const override;
@@ -77,7 +77,7 @@ private:
 	void ProcessPassiveAbilities();
 
 	// Late Update
-	void CheckVelocityChanged();
+	void CheckVelocitySignChanged();
 
 	// Animation
 	void UpdateAnimation();

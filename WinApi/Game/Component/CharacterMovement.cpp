@@ -368,9 +368,7 @@ void CharacterMovement::ProcessMovement()
 	moveInput = 0.f;
 }
 
-// ============================================================================
-// HandleLineGround 헬퍼 함수
-// ============================================================================
+/*~ HandleLineGround Helpers ~*/
 
 void CharacterMovement::HandleSteepSlope(LineCollider* lineCollider, const Vec2& velocity, bool bIsUpRight, float slopeAngle)
 {
@@ -399,7 +397,7 @@ void CharacterMovement::HandleGentleSlope(LineCollider* lineCollider, Vec2& velo
 	if (velocity.y < 0)
 		return;
 
-	// 경사면 속도 보정
+	// 경사면 오르막 속도 보정: 수평 이동 속도를 경사면 방향에 맞게 감속
 	Vec2 newCharacterPos = owner->GetPos();
 	if (bIsGoingUp && abs(velocity.x) > 0.1f)
 	{
@@ -419,9 +417,7 @@ void CharacterMovement::HandleGentleSlope(LineCollider* lineCollider, Vec2& velo
 	}
 }
 
-// ============================================================================
-// HandleBoxGround 헬퍼 함수
-// ============================================================================
+/*~ HandleBoxGround Helpers ~*/
 
 void CharacterMovement::HandleSquashState(int pushDir, float overlapX)
 {
@@ -497,8 +493,8 @@ void CharacterMovement::HandleWallCollision(Collider* other, float overlapX)
 		return;
 
 	Vec2 velocity = rigidbody->GetVelocity();
-	float pushDir = (characterColPos.x < otherPos.x) ? -1.f : 1.f;
-	int wallDir = (pushDir < 0) ? 1 : -1;
+	float pushDir = (characterColPos.x < otherPos.x) ? -1.f : 1.f;  // 캐릭터 밀려날 방향
+	int wallDir = (pushDir < 0) ? 1 : -1;  // 벽이 있는 방향 (pushDir의 반대)
 
 	bool movingIntoWall = (pushDir < 0 && velocity.x > 0) || (pushDir > 0 && velocity.x < 0);
 	if (movingIntoWall)

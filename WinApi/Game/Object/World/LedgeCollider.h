@@ -7,11 +7,11 @@ public:
     LedgeCollider() = default;
     ~LedgeCollider() override = default;
 
-    /*~ CWorldCollider Interface ~*/
+    /*~ WorldCollider Interface ~*/
     void SetBoxCollider(const Vec2& center, const Vec2& size);
     void SetLineCollider(const Vec2& start, const Vec2& end);
 
-    /*~ CLedge Interface ~*/
+    /*~ LedgeCollider Interface ~*/
     void SetCliffDirection(int dir) { cliffDirection = dir; }
     int GetCliffDirection() const { return cliffDirection; }
 

@@ -9,12 +9,12 @@ public:
     MapScene();
     ~MapScene();
     
-    /*~ CMapScene Interfaces ~*/
+    /*~ MapScene Interface ~*/
     Player* SpawnPlayer();
     void SetSpawnId(int inSpawnId) { spawnId = inSpawnId; }
     
 protected:
-    /*~ CScene Interfaces ~*/
+    /*~ Scene Interface ~*/
     void Init()		override;
     void Enter()	override;
     void Update()	override;
@@ -26,7 +26,7 @@ protected:
     void RenderBackground() override;
     void RenderForeground() override;
     
-    /*~ CMapScene Interfaces ~*/
+    /*~ MapScene Interface ~*/
     void SpawnTransitionArea();
     virtual void OnLoadMap();
 

@@ -8,16 +8,16 @@ public:
 	Ladder() = default;
 	~Ladder() override = default;
 
-	/*~ CWorldCollider Interface ~*/
+	/*~ WorldCollider Interface ~*/
 	void SetBoxCollider(const Vec2& center, const Vec2& size);
 
-	/*~ CLadder Interface ~*/
+	/*~ Ladder Interface ~*/
 	float GetLadderX() const { return ladderX; }
 	float GetLadderTopY() const { return ladderTopY; }
 	float GetLadderBottomY() const { return ladderBottomY; }
 
 protected:
-	/*~ CGameObject Interface ~*/
+	/*~ GameObject Interface ~*/
 	void OnCollisionEnter(Collider* other) override;
 	void OnCollisionExit(Collider* other) override;
 

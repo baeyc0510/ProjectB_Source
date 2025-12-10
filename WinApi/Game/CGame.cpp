@@ -119,7 +119,6 @@ void CGame::Init(HINSTANCE hInstance)
 		TIMER->SetTimeScale(scale, duration);
 	});
 
-	// TODO : 씬 추가
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Title,	new SceneTitle());
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage01,	new Stage_Beginning());
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage02,	new SimpleStage(TEXT("Maps/stage02.json")));

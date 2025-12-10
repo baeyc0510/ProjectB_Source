@@ -9,7 +9,7 @@ public:
     Rigidbody();
     virtual ~Rigidbody();
 
-    /*~ CRigidbody Interface ~*/
+    /*~ Rigidbody Interface ~*/
     Vec2 GetVelocity() { return velocity; }
     bool IsUsingGravity() { return bUseGravity; }
     float GetGravityScale() { return gravityScale; }

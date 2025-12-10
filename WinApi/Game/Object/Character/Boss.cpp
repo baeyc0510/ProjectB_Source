@@ -49,11 +49,13 @@ void Boss::Update()
 
 	UpdateStates();
 
+	// 등장 완료 후 AI 활성화
 	if (bHasAppeared)
 	{
 		UpdateBossAI();
 		UpdateBossAnimation();
 	}
+	// 아직 조우하지 않았으면 플레이어 감지
 	else if (!bHasEncountered)
 	{
 		if (CheckEncounterPlayer())

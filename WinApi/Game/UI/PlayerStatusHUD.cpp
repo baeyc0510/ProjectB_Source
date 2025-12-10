@@ -75,7 +75,7 @@ void PlayerStatusHUD::Render()
 	float baseX = renderPos.x;
 	float baseY = renderPos.y;
 
-	// 1. HP bar
+	// HP bar
 	float hpRatio = (maxHP > 0.f) ? (currentHP / maxHP) : 0.f;
 	float hpSrcWidth = (float)imgPlayerHPBar->GetBmpWidth() * hpRatio;
 	float hpSrcHeight = (float)imgPlayerHPBar->GetBmpHeight();
@@ -90,7 +90,7 @@ void PlayerStatusHUD::Render()
 		0, 0, hpSrcWidth, hpSrcHeight,
 		false);
 
-	// 2. MP bar
+	// MP bar
 	float mpRatio = (maxMP > 0.f) ? (currentMP / maxMP) : 0.f;
 	float mpSrcWidth = (float)imgPlayerMPBar->GetBmpWidth() * mpRatio;
 	float mpSrcHeight = (float)imgPlayerMPBar->GetBmpHeight();
@@ -105,7 +105,7 @@ void PlayerStatusHUD::Render()
 		0, 0, mpSrcWidth, mpSrcHeight,
 		false);
 
-	// 3. Flasks
+	// Flasks
 	float flaskX = FLASK_OFFSET_X * s;
 	float flaskY = FLASK_OFFSET_Y * s;
 
@@ -141,7 +141,7 @@ void PlayerStatusHUD::Render()
 		flaskX += flaskDstWidth + FLASK_SPACE_X * s;
 	}
 
-	// 4. portrait, frame
+	// Portrait, frame
 	float frameW = scale.x * s;
 	float frameH = scale.y * s;
 	RENDER->TransparentImage(imgPlayerFrame,

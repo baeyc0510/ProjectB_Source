@@ -218,14 +218,14 @@ void Boss_TenPiedad::UpdateBossAI()
 	if (!bossAI || !bossAI->HasTarget())
 		return;
 
-	// 0. 플레이어가 뒤에 있으면 턴어라운드 먼저
+	// 플레이어가 뒤에 있으면 턴어라운드 먼저
 	if (NeedsTurnaround())
 	{
 		StartTurnaround();
 		return;
 	}
 
-	// 1. 현재 거리에서 공격 가능하면 공격 (근접/원거리 모두)
+	// 공격 가능하면 공격
 	EAbility nextAttack = bossAI->SelectNextAttack();
 	if (nextAttack != EAbility::None)
 	{
@@ -235,14 +235,14 @@ void Boss_TenPiedad::UpdateBossAI()
 		return;
 	}
 
-	// 2. 공격 불가하면 추격 (모든 공격이 쿨다운이거나 범위 밖)
+	// 공격 불가하면 추격
 	if (bossAI->ShouldChase())
 	{
 		UpdateChaseMovement();
 		return;
 	}
 
-	// 3. 추격도 불가하면 정지
+	// 추격도 불가하면 정지
 	bIsChasing = false;
 	StopHorizontalMovement();
 }
