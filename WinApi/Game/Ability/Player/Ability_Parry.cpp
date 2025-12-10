@@ -3,7 +3,6 @@
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
-#include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CStatComponent.h"
 #include "Game/Interface/CombatInterface.h"
@@ -25,7 +24,7 @@ void Ability_Parry::OnActivate()
 {
     Ability::OnActivate();
 
-    SFX->PlayOnce(SFXKey::PlayerStartParry);
+    PlaySFX(SFXKey::PlayerStartParry);
 
     GetAnimator()->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim));
 
@@ -71,10 +70,10 @@ void Ability_Parry::OnHit(CGameObject* source)
 {
     if (!bParryWindowOpen)
     {
-        SFX->PlayOnce(SFXKey::PlayerGuard);
+        PlaySFX(SFXKey::PlayerGuard);
         return;
     }
-    
+
     if (!source)
         return;
 
@@ -83,10 +82,10 @@ void Ability_Parry::OnHit(CGameObject* source)
     {
         sourceAbilitySystem->TryActivateAbility(EAbility::ParryHit);
     }
-    
+
     // 플레이어의 리액션
     GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
-    SFX->PlayOnce(SFXKey::PlayerParrySuccess);
+    PlaySFX(SFXKey::PlayerParrySuccess);
     
     onCounterOpenHandle = WaitEvent(EGameEvent::ComboWindowOpen, BIND_EVENT(this, OnCounterOpen));
     onCounterCloseHandle = WaitEvent(EGameEvent::ComboWindowClose, BIND_EVENT(this, OnCounterClose));
@@ -142,7 +141,7 @@ void Ability_Parry::OnCounterHitCheck()
 
     // 사운드 재생
     if (bHit)
-        SFX->PlayOnce(SFXKey::PlayerParryCounterHit);
+        PlaySFX(SFXKey::PlayerParryCounterHit);
     else
-        SFX->PlayOnce(SFXKey::PlayerHeavySlash);
+        PlaySFX(SFXKey::PlayerHeavySlash);
 }

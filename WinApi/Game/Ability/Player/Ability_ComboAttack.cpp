@@ -4,7 +4,6 @@
 #include "Game/VFXKeys.h"
 #include "Game/SFXKeys.h"
 #include "Game/Component/CStatComponent.h"
-#include "Game/Manager/CSFXManager.h"
 
 namespace
 {
@@ -105,7 +104,7 @@ void Ability_ComboAttack::OnHitCheck()
 
     if (bHit)
     {
-        SFX->PlayOnce(HitSounds[soundIndex % 2]);
+        PlaySFX(HitSounds[soundIndex % 2]);
 
         int oldComboCnt = comboCnt;
         comboCnt = (comboCnt + 1) % maxComboCnt;
@@ -113,7 +112,7 @@ void Ability_ComboAttack::OnHitCheck()
     }
     else
     {
-        SFX->PlayOnce(AirSounds[soundIndex % 4]);
+        PlaySFX(AirSounds[soundIndex % 4]);
     }
 
     soundIndex++;

@@ -7,6 +7,8 @@
 #include "Manager/CSFXManager.h"
 #include "Manager/CMapManager.h"
 #include "Manager/CGameUIManager.h"
+#include "Manager/CEventBus.h"
+#include "Object/CVFX.h"
 #include "Scene/CStage_Beginning.h"
 #include "Scene/CSceneTitle.h"
 #include "Scene/CSimpleStage.h"
@@ -87,6 +89,35 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(CUIManager)->Init();
 	SINGLE(CMapManager)->Init();
 	SINGLE(CGameUIManager)->Init();
+
+	// Event Bus 리스너 등록
+	EVENT->OnPlaySFX.Add([](CGameObject* source, const wstring& key) {
+		SFX->PlayOnce(key);
+	});
+	EVENT->OnPlayBGM.Add([](CGameObject* source, const wstring& key, float volume) {
+		SFX->PlayBGM(key, volume);
+	});
+	EVENT->OnStopBGM.Add([](CGameObject* source) {
+		SFX->StopBGM();
+	});
+	EVENT->OnSpawnVFX.Add([](CGameObject* source, const wstring& key, Vec2 pos, int dir) {
+		if (CVFX* vfx = VFX->CreateVFX(key, pos, dir))
+		{
+			vfx->PlayVFX();
+		}
+	});
+	EVENT->OnCameraShake.Add([](CGameObject* source, const FShakeParams& params) {
+		CAMERA->Shake(params);
+	});
+	EVENT->OnCameraFadeIn.Add([](CGameObject* source, float duration) {
+		CAMERA->FadeIn(duration);
+	});
+	EVENT->OnCameraFadeOut.Add([](CGameObject* source, float duration) {
+		CAMERA->FadeOut(duration);
+	});
+	EVENT->OnSetTimeScale.Add([](CGameObject* source, float scale, float duration) {
+		TIMER->SetTimeScale(scale, duration);
+	});
 
 	// TODO : 씬 추가
 	SINGLE(CSceneManager)->AddScene(ESceneType::Title,	new CSceneTitle());

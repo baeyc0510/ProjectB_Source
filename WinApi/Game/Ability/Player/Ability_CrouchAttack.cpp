@@ -6,7 +6,6 @@
 #include "Game/VFXKeys.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CStatComponent.h"
-#include "Game/Manager/CSFXManager.h"
 
 Ability_CrouchAttack::Ability_CrouchAttack()
 {
@@ -51,14 +50,14 @@ void Ability_CrouchAttack::OnHitCheck()
 {
     vector<HitResult> hitResults;
     bool bHit = CombatHelper::ApplyDamageWithAttackData(owner, AttackData, {Monster,Projectile}, hitResults);
-    
+
     // Play Sound
     if (bHit)
     {
-        SFX->PlayOnce(SFXKey::PlayerEnemyHit1);
+        PlaySFX(SFXKey::PlayerEnemyHit1);
     }
     else
     {
-        SFX->PlayOnce(SFXKey::PlayerSlashAir1);
+        PlaySFX(SFXKey::PlayerSlashAir1);
     }
 }

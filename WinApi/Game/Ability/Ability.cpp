@@ -4,6 +4,7 @@
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 #include "Game/Component/CStatComponent.h"
+#include "Game/Manager/CEventBus.h"
 
 Ability::Ability()
 	: owner(nullptr)
@@ -156,4 +157,34 @@ CStatComponent* Ability::GetStatComponent() const
 		cachedStatComponent = owner->GetComponent<CStatComponent>();
 	}
 	return cachedStatComponent;
+}
+
+void Ability::PlaySFX(const wstring& key)
+{
+	EVENT->OnPlaySFX.Broadcast(owner, key);
+}
+
+void Ability::PlayBGM(const wstring& key, float volume)
+{
+	EVENT->OnPlayBGM.Broadcast(owner, key, volume);
+}
+
+void Ability::StopBGM()
+{
+	EVENT->OnStopBGM.Broadcast(owner);
+}
+
+void Ability::SpawnVFX(const wstring& key, Vec2 pos, int direction)
+{
+	EVENT->OnSpawnVFX.Broadcast(owner, key, pos, direction);
+}
+
+void Ability::ShakeCamera(const FShakeParams& params)
+{
+	EVENT->OnCameraShake.Broadcast(owner, params);
+}
+
+void Ability::SetTimeScale(float scale, float duration)
+{
+	EVENT->OnSetTimeScale.Broadcast(owner, scale, duration);
 }

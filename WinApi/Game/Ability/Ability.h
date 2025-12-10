@@ -12,6 +12,7 @@ class CRigidbody;
 class CBoxCollider;
 class CStateSystem;
 class CStatComponent;
+struct FShakeParams;
 
 class Ability
 {
@@ -61,6 +62,14 @@ protected:
 	CBoxCollider* GetCollider() const;
 	CStateSystem* GetStateSystem() const;
 	CStatComponent* GetStatComponent() const;
+
+	// 이벤트 브로드캐스트 헬퍼
+	void PlaySFX(const wstring& key);
+	void PlayBGM(const wstring& key, float volume = 1.f);
+	void StopBGM();
+	void SpawnVFX(const wstring& key, Vec2 pos, int direction);
+	void ShakeCamera(const FShakeParams& params);
+	void SetTimeScale(float scale, float duration);
 
 protected:
 	CGameObject* owner;
