@@ -29,18 +29,30 @@ private:
 	void OnTurnaroundComplete();	// 턴어라운드 완료 콜백
 
 private:
-	// 공격 범위 상수
-	static constexpr float ENCOUNTER_RANGE = 400.f;
-	static constexpr float SLASH_RANGE = 240.f;
-	static constexpr float STOMP_RANGE = 200.f;
-	static constexpr float SPIT_MIN_RANGE = 220.f;
-	static constexpr float GROUND_SMASH_RANGE = 100.f;
+	// 보스 설정 상수
+	struct Config
+	{
+		struct Encounter
+		{
+			static constexpr float Range = 400.f;
+		};
 
-	// 추격 설정 상수
-	static constexpr float CHASE_SPEED = 100.0f;
-	static constexpr float CHASE_RANGE = 400.0f;	// 추격 시작 거리
-	static constexpr float STOP_RANGE = 20.0f;		// 정지 거리 (근접 공격 범위)
-	
+		struct Attack
+		{
+			static constexpr float SlashRange = 240.f;
+			static constexpr float StompRange = 200.f;
+			static constexpr float SpitMinRange = 220.f;
+			static constexpr float GroundSmashRange = 100.f;
+		};
+
+		struct Chase
+		{
+			static constexpr float Speed = 100.0f;
+			static constexpr float Range = 400.0f;
+			static constexpr float StopRange = 20.0f;
+		};
+	};
+
 	// 추격 상태
 	bool bIsChasing = false;
 	bool bIsTurningAround = false;

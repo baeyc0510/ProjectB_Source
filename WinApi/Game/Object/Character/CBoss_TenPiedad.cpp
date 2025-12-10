@@ -89,22 +89,22 @@ void CBoss_TenPiedad::ConfigureAI()
 		return;
 
 	// 공격 패턴 데이터 등록 (ability, minRange, maxRange, weight)
-	bossAI->RegisterAttack(EAbility::Boss_Slash, 0.f, SLASH_RANGE, 1.5f);
-	bossAI->RegisterAttack(EAbility::Boss_Stomp, 0.f, STOMP_RANGE, 1.0f);
-	bossAI->RegisterAttack(EAbility::Boss_Spit, SPIT_MIN_RANGE, 400.f, 1.0f);
-	bossAI->RegisterAttack(EAbility::Boss_GroundSmash, 0.f, GROUND_SMASH_RANGE, 0.8f);
+	bossAI->RegisterAttack(EAbility::Boss_Slash, 0.f, Config::Attack::SlashRange, 1.5f);
+	bossAI->RegisterAttack(EAbility::Boss_Stomp, 0.f, Config::Attack::StompRange, 1.0f);
+	bossAI->RegisterAttack(EAbility::Boss_Spit, Config::Attack::SpitMinRange, 400.f, 1.0f);
+	bossAI->RegisterAttack(EAbility::Boss_GroundSmash, 0.f, Config::Attack::GroundSmashRange, 0.8f);
 
 	// 결정 간격 설정
 	bossAI->SetDecisionInterval(1.0f);
 
 	// 추격 설정
 	FBossChaseConfig chaseConfig;
-	chaseConfig.chaseSpeed = CHASE_SPEED;
-	chaseConfig.chaseRange = CHASE_RANGE;
-	chaseConfig.stopRange = STOP_RANGE;
+	chaseConfig.chaseSpeed = Config::Chase::Speed;
+	chaseConfig.chaseRange = Config::Chase::Range;
+	chaseConfig.stopRange = Config::Chase::StopRange;
 	chaseConfig.bCanChase = true;
 	bossAI->SetChaseConfig(chaseConfig);
-	
+
 	// arena 설정
 	arenaMinX = MAP->PixelToWorld(Vec2(0,0)).x;
 	arenaMaxX = MAP->PixelToWorld(Vec2(1950,0)).x;
@@ -146,12 +146,7 @@ bool CBoss_TenPiedad::CheckEncounterPlayer()
 		return false;
 
 	float distance = bossAI->GetDistanceToTarget();
-	if (distance < ENCOUNTER_RANGE)
-	{
-		return true;
-	}
-
-	return false;
+	return distance < Config::Encounter::Range;
 }
 
 void CBoss_TenPiedad::OnDamage(CGameObject* source, const CombatContext& context)
