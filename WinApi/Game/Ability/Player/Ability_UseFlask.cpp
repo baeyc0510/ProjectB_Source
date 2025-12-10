@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Ability_UseFlask.h"
 
-#include "Game/AnimKey.h"
-#include "Game/SFXKeys.h"
+#include "Game/Data/AnimKey.h"
+#include "Game/Data/SFXKeys.h"
 #include "Game/Object/Character/Player.h"
 
 Ability_UseFlask::Ability_UseFlask()

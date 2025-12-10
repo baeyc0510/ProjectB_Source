@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "SceneTitle.h"
-#include "Game/VFXKeys.h"
+#include "Game/Data/VFXKeys.h"
 #include "Game/Manager/GameUIManager.h"
 #include "Game/Manager/SFXManager.h"
 #include "Game/Manager/VFXManager.h"

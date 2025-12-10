@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Stage_Beginning.h"
 
-#include "Game/AnimKey.h"
+#include "Game/Data/AnimKey.h"
 #include "Game/Object/Character/Player.h"
 #include "Game/Component/StateSystem.h"
 #include "Game/Manager/GameUIManager.h"

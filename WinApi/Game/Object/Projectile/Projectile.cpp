@@ -2,7 +2,7 @@
 #include "Projectile.h"
 
 #include "Game/Component/Rigidbody.h"
-#include "Game/VFXKeys.h"
+#include "Game/Data/VFXKeys.h"
 #include "Game/Manager/VFXManager.h"
 #include "Game/Object/VFXObject.h"
 

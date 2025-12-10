@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Game/AnimKey.h"
+#include "Game/Data/AnimKey.h"
 #include "Game/Ability/Ability.h"
 
 class Ability_HitReaction : public Ability

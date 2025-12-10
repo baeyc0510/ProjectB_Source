@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "Hazard_Spike.h"
 
-#include "Game/AnimKey.h"
+#include "Game/Data/AnimKey.h"
 #include "Game/Enum.h"
-#include "Game/VFXKeys.h"
+#include "Game/Data/VFXKeys.h"
 #include "Game/Util/AnimEventHelper.h"
 #include "Game/Util/CombatHelper.h"
 

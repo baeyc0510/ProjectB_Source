@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "Ability_BossGroundSmash.h"
 
-#include "Game/AnimKey.h"
-#include "Game/VFXKeys.h"
-#include "Game/SFXKeys.h"
+#include "Game/Data/AnimKey.h"
+#include "Game/Data/VFXKeys.h"
+#include "Game/Data/SFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 #include "Game/Object/Hazard/Hazard_Spike.h"
 #include "Game/Component/BossAIController.h"

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Hazard.h"
 
-#include "Game/VFXKeys.h"
+#include "Game/Data/VFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
 Hazard::Hazard()

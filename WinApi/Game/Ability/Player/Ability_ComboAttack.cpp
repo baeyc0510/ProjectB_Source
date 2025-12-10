@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
 #include "Ability_ComboAttack.h"
-#include "Game/AnimKey.h"
-#include "Game/VFXKeys.h"
-#include "Game/SFXKeys.h"
+#include "Game/Data/AnimKey.h"
+#include "Game/Data/VFXKeys.h"
+#include "Game/Data/SFXKeys.h"
 #include "Game/Component/StatComponent.h"
 
 namespace

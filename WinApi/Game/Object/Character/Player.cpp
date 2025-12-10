@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
 #include "Player.h"
 
-#include "Game/VFXKeys.h"
+#include "Game/Data/VFXKeys.h"
 #include "Game/Data/PlayerAnimData.h"
-#include "Game/SFXKeys.h"
+#include "Game/Data/SFXKeys.h"
 #include "Game/Ability/Common/Ability_Die.h"
 #include "Game/Ability/Common/Ability_HitReaction.h"
 #include "Game/Manager/SFXManager.h"

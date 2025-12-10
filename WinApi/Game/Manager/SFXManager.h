@@ -1,5 +1,5 @@
 #pragma once
-#include "Game/SFXKeys.h"
+#include "Game/Data/SFXKeys.h"
 
 class SoundResource;
 

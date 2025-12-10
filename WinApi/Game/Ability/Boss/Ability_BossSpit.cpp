@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Ability_BossSpit.h"
 
-#include "Game/AnimKey.h"
-#include "Game/SFXKeys.h"
+#include "Game/Data/AnimKey.h"
+#include "Game/Data/SFXKeys.h"
 #include "Game/Object/Projectile/Projectile_Spit.h"
 #include <cmath>
 

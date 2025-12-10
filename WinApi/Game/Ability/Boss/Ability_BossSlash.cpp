@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "Ability_BossSlash.h"
 
-#include "Game/AnimKey.h"
-#include "Game/VFXKeys.h"
-#include "Game/SFXKeys.h"
+#include "Game/Data/AnimKey.h"
+#include "Game/Data/VFXKeys.h"
+#include "Game/Data/SFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
 void Ability_BossSlash::OnActivate()

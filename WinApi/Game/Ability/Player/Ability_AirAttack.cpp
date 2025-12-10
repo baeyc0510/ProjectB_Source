@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Ability_AirAttack.h"
-#include "Game/AnimKey.h"
-#include "Game/VFXKeys.h"
+#include "Game/Data/AnimKey.h"
+#include "Game/Data/VFXKeys.h"
 #include "Game/Component/StateSystem.h"
 #include "Game/Component/StatComponent.h"
 

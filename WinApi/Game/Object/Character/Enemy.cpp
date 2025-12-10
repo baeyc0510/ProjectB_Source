@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Enemy.h"
 
-#include "Game/AnimKey.h"
+#include "Game/Data/AnimKey.h"
 #include "Game/Enum.h"
 #include "Game/Component/Rigidbody.h"
 #include "Game/Component/StateSystem.h"

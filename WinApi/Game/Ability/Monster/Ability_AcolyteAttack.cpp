@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Ability_AcolyteAttack.h"
 
-#include "Game/AnimKey.h"
-#include "Game/SFXKeys.h"
+#include "Game/Data/AnimKey.h"
+#include "Game/Data/SFXKeys.h"
 #include "Game/Util/CombatHelper.h"
 
 void Ability_AcolyteAttack::OnActivate()

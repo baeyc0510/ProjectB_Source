@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "Ability_CrouchAttack.h"
 
-#include "Game/AnimKey.h"
-#include "Game/SFXKeys.h"
-#include "Game/VFXKeys.h"
+#include "Game/Data/AnimKey.h"
+#include "Game/Data/SFXKeys.h"
+#include "Game/Data/VFXKeys.h"
 #include "Game/Component/AbilitySystem.h"
 #include "Game/Component/StatComponent.h"
 
