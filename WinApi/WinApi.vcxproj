@@ -208,7 +208,6 @@
     <ClInclude Include="Game\Object\VFXObject.h" />
     <ClInclude Include="Game\Object\Hazard\Hazard.h" />
     <ClInclude Include="Game\Object\Hazard\Hazard_Spike.h" />
-    <ClInclude Include="Game\Object\Hazard\Hazard_Vine.h" />
     <ClInclude Include="Game\Object\Projectile\Projectile.h" />
     <ClInclude Include="Game\Object\Projectile\Projectile_Spit.h" />
     <ClInclude Include="Game\Object\World\Ground.h" />
@@ -284,7 +283,6 @@
     <ClCompile Include="Game\Object\VFXObject.cpp" />
     <ClCompile Include="Game\Object\Hazard\Hazard.cpp" />
     <ClCompile Include="Game\Object\Hazard\Hazard_Spike.cpp" />
-    <ClCompile Include="Game\Object\Hazard\Hazard_Vine.cpp" />
     <ClCompile Include="Game\Object\Projectile\Projectile.cpp" />
     <ClCompile Include="Game\Object\Projectile\Projectile_Spit.cpp" />
     <ClCompile Include="Game\Object\World\Ground.cpp" />
