@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
 #include "Ability_BossAppear.h"
 
+#include "Game/Game.h"
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/SFXKeys.h"
-#include "Game/CGame.h"
 #include "Game/Component/BossAIController.h"
 #include "Game/Component/StateSystem.h"
 #include "Game/Object/Character/Boss.h"
