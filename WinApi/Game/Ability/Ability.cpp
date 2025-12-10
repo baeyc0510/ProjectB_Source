@@ -162,12 +162,12 @@ StatComponent* Ability::GetStatComponent() const
 
 void Ability::PlaySFX(const wstring& key)
 {
-	EVENT->OnPlaySFX.Broadcast(owner, key);
+	EVENT->OnPlaySFX.Broadcast(owner, FSFXEventData{ key });
 }
 
 void Ability::PlayBGM(const wstring& key, float volume)
 {
-	EVENT->OnPlayBGM.Broadcast(owner, key, volume);
+	EVENT->OnPlayBGM.Broadcast(owner, FBGMEventData{ key, volume });
 }
 
 void Ability::StopBGM()
@@ -177,15 +177,15 @@ void Ability::StopBGM()
 
 void Ability::SpawnVFX(const wstring& key, Vec2 pos, int direction)
 {
-	EVENT->OnSpawnVFX.Broadcast(owner, key, pos, direction);
+	EVENT->OnSpawnVFX.Broadcast(owner, FVFXEventData{ key, pos, direction });
 }
 
 void Ability::ShakeCamera(const FShakeParams& params)
 {
-	EVENT->OnCameraShake.Broadcast(owner, params);
+	EVENT->OnCameraShake.Broadcast(owner, FCameraShakeEventData{ params });
 }
 
 void Ability::SetTimeScale(float scale, float duration)
 {
-	EVENT->OnSetTimeScale.Broadcast(owner, scale, duration);
+	EVENT->OnSetTimeScale.Broadcast(owner, FTimeScaleEventData{ scale, duration });
 }

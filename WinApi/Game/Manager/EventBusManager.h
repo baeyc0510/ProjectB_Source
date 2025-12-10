@@ -1,7 +1,7 @@
 #pragma once
+#include "Game/Event/EventData.h"
 
 class GameObject;
-struct FShakeParams;
 
 class EventBusManager
 {
@@ -12,21 +12,21 @@ public:
 		return &instance;
 	}
 
-	// SFX Events
-	MulticastDelegate<GameObject*, const wstring&> OnPlaySFX;
-	MulticastDelegate<GameObject*, const wstring&, float> OnPlayBGM;  // key, volume
+	/*~ SFX Events ~*/
+	MulticastDelegate<GameObject*, const FSFXEventData&> OnPlaySFX;
+	MulticastDelegate<GameObject*, const FBGMEventData&> OnPlayBGM;
 	MulticastDelegate<GameObject*> OnStopBGM;
 
-	// VFX Events
-	MulticastDelegate<GameObject*, const wstring&, Vec2, int> OnSpawnVFX;  // key, pos, direction
+	/*~ VFX Events ~*/
+	MulticastDelegate<GameObject*, const FVFXEventData&> OnSpawnVFX;
 
-	// Camera Events
-	MulticastDelegate<GameObject*, const FShakeParams&> OnCameraShake;
-	MulticastDelegate<GameObject*, float> OnCameraFadeIn;   // duration
-	MulticastDelegate<GameObject*, float> OnCameraFadeOut;  // duration
+	/*~ Camera Events ~*/
+	MulticastDelegate<GameObject*, const FCameraShakeEventData&> OnCameraShake;
+	MulticastDelegate<GameObject*, const FCameraFadeEventData&> OnCameraFadeIn;
+	MulticastDelegate<GameObject*, const FCameraFadeEventData&> OnCameraFadeOut;
 
-	// Time Events
-	MulticastDelegate<GameObject*, float, float> OnSetTimeScale;  // scale, duration
+	/*~ Time Events ~*/
+	MulticastDelegate<GameObject*, const FTimeScaleEventData&> OnSetTimeScale;
 
 private:
 	EventBusManager() = default;

@@ -201,6 +201,7 @@
     <ClInclude Include="Game\Data\VFXKeys.h" />
     <ClInclude Include="Game\Enum.h" />
     <ClInclude Include="Game\Interface\CombatInterface.h" />
+    <ClInclude Include="Game\Event\EventData.h" />
     <ClInclude Include="Game\Manager\EventBusManager.h" />
     <ClInclude Include="Game\Manager\GameUIManager.h" />
     <ClInclude Include="Game\Manager\MapManager.h" />

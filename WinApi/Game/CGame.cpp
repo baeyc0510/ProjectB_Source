@@ -91,32 +91,32 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(GameUIManager)->Init();
 
 	// Event Bus 리스너 등록
-	EVENT->OnPlaySFX.Add([](GameObject* source, const wstring& key) {
-		SFX->PlayOnce(key);
+	EVENT->OnPlaySFX.Add([](GameObject* source, const FSFXEventData& data) {
+		SFX->PlayOnce(data.key);
 	});
-	EVENT->OnPlayBGM.Add([](GameObject* source, const wstring& key, float volume) {
-		SFX->PlayBGM(key, volume);
+	EVENT->OnPlayBGM.Add([](GameObject* source, const FBGMEventData& data) {
+		SFX->PlayBGM(data.key, data.volume);
 	});
 	EVENT->OnStopBGM.Add([](GameObject* source) {
 		SFX->StopBGM();
 	});
-	EVENT->OnSpawnVFX.Add([](GameObject* source, const wstring& key, Vec2 pos, int dir) {
-		if (VFXObject* vfx = VFX->CreateVFX(key, pos, dir))
+	EVENT->OnSpawnVFX.Add([](GameObject* source, const FVFXEventData& data) {
+		if (VFXObject* vfx = VFX->CreateVFX(data.key, data.pos, data.direction))
 		{
 			vfx->PlayVFX();
 		}
 	});
-	EVENT->OnCameraShake.Add([](GameObject* source, const FShakeParams& params) {
-		CAMERA->Shake(params);
+	EVENT->OnCameraShake.Add([](GameObject* source, const FCameraShakeEventData& data) {
+		CAMERA->Shake(data.params);
 	});
-	EVENT->OnCameraFadeIn.Add([](GameObject* source, float duration) {
-		CAMERA->FadeIn(duration);
+	EVENT->OnCameraFadeIn.Add([](GameObject* source, const FCameraFadeEventData& data) {
+		CAMERA->FadeIn(data.duration);
 	});
-	EVENT->OnCameraFadeOut.Add([](GameObject* source, float duration) {
-		CAMERA->FadeOut(duration);
+	EVENT->OnCameraFadeOut.Add([](GameObject* source, const FCameraFadeEventData& data) {
+		CAMERA->FadeOut(data.duration);
 	});
-	EVENT->OnSetTimeScale.Add([](GameObject* source, float scale, float duration) {
-		TIMER->SetTimeScale(scale, duration);
+	EVENT->OnSetTimeScale.Add([](GameObject* source, const FTimeScaleEventData& data) {
+		TIMER->SetTimeScale(data.scale, data.duration);
 	});
 
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Title,	new SceneTitle());
