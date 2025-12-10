@@ -104,6 +104,9 @@
     <ClInclude Include="Game\Component\CBossAIController.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Component\AIControllerBase.h">
+      <Filter>Components</Filter>
+    </ClInclude>
     <ClInclude Include="Game\Object\Character\CBoss.h">
       <Filter>Game\Object\Character</Filter>
     </ClInclude>
@@ -198,6 +201,9 @@
       <Filter>Game\Ability\Boss</Filter>
     </ClCompile>
     <ClCompile Include="Game\Component\CBossAIController.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Component\AIControllerBase.cpp">
       <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="Game\Object\Character\CBoss.cpp">

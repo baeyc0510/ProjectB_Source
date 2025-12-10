@@ -1,11 +1,7 @@
 #pragma once
+#include "AIControllerBase.h"
 #include "AbilitySystem.h"
-#include "Core/Component.h"
-#include "Core/GameObject.h"
 #include "Game/Enum.h"
-
-class Player;
-class StateSystem;
 
 // 보스 공격 데이터
 struct FBossAttackData
@@ -25,7 +21,7 @@ struct FBossChaseConfig
 	bool bCanChase = true;			// 추격 가능 여부
 };
 
-class BossAIController : public Component<GameObject>
+class BossAIController : public AIControllerBase
 {
 public:
 	BossAIController();
@@ -35,14 +31,8 @@ public:
 	// 공격 등록
 	void RegisterAttack(EAbility ability, float minRange, float maxRange, float weight = 1.f);
 
-	// 타겟
-	GameObject* GetTarget() const { return target; }
-	bool HasTarget() const { return target != nullptr; }
-
-	// 거리 유틸리티
-	float GetDistanceToTarget() const;
-	float GetDistanceToTargetY() const;
-	int GetDirectionToTarget() const;	// -1 또는 1
+	// 거리 유틸리티 (보스는 X축 거리만 사용)
+	float GetDistanceToTarget() const override;
 	bool IsTargetInRange(float minDist, float maxDist) const;
 
 	// 공격 선택 (거리 + 쿨타임 + 랜덤 가중치)
@@ -68,13 +58,11 @@ protected:
 	void ComponentRelease() override {}
 
 private:
-	void FindPlayer();
 	float GetTotalWeight(const vector<FBossAttackData*>& validAttacks) const;
 	EAbility SelectByWeight(const vector<FBossAttackData*>& validAttacks, float totalWeight) const;
 
 private:
 	vector<FBossAttackData> attacks;
-	GameObject* target = nullptr;
 
 	// 결정 타이머 (매 프레임 공격 체크 방지)
 	float decisionTimer = 0.f;
@@ -82,8 +70,4 @@ private:
 
 	// 추격 설정
 	FBossChaseConfig chaseConfig;
-
-	// 캐시
-	StateSystem* stateSystem = nullptr;
-	AbilitySystem* abilitySystem = nullptr;
 };

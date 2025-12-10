@@ -1,11 +1,6 @@
 #pragma once
-#include "Core/Component.h"
-#include "Core/GameObject.h"
+#include "AIControllerBase.h"
 #include "Game/Enum.h"
-
-class Player;
-class AbilitySystem;
-class StateSystem;
 
 // AI 설정
 struct FAIConfig
@@ -20,7 +15,7 @@ struct FAIConfig
 	bool requireFacingTarget = true;	// true면 공격 범위 판정 시 타겟이 앞에 있어야 함
 };
 
-class AIController : public Component<GameObject>
+class AIController : public AIControllerBase
 {
 public:
 	AIController();
@@ -31,14 +26,7 @@ public:
 	void SetConfig(const FAIConfig& inConfig) { config = inConfig; }
 	FAIConfig& GetConfig() { return config; }
 
-	// 타겟
-	GameObject* GetTarget() const { return target; }
-	bool HasTarget() const { return target != nullptr; }
-
 	// 유틸리티 (Ability에서 사용)
-	float GetDistanceToTarget() const;
-	float GetDistanceToTargetY() const;
-	int GetDirectionToTarget() const;	// -1 또는 1
 	bool IsTargetInAttackRange() const;
 	bool IsTargetOnSameLevel() const;	// Y축 범위 내에 있는지
 
@@ -67,22 +55,16 @@ protected:
 private:
 	void UpdateTargetDetection();
 	void UpdatePatrol();
-	void FindPlayer();
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags);
 
 private:
 	FAIConfig config;
 
-	// 타겟
-	GameObject* target = nullptr;
+	// 타겟 감지 상태
 	bool hadTargetLastFrame = false;
 	bool wasInAttackRange = false;
 
 	// 순찰
 	Vec2 patrolOrigin;
 	int patrolDirection = 1;
-
-	// 캐시
-	AbilitySystem* abilitySystem = nullptr;
-	StateSystem* stateSystem = nullptr;
 };

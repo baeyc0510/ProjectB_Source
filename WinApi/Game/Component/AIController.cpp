@@ -1,9 +1,6 @@
 #include "pch.h"
 #include "AIController.h"
-#include "AbilitySystem.h"
 #include "StateSystem.h"
-#include "Game/Object/Character/Player.h"
-#include "Game/Object/Character/Character.h"
 
 namespace
 {
@@ -21,13 +18,8 @@ AIController::~AIController()
 
 void AIController::ComponentInit()
 {
-	// 컴포넌트 캐시
-	abilitySystem = owner->GetComponent<AbilitySystem>();
-	stateSystem = owner->GetComponent<StateSystem>();
-
-	// 필수 컴포넌트 검증
-	assert(stateSystem && "AIController requires StateSystem");
-	assert(abilitySystem && "AIController requires AbilitySystem");
+	// 베이스 클래스의 컴포넌트 캐싱 호출
+	CacheComponents();
 
 	// 상태 변경 이벤트 구독
 	stateSystem->OnStateChanged.Add([this](EStateTag oldTags, EStateTag newTags) {
@@ -110,33 +102,6 @@ void AIController::UpdateTargetDetection()
 	}
 }
 
-void AIController::FindPlayer()
-{
-	if (!owner || !owner->GetScene())
-		return;
-
-	target = owner->GetScene()->FindObjectByType<Player>();
-}
-
-float AIController::GetDistanceToTarget() const
-{
-	if (!target || !owner)
-		return FLT_MAX;
-
-	Vec2 ownerPos = owner->GetPos();
-	Vec2 targetPos = target->GetPos();
-	Vec2 diff = targetPos - ownerPos;
-	return sqrtf(diff.x * diff.x + diff.y * diff.y);
-}
-
-int AIController::GetDirectionToTarget() const
-{
-	if (!target || !owner)
-		return 1;
-
-	float diff = target->GetPos().x - owner->GetPos().x;
-	return diff >= 0 ? 1 : -1;
-}
 
 bool AIController::IsTargetInAttackRange() const
 {
@@ -197,14 +162,6 @@ void AIController::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 		// 순찰 시작점 갱신
 		patrolOrigin = owner->GetPos();
 	}
-}
-
-float AIController::GetDistanceToTargetY() const
-{
-	if (!target || !owner)
-		return FLT_MAX;
-
-	return abs(target->GetPos().y - owner->GetPos().y);
 }
 
 bool AIController::IsTargetOnSameLevel() const

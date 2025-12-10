@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "BossAIController.h"
 #include "StateSystem.h"
-#include "Game/Object/Character/Player.h"
-#include "Game/Object/Character/Character.h"
 #include <ctime>
 
 BossAIController::BossAIController()
@@ -22,13 +20,8 @@ BossAIController::~BossAIController()
 
 void BossAIController::ComponentInit()
 {
-	// 컴포넌트 캐시
-	stateSystem = owner->GetComponent<StateSystem>();
-	abilitySystem = owner->GetComponent<AbilitySystem>();
-
-	// 필수 컴포넌트 검증
-	assert(stateSystem && "BossAIController requires StateSystem");
-	assert(abilitySystem && "BossAIController requires AbilitySystem");
+	// 베이스 클래스의 컴포넌트 캐싱 호출
+	CacheComponents();
 }
 
 void BossAIController::ComponentOnEnable()
@@ -55,14 +48,6 @@ void BossAIController::ComponentUpdate()
 	decisionTimer += DT;
 }
 
-void BossAIController::FindPlayer()
-{
-	if (!owner || !owner->GetScene())
-		return;
-
-	target = owner->GetScene()->FindObjectByType<Player>();
-}
-
 void BossAIController::RegisterAttack(EAbility ability, float minRange, float maxRange, float weight)
 {
 	FBossAttackData data;
@@ -81,23 +66,6 @@ float BossAIController::GetDistanceToTarget() const
 	Vec2 ownerPos = owner->GetPos();
 	Vec2 targetPos = target->GetPos();
 	return abs(targetPos.x - ownerPos.x);  // X축 거리만 사용
-}
-
-float BossAIController::GetDistanceToTargetY() const
-{
-	if (!target || !owner)
-		return FLT_MAX;
-
-	return abs(target->GetPos().y - owner->GetPos().y);
-}
-
-int BossAIController::GetDirectionToTarget() const
-{
-	if (!target || !owner)
-		return 1;
-
-	float diff = target->GetPos().x - owner->GetPos().x;
-	return diff >= 0 ? 1 : -1;
 }
 
 bool BossAIController::IsTargetInRange(float minDist, float maxDist) const
