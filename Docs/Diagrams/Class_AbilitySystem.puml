@@ -1,0 +1,74 @@
+@startuml Class_AbilitySystem
+' Ability 시스템 구조
+' 선언적 조건 기반 능력 발동
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #E8F5E9
+    BorderColor #388E3C
+}
+
+title Ability System - 선언적 조건 기반
+
+class AbilitySystem {
+    - abilities: map<EAbility, Ability*>
+    - activeAbilities: vector
+    --
+    + TryActivateAbility(type)
+    + CanActivateAbility()
+    + CancelAbilitiesWithTag()
+    + TriggerEvent(event)
+    ..
+    + OnEvent: MulticastDelegate
+}
+
+abstract class Ability {
+    # owner
+    # isActive
+    # cooldownRemaining
+    --
+    + GetRequiredTags()
+    + GetBlockedTags()
+    + GetTagsToAdd()
+    + GetCancelTags()
+    --
+    + Activate()
+    + EndAbility()
+    + WaitEvent(event, callback)
+}
+
+class "Ability_ComboAttack" as Attack {
+    + GetRequiredTags()
+    → Tag_Grounded
+    + GetBlockedTags()
+    → Tag_BlockAbility | Tag_Airborne | Tag_Hit
+}
+
+class "Ability_Jump" as Jump {
+    + GetRequiredTags()
+    → Tag_Grounded
+    + GetBlockedTags()
+    → Tag_BlockAbility | Tag_Airborne
+}
+
+class "Ability_Slide" as Slide {
+    + GetRequiredTags()
+    → Tag_Grounded
+    + GetTagsToAdd()
+    → Tag_Sliding | Tag_Moving | Tag_FixedVelocity
+}
+
+AbilitySystem o-- Ability
+Ability <|-- Attack
+Ability <|-- Jump
+Ability <|-- Slide
+
+note right of Ability
+  **선언적 조건**
+  RequiredTags: 필요 태그
+  BlockedTags: 차단 태그
+  TagsToAdd: 발동 시 추가
+  CancelTags: 취소할 능력
+end note
+
+@enduml

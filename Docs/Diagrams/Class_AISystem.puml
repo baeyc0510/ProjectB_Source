@@ -1,0 +1,75 @@
+@startuml Class_AISystem
+' AI 컨트롤러 계층 구조
+' 일반 적 AI vs 보스 AI
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #FFF3E0
+    BorderColor #E65100
+}
+
+title AI Controller 계층
+
+abstract class AIControllerBase {
+    # target: GameObject*
+    # stateSystem
+    # abilitySystem
+    --
+    + GetDistanceToTarget()
+    + GetDirectionToTarget()
+    # FindPlayer()
+}
+
+class AIController <<일반 적>> {
+    - config: FAIConfig
+    - detectionTimer
+    --
+    + IsTargetInAttackRange()
+    - UpdateTargetDetection()
+    - UpdatePatrol()
+    - ShouldUpdate()
+    - IsOnScreen()
+}
+
+class BossAIController <<보스>> {
+    - attacks: vector
+    - chaseConfig
+    --
+    + RegisterAttack()
+    + SelectNextAttack()
+    + ShouldChase()
+}
+
+struct AIConfig {
+    detectRange = 200
+    attackRange = 50
+    patrolSpeed = 50
+    chaseSpeed = 100
+    detectionInterval = 0.1
+}
+
+struct BossAttackData {
+    ability: EAbility
+    minRange
+    maxRange
+    weight
+}
+
+AIControllerBase <|-- AIController
+AIControllerBase <|-- BossAIController
+
+AIController --> AIConfig
+BossAIController --> BossAttackData
+
+note bottom of AIController
+  **성능 최적화**
+  - 0.1초 감지 주기
+  - 화면 밖 업데이트 스킵
+end note
+
+note bottom of BossAIController
+  **가중치 기반 선택**
+  거리 + 쿨다운 + 랜덤
+end note
+
+@enduml

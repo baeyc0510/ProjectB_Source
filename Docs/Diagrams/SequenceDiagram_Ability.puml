@@ -1,0 +1,86 @@
+@startuml SequenceDiagram_Ability
+' Blasphemous Clone - Ability Activation Sequence
+' 능력 발동 흐름 (선언적 조건 기반)
+
+skinparam sequenceArrowThickness 2
+skinparam participantPadding 20
+
+title Ability Activation Sequence
+
+participant "Player" as player
+participant "AbilitySystem" as as
+participant "StateSystem" as ss
+participant "Ability" as ability
+participant "Animator" as anim
+participant "EventBus" as event
+
+== Input Phase ==
+player -> as : TryActivateAbility(Attack)
+
+== Validation Phase ==
+as -> as : GetAbility(Attack)
+as -> as : CanActivateAbility(ability)
+
+group Condition Check [Declarative Tags]
+    as -> ability : GetRequiredTags()
+    note right: Tag_Grounded
+    as -> ss : HasAllTags(required)
+    ss --> as : true
+
+    as -> ability : GetBlockedTags()
+    note right: Tag_Attacking | Tag_Stunned
+    as -> ss : HasAnyTag(blocked)
+    ss --> as : false
+
+    as -> ability : IsOnCooldown()
+    ability --> as : false
+end
+
+as --> as : can activate = true
+
+== Activation Phase ==
+as -> as : ActivateAbility(ability)
+
+as -> as : CancelAbilitiesWithTag(cancelTags)
+note right: 기존 능력 취소
+
+as -> ss : AddTag(TagsToAdd)
+note right: Tag_Attacking | Tag_AbilityAnimation
+
+as -> ability : Activate()
+ability -> ability : OnActivate()
+
+ability -> anim : Play("Attack")
+
+== Event Wait Phase ==
+ability -> as : WaitEvent(HitCheck, callback)
+note right: 애니메이션 이벤트 대기
+
+... Animation Playing ...
+
+anim -> as : TriggerEvent(HitCheck)
+as -> as : OnEvent.Broadcast(HitCheck)
+as --> ability : callback invoked
+
+ability -> ability : OnHitCheck()
+note right: 데미지 처리 로직
+
+== Effect Phase ==
+ability -> event : OnPlaySFX.Broadcast(SFX_Attack)
+ability -> event : OnSpawnVFX.Broadcast(VFX_Slash)
+ability -> event : OnCameraShake.Broadcast(params)
+
+== End Phase ==
+anim -> as : TriggerEvent(AnimEnd)
+ability -> ability : EndAbility()
+
+ability -> ss : RemoveTag(TagsToAdd)
+note right: Tag_Attacking | Tag_AbilityAnimation
+
+ability -> ability : ClearEventHandles()
+note right: 등록된 이벤트 핸들 정리
+
+ability -> as : OnEnded.Invoke()
+as -> as : Remove from activeAbilities
+
+@enduml

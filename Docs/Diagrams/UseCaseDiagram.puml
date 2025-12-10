@@ -1,0 +1,102 @@
+@startuml UseCaseDiagram
+' Blasphemous Clone - Use Case Diagram
+' 핵심 게임플레이 상호작용
+
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor<<combat>> #FFE4E4
+    BackgroundColor<<movement>> #E4F0FF
+    BackgroundColor<<system>> #E4FFE4
+}
+
+left to right direction
+
+actor "Player" as player
+actor "Enemy AI" as enemy
+actor "Boss AI" as boss
+
+rectangle "Combat System" {
+    usecase "Attack (Combo)" as UC_Attack <<combat>>
+    usecase "Air Attack" as UC_AirAttack <<combat>>
+    usecase "Crouch Attack" as UC_CrouchAttack <<combat>>
+    usecase "Parry" as UC_Parry <<combat>>
+    usecase "Take Damage" as UC_TakeDamage <<combat>>
+    usecase "Die" as UC_Die <<combat>>
+}
+
+rectangle "Movement System" {
+    usecase "Move" as UC_Move <<movement>>
+    usecase "Jump" as UC_Jump <<movement>>
+    usecase "Slide" as UC_Slide <<movement>>
+    usecase "Crouch" as UC_Crouch <<movement>>
+    usecase "Climb Ladder" as UC_Climb <<movement>>
+    usecase "Ledge Grab" as UC_Ledge <<movement>>
+}
+
+rectangle "Resource System" {
+    usecase "Use Flask (Heal)" as UC_Flask <<system>>
+    usecase "Manage Stats" as UC_Stats <<system>>
+}
+
+rectangle "AI Behavior" {
+    usecase "Patrol" as UC_Patrol
+    usecase "Detect Target" as UC_Detect
+    usecase "Chase Target" as UC_Chase
+    usecase "Select Attack" as UC_SelectAttack
+}
+
+' Player interactions
+player --> UC_Attack
+player --> UC_AirAttack
+player --> UC_CrouchAttack
+player --> UC_Parry
+player --> UC_TakeDamage
+player --> UC_Die
+
+player --> UC_Move
+player --> UC_Jump
+player --> UC_Slide
+player --> UC_Crouch
+player --> UC_Climb
+player --> UC_Ledge
+
+player --> UC_Flask
+player --> UC_Stats
+
+' Enemy AI interactions
+enemy --> UC_Patrol
+enemy --> UC_Detect
+enemy --> UC_Chase
+enemy --> UC_TakeDamage
+enemy --> UC_Die
+
+UC_Detect ..> UC_Chase : <<include>>
+UC_Chase ..> UC_Attack : <<include>>
+
+' Boss AI interactions
+boss --> UC_Detect
+boss --> UC_Chase
+boss --> UC_SelectAttack
+boss --> UC_TakeDamage
+boss --> UC_Die
+
+UC_SelectAttack ..> UC_Attack : <<include>>
+
+' Extensions
+UC_Attack ..> UC_TakeDamage : damages
+UC_Parry ..> UC_TakeDamage : <<extend>>\nblocks damage
+
+note right of UC_Attack
+  RequiredTags: Grounded
+  BlockedTags: Attacking, Stunned
+  Activates via AbilitySystem
+end note
+
+note right of UC_SelectAttack
+  Based on:
+  - Distance to target
+  - Cooldown state
+  - Weighted random
+end note
+
+@enduml

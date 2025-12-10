@@ -1,0 +1,103 @@
+@startuml SequenceDiagram_BossAI
+' Blasphemous Clone - Boss AI Attack Selection
+' 보스 AI 공격 선택 로직
+
+skinparam sequenceArrowThickness 2
+skinparam participantPadding 15
+
+title Boss AI Attack Selection Sequence
+
+participant "Boss" as boss
+participant "BossAIController" as bossAI
+participant "AbilitySystem" as as
+participant "StateSystem" as ss
+
+== Update Phase ==
+boss -> boss : UpdateBossAI()
+boss -> bossAI : ComponentUpdate()
+
+bossAI -> bossAI : decisionTimer += deltaTime
+
+alt timer < decisionInterval
+    note right: Skip (prevent spam)
+else timer >= decisionInterval
+    bossAI -> bossAI : decisionTimer = 0
+
+    == State Check ==
+    bossAI -> ss : HasAnyTag(Tag_Attacking | Tag_BossAppearing)
+
+    alt Is Busy
+        note right: Already acting, skip
+    else Is Idle
+        == Attack Selection ==
+        bossAI -> bossAI : SelectNextAttack()
+
+        group Find Valid Attacks
+            loop for each registered attack
+                bossAI -> bossAI : GetDistanceToTarget()
+                note right: X-axis only for Boss
+
+                alt distance in [minRange, maxRange]
+                    bossAI -> as : IsAbilityActive(attack.ability)
+
+                    alt Not on cooldown
+                        bossAI -> bossAI : Add to validAttacks[]
+                    end
+                end
+            end
+        end
+
+        alt validAttacks is empty
+            bossAI --> boss : None
+            note right: No valid attack
+
+            == Chase Decision ==
+            bossAI -> bossAI : ShouldChase()
+
+            alt distance > stopRange && distance < chaseRange
+                boss -> boss : MoveTowardTarget()
+            else distance <= stopRange
+                note right: Too close, wait
+            end
+
+        else Has valid attacks
+            == Weighted Random Selection ==
+            bossAI -> bossAI : GetTotalWeight(validAttacks)
+            bossAI -> bossAI : random(0, totalWeight)
+            bossAI -> bossAI : SelectByWeight(validAttacks, random)
+
+            bossAI --> boss : selectedAbility
+
+            == Execute Attack ==
+            boss -> as : TryActivateAbility(selectedAbility)
+
+            alt Slash (close range)
+                note right
+                  minRange: 0
+                  maxRange: 80
+                  weight: 1.5
+                end note
+            else Stomp (mid range)
+                note right
+                  minRange: 50
+                  maxRange: 150
+                  weight: 1.0
+                end note
+            else Spit (long range)
+                note right
+                  minRange: 150
+                  maxRange: 400
+                  weight: 1.0
+                end note
+            else GroundSmash (any range)
+                note right
+                  minRange: 0
+                  maxRange: 9999
+                  weight: 0.5
+                end note
+            end
+        end
+    end
+end
+
+@enduml

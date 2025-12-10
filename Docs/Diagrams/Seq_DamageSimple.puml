@@ -1,0 +1,24 @@
+@startuml Seq_DamageSimple
+' 간소화된 데미지 흐름
+
+skinparam sequenceArrowThickness 2
+
+title 데미지 적용 흐름
+
+participant "Attacker" as attacker
+participant "CombatHelper" as helper
+participant "Target" as target
+participant "StatComponent" as stat
+
+attacker -> helper : ApplyDamageWithAttackData()
+
+helper -> helper : BoxTrace(hitbox)
+helper -> target : OnDamage(context)
+
+target -> stat : TakeDamage(damage)
+
+alt HP <= 0
+    target -> target : OnDieStart()
+end
+
+@enduml

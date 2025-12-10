@@ -1,0 +1,86 @@
+@startuml Class_ComponentSystem
+' Character 컴포넌트 구성
+' Character가 보유한 컴포넌트들의 역할
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+}
+
+title Character 컴포넌트 구성
+
+class Character {
+    # stateSystem
+    # abilitySystem
+    # statComponent
+    # movement
+    # rigidbody
+    # collider
+    # animator
+}
+
+class StateSystem <<상태 관리>> {
+    - currentTags: EStateTag
+    --
+    + AddTag() / RemoveTag()
+    + HasTag(): bool
+    ..
+    + OnStateChanged
+}
+
+class AbilitySystem <<능력 관리>> {
+    - abilities: map
+    - activeAbilities: vector
+    --
+    + TryActivateAbility()
+    + CancelAbility()
+    ..
+    + OnEvent
+}
+
+class StatComponent <<스탯 관리>> {
+    - stats: map<Type, FStat>
+    --
+    + TakeDamage()
+    + Heal()
+    + IsAlive(): bool
+    ..
+    + OnStatChanged
+}
+
+class CharacterMovement <<이동/충돌>> {
+    - groundState
+    - frameFlags
+    --
+    + IsGrounded(): bool
+    + DidHitWall(): bool
+    + HandleCollision()
+}
+
+Character *-down- StateSystem
+Character *-down- AbilitySystem
+Character *-down- StatComponent
+Character *-down- CharacterMovement
+
+note right of StateSystem
+  비트필드 태그로
+  O(1) 상태 체크
+end note
+
+note right of AbilitySystem
+  선언적 조건으로
+  능력 발동 관리
+end note
+
+note right of StatComponent
+  HP/MP/Flask 등
+  리소스 관리
+end note
+
+note right of CharacterMovement
+  지면/벽/경사면
+  충돌 처리
+end note
+
+@enduml

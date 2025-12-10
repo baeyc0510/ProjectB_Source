@@ -1,0 +1,70 @@
+@startuml Class_CombatSystem
+' Combat 시스템 구조
+' 인터페이스 기반 데미지 처리
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #FCE4EC
+    BorderColor #C2185B
+}
+
+title Combat System - 인터페이스 기반
+
+interface ICombatInterface {
+    + OnDamage(source, context)
+}
+
+class CombatHelper <<static>> {
+    + ApplyDamageInBox(...)
+    + ApplyDamageWithAttackData(...)
+}
+
+struct AttackData {
+    traceOffset: Vec2
+    traceSize: Vec2
+    damage: float
+    damageType: EDamageType
+    vfxKey: wstring
+}
+
+struct CombatContext {
+    damageType: EDamageType
+    value: float
+    vfxKey: wstring
+    hitResult: HitResult
+}
+
+enum EDamageType {
+    None
+    Slash
+    Heavy
+    SuperHeavy
+    Parry
+}
+
+class Player
+class Enemy
+class Boss
+
+CombatHelper ..> ICombatInterface : calls
+CombatHelper --> AttackData : uses
+CombatHelper --> CombatContext : creates
+
+Player ..|> ICombatInterface
+Enemy ..|> ICombatInterface
+Boss ..|> ICombatInterface
+
+CombatContext --> EDamageType
+
+note bottom of CombatHelper
+  BoxTrace로 대상 탐색 후
+  ICombatInterface::OnDamage 호출
+end note
+
+note right of ICombatInterface
+  **추상화**
+  공격자는 대상의
+  구체 타입을 모름
+end note
+
+@enduml

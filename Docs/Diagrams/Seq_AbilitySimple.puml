@@ -1,0 +1,30 @@
+@startuml Seq_AbilitySimple
+' 간소화된 Ability 발동 흐름
+
+skinparam sequenceArrowThickness 2
+
+title Ability 발동 흐름
+
+participant "Input" as input
+participant "AbilitySystem" as as
+participant "Ability" as ability
+participant "StateSystem" as ss
+
+input -> as : TryActivateAbility(Attack)
+
+as -> ability : Check conditions
+note right
+  RequiredTags 충족?
+  BlockedTags 없음?
+  쿨다운 아님?
+end note
+
+as -> ss : AddTag(Tag_Attacking)
+as -> ability : Activate()
+
+... Animation plays ...
+
+ability -> ability : EndAbility()
+ability -> ss : RemoveTag(Tag_Attacking)
+
+@enduml

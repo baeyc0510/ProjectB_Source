@@ -1,0 +1,86 @@
+@startuml SequenceDiagram_Combat
+' Blasphemous Clone - Combat/Damage Sequence
+' 전투 시스템 데미지 흐름
+
+skinparam sequenceArrowThickness 2
+skinparam participantPadding 15
+
+title Combat Damage Sequence
+
+participant "Attacker\n(Ability)" as attacker
+participant "CombatHelper" as helper
+participant "CollisionManager" as collision
+participant "Target\n(ICombatInterface)" as target
+participant "StatComponent" as stat
+participant "StateSystem" as ss
+participant "EventBus" as event
+
+== Hit Detection Phase ==
+attacker -> helper : ApplyDamageWithAttackData(\n  source, attackData, targetLayers)
+
+helper -> helper : Calculate trace box
+note right
+  center = owner.pos + offset * direction
+  size = attackData.traceSize
+end note
+
+helper -> collision : BoxTrace(center, size, layers)
+collision --> helper : hitResults[]
+
+alt No hits
+    helper --> attacker : false
+else Has hits
+    == Damage Application Phase ==
+    loop for each hitResult
+        helper -> helper : Create CombatContext
+        note right
+          damageType = attackData.type
+          value = attackData.damage
+          vfxKey = attackData.vfxKey
+        end note
+
+        helper -> target : OnDamage(source, context)
+
+        == Target Response ==
+        target -> ss : HasTag(Tag_Invincible)
+
+        alt Is Invincible
+            ss --> target : true
+            note right: Damage ignored
+        else Not Invincible
+            ss --> target : false
+
+            target -> stat : TakeDamage(context.value)
+            stat -> stat : ModifyCurrent(HP, -damage)
+            stat -> stat : OnStatChanged.Broadcast()
+
+            target -> ss : AddTag(Tag_Hit)
+
+            alt damageType == Heavy
+                target -> target : ApplyHitReaction(Heavy)
+                target -> event : OnSpawnVFX(BigHit)
+            else damageType == Parry
+                target -> target : ProcessParry()
+                note right: 패리 성공 시 스턴
+            else normal Slash
+                target -> target : ApplyKnockback()
+            end
+
+            target -> event : OnPlaySFX(Hit)
+            target -> event : OnSpawnVFX(Blood)
+
+            == Death Check ==
+            target -> stat : IsAlive()
+
+            alt HP <= 0
+                stat --> target : false
+                target -> ss : AddTag(Tag_Dead)
+                target -> target : OnDieStart()
+            end
+        end
+    end
+
+    helper --> attacker : true
+end
+
+@enduml

@@ -1,0 +1,317 @@
+@startuml ClassDiagram
+' Blasphemous Clone - Class Diagram
+' 핵심 클래스 관계 및 설계 철학
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor<<engine>> #FFFDE7
+    BackgroundColor<<component>> #E3F2FD
+    BackgroundColor<<character>> #E8F5E9
+    BackgroundColor<<ai>> #FFF3E0
+    BackgroundColor<<combat>> #FCE4EC
+    BackgroundColor<<event>> #F3E5F5
+}
+
+' ============================================
+' Engine Layer
+' ============================================
+package "Engine Layer" {
+    abstract class GameObject <<engine>> {
+        # children: vector<unique_ptr<GameObject>>
+        --
+        + Init()
+        + Update()
+        + Render()
+        + OnCollision...()
+    }
+
+    abstract class "Component<T>" as Component <<engine>> {
+        # owner: T*
+        --
+        + ComponentInit()
+        + ComponentUpdate()
+    }
+
+    class "MulticastDelegate<Args...>" as MulticastDelegate <<engine>> {
+        - callbacks: map<handle, function>
+        --
+        + Add(callback): DelegateHandle
+        + SafeAdd(callback): SafeDelegateHandle
+        + Remove(handle)
+        + Broadcast(args...)
+    }
+
+    class "SafeDelegateHandle<Args...>" as SafeDelegateHandle <<engine>> {
+        - delegate: MulticastDelegate*
+        - handle: DelegateHandle
+        --
+        + ~SafeDelegateHandle() // auto unsubscribe
+        + Release()
+    }
+}
+
+' ============================================
+' Component Layer
+' ============================================
+package "Component Layer" {
+    class StateSystem <<component>> {
+        - currentTags: EStateTag
+        - bitCountMap: map<tag, count>
+        --
+        + AddTag(tag)
+        + RemoveTag(tag)
+        + HasTag(tag): bool
+        ..
+        + OnStateChanged: MulticastDelegate
+    }
+
+    class AbilitySystem <<component>> {
+        - abilities: map<EAbility, unique_ptr<Ability>>
+        - activeAbilities: vector<Ability*>
+        --
+        + TryActivateAbility(type): bool
+        + CanActivateAbility(ability): bool
+        + CancelAbilitiesWithTag(tag)
+        + TriggerEvent(event)
+        ..
+        + OnEvent: MulticastDelegate
+    }
+
+    class StatComponent <<component>> {
+        - stats: map<EStatType, FStat>
+        --
+        + InitStat(type, max)
+        + TakeDamage(damage)
+        + Heal(amount)
+        + IsAlive(): bool
+        ..
+        + OnStatChanged: MulticastDelegate
+    }
+
+    class CharacterMovement <<component>> {
+        - config: MovementConfig
+        - groundState: FGroundState
+        - frameFlags: FFrameFlags
+        --
+        + HandleCollisionStay(other)
+        + IsGrounded(): bool
+        + DidHitWall(): bool
+        + DidReachEdge(): bool
+    }
+}
+
+' ============================================
+' AI Layer
+' ============================================
+package "AI Layer" {
+    abstract class AIControllerBase <<ai>> {
+        # target: GameObject*
+        # stateSystem: StateSystem*
+        # abilitySystem: AbilitySystem*
+        --
+        + GetDistanceToTarget(): float
+        + GetDirectionToTarget(): int
+        # FindPlayer()
+    }
+
+    class AIController <<ai>> {
+        - config: FAIConfig
+        - detectionTimer: float
+        --
+        + IsTargetInAttackRange(): bool
+        - UpdateTargetDetection()
+        - UpdatePatrol()
+        - ShouldUpdate(): bool
+        - IsOnScreen(): bool
+    }
+
+    class BossAIController <<ai>> {
+        - attacks: vector<FBossAttackData>
+        - chaseConfig: FBossChaseConfig
+        --
+        + RegisterAttack(ability, range, weight)
+        + SelectNextAttack(): EAbility
+        + ShouldChase(): bool
+    }
+}
+
+' ============================================
+' Character Layer
+' ============================================
+package "Character Layer" {
+    abstract class Character <<character>> {
+        # animator: Animator*
+        # stateSystem: StateSystem*
+        # statComponent: StatComponent*
+        # abilitySystem: AbilitySystem*
+        # movement: CharacterMovement*
+        --
+        # OnStateChanged(old, new)
+        # OnStatChanged(type, current, max)
+        # HandleAnimationEvent(event)
+    }
+
+    class Player <<character>> {
+        - ledgeHelper: LedgeHelper
+        --
+        - ProcessActiveInput()
+        - HandleCombatInput()
+        - UpdateAnimation()
+    }
+
+    class Enemy <<character>> {
+        # aiController: AIController*
+        --
+        - UpdateAIMovement()
+        - UpdatePatrolMovement()
+        - UpdateChaseMovement()
+    }
+
+    class Boss <<character>> {
+        # bossAI: BossAIController*
+        - arenaMinX, arenaMaxX: float
+        --
+        # UpdateBossAI()
+        + TriggerAppearance()
+        # CheckEncounterPlayer()
+    }
+}
+
+' ============================================
+' Ability Layer
+' ============================================
+package "Ability Layer" {
+    abstract class Ability <<combat>> {
+        # owner: GameObject*
+        # abilitySystem: AbilitySystem*
+        # isActive: bool
+        # cooldownRemaining: float
+        --
+        + GetRequiredTags(): EStateTag
+        + GetBlockedTags(): EStateTag
+        + GetTagsToAdd(): EStateTag
+        + GetCancelTags(): EStateTag
+        ..
+        + Activate()
+        + EndAbility()
+        + WaitEvent(event, callback)
+        ..
+        # PlaySFX(key)
+        # SpawnVFX(key, pos, dir)
+        # ShakeCamera(params)
+    }
+}
+
+' ============================================
+' Combat Layer
+' ============================================
+package "Combat Layer" {
+    interface ICombatInterface <<combat>> {
+        + OnDamage(source, context)
+    }
+
+    class CombatHelper <<combat>> {
+        {static} + ApplyDamageInBox(...)
+        {static} + ApplyDamageWithAttackData(...)
+    }
+
+    class CombatContext <<combat>> {
+        + damageType: EDamageType
+        + value: float
+        + vfxKey: wstring
+        + hitResult: HitResult
+    }
+}
+
+' ============================================
+' Event Layer
+' ============================================
+package "Event Layer" {
+    class EventBusManager <<event>> {
+        {static} + GetInstance(): EventBusManager*
+        --
+        + OnPlaySFX: MulticastDelegate
+        + OnPlayBGM: MulticastDelegate
+        + OnSpawnVFX: MulticastDelegate
+        + OnCameraShake: MulticastDelegate
+        + OnSetTimeScale: MulticastDelegate
+    }
+}
+
+' ============================================
+' Relationships
+' ============================================
+
+' Engine inheritance
+Component -up-|> GameObject : "child of"
+
+' Component inheritance
+StateSystem -up-|> Component
+AbilitySystem -up-|> Component
+StatComponent -up-|> Component
+CharacterMovement -up-|> Component
+
+' AI inheritance
+AIControllerBase -up-|> Component
+AIController -up-|> AIControllerBase
+BossAIController -up-|> AIControllerBase
+
+' Character inheritance
+Character -up-|> GameObject
+Player -up-|> Character
+Enemy -up-|> Character
+Boss -up-|> Character
+
+' Interface implementation
+Player .up.|> ICombatInterface
+Enemy .up.|> ICombatInterface
+Boss .up.|> ICombatInterface
+
+' Composition (Character has components)
+Character *-- StateSystem
+Character *-- AbilitySystem
+Character *-- StatComponent
+Character *-- CharacterMovement
+
+' Association
+Enemy o-- AIController : "has"
+Boss o-- BossAIController : "has"
+AbilitySystem o-- Ability : "manages"
+
+' Delegate pattern
+StateSystem ..> MulticastDelegate : "uses"
+AbilitySystem ..> MulticastDelegate : "uses"
+StatComponent ..> MulticastDelegate : "uses"
+Character ..> SafeDelegateHandle : "subscribes with"
+
+' Event bus
+Ability ..> EventBusManager : "broadcasts"
+CombatHelper ..> ICombatInterface : "calls"
+
+' Notes
+note top of Character
+  **Composition over Inheritance**
+  공통 컴포넌트를 조합하여
+  캐릭터 기능 구현
+end note
+
+note right of StateSystem
+  **Bitfield Tag System**
+  - 참조 카운팅으로 중첩 지원
+  - O(1) 상태 체크
+end note
+
+note right of Ability
+  **Declarative Conditions**
+  - RequiredTags: 발동 필요 태그
+  - BlockedTags: 발동 차단 태그
+  - TagsToAdd: 발동 시 추가 태그
+end note
+
+note bottom of EventBusManager
+  **Loose Coupling**
+  전역 이벤트로 시스템 간
+  직접 참조 제거
+end note
+
+@enduml

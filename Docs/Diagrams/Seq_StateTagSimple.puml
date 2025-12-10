@@ -1,0 +1,31 @@
+@startuml Seq_StateTagSimple
+' 간소화된 상태 태그 관리
+
+skinparam sequenceArrowThickness 2
+
+title StateSystem 태그 관리
+
+participant "Caller" as caller
+participant "StateSystem" as ss
+participant "Subscribers" as sub
+
+== 태그 추가 ==
+caller -> ss : AddTag(Tag_Attacking)
+ss -> ss : count++ (0→1)
+ss -> sub : OnStateChanged(old, new)
+
+== 중첩 추가 ==
+caller -> ss : AddTag(Tag_Attacking)
+ss -> ss : count++ (1→2)
+note right: 이벤트 없음
+
+== 태그 제거 ==
+caller -> ss : RemoveTag(Tag_Attacking)
+ss -> ss : count-- (2→1)
+note right: 이벤트 없음
+
+caller -> ss : RemoveTag(Tag_Attacking)
+ss -> ss : count-- (1→0)
+ss -> sub : OnStateChanged(old, new)
+
+@enduml

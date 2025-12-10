@@ -1,0 +1,49 @@
+@startuml Class_StateSystem
+' StateSystem 상세 구조
+' 비트필드 태그 + 참조 카운팅
+
+skinparam classAttributeIconSize 0
+
+title StateSystem - 비트필드 태그 시스템
+
+class StateSystem {
+    - currentTags: EStateTag
+    - bitCountMap: map<tag, count>
+    --
+    + AddTag(tag)
+    + RemoveTag(tag)
+    + HasTag(tag): bool
+    + HasAllTags(tags): bool
+    + HasAnyTag(tags): bool
+    ..
+    + OnStateChanged: MulticastDelegate
+}
+
+enum EStateTag <<bitfield>> {
+    Tag_None = 0
+    Tag_Grounded = 1 << 0
+    Tag_Airborne = 1 << 1
+    Tag_Attacking = 1 << 2
+    Tag_Invincible = 1 << 4
+    Tag_Stunned = 1 << 5
+    Tag_Guard = 1 << 9
+    ...
+}
+
+StateSystem --> EStateTag : uses
+
+note right of StateSystem
+  **참조 카운팅**
+  AddTag(A) → count[A] = 1
+  AddTag(A) → count[A] = 2
+  RemoveTag(A) → count[A] = 1
+  RemoveTag(A) → count[A] = 0 → 이벤트 발생
+end note
+
+note bottom of EStateTag
+  **비트 연산으로 조합**
+  Tag_Grounded | Tag_Attacking
+  = 지상 + 공격중
+end note
+
+@enduml

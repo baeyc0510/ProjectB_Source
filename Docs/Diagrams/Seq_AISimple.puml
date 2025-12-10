@@ -1,0 +1,25 @@
+@startuml Seq_AISimple
+' 간소화된 AI 행동 흐름
+
+skinparam sequenceArrowThickness 2
+
+title AI 행동 결정
+
+participant "AIController" as ai
+participant "Enemy" as enemy
+
+ai -> ai : UpdateTargetDetection()
+
+alt Target detected
+    ai -> ai : IsTargetInAttackRange()?
+
+    alt In range
+        ai -> enemy : Attack
+    else Out of range
+        ai -> enemy : Chase
+    end
+else No target
+    ai -> enemy : Patrol
+end
+
+@enduml

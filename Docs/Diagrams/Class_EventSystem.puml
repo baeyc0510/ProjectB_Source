@@ -1,0 +1,89 @@
+@startuml Class_EventSystem
+' Event Bus 시스템 구조
+' 느슨한 결합을 위한 전역 이벤트
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #F3E5F5
+    BorderColor #7B1FA2
+}
+
+title EventBus - 느슨한 결합
+
+class EventBusManager <<singleton>> {
+    + OnPlaySFX
+    + OnPlayBGM
+    + OnStopBGM
+    + OnSpawnVFX
+    + OnCameraShake
+    + OnCameraFadeIn
+    + OnCameraFadeOut
+    + OnSetTimeScale
+}
+
+class "MulticastDelegate<Args>" as Delegate {
+    + Add(callback): Handle
+    + SafeAdd(callback): SafeHandle
+    + Remove(handle)
+    + Broadcast(args...)
+}
+
+class "SafeDelegateHandle" as SafeHandle {
+    - delegate
+    - handle
+    --
+    + ~SafeDelegateHandle()
+    // 소멸 시 자동 해제
+}
+
+struct SFXEventData {
+    key: wstring
+}
+
+struct BGMEventData {
+    key: wstring
+    volume: float
+}
+
+struct VFXEventData {
+    key: wstring
+    pos: Vec2
+    direction: int
+}
+
+struct CameraShakeEventData {
+    params: FShakeParams
+}
+
+struct CameraFadeEventData {
+    duration: float
+}
+
+struct TimeScaleEventData {
+    scale: float
+    duration: float
+}
+
+EventBusManager *-- Delegate
+Delegate ..> SafeHandle : creates
+
+EventBusManager ..> SFXEventData
+EventBusManager ..> BGMEventData
+EventBusManager ..> VFXEventData
+EventBusManager ..> CameraShakeEventData
+EventBusManager ..> CameraFadeEventData
+EventBusManager ..> TimeScaleEventData
+
+note right of EventBusManager
+  **전역 이벤트 버스**
+  Ability가 각각의 Manager에
+  직접 의존하지 않음
+end note
+
+note bottom of SafeHandle
+  **RAII 패턴**
+  객체 소멸 시
+  자동 구독 해제
+end note
+
+@enduml

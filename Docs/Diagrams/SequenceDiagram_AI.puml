@@ -1,0 +1,111 @@
+@startuml SequenceDiagram_AI
+' Blasphemous Clone - AI Behavior Sequence
+' AI 시스템 행동 결정 흐름
+
+skinparam sequenceArrowThickness 2
+skinparam participantPadding 15
+
+title AI Controller Update Sequence
+
+participant "AIController" as ai
+participant "AIUtils" as utils
+participant "StateSystem" as ss
+participant "AbilitySystem" as as
+participant "Enemy" as enemy
+participant "CharacterMovement" as move
+
+== Optimization Check ==
+ai -> ai : ShouldUpdate()
+
+alt No Target
+    ai --> ai : always update
+else Has Target
+    ai -> ai : IsOnScreen()
+    note right
+      Check if within:
+      - Screen bounds + margin
+      - MAX_UPDATE_DISTANCE
+    end note
+
+    alt Off Screen & Far
+        ai --> ai : skip update
+        note right: Performance optimization
+    end
+end
+
+== Detection Phase (Every 0.1s) ==
+ai -> ai : detectionTimer += deltaTime
+
+alt timer >= detectionInterval
+    ai -> ai : UpdateTargetDetection()
+    ai -> ai : detectionTimer = 0
+
+    ai -> utils : FindPlayer(scene)
+
+    alt Player Found
+        utils --> ai : player
+
+        ai -> utils : GetDistanceX(owner, player)
+        utils --> ai : distance
+
+        alt distance <= detectRange
+            ai -> ai : target = player
+            ai -> ss : AddTag(Tag_HasTarget)
+            ai -> as : TriggerEvent(AI_TargetDetected)
+        end
+
+    else Player Not Found or Out of Range
+        alt had target before
+            ai -> ai : target = nullptr
+            ai -> ss : RemoveTag(Tag_HasTarget)
+            ai -> as : TriggerEvent(AI_TargetLost)
+        end
+    end
+end
+
+== Behavior Phase ==
+ai -> ss : GetTags()
+
+alt Has Tag_HasTarget
+    == Chase/Attack Decision ==
+    ai -> ai : IsTargetInAttackRange()
+
+    alt In Attack Range
+        ai -> as : TriggerEvent(AI_TargetInAttackRange)
+        note right: Enemy will handle attack
+    else Out of Attack Range
+        ai -> ss : HasTag(Tag_AIChase)
+
+        alt Is Chasing
+            enemy -> move : AddMoveInput(direction)
+            enemy -> enemy : FaceTarget()
+        end
+    end
+
+else No Target (Patrol)
+    == Patrol Logic ==
+    ai -> ai : UpdatePatrol()
+
+    ai -> move : DidReachEdge()
+    alt At Edge
+        ai -> ai : FlipPatrolDirection()
+    end
+
+    ai -> ai : IsAtPatrolBoundary()
+    alt At Boundary
+        ai -> ai : FlipPatrolDirection()
+    end
+
+    enemy -> move : AddMoveInput(patrolDirection)
+end
+
+== State Changed Callback ==
+ss -> ai : OnStateChanged(old, new)
+
+alt TagAdded(Tag_Hit)
+    ai -> as : CancelAbility(AI_Patrol)
+    ai -> as : CancelAbility(AI_Chase)
+    note right: 피격 시 행동 중단
+end
+
+@enduml

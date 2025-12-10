@@ -1,0 +1,73 @@
+@startuml Class_CharacterHierarchy
+' Character 클래스 계층 구조
+' 상속 관계와 핵심 책임만 표시
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #FAFAFA
+    BorderColor #333333
+}
+
+title Character 클래스 계층
+
+abstract class GameObject {
+    + Init()
+    + Update()
+    + Render()
+}
+
+abstract class Character {
+    __ 공통 컴포넌트 __
+    # stateSystem
+    # abilitySystem
+    # statComponent
+    # movement
+    --
+    # OnStateChanged()
+    # OnStatChanged()
+}
+
+class Player {
+    __ 플레이어 전용 __
+    - ledgeHelper
+    --
+    - ProcessActiveInput()
+    - HandleCombatInput()
+}
+
+class Enemy {
+    __ 일반 적 전용 __
+    # aiController
+    --
+    - UpdateAIMovement()
+}
+
+class Boss {
+    __ 보스 전용 __
+    # bossAI
+    - arenaMinX, arenaMaxX
+    --
+    # UpdateBossAI()
+    + TriggerAppearance()
+}
+
+interface ICombatInterface {
+    + OnDamage(source, context)
+}
+
+GameObject <|-- Character
+Character <|-- Player
+Character <|-- Enemy
+Character <|-- Boss
+
+Player ..|> ICombatInterface
+Enemy ..|> ICombatInterface
+Boss ..|> ICombatInterface
+
+note bottom of Character
+  **Composition over Inheritance**
+  공통 기능은 컴포넌트로 분리
+  파생 클래스는 고유 로직만 담당
+end note
+
+@enduml

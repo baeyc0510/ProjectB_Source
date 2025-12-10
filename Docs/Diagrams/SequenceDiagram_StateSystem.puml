@@ -1,0 +1,82 @@
+@startuml SequenceDiagram_StateSystem
+' Blasphemous Clone - State System Sequence
+' 상태 태그 관리 및 이벤트 흐름
+
+skinparam sequenceArrowThickness 2
+skinparam participantPadding 15
+
+title StateSystem Tag Management
+
+participant "Caller" as caller
+participant "StateSystem" as ss
+participant "Character" as char
+participant "AIController" as ai
+
+== Add Tag (Reference Counting) ==
+caller -> ss : AddTag(Tag_Attacking)
+
+ss -> ss : bitCountMap[Tag_Attacking]++
+note right: count: 0 -> 1
+
+alt count was 0 (first add)
+    ss -> ss : currentTags |= Tag_Attacking
+    ss -> ss : OnStateChanged.Broadcast(old, new)
+
+    ss --> char : OnStateChanged(old, new)
+    note right
+      old: Tag_Grounded
+      new: Tag_Grounded | Tag_Attacking
+    end note
+
+    char -> char : Handle state transition
+else count > 0 (already had tag)
+    note right: No event, just increment
+end
+
+== Multiple Add Same Tag ==
+caller -> ss : AddTag(Tag_Attacking)
+ss -> ss : bitCountMap[Tag_Attacking]++
+note right: count: 1 -> 2 (nested ability)
+
+== Remove Tag ==
+caller -> ss : RemoveTag(Tag_Attacking)
+ss -> ss : bitCountMap[Tag_Attacking]--
+note right: count: 2 -> 1
+
+alt count > 0
+    note right: Still has tag, no event
+else count == 0
+    ss -> ss : currentTags &= ~Tag_Attacking
+    ss -> ss : OnStateChanged.Broadcast(old, new)
+
+    ss --> char : OnStateChanged(old, new)
+    ss --> ai : OnStateChanged(old, new)
+end
+
+== Tag Query (O(1)) ==
+caller -> ss : HasTag(Tag_Grounded | Tag_Attacking)
+ss -> ss : (currentTags & check) == check
+note right: Bitwise AND comparison
+ss --> caller : true/false
+
+== SafeDelegateHandle (RAII) ==
+note over char, ai
+  **Subscription with SafeDelegateHandle**
+  자동 구독 해제로 메모리 안전성 확보
+end note
+
+char -> char : stateChangedHandle = \nss->OnStateChanged.SafeAdd(callback)
+
+note right of char
+  SafeDelegateHandle 소멸 시
+  자동으로 Remove() 호출
+end note
+
+... Character destroyed ...
+
+char -> char : ~Character()
+note right: stateChangedHandle 소멸
+char -> ss : (auto) Remove(handle)
+note right: Dangling callback 방지
+
+@enduml
