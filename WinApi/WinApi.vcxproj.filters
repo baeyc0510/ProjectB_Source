@@ -32,6 +32,9 @@
     <Filter Include="Game\Object\Hazard">
       <UniqueIdentifier>{d4e5f6a7-4567-89ab-cdef-012345678901}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Data">
+      <UniqueIdentifier>{e5f6a7b8-5678-9abc-def0-123456789012}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WinApi.h">
@@ -122,6 +125,24 @@
     <ClInclude Include="Game\Object\Hazard\CHazard_Spike.h">
       <Filter>Game\Object\Hazard</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Data\ResourceData.h">
+      <Filter>Game\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Data\PlayerAnimData.h">
+      <Filter>Game\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Data\BossAnimData.h">
+      <Filter>Game\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Data\EnemyAnimData.h">
+      <Filter>Game\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Data\SFXData.h">
+      <Filter>Game\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Data\VFXData.h">
+      <Filter>Game\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinApi.cpp">
@@ -199,6 +220,21 @@
     </ClCompile>
     <ClCompile Include="Game\Object\Hazard\CHazard_Spike.cpp">
       <Filter>Game\Object\Hazard</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Data\PlayerAnimData.cpp">
+      <Filter>Game\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Data\BossAnimData.cpp">
+      <Filter>Game\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Data\EnemyAnimData.cpp">
+      <Filter>Game\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Data\SFXData.cpp">
+      <Filter>Game\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Data\VFXData.cpp">
+      <Filter>Game\Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

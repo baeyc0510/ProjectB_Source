@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
 #include "Player.h"
 
-#include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
+#include "Game/Data/PlayerAnimData.h"
 #include "Game/SFXKeys.h"
 #include "Game/Ability/Common/Ability_Die.h"
 #include "Game/Ability/Common/Ability_HitReaction.h"
@@ -76,34 +76,10 @@ void Player::Init()
 	AddAbility<Ability_Die>(EAbility::Die);
 	
 	// Animations
-	AddAnimation(AnimKey::Idle, TEXT("Animations/Penitent/penitent_idle_anim.json"), true);
-	AddAnimation(AnimKey::Run, TEXT("Animations/Penitent/penitent_running_anim.json"), true);
-	AddAnimation(AnimKey::JumpStart_Inplace, TEXT("Animations/Penitent/jump_start_inplace.json"), false);
-	AddAnimation(AnimKey::JumpStart_Moving, TEXT("Animations/Penitent/jump_start_moving.json"), false);
-	AddAnimation(AnimKey::Fall_Inplace, TEXT("Animations/Penitent/penitent_falling_loop.json"), true);
-	AddAnimation(AnimKey::Fall_Moving, TEXT("Animations/Penitent/falling_moving.json"), true);
-	AddAnimation(AnimKey::Landed_Inplace, TEXT("Animations/Penitent/jump_landed_inplace.json"), false);
-	AddAnimation(AnimKey::Landed_Moving, TEXT("Animations/Penitent/jump_landed_moving.json"), false);
-	AddAnimation(AnimKey::Combo1, TEXT("Animations/Penitent/penitent_attack_combo_1.json"), false);
-	AddAnimation(AnimKey::Combo2, TEXT("Animations/Penitent/penitent_attack_combo_2.json"), false);
-	AddAnimation(AnimKey::Combo3, TEXT("Animations/Penitent/penitent_attack_combo_3.json"), false);
-	AddAnimation(AnimKey::AirCombo1, TEXT("Animations/Penitent/penitent_jumping_attack1.json"), false);
-	AddAnimation(AnimKey::AirCombo2, TEXT("Animations/Penitent/penitent_jumping_attack2.json"), false);
-	AddAnimation(AnimKey::Slide, TEXT("Animations/Penitent/penitent_dodge_anim.json"), false);
-	AddAnimation(AnimKey::Parry, TEXT("Animations/Penitent/penitent_parry.json"), false);
-	AddAnimation(AnimKey::ParrySuccess, TEXT("Animations/Penitent/penitent_parry_success.json"), false);
-	AddAnimation(AnimKey::ParryCounter, TEXT("Animations/Penitent/penitent_parry_counter.json"), false);
-	AddAnimation(AnimKey::Crouch, TEXT("Animations/Penitent/penitent_crouch_anim.json"), false);
-	AddAnimation(AnimKey::CrouchUp, TEXT("Animations/Penitent/penitent_crouch_up_anim.json"), false);
-	AddAnimation(AnimKey::CrouchAttack, TEXT("Animations/Penitent/penitent_crouch_attack_anim.json"), false);
-	AddAnimation(AnimKey::UseFlask,TEXT("Animations/Penitent/penitent_healthposion_anim.json"), false);
-	AddAnimation(AnimKey::Climbing,TEXT("Animations/Penitent/penitent_ladder_climb_loop_anim.json"), true);
-	AddAnimation(AnimKey::LedgeHang, TEXT("Animations/Penitent/penitent_hangonledge_anim.json"), false);
-	AddAnimation(AnimKey::LedgeClimbOver, TEXT("Animations/Penitent/penitent_climbledge.json"), false);
-	AddAnimation(AnimKey::Pushback, TEXT("Animations/Penitent/penitent_pushback_anim.json"), false);
-	AddAnimation(AnimKey::Pushback_Land, TEXT("Animations/Penitent/penitent_pushback_land_anim.json"), false);
-	AddAnimation(AnimKey::Rising, TEXT("Animations/Penitent/player_rising.json"), false);
-	AddAnimation(AnimKey::Dead, TEXT("Animations/Penitent/penitent_death_anim.json"), false);
+	for (const auto& anim : PlayerAnimData::GetAnimations())
+	{
+		AddAnimation(anim.key, anim.path, anim.repeat);
+	}
 	
 	// 초기 스탯값 적용
 	InitStartupStats();

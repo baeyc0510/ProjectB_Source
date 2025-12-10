@@ -183,6 +183,12 @@
     <ClInclude Include="Game\Ability\Player\Ability_UseFlask.h" />
     <ClInclude Include="Game\AnimKey.h" />
     <ClInclude Include="Game\CGame.h" />
+    <ClInclude Include="Game\Data\ResourceData.h" />
+    <ClInclude Include="Game\Data\PlayerAnimData.h" />
+    <ClInclude Include="Game\Data\BossAnimData.h" />
+    <ClInclude Include="Game\Data\EnemyAnimData.h" />
+    <ClInclude Include="Game\Data\SFXData.h" />
+    <ClInclude Include="Game\Data\VFXData.h" />
     <ClInclude Include="Game\Component\AbilitySystem.h" />
     <ClInclude Include="Game\Component\AIController.h" />
     <ClInclude Include="Game\Component\BossAIController.h" />
@@ -260,6 +266,11 @@
     <ClCompile Include="Game\Ability\Player\Ability_Slide.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_UseFlask.cpp" />
     <ClCompile Include="Game\CGame.cpp" />
+    <ClCompile Include="Game\Data\PlayerAnimData.cpp" />
+    <ClCompile Include="Game\Data\BossAnimData.cpp" />
+    <ClCompile Include="Game\Data\EnemyAnimData.cpp" />
+    <ClCompile Include="Game\Data\SFXData.cpp" />
+    <ClCompile Include="Game\Data\VFXData.cpp" />
     <ClCompile Include="Game\Component\AbilitySystem.cpp" />
     <ClCompile Include="Game\Component\AIController.cpp" />
     <ClCompile Include="Game\Component\BossAIController.cpp" />
