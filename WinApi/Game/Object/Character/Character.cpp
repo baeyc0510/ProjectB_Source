@@ -93,18 +93,16 @@ void Character::Init()
 
     // StateSystem
     stateSystem = new StateSystem();
-    stateSystem->OnStateChanged.Add([this](EStateTag oldTags, EStateTag newTags)
-    {
-        OnStateChanged(oldTags, newTags);
-    });
+    stateChangedHandle = stateSystem->OnStateChanged.SafeAdd(
+        [this](EStateTag oldTags, EStateTag newTags) { OnStateChanged(oldTags, newTags); }
+    );
     AddChild(stateSystem);
 
     // StatComponent
     statComponent = new StatComponent();
-    // StatComponent 이벤트 바인딩
-    statComponent->OnStatChanged.Add([this](EStatType type, float current, float max) {
-        OnStatChanged(type, current, max);
-    });
+    statChangedHandle = statComponent->OnStatChanged.SafeAdd(
+        [this](EStatType type, float current, float max) { OnStatChanged(type, current, max); }
+    );
     AddChild(statComponent);
 
     // AbilitySystem

@@ -77,4 +77,7 @@ private:
 	// 순찰
 	Vec2 patrolOrigin;
 	int patrolDirection = 1;
+
+	// 이벤트 구독 (RAII 자동 해제)
+	SafeDelegateHandle<EStateTag, EStateTag> stateChangedHandle;
 };

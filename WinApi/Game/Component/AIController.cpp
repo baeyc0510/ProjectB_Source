@@ -23,10 +23,10 @@ void AIController::ComponentInit()
 	// 베이스 클래스의 컴포넌트 캐싱 호출
 	CacheComponents();
 
-	// 상태 변경 이벤트 구독
-	stateSystem->OnStateChanged.Add([this](EStateTag oldTags, EStateTag newTags) {
-		OnStateChanged(oldTags, newTags);
-	});
+	// 상태 변경 이벤트 구독 (RAII 자동 해제)
+	stateChangedHandle = stateSystem->OnStateChanged.SafeAdd(
+		[this](EStateTag oldTags, EStateTag newTags) { OnStateChanged(oldTags, newTags); }
+	);
 
 	// 순찰 시작점 설정
 	patrolOrigin = owner->GetPos();

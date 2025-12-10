@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Game/Component/AbilitySystem.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Enum.h"
 
 enum class EStatType;
 class AbilitySystem;
@@ -85,4 +86,9 @@ protected:
     // 이전 프레임 상태 (변화 감지용)
     bool bWasOnSteepSlope = false;
     Vec2 pushbackForce;
+
+private:
+    // 이벤트 구독 (RAII 자동 해제)
+    SafeDelegateHandle<EStateTag, EStateTag> stateChangedHandle;
+    SafeDelegateHandle<EStatType, float, float> statChangedHandle;
 };

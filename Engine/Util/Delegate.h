@@ -32,6 +32,10 @@ private:
 #define BIND(Object, Function) \
     [Object]() { (Object)->Function(); }
 
+// 전방 선언
+template<typename... Args>
+class SafeDelegateHandle;
+
 // 멀티캐스트 델리게이트
 template<typename... Args>
 class MulticastDelegate
@@ -116,6 +120,10 @@ public:
     {
         return !listeners.empty();
     }
+
+    // RAII 기반 안전 구독 (SafeDelegateHandle 반환)
+    // 구현은 SafeDelegateHandle 정의 후 아래에 위치
+    inline SafeDelegateHandle<Args...> SafeAdd(EventFunc func);
 };
 
 // 단일 델리게이트
@@ -224,3 +232,10 @@ private:
     MulticastDelegate<Args...>* delegatePtr = nullptr;
     DelegateHandle handle;
 };
+
+// MulticastDelegate::SafeAdd 구현
+template<typename... Args>
+SafeDelegateHandle<Args...> MulticastDelegate<Args...>::SafeAdd(EventFunc func)
+{
+    return SafeDelegateHandle<Args...>(*this, func);
+}
