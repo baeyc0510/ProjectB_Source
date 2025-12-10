@@ -95,8 +95,9 @@ void Game::Init(HINSTANCE hInstance)
 		// 소스가 있으면 카메라와의 거리 체크
 		if (source)
 		{
-			Vec2 virtualSize = SINGLE(EngineInstance)->GetVirtualSize();
-			float maxDistance = virtualSize.x;  // 화면 너비를 최대 거리로 사용
+			constexpr float SFX_MARGIN = 50.f;
+			Vec2 halfScreen = SINGLE(EngineInstance)->GetVirtualSize() * 0.5f;
+			float maxDistance = halfScreen.Magnitude() + SFX_MARGIN;  // 화면 대각선 + 마진
 
 			Vec2 sourcePos = source->GetPos();
 			Vec2 cameraPos = CAMERA->GetLookAt();
