@@ -2,7 +2,7 @@
 #include "AIControllerBase.h"
 #include "AbilitySystem.h"
 #include "StateSystem.h"
-#include "Game/Object/Character/Player.h"
+#include "Game/Util/AIUtils.h"
 
 void AIControllerBase::CacheComponents()
 {
@@ -15,36 +15,23 @@ void AIControllerBase::CacheComponents()
 
 void AIControllerBase::FindPlayer()
 {
-	if (!owner || !owner->GetScene())
+	if (!owner)
 		return;
 
-	target = owner->GetScene()->FindObjectByType<Player>();
+	target = AIUtils::FindPlayer(owner->GetScene());
 }
 
 float AIControllerBase::GetDistanceToTarget() const
 {
-	if (!target || !owner)
-		return FLT_MAX;
-
-	Vec2 ownerPos = owner->GetPos();
-	Vec2 targetPos = target->GetPos();
-	Vec2 diff = targetPos - ownerPos;
-	return sqrtf(diff.x * diff.x + diff.y * diff.y);
+	return AIUtils::GetDistance2D(owner, target);
 }
 
 float AIControllerBase::GetDistanceToTargetY() const
 {
-	if (!target || !owner)
-		return FLT_MAX;
-
-	return abs(target->GetPos().y - owner->GetPos().y);
+	return AIUtils::GetDistanceY(owner, target);
 }
 
 int AIControllerBase::GetDirectionToTarget() const
 {
-	if (!target || !owner)
-		return 1;
-
-	float diff = target->GetPos().x - owner->GetPos().x;
-	return diff >= 0 ? 1 : -1;
+	return AIUtils::GetDirectionX(owner, target);
 }

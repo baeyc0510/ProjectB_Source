@@ -236,6 +236,7 @@
     <ClInclude Include="Game\UI\OverlayUI.h" />
     <ClInclude Include="Game\UI\Overlay_BossDefeat.h" />
     <ClInclude Include="Game\UI\PlayerStatusHUD.h" />
+    <ClInclude Include="Game\Util\AIUtils.h" />
     <ClInclude Include="Game\Util\AnimEventHelper.h" />
     <ClInclude Include="Game\Util\CharacterFactory.h" />
     <ClInclude Include="Game\Util\LedgeHelper.h" />
@@ -310,6 +311,7 @@
     <ClCompile Include="Game\UI\OverlayUI.cpp" />
     <ClCompile Include="Game\UI\Overlay_BossDefeat.cpp" />
     <ClCompile Include="Game\UI\PlayerStatusHUD.cpp" />
+    <ClCompile Include="Game\Util\AIUtils.cpp" />
     <ClCompile Include="Game\Util\AnimEventHelper.cpp" />
     <ClCompile Include="Game\Util\CharacterFactory.cpp" />
     <ClCompile Include="Game\Util\LedgeHelper.cpp" />
