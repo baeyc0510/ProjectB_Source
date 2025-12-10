@@ -51,10 +51,15 @@ protected:
 
 	/*~ Player Interface ~*/
 	void InitStartupStats();
-	void OnStatChanged(EStatType type, float current, float max);
+	void OnStatChanged(EStatType type, float current, float max) override;
 
 	Vec2 GetKnockbackVelocity(CGameObject* source, const CombatContext& context);
 	wstring GetPlayerHitVfxKey(EDamageType damageType);
+
+	// OnDamage 헬퍼
+	void SpawnPlayerDamageVFX(const CombatContext& context, int spawnDirection);
+	void ApplyHitReaction(float dir, Vec2 force, EDamageType damageType);
+	bool ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& outForce);
 	
 private:
 	// Active Input
@@ -84,13 +89,31 @@ private:
 
 public:
 	static constexpr float PLAYER_GRAVITY_SCALE = 1.6f;
-	
+
 private:
+	// 기본 스탯
 	static constexpr float MOVE_SPEED = 250.f;
-	static constexpr float KNOCKBACK_POWER = 100.f;
 	static constexpr float MAX_HP = 300.f;
 	static constexpr float MAX_MP = 100.f;
 	static constexpr int MAX_FLASK = 2;
+	static constexpr float JUMP_FORCE = 490.f;
+	static constexpr float ATTACK_POWER = 100.f;
+
+	// 넉백/피격
+	static constexpr float KNOCKBACK_POWER = 100.f;
+	static constexpr float PUSHBACK_FORCE_X = 300.f;
+	static constexpr float PUSHBACK_FORCE_Y = 150.f;
+	static constexpr float SUPER_HEAVY_KNOCKBACK_MULT = 1.6f;
+	static constexpr float HEAVY_GUARD_PUSHBACK_MULT = 2.0f;
+
+	// 캐릭터 크기
+	static constexpr float CHARACTER_WIDTH = 42.f;
+	static constexpr float CHARACTER_HEIGHT = 66.f;
+	static constexpr float COLLIDER_OFFSET_Y = -33.f;
+	static constexpr float CROUCH_HEIGHT_SCALE = 0.5f;
+
+	// 이동
+	static constexpr float MAX_SLOPE_ANGLE = 50.0f;
 	static constexpr float LEDGE_CLIMB_THRESHOLD = 10.f;
 
 	Vec2 characterScale;

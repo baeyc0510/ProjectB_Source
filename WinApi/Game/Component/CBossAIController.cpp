@@ -34,8 +34,11 @@ void CBossAIController::ComponentOnEnable()
 
 void CBossAIController::ComponentUpdate()
 {
+	// 보스 AI 업데이트 차단 태그 그룹
+	const EStateTag TAG_BOSS_AI_BLOCKED = Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BossAppearing;
+	
 	// 피격/스턴/공격 중에는 AI 업데이트 중지
-	if (stateSystem && stateSystem->HasAnyTag(Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BossAppearing))
+	if (stateSystem && stateSystem->HasAnyTag(TAG_BOSS_AI_BLOCKED))
 		return;
 
 	// 플레이어 찾기

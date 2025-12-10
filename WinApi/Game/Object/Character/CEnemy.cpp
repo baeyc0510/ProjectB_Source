@@ -9,6 +9,7 @@
 #include "Game/Component/CAIController.h"
 #include "Game/Component/CCharacterMovement.h"
 
+
 CEnemy::CEnemy()
 {
 	name = TEXT("몬스터");
@@ -111,62 +112,73 @@ void CEnemy::HandleMovementEvents()
 
 void CEnemy::UpdateAIMovement()
 {
+	// 이동 차단 태그 그룹
+	const EStateTag TAG_MOVEMENT_BLOCKED = Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement;
+	
 	// 이동 불가 상태
-	if (stateSystem->HasAnyTag(Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement))
+	if (stateSystem->HasAnyTag(TAG_MOVEMENT_BLOCKED))
 	{
-		rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
+		StopHorizontalMovement();
 		return;
 	}
-
-	const FAIConfig& config = aiController->GetConfig();
-	float currentX = GetPos().x;
-	float safeMinX = aiController->GetSafeMinX();
-	float safeMaxX = aiController->GetSafeMaxX();
 
 	// 순찰 모드
 	if (stateSystem->HasTag(Tag_AIPatrol))
 	{
-		int dir = aiController->GetPatrolDirection();
-
-		// 안전 범위 경계 체크 - 방향 전환
-		if ((dir > 0 && currentX >= safeMaxX) || (dir < 0 && currentX <= safeMinX))
-		{
-			aiController->FlipPatrolDirection();
-			dir = aiController->GetPatrolDirection();
-		}
-
-		SetForward(dir);
-		animator->SetDirection(dir);
-		rigidbody->SetVelocity(Vec2(config.patrolSpeed * dir, rigidbody->GetVelocity().y));
+		UpdatePatrolMovement();
 	}
 	// 추격 모드
 	else if (stateSystem->HasTag(Tag_AIChase))
 	{
-		int dir = aiController->GetDirectionToTarget();
-
-		// 공격 범위 내면 정지 + 공격 시도
-		if (aiController->IsTargetInAttackRange())
-		{
-			rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
-			abilitySystem->TryActivateAbility(EAbility::Attack);
-		}
-		// 안전 범위 밖이면 정지
-		else if ((dir > 0 && currentX >= safeMaxX) || (dir < 0 && currentX <= safeMinX))
-		{
-			rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
-		}
-		else
-		{
-			SetForward(dir);
-			animator->SetDirection(dir);
-			rigidbody->SetVelocity(Vec2(config.chaseSpeed * dir, rigidbody->GetVelocity().y));
-		}
+		UpdateChaseMovement();
 	}
 	// 기본 상태 - 정지
 	else
 	{
-		rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
+		StopHorizontalMovement();
 	}
+}
+
+void CEnemy::UpdatePatrolMovement()
+{
+	int dir = aiController->GetPatrolDirection();
+
+	// 안전 범위 경계 체크 - 방향 전환
+	if (aiController->IsAtBoundary(dir))
+	{
+		aiController->FlipPatrolDirection();
+		dir = aiController->GetPatrolDirection();
+	}
+
+	MoveInDirection(dir, aiController->GetConfig().patrolSpeed);
+}
+
+void CEnemy::UpdateChaseMovement()
+{
+	int dir = aiController->GetDirectionToTarget();
+
+	// 공격 범위 내면 정지 + 공격 시도
+	if (aiController->IsTargetInAttackRange())
+	{
+		StopHorizontalMovement();
+		abilitySystem->TryActivateAbility(EAbility::Attack);
+	}
+	// 안전 범위 밖이면 정지
+	else if (aiController->IsAtBoundary(dir))
+	{
+		StopHorizontalMovement();
+	}
+	else
+	{
+		MoveInDirection(dir, aiController->GetConfig().chaseSpeed);
+	}
+}
+
+void CEnemy::MoveInDirection(int dir, float speed)
+{
+	SetForward(dir);
+	animator->SetDirection(dir);
+	rigidbody->SetVelocity(Vec2(speed * dir, rigidbody->GetVelocity().y));
 }
 
 void CEnemy::OnDamage(CGameObject* source, const CombatContext& context)

@@ -72,6 +72,12 @@ bool CCharacter::HasPlatformBounds() const
     return movement ? movement->HasGroundBounds() : false;
 }
 
+void CCharacter::StopHorizontalMovement()
+{
+    if (rigidbody)
+        rigidbody->SetVelocity(Vec2(0.f, rigidbody->GetVelocity().y));
+}
+
 void CCharacter::Init()
 {
     // Rigidbody
@@ -96,6 +102,10 @@ void CCharacter::Init()
 
     // StatComponent
     statComponent = new CStatComponent();
+    // StatComponent 이벤트 바인딩
+    statComponent->OnStatChanged.Add([this](EStatType type, float current, float max) {
+        OnStatChanged(type, current, max);
+    });
     AddChild(statComponent);
 
     // AbilitySystem
@@ -218,6 +228,17 @@ void CCharacter::OnStateChanged(EStateTag oldTags, EStateTag newTags)
         if (!ShouldIgnorePlatform())
         {
             movement->ClearIgnorePlatform();
+        }
+    }
+}
+
+void CCharacter::OnStatChanged(EStatType type, float current, float max)
+{
+    if (type == EStatType::HP)
+    {
+        if (IsNearlyEqual(current,0))
+        {
+            abilitySystem->TryActivateAbility(EAbility::Die);
         }
     }
 }

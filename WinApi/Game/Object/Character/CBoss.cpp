@@ -10,6 +10,7 @@
 #include "Game/Component/CCharacterMovement.h"
 #include "Game/Manager/CGameUIManager.h"
 
+
 CBoss::CBoss()
 {
 	name = TEXT("Boss");
@@ -124,10 +125,13 @@ void CBoss::UpdateBossAnimation()
 
 void CBoss::UpdateBossAI()
 {
+	// 이동 차단 태그 그룹
+	const EStateTag TAG_MOVEMENT_BLOCKED = Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement;
+	
 	// 이동 불가 상태면 정지
-	if (stateSystem->HasAnyTag(Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement))
+	if (stateSystem->HasAnyTag(TAG_MOVEMENT_BLOCKED))
 	{
-		rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
+		StopHorizontalMovement();
 		return;
 	}
 
@@ -160,4 +164,14 @@ void CBoss::OnDamage(CGameObject* source, const CombatContext& context)
 void CBoss::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 {
 	CCharacter::OnStateChanged(oldTags, newTags);
+}
+
+bool CBoss::IsAtArenaBoundary(int dir) const
+{
+	// 아레나 경계가 설정되어 있지 않으면 false
+	if (arenaMinX == 0.f && arenaMaxX == 0.f)
+		return false;
+
+	float currentX = pos.x;
+	return (dir > 0 && currentX >= arenaMaxX) || (dir < 0 && currentX <= arenaMinX);
 }

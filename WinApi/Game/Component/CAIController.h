@@ -46,6 +46,7 @@ public:
 	float GetSafeMinX() const;
 	float GetSafeMaxX() const;
 	bool IsPositionSafe(float x) const;
+	bool IsAtBoundary(int dir) const;		// 해당 방향으로 이동 시 경계에 도달했는지
 
 	// 순찰
 	Vec2 GetPatrolOrigin() const { return patrolOrigin; }

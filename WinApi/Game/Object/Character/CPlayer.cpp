@@ -46,15 +46,15 @@ void CPlayer::Init()
 	rigidbody->SetGravityScale(PLAYER_GRAVITY_SCALE);
 
 	// Collider
-	characterScale = Vec2(42, 66);
-	colOffset = Vec2(0, -33);
+	characterScale = Vec2(CHARACTER_WIDTH, CHARACTER_HEIGHT);
+	colOffset = Vec2(0, COLLIDER_OFFSET_Y);
 	collider->SetScale(characterScale);
 	collider->SetOffset(colOffset);
 	collider->SetLayer(ELayer::Player);
 
 	// Movement (Player 기본 설정: 드롭다운 가능, 엣지 블로킹 없음)
 	FMovementConfig moveConfig;
-	moveConfig.maxSlopeAngle = 50.0f;
+	moveConfig.maxSlopeAngle = MAX_SLOPE_ANGLE;
 	moveConfig.bCanDropThrough = true;
 	moveConfig.bBlockAtEdges = false;
 	moveConfig.bFlipDirectionAtEdge = false;
@@ -433,93 +433,107 @@ void CPlayer::OnDamage(CGameObject* source, const CombatContext& context)
 {
 	if (stateSystem->HasTag(Tag_Dead))
 		return;
-	
-	abilitySystem->TriggerEvent(EGameEvent::Hit,source);
-	
+
+	abilitySystem->TriggerEvent(EGameEvent::Hit, source);
+
 	if (context.value <= 0.0001f)
-	{
 		return;
-	}
-	
-	bool bShouldHitReact = !stateSystem->HasTag(Tag_Guard);
-	Vec2 force = GetPushbackForce();
-	
-	// 넉백
+
+	// 넉백 방향 계산
 	float dir = GetPos().x - source->GetPos().x;
 	dir = dir < 0 ? -1.0f : 1.0f;
-	
-	if (context.damageType == EDamageType::SuperHeavy)
-	{
-		if (stateSystem->HasTag(Tag_Guard))
-		{
-			abilitySystem->CancelAbilitiesWithTag(Tag_Guard);
-			bShouldHitReact = true;
-		}
-		force *= 1.6f;
-	}
-	else if (context.damageType == EDamageType::Heavy)
-	{
-		if (stateSystem->HasTag(Tag_Guard))
-		{
-			// 옆으로만 밀려남
-			SetForward(-dir);
-			rigidbody->SetVelocity(Vec2(2 * force.x * dir, 0.f));
-		}
-	}
-	
+
+	// 가드 상호작용 처리
+	Vec2 force = GetPushbackForce();
+	bool bShouldHitReact = ProcessGuardInteraction(context.damageType, dir, force);
+
+	// 피격 반응 적용
 	if (bShouldHitReact)
 	{
-		abilitySystem->TryActivateAbility(EAbility::HitReact);
-		// 넉백 적용
-		SetForward(-dir);
-		rigidbody->SetVelocity(Vec2(force.x * dir, -force.y));
-		
-		if (context.damageType == EDamageType::SuperHeavy || context.damageType == EDamageType::Heavy)
-		{
-			SFX->PlayOnce(SFXKey::PlayerHeavyDamage);	
-		}
-	}
-	
-	// Spawn VFX
-	Vec2 spawnPos = context.hitResult.hitCenter;
-	int spawnDirection = source->GetForward();
-	
-	// // Spawn Hit VFX
-	if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
-	{
-		vfx->PlayVFX();
+		ApplyHitReaction(dir, force, context.damageType);
 	}
 
-	// Spawn Blood VFX
-	if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
-	{
-		vfx->PlayVFX();
-	}
-		
+	// VFX 및 카메라 이펙트
+	SpawnPlayerDamageVFX(context, source->GetForward());
 	if (!CAMERA->IsShaking())
 	{
 		CAMERA->Shake(ShakePreset::Light);
 	}
 
-	// Apply damage
+	// 데미지 적용
 	statComponent->TakeDamage(context.value);
+}
+
+bool CPlayer::ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& outForce)
+{
+	bool bIsGuarding = stateSystem->HasTag(Tag_Guard);
+	bool bShouldHitReact = !bIsGuarding;
+
+	if (damageType == EDamageType::SuperHeavy)
+	{
+		// 슈퍼헤비: 가드 파괴
+		if (bIsGuarding)
+		{
+			abilitySystem->CancelAbilitiesWithTag(Tag_Guard);
+			bShouldHitReact = true;
+		}
+		outForce *= SUPER_HEAVY_KNOCKBACK_MULT;
+	}
+	else if (damageType == EDamageType::Heavy)
+	{
+		// 헤비: 가드 중이면 밀려남만
+		if (bIsGuarding)
+		{
+			SetForward(-dir);
+			rigidbody->SetVelocity(Vec2(HEAVY_GUARD_PUSHBACK_MULT * outForce.x * dir, 0.f));
+		}
+	}
+
+	return bShouldHitReact;
+}
+
+void CPlayer::ApplyHitReaction(float dir, Vec2 force, EDamageType damageType)
+{
+	abilitySystem->TryActivateAbility(EAbility::HitReact);
+
+	// 넉백 적용
+	SetForward(-dir);
+	rigidbody->SetVelocity(Vec2(force.x * dir, -force.y));
+
+	// 무거운 공격 사운드
+	if (damageType == EDamageType::SuperHeavy || damageType == EDamageType::Heavy)
+	{
+		SFX->PlayOnce(SFXKey::PlayerHeavyDamage);
+	}
+}
+
+void CPlayer::SpawnPlayerDamageVFX(const CombatContext& context, int spawnDirection)
+{
+	Vec2 spawnPos = context.hitResult.hitCenter;
+
+	// Hit VFX
+	if (CVFX* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
+	{
+		vfx->PlayVFX();
+	}
+
+	// Blood VFX
+	if (CVFX* vfx = VFX->CreateVFX(GetRandomBloodVfxKey(), spawnPos, spawnDirection))
+	{
+		vfx->PlayVFX();
+	}
 }
 
 void CPlayer::InitStartupStats()
 {
-	pushbackForce = Vec2(300.f, 150.f);
-
-	// StatComponent 이벤트 바인딩
-	statComponent->OnStatChanged.Add([this](EStatType type, float current, float max) {
-		OnStatChanged(type, current, max);
-	});
-
+	pushbackForce = Vec2(PUSHBACK_FORCE_X, PUSHBACK_FORCE_Y);
+	
 	// 스탯 초기화
 	statComponent->InitStat(EStatType::HP, MAX_HP);
 	statComponent->InitStat(EStatType::MP, MAX_MP);
 	statComponent->InitStat(EStatType::Flask, static_cast<float>(MAX_FLASK));
-	statComponent->InitStat(EStatType::JumpForce, 490.f, 490.f);
-	statComponent->InitStat(EStatType::AttackPower, 100.f, 100.f);
+	statComponent->InitStat(EStatType::JumpForce, JUMP_FORCE, JUMP_FORCE);
+	statComponent->InitStat(EStatType::AttackPower, ATTACK_POWER, ATTACK_POWER);
 }
 
 void CPlayer::OnStatChanged(EStatType type, float current, float max)
@@ -564,8 +578,8 @@ void CPlayer::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 	// 작은 collider 진입
 	if (!hadSmallCollider && needsSmallCollider)
 	{
-		Vec2 crouchScale = characterScale * Vec2(1.0f, 0.5f);
-		Vec2 crouchOffset = colOffset + crouchScale * Vec2(0.0f, 0.5f);
+		Vec2 crouchScale = characterScale * Vec2(1.0f, CROUCH_HEIGHT_SCALE);
+		Vec2 crouchOffset = colOffset + crouchScale * Vec2(0.0f, CROUCH_HEIGHT_SCALE);
 		collider->SetScale(crouchScale);
 		collider->SetOffset(crouchOffset);
 	}

@@ -18,6 +18,7 @@
 #include "Game/Manager/CMapManager.h"
 #include "Game/Manager/CSFXManager.h"
 
+
 CBoss_TenPiedad::CBoss_TenPiedad()
 {
 	name = TEXT("Ten Piedad");
@@ -195,10 +196,13 @@ void CBoss_TenPiedad::OnDieComplete()
 
 void CBoss_TenPiedad::UpdateBossAI()
 {
+	// 이동 차단 태그 그룹
+	const EStateTag TAG_MOVEMENT_BLOCKED = Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement;
+	
 	// 이동 불가 상태면 정지
-	if (stateSystem->HasAnyTag(Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement))
+	if (stateSystem->HasAnyTag(TAG_MOVEMENT_BLOCKED))
 	{
-		rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
+		StopHorizontalMovement();
 		bIsChasing = false;
 		bIsTurningAround = false;
 		return;
@@ -207,7 +211,7 @@ void CBoss_TenPiedad::UpdateBossAI()
 	// 턴어라운드 중이면 대기
 	if (bIsTurningAround)
 	{
-		rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
+		StopHorizontalMovement();
 		return;
 	}
 
@@ -226,7 +230,7 @@ void CBoss_TenPiedad::UpdateBossAI()
 	if (nextAttack != EAbility::None)
 	{
 		bIsChasing = false;
-		rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
+		StopHorizontalMovement();
 		abilitySystem->TryActivateAbility(nextAttack);
 		return;
 	}
@@ -240,25 +244,19 @@ void CBoss_TenPiedad::UpdateBossAI()
 
 	// 3. 추격도 불가하면 정지
 	bIsChasing = false;
-	rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
+	StopHorizontalMovement();
 }
 
 void CBoss_TenPiedad::UpdateChaseMovement()
 {
 	int dir = GetForward();  // 현재 보스 방향
 
-	// 아레나 경계 체크 (경계가 설정되어 있을 때만)
-	bool bHasArenaBounds = (arenaMinX != 0.f || arenaMaxX != 0.f);
-	if (bHasArenaBounds)
+	// 아레나 경계 체크
+	if (IsAtArenaBoundary(dir))
 	{
-		float currentX = GetPos().x;
-		if ((dir > 0 && currentX >= arenaMaxX) || (dir < 0 && currentX <= arenaMinX))
-		{
-			// 경계에 도달하면 정지
-			bIsChasing = false;
-			rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
-			return;
-		}
+		bIsChasing = false;
+		StopHorizontalMovement();
+		return;
 	}
 
 	// 이동
@@ -283,7 +281,7 @@ void CBoss_TenPiedad::StartTurnaround()
 {
 	bIsTurningAround = true;
 	bIsChasing = false;
-	rigidbody->SetVelocity(Vec2(0.0f, rigidbody->GetVelocity().y));
+	StopHorizontalMovement();
 
 	// 턴어라운드 애니메이션 재생, 완료 시 콜백
 	animator->Play(AnimKey::Turnaround, false, [this]() { OnTurnaroundComplete(); });

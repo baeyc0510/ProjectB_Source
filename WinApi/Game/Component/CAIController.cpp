@@ -5,6 +5,12 @@
 #include "Game/Object/Character/CPlayer.h"
 #include "Game/Object/Character/CCharacter.h"
 
+namespace
+{
+	// AI 업데이트 차단 태그 그룹
+	const EStateTag TAG_AI_BLOCKED = Tag_Hit | Tag_Stunned | Tag_Attacking;
+}
+
 CAIController::CAIController()
 {
 }
@@ -43,7 +49,7 @@ void CAIController::ComponentOnEnable()
 void CAIController::ComponentUpdate()
 {
 	// 피격/스턴/공격 중에는 AI 업데이트 중지
-	if (stateSystem && stateSystem->HasAnyTag(Tag_Hit | Tag_Stunned | Tag_Attacking))
+	if (stateSystem && stateSystem->HasAnyTag(TAG_AI_BLOCKED))
 		return;
 
 	UpdateTargetDetection();
@@ -239,4 +245,13 @@ float CAIController::GetSafeMaxX() const
 bool CAIController::IsPositionSafe(float x) const
 {
 	return x >= GetSafeMinX() && x <= GetSafeMaxX();
+}
+
+bool CAIController::IsAtBoundary(int dir) const
+{
+	if (!owner)
+		return false;
+
+	float currentX = owner->GetPos().x;
+	return (dir > 0 && currentX >= GetSafeMaxX()) || (dir < 0 && currentX <= GetSafeMinX());
 }

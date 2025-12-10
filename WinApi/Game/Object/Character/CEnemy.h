@@ -35,6 +35,11 @@ private:
 	void UpdateAIMovement();
 	void HandleMovementEvents();
 
+	// UpdateAIMovement 헬퍼
+	void UpdatePatrolMovement();
+	void UpdateChaseMovement();
+	void MoveInDirection(int dir, float speed);
+
 protected:
 	Vec2 parryPushbackForce = Vec2(200.f, 0.f);
 	CAIController* aiController = nullptr;

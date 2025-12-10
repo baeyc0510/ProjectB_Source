@@ -2,6 +2,7 @@
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Interface/CombatInterface.h"
 
+enum class EStatType;
 class CAbilitySystem;
 class CStateSystem;
 class CStatComponent;
@@ -31,7 +32,10 @@ public:
     bool HasPlatformBounds() const;
 
     Vec2 GetPushbackForce() const { return pushbackForce; }
-    
+
+    // 수평 이동 정지 (y속도 유지)
+    void StopHorizontalMovement();
+
     virtual void OnDieStart() {}
     virtual void OnDieComplete() {}
 
@@ -54,9 +58,10 @@ protected:
     /*~ CCharacter Interface ~*/
     virtual void UpdateStates();
     virtual void OnStateChanged(EStateTag oldTags, EStateTag newTags);
+    virtual void OnStatChanged(EStatType type, float current, float max);
     virtual void HandleAnimationEvent(EGameEvent event) {}
     virtual bool ShouldIgnorePlatform() const { return false; }
-
+    
     void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 
     template<typename AbilityType>

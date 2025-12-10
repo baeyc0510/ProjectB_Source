@@ -18,6 +18,7 @@ public:
 	void SetArenaBounds(float minX, float maxX) { arenaMinX = minX; arenaMaxX = maxX; }
 	float GetArenaMinX() const { return arenaMinX; }
 	float GetArenaMaxX() const { return arenaMaxX; }
+	bool IsAtArenaBoundary(int dir) const;		// 해당 방향으로 이동 시 아레나 경계에 도달했는지
 
 	// 등장 시퀀스
 	bool HasAppeared() const { return bHasAppeared; }
@@ -44,7 +45,7 @@ protected:
 	virtual void UpdateBossAnimation();
 	virtual void UpdateBossAI();
 	virtual bool CheckEncounterPlayer() = 0;
-	void OnStatChanged(EStatType type, float current, float max);
+	void OnStatChanged(EStatType type, float current, float max) override;
 	
 protected:
 	CBossAIController* bossAI = nullptr;

@@ -36,9 +36,6 @@ void Ability_BossAppear::OnActivate()
         return;
     }
     
-    EndAbility();
-    return;
-    
     GetAnimator()->Play(AnimKey::BossAppear,true, BIND(this,EndAbility));
     WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitGround));
     WaitEvent(EGameEvent::DoAction, BIND_EVENT(this,PlayWakeUpSound));
