@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "CGame.h"
+#include "Game.h"
 
 #include "Enum.h"
 #include "Resource.h"
@@ -14,25 +14,25 @@
 #include "Scene/SimpleStage.h"
 #include "Scene/Stage_Boss01.h"
 
-const Vec2 CGame::WINSTART		= Vec2(100, 100);
-const Vec2 CGame::WINSIZE		= Vec2(1280, 720);	// 실제 윈도우 크기
-const Vec2 CGame::VIRTUALSIZE	= Vec2(640, 360);	// 가상 해상도
+const Vec2 Game::WINSTART		= Vec2(100, 100);
+const Vec2 Game::WINSIZE		= Vec2(1280, 720);	// 실제 윈도우 크기
+const Vec2 Game::VIRTUALSIZE	= Vec2(640, 360);	// 가상 해상도
 
-const Vec2 CGame::DEFAULT_CAMERA_OFFSET = Vec2(0.f,-100.f); 
-const Vec2 CGame::DEFAULT_CAMERA_DEADZONE = Vec2(100.f,100.f);
-const float CGame::DEFAULT_CAMERA_SMOOTH = 5.f;
+const Vec2 Game::DEFAULT_CAMERA_OFFSET = Vec2(0.f,-100.f); 
+const Vec2 Game::DEFAULT_CAMERA_DEADZONE = Vec2(100.f,100.f);
+const float Game::DEFAULT_CAMERA_SMOOTH = 5.f;
 
-CGame::CGame()
+Game::Game()
 {
 	hInst	= 0;
 	hWnd	= 0;
 }
 
-CGame::~CGame()
+Game::~Game()
 {
 }
 
-void CGame::Init(HINSTANCE hInstance)
+void Game::Init(HINSTANCE hInstance)
 {
 	// 게임의 초기화 진행
 	const UINT MAX_LOADSTRING = 100;
@@ -92,6 +92,19 @@ void CGame::Init(HINSTANCE hInstance)
 
 	// Event Bus 리스너 등록
 	EVENT->OnPlaySFX.Add([](GameObject* source, const SFXEventData& data) {
+		// 소스가 있으면 카메라와의 거리 체크
+		if (source)
+		{
+			Vec2 virtualSize = SINGLE(EngineInstance)->GetVirtualSize();
+			float maxDistance = virtualSize.x;  // 화면 너비를 최대 거리로 사용
+
+			Vec2 sourcePos = source->GetPos();
+			Vec2 cameraPos = CAMERA->GetLookAt();
+			float distance = (sourcePos - cameraPos).Magnitude();
+
+			if (distance > maxDistance)
+				return;
+		}
 		SFX->PlayOnce(data.key);
 	});
 	EVENT->OnPlayBGM.Add([](GameObject* source, const BGMEventData& data) {
@@ -147,7 +160,7 @@ void CGame::Init(HINSTANCE hInstance)
 	SINGLE(SceneManager)->SetStartScene((int)ESceneType::Title);
 }
 
-void CGame::Run()
+void Game::Run()
 {
 	// 게임의 동작 진행
 
@@ -156,7 +169,7 @@ void CGame::Run()
 	Render();
 }
 
-void CGame::Release()
+void Game::Release()
 {
 	// 게임의 마무리 진행
 
@@ -177,13 +190,13 @@ void CGame::Release()
 	SINGLE(GameUIManager)->Release();
 }
 
-void CGame::Input()
+void Game::Input()
 {
 	// 게임의 입력 진행
 	SINGLE(InputManager)->Update();
 }
 
-void CGame::Update()
+void Game::Update()
 {
 	// 게임의 처리 진행
 	// 순서 주의! : 월드 매니저는 업데이트 가장 초기에 진행
@@ -198,7 +211,7 @@ void CGame::Update()
 	SINGLE(CollisionManager)->Update();
 }
 
-void CGame::Render()
+void Game::Render()
 {
 	SINGLE(RenderManager)->BeginDraw();
 
