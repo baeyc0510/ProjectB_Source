@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Game/Enum.h"
 
-class CAnimator;
+class Animator;
 class AbilitySystem;
 
 class AnimEventHelper
@@ -11,5 +11,5 @@ public:
 	static EGameEvent ToGameEvent(const wstring& str);
 
 	// Animator의 OnFrameEvent를 AbilitySystem으로 연결
-	static void ConnectAbilitySystem(CAnimator* animator, AbilitySystem* abilitySystem);
+	static void ConnectAbilitySystem(Animator* animator, AbilitySystem* abilitySystem);
 };

@@ -35,7 +35,7 @@ void Stage_Beginning::Enter()
 		if (!player)
 			return;
 		
-		CAnimator* animator = player->GetComponent<CAnimator>();
+		Animator* animator = player->GetComponent<Animator>();
 		// 누워있는 장면에서 멈춤
 		animator->Play(AnimKey::Rising);
 		animator->Stop();

@@ -64,7 +64,7 @@ void Ability_BossAppear::OnEnd()
     boss->OnAppearanceComplete();
     
     // 플레이어 비추게 돌아감
-    CGameObject* playerObj = bossAI->GetTarget();
+    GameObject* playerObj = bossAI->GetTarget();
     CAMERA->SetTargetPos(bossAI->GetTarget()->GetPos() + CGame::DEFAULT_CAMERA_OFFSET);
     
     // 2초후

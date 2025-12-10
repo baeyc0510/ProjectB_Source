@@ -60,7 +60,7 @@ const wstring& Ability_AirAttack::GetAnimKey() const
     return AirComboTable[comboCnt].animKey;
 }
 
-void Ability_AirAttack::OnLanded(CGameObject* source)
+void Ability_AirAttack::OnLanded(GameObject* source)
 {
     EndAbility();
 }

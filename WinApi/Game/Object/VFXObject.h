@@ -1,6 +1,6 @@
 #pragma once
 
-class VFXObject : public CGameObject
+class VFXObject : public GameObject
 {
 public:
     VFXObject();
@@ -12,7 +12,7 @@ public:
     void SetLooping(bool inLooping);
     bool IsLooping() const { return bLooping; }
 
-    void SetAnimation(CAnimation* inAnimation);
+    void SetAnimation(AnimationResource* inAnimation);
 
     void PlayVFX();
     void StopVFX();
@@ -30,8 +30,8 @@ protected:
     virtual void OnFinishedAnimation();
 
 private:
-    CAnimator* animator;
-    CAnimation* animation;
+    Animator* animator;
+    AnimationResource* animation;
     bool bIsPlaying;
     bool bLooping;
 };

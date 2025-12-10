@@ -36,7 +36,7 @@ void Ability_BossStomp::OnHitCheck()
 	auto results = COLLISION->BoxTrace(center, size, (UINT)ELayer::Player, true);
 	for (auto& result : results)
 	{
-		CGameObject* player = result.collider->GetOwner();
+		GameObject* player = result.collider->GetOwner();
 		
 		ICombatInterface* combat = dynamic_cast<ICombatInterface*>(player);
 		if (combat)

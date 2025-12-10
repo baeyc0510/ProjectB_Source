@@ -1,18 +1,18 @@
 #pragma once
 #include "Game/Interface/CombatInterface.h"
 
-class CAnimator;
+class Animator;
 class Rigidbody;
-class CBoxCollider;
+class BoxCollider;
 
-class Projectile : public CGameObject, public ICombatInterface
+class Projectile : public GameObject, public ICombatInterface
 {
 public:
 	Projectile();
 	virtual ~Projectile();
 
 	/*~ CProjectile Interface ~*/
-	void SetProjectileOwner(CGameObject* inOwner) { projectileOwner = inOwner; }
+	void SetProjectileOwner(GameObject* inOwner) { projectileOwner = inOwner; }
 	void SetVelocity(Vec2 vel);
 	void SetDamage(float dmg) { damage = dmg; }
 	void Launch(Vec2 velocity);
@@ -26,24 +26,24 @@ protected:
 	void OnDisable() override;
 	void Release() override;
 
-	void OnCollisionEnter(CCollider* other) override;
-	void OnCollisionStay(CCollider* other) override;
+	void OnCollisionEnter(Collider* other) override;
+	void OnCollisionStay(Collider* other) override;
 
 	/*~ ICombatInterface ~*/
-	void OnDamage(CGameObject* source, const CombatContext& context) override;
+	void OnDamage(GameObject* source, const CombatContext& context) override;
 
 	/*~ CProjectile Interface ~*/
 	virtual void OnHitGround(Vec2 hitPos);
 	virtual void OnHitWall(Vec2 hitPos);
-	virtual void OnHitPlayer(CGameObject* player);
+	virtual void OnHitPlayer(GameObject* player);
 
 	void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 
 protected:
-	CGameObject* projectileOwner = nullptr;
-	CAnimator* animator = nullptr;
+	GameObject* projectileOwner = nullptr;
+	Animator* animator = nullptr;
 	Rigidbody* rigidbody = nullptr;
-	CBoxCollider* collider = nullptr;
+	BoxCollider* collider = nullptr;
 
 	float damage = 10.f;
 };

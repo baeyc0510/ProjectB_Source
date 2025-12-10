@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "InventoryUI.h"
-#include "Asset/CImage.h"
+#include "Asset/ImageResource.h"
 
 InventoryUI::InventoryUI()
 	: imgBackground(nullptr)

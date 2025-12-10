@@ -1,6 +1,6 @@
 #pragma once
 
-class CCollider;
+class Collider;
 
 // Ledge 상태 정보
 struct FLedgeState
@@ -35,13 +35,13 @@ public:
 	UINT GetLedgeId() const { return state.ledgeId; }
 
 	// Ledge 충돌 체크
-	void CheckLedge(CCollider* other, Vec2 playerPos, Vec2 playerHalfScale);
+	void CheckLedge(Collider* other, Vec2 playerPos, Vec2 playerHalfScale);
 
 	// Ledge 상태 초기화
 	void ClearLedge() { state.Reset(); }
 
 	// Ledge 이탈 체크
-	bool ShouldClearOnExit(CCollider* other) const;
+	bool ShouldClearOnExit(Collider* other) const;
 
 private:
 	FLedgeState state;

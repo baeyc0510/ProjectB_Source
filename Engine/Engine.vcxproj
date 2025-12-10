@@ -166,36 +166,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Asset\CAnimation.h" />
-    <ClInclude Include="Asset\CImage.h" />
-    <ClInclude Include="Asset\CResource.h" />
-    <ClInclude Include="Asset\CSound.h" />
-    <ClInclude Include="CEngine.h" />
-    <ClInclude Include="Components\CAnimator.h" />
-    <ClInclude Include="Components\CBoxCollider.h" />
-    <ClInclude Include="Components\CCollider.h" />
-    <ClInclude Include="Components\CLineCollider.h" />
-    <ClInclude Include="Core\CGameObject.h" />
+    <ClInclude Include="Asset\AnimationResource.h" />
+    <ClInclude Include="Asset\ImageResource.h" />
+    <ClInclude Include="Asset\ResourceBase.h" />
+    <ClInclude Include="Asset\SoundResource.h" />
+    <ClInclude Include="EngineInstance.h" />
+    <ClInclude Include="Components\Animator.h" />
+    <ClInclude Include="Components\BoxCollider.h" />
+    <ClInclude Include="Components\Collider.h" />
+    <ClInclude Include="Components\LineCollider.h" />
+    <ClInclude Include="Core\GameObject.h" />
     <ClInclude Include="Core\Component.h" />
-    <ClInclude Include="Core\CScene.h" />
+    <ClInclude Include="Core\Scene.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EnginePch.h" />
     <ClInclude Include="Interface\IRender.h" />
-    <ClInclude Include="Managers\CCameraManager.h" />
-    <ClInclude Include="Managers\CCollisionManager.h" />
-    <ClInclude Include="Managers\CWorldManager.h" />
-    <ClInclude Include="Managers\CInputManager.h" />
-    <ClInclude Include="Managers\CPathManager.h" />
-    <ClInclude Include="Managers\CRenderManager.h" />
-    <ClInclude Include="Managers\CResourceManager.h" />
-    <ClInclude Include="Managers\CSceneManager.h" />
-    <ClInclude Include="Managers\CSoundManager.h" />
-    <ClInclude Include="Managers\CTimeManager.h" />
-    <ClInclude Include="Managers\CUIManager.h" />
+    <ClInclude Include="Managers\CameraManager.h" />
+    <ClInclude Include="Managers\CollisionManager.h" />
+    <ClInclude Include="Managers\WorldManager.h" />
+    <ClInclude Include="Managers\InputManager.h" />
+    <ClInclude Include="Managers\PathManager.h" />
+    <ClInclude Include="Managers\RenderManager.h" />
+    <ClInclude Include="Managers\ResourceManager.h" />
+    <ClInclude Include="Managers\SceneManager.h" />
+    <ClInclude Include="Managers\SoundManager.h" />
+    <ClInclude Include="Managers\TimeManager.h" />
+    <ClInclude Include="Managers\UIManager.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="UI\CButton.h" />
-    <ClInclude Include="UI\CPanel.h" />
-    <ClInclude Include="UI\CUI.h" />
+    <ClInclude Include="UI\Button.h" />
+    <ClInclude Include="UI\Panel.h" />
+    <ClInclude Include="UI\UIBase.h" />
     <ClInclude Include="Util\Delegate.h" />
     <ClInclude Include="Util\Logger.h" />
     <ClInclude Include="Util\Math.h" />
@@ -204,37 +204,37 @@
     <ClInclude Include="Util\Struct.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Asset\CAnimation.cpp" />
-    <ClCompile Include="Asset\CImage.cpp" />
-    <ClCompile Include="Asset\CResource.cpp" />
-    <ClCompile Include="Asset\CSound.cpp" />
-    <ClCompile Include="CEngine.cpp" />
-    <ClCompile Include="Components\CAnimator.cpp" />
-    <ClCompile Include="Components\CBoxCollider.cpp" />
-    <ClCompile Include="Components\CCollider.cpp" />
-    <ClCompile Include="Components\CLineCollider.cpp" />
-    <ClCompile Include="Core\CGameObject.cpp" />
-    <ClCompile Include="Core\CScene.cpp" />
-    <ClCompile Include="Managers\CCameraManager.cpp" />
-    <ClCompile Include="Managers\CCollisionManager.cpp" />
-    <ClCompile Include="Managers\CWorldManager.cpp" />
-    <ClCompile Include="Managers\CInputManager.cpp" />
-    <ClCompile Include="Managers\CPathManager.cpp" />
-    <ClCompile Include="Managers\CRenderManager.cpp" />
-    <ClCompile Include="Managers\CResourceManager.cpp" />
-    <ClCompile Include="Managers\CSceneManager.cpp" />
-    <ClCompile Include="Managers\CSoundManager.cpp" />
-    <ClCompile Include="Managers\CTimeManager.cpp" />
-    <ClCompile Include="Managers\CUIManager.cpp" />
+    <ClCompile Include="Asset\AnimationResource.cpp" />
+    <ClCompile Include="Asset\ImageResource.cpp" />
+    <ClCompile Include="Asset\ResourceBase.cpp" />
+    <ClCompile Include="Asset\SoundResource.cpp" />
+    <ClCompile Include="EngineInstance.cpp" />
+    <ClCompile Include="Components\Animator.cpp" />
+    <ClCompile Include="Components\BoxCollider.cpp" />
+    <ClCompile Include="Components\Collider.cpp" />
+    <ClCompile Include="Components\LineCollider.cpp" />
+    <ClCompile Include="Core\GameObject.cpp" />
+    <ClCompile Include="Core\Scene.cpp" />
+    <ClCompile Include="Managers\CameraManager.cpp" />
+    <ClCompile Include="Managers\CollisionManager.cpp" />
+    <ClCompile Include="Managers\WorldManager.cpp" />
+    <ClCompile Include="Managers\InputManager.cpp" />
+    <ClCompile Include="Managers\PathManager.cpp" />
+    <ClCompile Include="Managers\RenderManager.cpp" />
+    <ClCompile Include="Managers\ResourceManager.cpp" />
+    <ClCompile Include="Managers\SceneManager.cpp" />
+    <ClCompile Include="Managers\SoundManager.cpp" />
+    <ClCompile Include="Managers\TimeManager.cpp" />
+    <ClCompile Include="Managers\UIManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="UI\CButton.cpp" />
-    <ClCompile Include="UI\CPanel.cpp" />
-    <ClCompile Include="UI\CUI.cpp" />
+    <ClCompile Include="UI\Button.cpp" />
+    <ClCompile Include="UI\Panel.cpp" />
+    <ClCompile Include="UI\UIBase.cpp" />
     <ClCompile Include="Util\Math.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

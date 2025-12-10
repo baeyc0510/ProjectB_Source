@@ -18,7 +18,7 @@ Projectile::~Projectile()
 void Projectile::Init()
 {
 	// Animator
-	animator = new CAnimator();
+	animator = new Animator();
 	AddChild(animator);
 
 	// Rigidbody
@@ -27,7 +27,7 @@ void Projectile::Init()
 	AddChild(rigidbody);
 
 	// Collider
-	collider = new CBoxCollider();
+	collider = new BoxCollider();
 	collider->SetScale(Vec2(20, 20));
 	collider->SetLayer((UINT)ELayer::Projectile);
 	AddChild(collider);
@@ -71,7 +71,7 @@ void Projectile::Launch(Vec2 velocity)
 	}
 }
 
-void Projectile::OnCollisionEnter(CCollider* other)
+void Projectile::OnCollisionEnter(Collider* other)
 {
 	if (IsReservedDelete())
 		return;
@@ -86,18 +86,18 @@ void Projectile::OnCollisionEnter(CCollider* other)
 	// Ground와 동일하게 처리하되 별도의 이벤트 호출
 }
 
-void Projectile::OnCollisionStay(CCollider* other)
+void Projectile::OnCollisionStay(Collider* other)
 {
 	UINT otherLayer = other->GetLayer();
 	// 플레이어와 충돌
 	if (otherLayer == (UINT)ELayer::Player)
 	{
-		CGameObject* player = other->GetOwner();
+		GameObject* player = other->GetOwner();
 		OnHitPlayer(player);
 	}
 }
 
-void Projectile::OnDamage(CGameObject* source, const CombatContext& context)
+void Projectile::OnDamage(GameObject* source, const CombatContext& context)
 {
 }
 
@@ -111,14 +111,14 @@ void Projectile::OnHitWall(Vec2 hitPos)
 	// 기본 구현: 없음 (파생 클래스에서 오버라이드)
 }
 
-void Projectile::OnHitPlayer(CGameObject* player)
+void Projectile::OnHitPlayer(GameObject* player)
 {
 }
 
 void Projectile::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
 	assert(animator);
-	CAnimation* animation = LOADANIMATION(name + L"_" + aniName, path);
+	AnimationResource* animation = LOADANIMATION(name + L"_" + aniName, path);
 	assert(animation);
 	animation->SetRepeat(bShouldRepeat);
 	animator->AddAnimation(aniName, animation);

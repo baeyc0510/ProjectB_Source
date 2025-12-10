@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "WorldCollider.h"
-#include "Components/CLineCollider.h"
+#include "Components/LineCollider.h"
 #include "Game/Enum.h"
 
 WorldCollider::WorldCollider()
@@ -16,7 +16,7 @@ void WorldCollider::SetBoxCollider(const Vec2& center, const Vec2& size, ELayer 
 	isLineCollider = false;
 	SetPos(center);
 
-	collider = new CBoxCollider();
+	collider = new BoxCollider();
 	collider->SetScale(size);
 	collider->SetLayer((UINT)layer);
 	AddChild(collider);
@@ -27,7 +27,7 @@ void WorldCollider::SetLineCollider(const Vec2& start, const Vec2& end, ELayer l
 	isLineCollider = true;
 	SetPos(Vec2(0, 0));
 
-	CLineCollider* lineCollider = new CLineCollider();
+	LineCollider* lineCollider = new LineCollider();
 	lineCollider->SetLine(start, end);
 	lineCollider->SetLayer((int)layer);
 	AddChild(lineCollider);

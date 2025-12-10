@@ -38,9 +38,9 @@ protected:
 	void Render() override;
 	void OnDisable() override;
 	void Release() override;
-	void OnCollisionEnter(CCollider* other) override;
-	void OnCollisionStay(CCollider* other) override;
-	void OnCollisionExit(CCollider* other) override;
+	void OnCollisionEnter(Collider* other) override;
+	void OnCollisionStay(Collider* other) override;
+	void OnCollisionExit(Collider* other) override;
 	
 	/*~ CCharacter Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
@@ -48,13 +48,13 @@ protected:
 	bool ShouldIgnorePlatform() const override;
 	
 	/*~ ICombatInterface ~*/
-	void OnDamage(CGameObject* source, const CombatContext& context) override;
+	void OnDamage(GameObject* source, const CombatContext& context) override;
 
 	/*~ Player Interface ~*/
 	void InitStartupStats();
-	void OnStatChanged(EStatType type, float current, float max) override;
+	void OnStatChanged(EStatType type, float& current, float& max) override;
 
-	Vec2 GetKnockbackVelocity(CGameObject* source, const CombatContext& context);
+	Vec2 GetKnockbackVelocity(GameObject* source, const CombatContext& context);
 	wstring GetPlayerHitVfxKey(EDamageType damageType);
 
 	// OnDamage 헬퍼

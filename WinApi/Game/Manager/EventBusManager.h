@@ -1,6 +1,6 @@
 #pragma once
 
-class CGameObject;
+class GameObject;
 struct FShakeParams;
 
 class EventBusManager
@@ -13,20 +13,20 @@ public:
 	}
 
 	// SFX Events
-	MulticastDelegate<CGameObject*, const wstring&> OnPlaySFX;
-	MulticastDelegate<CGameObject*, const wstring&, float> OnPlayBGM;  // key, volume
-	MulticastDelegate<CGameObject*> OnStopBGM;
+	MulticastDelegate<GameObject*, const wstring&> OnPlaySFX;
+	MulticastDelegate<GameObject*, const wstring&, float> OnPlayBGM;  // key, volume
+	MulticastDelegate<GameObject*> OnStopBGM;
 
 	// VFX Events
-	MulticastDelegate<CGameObject*, const wstring&, Vec2, int> OnSpawnVFX;  // key, pos, direction
+	MulticastDelegate<GameObject*, const wstring&, Vec2, int> OnSpawnVFX;  // key, pos, direction
 
 	// Camera Events
-	MulticastDelegate<CGameObject*, const FShakeParams&> OnCameraShake;
-	MulticastDelegate<CGameObject*, float> OnCameraFadeIn;   // duration
-	MulticastDelegate<CGameObject*, float> OnCameraFadeOut;  // duration
+	MulticastDelegate<GameObject*, const FShakeParams&> OnCameraShake;
+	MulticastDelegate<GameObject*, float> OnCameraFadeIn;   // duration
+	MulticastDelegate<GameObject*, float> OnCameraFadeOut;  // duration
 
 	// Time Events
-	MulticastDelegate<CGameObject*, float, float> OnSetTimeScale;  // scale, duration
+	MulticastDelegate<GameObject*, float, float> OnSetTimeScale;  // scale, duration
 
 private:
 	EventBusManager() = default;

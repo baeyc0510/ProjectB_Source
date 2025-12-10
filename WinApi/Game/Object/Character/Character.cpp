@@ -85,7 +85,7 @@ void Character::Init()
     AddChild(rigidbody);
 
     // Collider
-    collider = new CBoxCollider();
+    collider = new BoxCollider();
     AddChild(collider);
 
     // MovementComponent
@@ -113,7 +113,7 @@ void Character::Init()
     AddChild(abilitySystem);
 
     // Animator
-    animator = new CAnimator();
+    animator = new Animator();
     AddChild(animator);
 
     // Animator -> AbilitySystem 이벤트 연결
@@ -152,7 +152,7 @@ void Character::Release()
 {
 }
 
-void Character::OnCollisionEnter(CCollider* other)
+void Character::OnCollisionEnter(Collider* other)
 {
     if (movement)
     {
@@ -160,7 +160,7 @@ void Character::OnCollisionEnter(CCollider* other)
     }
 }
 
-void Character::OnCollisionStay(CCollider* other)
+void Character::OnCollisionStay(Collider* other)
 {
     if (movement)
     {
@@ -168,7 +168,7 @@ void Character::OnCollisionStay(CCollider* other)
     }
 }
 
-void Character::OnCollisionExit(CCollider* other)
+void Character::OnCollisionExit(Collider* other)
 {
     if (movement)
     {
@@ -232,7 +232,7 @@ void Character::OnStateChanged(EStateTag oldTags, EStateTag newTags)
     }
 }
 
-void Character::OnStatChanged(EStatType type, float current, float max)
+void Character::OnStatChanged(EStatType type, float& current, float& max)
 {
     if (type == EStatType::HP)
     {
@@ -246,7 +246,7 @@ void Character::OnStatChanged(EStatType type, float current, float max)
 void Character::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
     assert(animator);
-    CAnimation* animation = LOADANIMATION(name + L"_" + aniName, path);
+    AnimationResource* animation = LOADANIMATION(name + L"_" + aniName, path);
     assert(animation);
     animation->SetRepeat(bShouldRepeat);
     animator->AddAnimation(aniName, animation);

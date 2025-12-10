@@ -3,9 +3,9 @@
 
 class Character;
 class Rigidbody;
-class CBoxCollider;
-class CCollider;
-class CLineCollider;
+class BoxCollider;
+class Collider;
+class LineCollider;
 
 // 이동 설정
 struct FMovementConfig
@@ -62,7 +62,7 @@ struct FFrameFlags
 // 캐릭터 이동 및 충돌 처리 컴포넌트
 // - 지면 착지, 플랫폼 통과, 경사면 처리 등 물리적 이동 담당
 // - Character가 매 프레임 상태를 폴링하여 StateSystem 갱신
-class CharacterMovement : public Component<CGameObject>
+class CharacterMovement : public Component<GameObject>
 {
 public:
 	CharacterMovement();
@@ -82,9 +82,9 @@ public:
 	const FMovementConfig& GetConfig() const { return config; }
 
 	// 충돌 처리 (Character가 호출)
-	void HandleCollisionEnter(CCollider* other);
-	void HandleCollisionStay(CCollider* other);
-	void HandleCollisionExit(CCollider* other);
+	void HandleCollisionEnter(Collider* other);
+	void HandleCollisionStay(Collider* other);
+	void HandleCollisionExit(Collider* other);
 
 	// 상태 조회 - 지면
 	bool IsGrounded() const { return groundState.bIsGrounded; }
@@ -119,18 +119,18 @@ public:
 
 private:
 	// 충돌 처리 내부 함수
-	void HandleBoxGround(CCollider* other, bool isPlatform);
-	void HandleLineGround(CLineCollider* lineCollider, bool isPlatform);
-	void HandleGroundExit(CCollider* other);
+	void HandleBoxGround(Collider* other, bool isPlatform);
+	void HandleLineGround(LineCollider* lineCollider, bool isPlatform);
+	void HandleGroundExit(Collider* other);
 
 	// HandleLineGround 헬퍼
-	void HandleSteepSlope(CLineCollider* lineCollider, const Vec2& velocity, bool bIsUpRight, float slopeAngle);
-	void HandleGentleSlope(CLineCollider* lineCollider, Vec2& velocity, bool bIsGoingUp, float slopeAngle);
+	void HandleSteepSlope(LineCollider* lineCollider, const Vec2& velocity, bool bIsUpRight, float slopeAngle);
+	void HandleGentleSlope(LineCollider* lineCollider, Vec2& velocity, bool bIsGoingUp, float slopeAngle);
 
 	// HandleBoxGround 헬퍼
-	void HandleFloorCollision(CCollider* other, const Vec2& otherPos, const Vec2& otherHalf, float overlapY);
+	void HandleFloorCollision(Collider* other, const Vec2& otherPos, const Vec2& otherHalf, float overlapY);
 	void HandleCeilingCollision(float overlapY);
-	void HandleWallCollision(CCollider* other, float overlapX);
+	void HandleWallCollision(Collider* other, float overlapX);
 	void HandleSquashState(int pushDir, float overlapX);
 
 	// 엣지 감지 (AI용)
@@ -156,5 +156,5 @@ private:
 
 	// 컴포넌트 캐시
 	Rigidbody* rigidbody = nullptr;
-	CBoxCollider* collider = nullptr;
+	BoxCollider* collider = nullptr;
 };

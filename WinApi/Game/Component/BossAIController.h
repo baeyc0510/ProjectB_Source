@@ -1,7 +1,7 @@
 #pragma once
 #include "AbilitySystem.h"
 #include "Core/Component.h"
-#include "Core/CGameObject.h"
+#include "Core/GameObject.h"
 #include "Game/Enum.h"
 
 class Player;
@@ -25,7 +25,7 @@ struct FBossChaseConfig
 	bool bCanChase = true;			// 추격 가능 여부
 };
 
-class BossAIController : public Component<CGameObject>
+class BossAIController : public Component<GameObject>
 {
 public:
 	BossAIController();
@@ -36,7 +36,7 @@ public:
 	void RegisterAttack(EAbility ability, float minRange, float maxRange, float weight = 1.f);
 
 	// 타겟
-	CGameObject* GetTarget() const { return target; }
+	GameObject* GetTarget() const { return target; }
 	bool HasTarget() const { return target != nullptr; }
 
 	// 거리 유틸리티
@@ -74,7 +74,7 @@ private:
 
 private:
 	vector<FBossAttackData> attacks;
-	CGameObject* target = nullptr;
+	GameObject* target = nullptr;
 
 	// 결정 타이머 (매 프레임 공격 체크 방지)
 	float decisionTimer = 0.f;

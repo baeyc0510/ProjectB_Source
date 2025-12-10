@@ -76,7 +76,7 @@ void SFXManager::PreLoad()
 
 void SFXManager::PlayOnce(const wstring& key, float volume)
 {
-    CSound* sound = GetSound(key);
+    SoundResource* sound = GetSound(key);
     if (sound)
     {
         SOUND->PlayOnce(sound, volume);
@@ -85,7 +85,7 @@ void SFXManager::PlayOnce(const wstring& key, float volume)
 
 void SFXManager::PlayLoop(const wstring& key, float volume)
 {
-    CSound* sound = GetSound(key);
+    SoundResource* sound = GetSound(key);
     if (sound)
     {
         SOUND->PlayLoop(key, sound, volume);
@@ -120,7 +120,7 @@ void SFXManager::StopBGM()
     Stop(currentBGM);
 }
 
-CSound* SFXManager::GetSound(const wstring& key)
+SoundResource* SFXManager::GetSound(const wstring& key)
 {
-    return SINGLE(CResourceManager)->SoundFind(key);
+    return SINGLE(ResourceManager)->SoundFind(key);
 }

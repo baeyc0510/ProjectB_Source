@@ -148,7 +148,7 @@ bool Boss_TenPiedad::CheckEncounterPlayer()
 	return distance < Config::Encounter::Range;
 }
 
-void Boss_TenPiedad::OnDamage(CGameObject* source, const CombatContext& context)
+void Boss_TenPiedad::OnDamage(GameObject* source, const CombatContext& context)
 {
 	if (!bHasAppeared)
 		return;
@@ -185,12 +185,12 @@ void Boss_TenPiedad::OnDieComplete()
 	CAMERA->FadeOut(1.5f);
 	TIMER->SetTimer([this]()
 	{
-		CAMERA->FadeIn(1.5f);
+		CAMERA->FadeIn(2.5f);
 		TIMER->SetTimer([this]()
 		{
 			GAMEUI->CloseUI();
 			GAMEUI->ShowPlayerHUD(true);
-		},1.5f);
+		},2.5f);
 	},1.5f);
 }
 

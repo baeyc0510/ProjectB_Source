@@ -39,7 +39,7 @@ void GameUIManager::Update()
 		ToggleUI(EOverlayUI::Inventory);
 	}
 
-	for (CUI* ui : uiList)
+	for (UIBase* ui : uiList)
 	{
 		ui->ComponentUpdate();
 	}
@@ -48,7 +48,7 @@ void GameUIManager::Update()
 void GameUIManager::Render()
 {
 	RENDER->BeginUI();
-	for (CUI* ui : uiList)
+	for (UIBase* ui : uiList)
 	{
 		ui->ComponentRender();
 	}
@@ -67,7 +67,7 @@ bool GameUIManager::ConsumeEscapeInput()
 
 void GameUIManager::Release()
 {
-	for (CUI* ui : uiList)
+	for (UIBase* ui : uiList)
 	{
 		ui->ComponentRelease();
 		delete ui;
@@ -103,7 +103,7 @@ void GameUIManager::SetBossHP(float current, float max)
 		bossHUD->SetHP(current, max);
 }
 
-void GameUIManager::SetBossName(CImage* nameImg)
+void GameUIManager::SetBossName(ImageResource* nameImg)
 {
 	if (bossHUD)
 		bossHUD->SetBossNameImage(nameImg);
@@ -120,14 +120,14 @@ void GameUIManager::ShowBossHUD(bool show)
 	if (bossHUD)
 		bossHUD->SetVisibility(show);
 }
-void GameUIManager::AddUI(CUI* ui)
+void GameUIManager::AddUI(UIBase* ui)
 {
 	uiList.push_back(ui);
 	ui->ComponentInit();
 	ui->ComponentOnEnable();
 }
 
-void GameUIManager::DeleteUI(CUI* ui)
+void GameUIManager::DeleteUI(UIBase* ui)
 {
 	ui->ComponentOnDisable();
 	ui->ComponentRelease();
@@ -137,7 +137,7 @@ void GameUIManager::DeleteUI(CUI* ui)
 
 void GameUIManager::OpenUI(EOverlayUI type)
 {
-	CUI* overlay = CreateOverlay(type);
+	UIBase* overlay = CreateOverlay(type);
 	if (overlay)
 	{
 		overlay->SetScreenFixed(true);
@@ -152,7 +152,7 @@ void GameUIManager::CloseUI()
 		return;
 
 	auto& top = overlayStack.top();
-	CUI* overlay = top.second;
+	UIBase* overlay = top.second;
 	DeleteUI(overlay);
 	overlayStack.pop();
 }
@@ -172,7 +172,7 @@ EOverlayUI GameUIManager::GetCurrentUI() const
 	return overlayStack.top().first;
 }
 
-CUI* GameUIManager::CreateOverlay(EOverlayUI type)
+UIBase* GameUIManager::CreateOverlay(EOverlayUI type)
 {
 	switch (type)
 	{

@@ -10,11 +10,11 @@ protected:
 	void Init() override;
 	void OnHitGround(Vec2 hitPos) override;
 	void OnHitWall(Vec2 hitPos) override;
-	void OnHitPlayer(CGameObject* player) override;
+	void OnHitPlayer(GameObject* player) override;
 	void OnDisable() override;
 	void Release() override;
 	
-	void OnDamage(CGameObject* source, const CombatContext& context) override;
+	void OnDamage(GameObject* source, const CombatContext& context) override;
 private:
 	void SpawnSpike(Vec2 spawnPos);
 	

@@ -2,14 +2,14 @@
 #include "Game/Enum.h"
 
 // 월드 콜라이더 베이스 클래스 - 지형 충돌 오브젝트의 공통 기능
-class WorldCollider : public CGameObject
+class WorldCollider : public GameObject
 {
 public:
 	WorldCollider();
 	virtual ~WorldCollider();
 
 	/*~ CWorldCollider Interface ~*/
-	CCollider* GetCollider() { return collider; }
+	Collider* GetCollider() { return collider; }
 
 protected:
 	/*~ CGameObject Interface ~*/
@@ -25,6 +25,6 @@ protected:
 	void SetLineCollider(const Vec2& start, const Vec2& end, ELayer layer);
 
 protected:
-	CCollider* collider = nullptr;
+	Collider* collider = nullptr;
 	bool isLineCollider = false;
 };

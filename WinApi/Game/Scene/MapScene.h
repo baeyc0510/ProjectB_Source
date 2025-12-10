@@ -3,7 +3,7 @@
 class TransitionArea;
 class Player;
 
-class MapScene : public CScene
+class MapScene : public Scene
 {
 public:
     MapScene();

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Rigidbody.h"
-#include "Managers/CTimeManager.h"
+#include "Managers/TimeManager.h"
 #include "Util/Struct.h"
 
 Rigidbody::Rigidbody()

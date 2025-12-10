@@ -35,7 +35,7 @@ void MapLayer::Render(Vec2 cameraPos)
 	if (!layerImage)
 		return;
 
-	Vec2 virtualSize = SINGLE(CEngine)->GetVirtualSize();
+	Vec2 virtualSize = SINGLE(EngineInstance)->GetVirtualSize();
 	float screenW = virtualSize.x;
 	float screenH = virtualSize.y;
 

@@ -12,5 +12,5 @@ struct CombatContext
 class ICombatInterface
 {
 public:
-    virtual void OnDamage(CGameObject* source, const CombatContext& context) = 0;
+    virtual void OnDamage(GameObject* source, const CombatContext& context) = 0;
 };

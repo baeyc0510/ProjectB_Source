@@ -22,7 +22,7 @@ struct FStat
 class AbilitySystem;
 class StateSystem;
 
-class StatComponent : public Component<CGameObject>
+class StatComponent : public Component<GameObject>
 {
 public:
 	StatComponent();

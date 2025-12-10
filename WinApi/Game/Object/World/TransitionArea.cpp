@@ -17,7 +17,7 @@ void TransitionArea::InitArea(const SceneTransitionData& transitionData)
 {
     // init collider
     Vec2 scale =  Vec2(transitionData.rect.w, transitionData.rect.h);
-    collider = AddOrGetComponent<CBoxCollider>();
+    collider = AddOrGetComponent<BoxCollider>();
     collider->SetScale(scale);
     
     // init pos
@@ -33,7 +33,7 @@ void TransitionArea::InitArea(const SceneTransitionData& transitionData)
 
 void TransitionArea::Init()
 {
-    collider = AddOrGetComponent<CBoxCollider>();
+    collider = AddOrGetComponent<BoxCollider>();
     collider->SetLayer((UINT)ELayer::Transition);
 }
 
@@ -57,11 +57,11 @@ void TransitionArea::Render()
 {
 }
 
-void TransitionArea::OnCollisionEnter(CCollider* other)
+void TransitionArea::OnCollisionEnter(Collider* other)
 {
     if (other->GetLayer() == (UINT)ELayer::Player)
     {
-        CScene* scene = SINGLE(CSceneManager)->FindScene((int)targetScene);
+        Scene* scene = SINGLE(SceneManager)->FindScene((int)targetScene);
         if (MapScene* mapScene = dynamic_cast<MapScene*>(scene))
         {
             mapScene->SetSpawnId(spawnId);

@@ -2,7 +2,7 @@
 #include "LedgeHelper.h"
 #include "Game/Object/World/LedgeCollider.h"
 
-void LedgeHelper::CheckLedge(CCollider* other, Vec2 playerPos, Vec2 playerHalfScale)
+void LedgeHelper::CheckLedge(Collider* other, Vec2 playerPos, Vec2 playerHalfScale)
 {
 	Vec2 otherPos = other->GetPos();
 	Vec2 otherHalf = other->GetScale() * 0.5f;
@@ -42,7 +42,7 @@ void LedgeHelper::CheckLedge(CCollider* other, Vec2 playerPos, Vec2 playerHalfSc
 	state.ledgeDirection = direction;
 }
 
-bool LedgeHelper::ShouldClearOnExit(CCollider* other) const
+bool LedgeHelper::ShouldClearOnExit(Collider* other) const
 {
 	return state.ledgeId == other->GetID();
 }

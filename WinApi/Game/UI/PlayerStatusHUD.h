@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "UI/CUI.h"
+#include "UI/UIBase.h"
 
-class CImage;
+class ImageResource;
 
-class PlayerStatusHUD : public CUI
+class PlayerStatusHUD : public UIBase
 {
 public:
 	PlayerStatusHUD();
@@ -35,11 +35,11 @@ private:
 	static constexpr float FLASK_SPACE_X =  10.0f;
 	
 	// Images
-	CImage* imgPlayerFrame;		// Player_Status.bmp (foreground frame)
-	CImage* imgPlayerHPBar;		// Player_HP.bmp (background)
-	CImage* imgPlayerMPBar;		// Player_MP.bmp (background)
-	CImage* imgPlayerFlaskEmpty;
-	CImage* imgPlayerFlaskFull;
+	ImageResource* imgPlayerFrame;		// Player_Status.bmp (foreground frame)
+	ImageResource* imgPlayerHPBar;		// Player_HP.bmp (background)
+	ImageResource* imgPlayerMPBar;		// Player_MP.bmp (background)
+	ImageResource* imgPlayerFlaskEmpty;
+	ImageResource* imgPlayerFlaskFull;
 
 	// HP/MP values
 	float currentHP;

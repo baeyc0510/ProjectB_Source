@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "OverlayUI.h"
 
-class CImage;
+class ImageResource;
 
 class InventoryUI : public OverlayUI
 {
@@ -18,5 +18,5 @@ private:
 	void Release() override;
 
 private:
-	CImage* imgBackground;
+	ImageResource* imgBackground;
 };

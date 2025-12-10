@@ -32,7 +32,7 @@ void Ability_BossSlash::OnHitCheck()
 	auto results = COLLISION->BoxTrace(center, size, (UINT)ELayer::Player, true);
 	for (auto& result : results)
 	{
-		CGameObject* target = result.collider->GetOwner();
+		GameObject* target = result.collider->GetOwner();
 		ICombatInterface* combat = dynamic_cast<ICombatInterface*>(target);
 		if (combat)
 		{

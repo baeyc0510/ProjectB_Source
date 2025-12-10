@@ -22,7 +22,7 @@ MapManager::~MapManager()
 void MapManager::Init()
 {
 	// 가상 해상도 중심 캐싱
-	virtualCenter = SINGLE(CEngine)->GetVirtualSize() * 0.5f;
+	virtualCenter = SINGLE(EngineInstance)->GetVirtualSize() * 0.5f;
 }
 
 void MapManager::Release()
@@ -147,7 +147,7 @@ const vector<SceneTransitionData>& MapManager::GetTransitions() const
 	return currentMap->GetTransitions();
 }
 
-void MapManager::CreateWorldColliders(CScene* scene)
+void MapManager::CreateWorldColliders(Scene* scene)
 {
 	if (!scene || !currentMap)
 		return;
@@ -160,7 +160,7 @@ void MapManager::CreateWorldColliders(CScene* scene)
 		Vec2 center(box.rect.x + box.rect.w * 0.5f, box.rect.y + box.rect.h * 0.5f);
 		Vec2 size(box.rect.w, box.rect.h);
 
-		CGameObject* obj = nullptr;
+		GameObject* obj = nullptr;
 
 		if (box.HasTag("Ladder"))
 		{
@@ -195,7 +195,7 @@ void MapManager::CreateWorldColliders(CScene* scene)
 	// 슬로프 콜라이더 생성
 	for (const auto& slope : currentMap->GetSlopeColliders())
 	{
-		CGameObject* obj = nullptr;
+		GameObject* obj = nullptr;
 
 		if (slope.HasTag("Platform"))
 		{
@@ -220,7 +220,7 @@ void MapManager::DestroyWorldColliders()
 	worldColliders.clear();
 }
 
-void MapManager::CreateWorldCharacters(CScene* scene)
+void MapManager::CreateWorldCharacters(Scene* scene)
 {
 	if (!scene || !currentMap)
 		return;

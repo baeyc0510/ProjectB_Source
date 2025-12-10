@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "PlayerStatusHUD.h"
-#include "Asset/CImage.h"
+#include "Asset/ImageResource.h"
 
 PlayerStatusHUD::PlayerStatusHUD()
 	: imgPlayerFrame(nullptr)
@@ -111,7 +111,7 @@ void PlayerStatusHUD::Render()
 
 	for (int i = 0; i < maxFlask; i++)
 	{
-		CImage* imgFlask;
+		ImageResource* imgFlask;
 		float flaskSrcWidth;
 		float flaskSrcHeight;
 

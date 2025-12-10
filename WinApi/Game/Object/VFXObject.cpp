@@ -11,7 +11,7 @@ VFXObject::~VFXObject()
 
 void VFXObject::Init()
 {
-    animator = new CAnimator();
+    animator = new Animator();
     AddChild(animator);
 }
 
@@ -68,7 +68,7 @@ void VFXObject::OnFinishedAnimation()
     }
 }
 
-void VFXObject::SetAnimation(CAnimation* inAnimation)
+void VFXObject::SetAnimation(AnimationResource* inAnimation)
 {
     assert(inAnimation);
     animation = inAnimation;

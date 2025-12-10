@@ -1,6 +1,6 @@
 #pragma once
 
-class Button_MainMenu : public CUI
+class Button_MainMenu : public UIBase
 {
 public:
     Button_MainMenu(const wstring& buttonName);
@@ -30,9 +30,9 @@ private:
     wstring buttonOnImgPath;
     wstring buttonOffImgPath;
     
-    CImage* imgOn = nullptr;
-    CImage* imgOff = nullptr;
-    CImage* currentImg = nullptr;
+    ImageResource* imgOn = nullptr;
+    ImageResource* imgOff = nullptr;
+    ImageResource* currentImg = nullptr;
     
     float buttonScale = 1.0f;
 };

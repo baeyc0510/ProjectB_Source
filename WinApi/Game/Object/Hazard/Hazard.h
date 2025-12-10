@@ -1,9 +1,9 @@
 #pragma once
 
-class CAnimator;
-class CBoxCollider;
+class Animator;
+class BoxCollider;
 
-class Hazard : public CGameObject
+class Hazard : public GameObject
 {
 public:
 	Hazard();
@@ -22,18 +22,18 @@ protected:
 	void OnDisable() override;
 	void Release() override;
 
-	void OnCollisionEnter(CCollider* other) override;
-	void OnCollisionStay(CCollider* other) override;
+	void OnCollisionEnter(Collider* other) override;
+	void OnCollisionStay(Collider* other) override;
 
 	/*~ CHazard Interface (Virtual) ~*/
 	virtual void OnSpawn();
-	void DealDamageToPlayer(CGameObject* player);
+	void DealDamageToPlayer(GameObject* player);
 	
 	void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 
 protected:
-	CAnimator* animator = nullptr;
-	CBoxCollider* collider = nullptr;
+	Animator* animator = nullptr;
+	BoxCollider* collider = nullptr;
 
 	float damage = 10.f;
 	float damageInterval = 1.f;

@@ -108,7 +108,7 @@ const SceneTransitionData* Map::GetTransitionAt(Vec2 pos) const
 void Map::LoadFromJson(const wstring& jsonPath)
 {
 	// resourceFolder 기준 절대 경로로 변환
-	wstring fullPath = CResourceManager::GetInstance()->GetResourceFolder() + jsonPath;
+	wstring fullPath = ResourceManager::GetInstance()->GetResourceFolder() + jsonPath;
 	mapDirectory = GetMapDirectory(fullPath);
 
 	// JSON 파일 읽기
@@ -187,7 +187,7 @@ void Map::LoadFromJson(const wstring& jsonPath)
 
 	// 스폰 위치
 	// 변환: worldPos = pixelPos - virtualCenter
-	Vec2 virtualCenter = SINGLE(CEngine)->GetVirtualSize() * 0.5f;
+	Vec2 virtualCenter = SINGLE(EngineInstance)->GetVirtualSize() * 0.5f;
 	if (mapData.contains("spawnPoints"))
 	{
 		for (auto& spawnData : mapData["spawnPoints"])

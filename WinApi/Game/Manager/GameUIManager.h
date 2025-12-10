@@ -4,7 +4,7 @@
 
 class Button_MainMenu;
 class BossHUD;
-class CUI;
+class UIBase;
 class PlayerStatusHUD;
 
 class GameUIManager : public SingleTon<GameUIManager>
@@ -28,7 +28,7 @@ public:
 	
 	// 보스 상태 업데이트
 	void SetBossHP(float current, float max);
-	void SetBossName(CImage* nameImg);
+	void SetBossName(ImageResource* nameImg);
 	
 	// Overlay UI 관리
 	void OpenUI(EOverlayUI type);
@@ -45,16 +45,16 @@ public:
 	void ShowBossHUD(bool show);
 
 private:
-	void AddUI(CUI* ui);
-	void DeleteUI(CUI* ui);
-	CUI* CreateOverlay(EOverlayUI type);
+	void AddUI(UIBase* ui);
+	void DeleteUI(UIBase* ui);
+	UIBase* CreateOverlay(EOverlayUI type);
 
 private:
-	list<CUI*> uiList;
+	list<UIBase*> uiList;
 	PlayerStatusHUD* statusHUD;
 	BossHUD* bossHUD;
 	
-	std::stack<std::pair<EOverlayUI, CUI*>> overlayStack;
+	std::stack<std::pair<EOverlayUI, UIBase*>> overlayStack;
 
 	static constexpr float STATUS_HUD_X = 20.f;
 	static constexpr float STATUS_HUD_Y = 20.f;

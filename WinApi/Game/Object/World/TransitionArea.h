@@ -3,7 +3,7 @@
 
 struct SceneTransitionData;
 
-class TransitionArea : public CGameObject
+class TransitionArea : public GameObject
 {
 public:
     TransitionArea();
@@ -20,10 +20,10 @@ protected:
     void Release() override;
     void Render() override;
     
-    void OnCollisionEnter(CCollider* other) override;
+    void OnCollisionEnter(Collider* other) override;
 
 private:
-    CBoxCollider* collider;
+    BoxCollider* collider;
     ESceneType targetScene;
     int spawnId;
     

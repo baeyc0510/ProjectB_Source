@@ -28,7 +28,7 @@ protected:
 	void OnDieComplete() override;
 	
 	/*~ ICombatInterface ~*/
-	void OnDamage(CGameObject* source, const CombatContext& context) override;
+	void OnDamage(GameObject* source, const CombatContext& context) override;
 
 private:
 	void UpdateAnimation();

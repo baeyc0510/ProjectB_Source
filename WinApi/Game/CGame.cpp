@@ -71,81 +71,81 @@ void CGame::Init(HINSTANCE hInstance)
 	UpdateWindow(hWnd);
 
 	// 게임엔진 초기화 (가상 해상도 적용)
-	SINGLE(CEngine)->Init(hInst, hWnd, WINSIZE, VIRTUALSIZE);
-	SINGLE(CTimeManager)->Init();
-	SINGLE(CRenderManager)->Init();
-	SINGLE(CInputManager)->Init();
-	SINGLE(CSceneManager)->Init();
-	SINGLE(CWorldManager)->Init();
-	SINGLE(CCollisionManager)->Init();
-	SINGLE(CPathManager)->Init();
-	SINGLE(CResourceManager)->Init();
+	SINGLE(EngineInstance)->Init(hInst, hWnd, WINSIZE, VIRTUALSIZE);
+	SINGLE(TimeManager)->Init();
+	SINGLE(RenderManager)->Init();
+	SINGLE(InputManager)->Init();
+	SINGLE(SceneManager)->Init();
+	SINGLE(WorldManager)->Init();
+	SINGLE(CollisionManager)->Init();
+	SINGLE(PathManager)->Init();
+	SINGLE(ResourceManager)->Init();
 	// 리소스 경로 설정
 	// x64\Debug 또는 x64\Release에서 실행되므로 두 단계 위로 올라가야 함
-	SINGLE(CResourceManager)->SetResourceFolder(PATH + TEXT("\\..\\Resources\\"));
+	SINGLE(ResourceManager)->SetResourceFolder(PATH + TEXT("\\..\\Resources\\"));
 
-	SINGLE(CCameraManager)->Init();
-	SINGLE(CSoundManager)->Init();
-	SINGLE(CUIManager)->Init();
+	SINGLE(CameraManager)->Init();
+	SINGLE(SoundManager)->Init();
+	SINGLE(UIManager)->Init();
 	SINGLE(MapManager)->Init();
 	SINGLE(GameUIManager)->Init();
 
 	// Event Bus 리스너 등록
-	EVENT->OnPlaySFX.Add([](CGameObject* source, const wstring& key) {
+	EVENT->OnPlaySFX.Add([](GameObject* source, const wstring& key) {
 		SFX->PlayOnce(key);
 	});
-	EVENT->OnPlayBGM.Add([](CGameObject* source, const wstring& key, float volume) {
+	EVENT->OnPlayBGM.Add([](GameObject* source, const wstring& key, float volume) {
 		SFX->PlayBGM(key, volume);
 	});
-	EVENT->OnStopBGM.Add([](CGameObject* source) {
+	EVENT->OnStopBGM.Add([](GameObject* source) {
 		SFX->StopBGM();
 	});
-	EVENT->OnSpawnVFX.Add([](CGameObject* source, const wstring& key, Vec2 pos, int dir) {
+	EVENT->OnSpawnVFX.Add([](GameObject* source, const wstring& key, Vec2 pos, int dir) {
 		if (VFXObject* vfx = VFX->CreateVFX(key, pos, dir))
 		{
 			vfx->PlayVFX();
 		}
 	});
-	EVENT->OnCameraShake.Add([](CGameObject* source, const FShakeParams& params) {
+	EVENT->OnCameraShake.Add([](GameObject* source, const FShakeParams& params) {
 		CAMERA->Shake(params);
 	});
-	EVENT->OnCameraFadeIn.Add([](CGameObject* source, float duration) {
+	EVENT->OnCameraFadeIn.Add([](GameObject* source, float duration) {
 		CAMERA->FadeIn(duration);
 	});
-	EVENT->OnCameraFadeOut.Add([](CGameObject* source, float duration) {
+	EVENT->OnCameraFadeOut.Add([](GameObject* source, float duration) {
 		CAMERA->FadeOut(duration);
 	});
-	EVENT->OnSetTimeScale.Add([](CGameObject* source, float scale, float duration) {
+	EVENT->OnSetTimeScale.Add([](GameObject* source, float scale, float duration) {
 		TIMER->SetTimeScale(scale, duration);
 	});
 
 	// TODO : 씬 추가
-	SINGLE(CSceneManager)->AddScene((int)ESceneType::Title,	new SceneTitle());
-	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage01,	new Stage_Beginning());
-	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage02,	new SimpleStage(TEXT("Maps/stage02.json")));
-	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage03,	new SimpleStage(TEXT("Maps/stage03.json")));
-	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage04,	new SimpleStage(TEXT("Maps/stage04.json")));
-	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage05,	new SimpleStage(TEXT("Maps/stage05.json")));
-	SINGLE(CSceneManager)->AddScene((int)ESceneType::Stage_Boss01,	new Stage_Boss01());
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Title,	new SceneTitle());
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage01,	new Stage_Beginning());
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage02,	new SimpleStage(TEXT("Maps/stage02.json")));
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage03,	new SimpleStage(TEXT("Maps/stage03.json")));
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage04,	new SimpleStage(TEXT("Maps/stage04.json")));
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage05,	new SimpleStage(TEXT("Maps/stage05.json")));
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage_Boss01,	new Stage_Boss01());
 
 	// 충돌 레이어 설정
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Monster);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ground);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Transition);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ladder);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Platform);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ledge);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Ground);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Platform);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Ground);
-	SINGLE(CCollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Player);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Monster);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ground);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Transition);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ladder);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Platform);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ledge);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Ground);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Platform);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Ground);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Player);
 
 	// 리소스 프리로드
 	SINGLE(VFXManager)->PreLoad();
 	SINGLE(SFXManager)->PreLoad();
 	
 	// 씬 시작
-	SINGLE(CSceneManager)->SetStartScene((int)ESceneType::Title);
+	SINGLE(SceneManager)->SetStartScene((int)ESceneType::Title);
 }
 
 void CGame::Run()
@@ -162,18 +162,18 @@ void CGame::Release()
 	// 게임의 마무리 진행
 
 	// 게임엔진 마무리
-	SINGLE(CEngine)->Release();
-	SINGLE(CTimeManager)->Release();
-	SINGLE(CRenderManager)->Release();
-	SINGLE(CInputManager)->Release();
-	SINGLE(CSceneManager)->Release();
-	SINGLE(CWorldManager)->Release();
-	SINGLE(CCollisionManager)->Release();
-	SINGLE(CPathManager)->Release();
-	SINGLE(CResourceManager)->Release();
-	SINGLE(CCameraManager)->Release();
-	SINGLE(CSoundManager)->Release();
-	SINGLE(CUIManager)->Release();
+	SINGLE(EngineInstance)->Release();
+	SINGLE(TimeManager)->Release();
+	SINGLE(RenderManager)->Release();
+	SINGLE(InputManager)->Release();
+	SINGLE(SceneManager)->Release();
+	SINGLE(WorldManager)->Release();
+	SINGLE(CollisionManager)->Release();
+	SINGLE(PathManager)->Release();
+	SINGLE(ResourceManager)->Release();
+	SINGLE(CameraManager)->Release();
+	SINGLE(SoundManager)->Release();
+	SINGLE(UIManager)->Release();
 	SINGLE(MapManager)->Release();
 	SINGLE(GameUIManager)->Release();
 }
@@ -181,7 +181,7 @@ void CGame::Release()
 void CGame::Input()
 {
 	// 게임의 입력 진행
-	SINGLE(CInputManager)->Update();
+	SINGLE(InputManager)->Update();
 }
 
 void CGame::Update()
@@ -189,26 +189,26 @@ void CGame::Update()
 	// 게임의 처리 진행
 	// 순서 주의! : 월드 매니저는 업데이트 가장 초기에 진행
 	// 같은 프레임내에 모든 게임 오브젝트가 동일한 상황을 기준으로 처리하기 위해
-	SINGLE(CWorldManager)->Update();
-	SINGLE(CTimeManager)->Update();
-	SINGLE(CUIManager)->Update();
+	SINGLE(WorldManager)->Update();
+	SINGLE(TimeManager)->Update();
+	SINGLE(UIManager)->Update();
 	SINGLE(GameUIManager)->Update();
-	SINGLE(CSceneManager)->Update();
-	SINGLE(CCameraManager)->Update();
-	SINGLE(CSoundManager)->Update();
-	SINGLE(CCollisionManager)->Update();
+	SINGLE(SceneManager)->Update();
+	SINGLE(CameraManager)->Update();
+	SINGLE(SoundManager)->Update();
+	SINGLE(CollisionManager)->Update();
 }
 
 void CGame::Render()
 {
-	SINGLE(CRenderManager)->BeginDraw();
+	SINGLE(RenderManager)->BeginDraw();
 
 	// 게임의 표현 진행
-	SINGLE(CSceneManager)->Render();
-	SINGLE(CCameraManager)->Render();
+	SINGLE(SceneManager)->Render();
+	SINGLE(CameraManager)->Render();
 
 	// 디버그 드로우
-	SINGLE(CCollisionManager)->RenderDebug();
+	SINGLE(CollisionManager)->RenderDebug();
 
 	// Game UI
 	SINGLE(GameUIManager)->Render();
@@ -219,5 +219,5 @@ void CGame::Render()
 	RENDER->Text(VIRTUALSIZE.x - 15, 5, frame);
 	RENDER->SetText();
 
-	SINGLE(CRenderManager)->EndDraw();
+	SINGLE(RenderManager)->EndDraw();
 }

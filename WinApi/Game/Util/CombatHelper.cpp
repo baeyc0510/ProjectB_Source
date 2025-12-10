@@ -3,7 +3,7 @@
 #include "Game/Interface/CombatInterface.h"
 
 bool CombatHelper::ApplyDamageInBox(
-    CGameObject* source,
+    GameObject* source,
     const Vec2& center,
     const Vec2& size,
     std::initializer_list<ELayer> targetLayers,
@@ -24,7 +24,7 @@ bool CombatHelper::ApplyDamageInBox(
     // 히트된 대상에 데미지 적용
     for (auto& result : outHitResults)
     {
-        CGameObject* target = result.collider->GetOwner();
+        GameObject* target = result.collider->GetOwner();
         ICombatInterface* combat = dynamic_cast<ICombatInterface*>(target);
         if (combat)
         {
@@ -41,7 +41,7 @@ bool CombatHelper::ApplyDamageInBox(
 }
 
 bool CombatHelper::ApplyDamageWithAttackData(
-    CGameObject* source,
+    GameObject* source,
     const AttackData& attackData,
     std::initializer_list<ELayer> targetLayers,
     vector<HitResult>& outHitResults)

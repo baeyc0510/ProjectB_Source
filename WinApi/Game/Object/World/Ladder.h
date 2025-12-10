@@ -18,8 +18,8 @@ public:
 
 protected:
 	/*~ CGameObject Interface ~*/
-	void OnCollisionEnter(CCollider* other) override;
-	void OnCollisionExit(CCollider* other) override;
+	void OnCollisionEnter(Collider* other) override;
+	void OnCollisionExit(Collider* other) override;
 
 private:
 	float ladderX = 0.f;

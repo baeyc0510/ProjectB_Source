@@ -1,7 +1,7 @@
 #pragma once
 #include "Game/SFXKeys.h"
 
-class CSound;
+class SoundResource;
 
 class SFXManager : public SingleTon<SFXManager>
 {
@@ -20,7 +20,7 @@ public:
     void StopAll();
 
 private:
-    CSound* GetSound(const wstring& key);
+    SoundResource* GetSound(const wstring& key);
     
 private:
     wstring currentBGM;

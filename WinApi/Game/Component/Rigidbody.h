@@ -1,9 +1,9 @@
 #pragma once
-#include "Core/CGameObject.h"
+#include "Core/GameObject.h"
 #include "Core/Component.h"
 #include "Util/Struct.h"
 
-class Rigidbody : public Component<CGameObject>
+class Rigidbody : public Component<GameObject>
 {
 public:
     Rigidbody();

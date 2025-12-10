@@ -1,6 +1,6 @@
 #pragma once
 
-class CImage;
+class ImageResource;
 
 class MapLayer
 {
@@ -29,10 +29,10 @@ public:
 	UINT GetHeight() const;
 
 	// 이미지 접근 (캐시 빌드용)
-	CImage* GetImage() const { return layerImage; }
+	ImageResource* GetImage() const { return layerImage; }
 
 private:
-	CImage* layerImage;
+	ImageResource* layerImage;
 	float parallax;		// 1.0 = 카메라와 동일, < 1.0 = 느리게 (뒤), > 1.0 = 빠르게 (앞)
 	Vec2 offset;		// 이미지 오프셋 (픽셀 단위)
 	bool useTransparent;	// true: TransparentBlt, false: BitBlt/StretchBlt (성능 향상)

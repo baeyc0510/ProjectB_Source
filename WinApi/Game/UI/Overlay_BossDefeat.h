@@ -13,5 +13,5 @@ private:
     void Release() override;
 
 private:
-    CImage* imgBackground;
+    ImageResource* imgBackground;
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include "Game/Map/Map.h"
 
-class CScene;
+class Scene;
 
 class MapManager : public SingleTon<MapManager>
 {
@@ -45,14 +45,14 @@ public:
 	Map* GetCurrentMap() { return currentMap; }
 
 	// 월드 콜라이더 생성/해제
-	void CreateWorldColliders(CScene* scene);
+	void CreateWorldColliders(Scene* scene);
 	void DestroyWorldColliders();
-	void CreateWorldCharacters(CScene* scene);
+	void CreateWorldCharacters(Scene* scene);
 
 private:
 	Map* currentMap;
 	Vec2 virtualCenter;		// 가상 해상도 중심
-	vector<CGameObject*> worldColliders;	// 생성된 콜라이더 오브젝트들
+	vector<GameObject*> worldColliders;	// 생성된 콜라이더 오브젝트들
 	unordered_map<wstring, Map*> mapCache;
 };
 

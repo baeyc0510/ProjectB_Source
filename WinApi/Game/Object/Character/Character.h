@@ -9,7 +9,7 @@ class StatComponent;
 class Rigidbody;
 class CharacterMovement;
 
-class Character : public CGameObject
+class Character : public GameObject
 {
 public:
     Character();
@@ -51,14 +51,14 @@ protected:
     void OnDisable() override;
     void Release() override;
 
-    void OnCollisionEnter(CCollider* other) override;
-    void OnCollisionStay(CCollider* other) override;
-    void OnCollisionExit(CCollider* other) override;
+    void OnCollisionEnter(Collider* other) override;
+    void OnCollisionStay(Collider* other) override;
+    void OnCollisionExit(Collider* other) override;
 
     /*~ CCharacter Interface ~*/
     virtual void UpdateStates();
     virtual void OnStateChanged(EStateTag oldTags, EStateTag newTags);
-    virtual void OnStatChanged(EStatType type, float current, float max);
+    virtual void OnStatChanged(EStatType type, float& current, float& max);
     virtual void HandleAnimationEvent(EGameEvent event) {}
     virtual bool ShouldIgnorePlatform() const { return false; }
     
@@ -74,12 +74,12 @@ protected:
 
 protected:
     // 공통 컴포넌트
-    CAnimator* animator = nullptr;
+    Animator* animator = nullptr;
     StateSystem* stateSystem = nullptr;
     StatComponent* statComponent = nullptr;
     AbilitySystem* abilitySystem = nullptr;
     Rigidbody* rigidbody = nullptr;
-    CBoxCollider* collider = nullptr;
+    BoxCollider* collider = nullptr;
     CharacterMovement* movement = nullptr;
 
     // 이전 프레임 상태 (변화 감지용)

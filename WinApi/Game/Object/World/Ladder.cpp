@@ -12,7 +12,7 @@ void Ladder::SetBoxCollider(const Vec2& center, const Vec2& size)
 	ladderBottomY = center.y + size.y * 0.5f;
 }
 
-void Ladder::OnCollisionEnter(CCollider* other)
+void Ladder::OnCollisionEnter(Collider* other)
 {
 	if (other->GetLayer() != (UINT)ELayer::Player)
 		return;
@@ -24,7 +24,7 @@ void Ladder::OnCollisionEnter(CCollider* other)
 	}
 }
 
-void Ladder::OnCollisionExit(CCollider* other)
+void Ladder::OnCollisionExit(Collider* other)
 {
 	if (other->GetLayer() != (UINT)ELayer::Player)
 		return;

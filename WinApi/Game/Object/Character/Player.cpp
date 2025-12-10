@@ -400,12 +400,12 @@ void Player::Release()
 	Character::Release();
 }
 
-void Player::OnCollisionEnter(CCollider* other)
+void Player::OnCollisionEnter(Collider* other)
 {
 	Character::OnCollisionEnter(other);
 }
 
-void Player::OnCollisionStay(CCollider* other)
+void Player::OnCollisionStay(Collider* other)
 {
 	ELayer layer = static_cast<ELayer>(other->GetLayer());
 	if (layer == ELayer::Ledge)
@@ -417,7 +417,7 @@ void Player::OnCollisionStay(CCollider* other)
 	Character::OnCollisionStay(other);
 }
 
-void Player::OnCollisionExit(CCollider* other)
+void Player::OnCollisionExit(Collider* other)
 {
 	// 설정한 ledge에서 벗어난 경우 ledge정보 초기화
 	ELayer layer = static_cast<ELayer>(other->GetLayer());
@@ -429,7 +429,7 @@ void Player::OnCollisionExit(CCollider* other)
 	Character::OnCollisionExit(other);
 }
 
-void Player::OnDamage(CGameObject* source, const CombatContext& context)
+void Player::OnDamage(GameObject* source, const CombatContext& context)
 {
 	if (stateSystem->HasTag(Tag_Dead))
 		return;
@@ -536,7 +536,7 @@ void Player::InitStartupStats()
 	statComponent->InitStat(EStatType::AttackPower, ATTACK_POWER, ATTACK_POWER);
 }
 
-void Player::OnStatChanged(EStatType type, float current, float max)
+void Player::OnStatChanged(EStatType type, float& current, float& max)
 {
 	switch (type)
 	{
@@ -552,9 +552,11 @@ void Player::OnStatChanged(EStatType type, float current, float max)
 	default:
 		break;
 	}
+	
+	Character::OnStatChanged(type, current, max);
 }
 
-Vec2 Player::GetKnockbackVelocity(CGameObject* source, const CombatContext& context)
+Vec2 Player::GetKnockbackVelocity(GameObject* source, const CombatContext& context)
 {
 	Vec2 direction = GetPos() - source->GetPos();
 	float dirX = direction.x > 0 ? 1.f : -1.f;

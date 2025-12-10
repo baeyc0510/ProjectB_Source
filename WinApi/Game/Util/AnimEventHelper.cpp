@@ -22,7 +22,7 @@ EGameEvent AnimEventHelper::ToGameEvent(const wstring& str)
 	return EGameEvent::None;
 }
 
-void AnimEventHelper::ConnectAbilitySystem(CAnimator* animator, AbilitySystem* abilitySystem)
+void AnimEventHelper::ConnectAbilitySystem(Animator* animator, AbilitySystem* abilitySystem)
 {
 	assert(animator && abilitySystem);
 

@@ -16,11 +16,11 @@ Hazard::~Hazard()
 void Hazard::Init()
 {
 	// Animator
-	animator = new CAnimator();
+	animator = new Animator();
 	AddChild(animator);
 
 	// Collider
-	collider = new CBoxCollider();
+	collider = new BoxCollider();
 	collider->SetScale(Vec2(30, 50));
 	collider->SetLayer((UINT)ELayer::Hazard);
 	AddChild(collider);
@@ -51,19 +51,19 @@ void Hazard::Release()
 {
 }
 
-void Hazard::OnCollisionEnter(CCollider* other)
+void Hazard::OnCollisionEnter(Collider* other)
 {
 	if (bIsDestroyed)
 		return;
 
 	if (other->GetLayer() == (UINT)ELayer::Player)
 	{
-		CGameObject* player = other->GetOwner();
+		GameObject* player = other->GetOwner();
 		DealDamageToPlayer(player);
 	}
 }
 
-void Hazard::OnCollisionStay(CCollider* other)
+void Hazard::OnCollisionStay(Collider* other)
 {
 	if (bIsDestroyed)
 		return;
@@ -74,12 +74,12 @@ void Hazard::OnCollisionStay(CCollider* other)
 
 	if (other->GetLayer() == (UINT)ELayer::Player)
 	{
-		CGameObject* player = other->GetOwner();
+		GameObject* player = other->GetOwner();
 		DealDamageToPlayer(player);
 	}
 }
 
-void Hazard::DealDamageToPlayer(CGameObject* player)
+void Hazard::DealDamageToPlayer(GameObject* player)
 {
 	ICombatInterface* combat = dynamic_cast<ICombatInterface*>(player);
 	if (combat && damage > 0.f)
@@ -101,7 +101,7 @@ void Hazard::OnSpawn()
 void Hazard::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
 	assert(animator);
-	CAnimation* animation = LOADANIMATION(name + L"_" + aniName, path);
+	AnimationResource* animation = LOADANIMATION(name + L"_" + aniName, path);
 	assert(animation);
 	animation->SetRepeat(bShouldRepeat);
 	animator->AddAnimation(aniName, animation);

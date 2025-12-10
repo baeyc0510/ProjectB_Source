@@ -2,9 +2,9 @@
 
 class Button_MainMenu;
 class VFXObject;
-class CAnimator;
+class Animator;
 
-class SceneTitle : public CScene
+class SceneTitle : public Scene
 {
 public:
 	SceneTitle();

@@ -4,12 +4,12 @@
 
 // 인자 없는 멤버 함수를 이벤트 콜백으로 바인딩 (source 무시)
 #define BIND_EVENT(Object, Function) \
-	[Object](CGameObject*) { (Object)->Function(); }
+	[Object](GameObject*) { (Object)->Function(); }
 
-class CGameObject;
-class CAnimator;
+class GameObject;
+class Animator;
 class Rigidbody;
-class CBoxCollider;
+class BoxCollider;
 class StateSystem;
 class StatComponent;
 struct FShakeParams;
@@ -21,7 +21,7 @@ public:
 	virtual ~Ability();
 
 	/*~ Ability Interface ~*/
-	void Init(CGameObject* inOwner, AbilitySystem* inAbilitySystem);
+	void Init(GameObject* inOwner, AbilitySystem* inAbilitySystem);
 
 	// 발동 조건
 	virtual EStateTag GetRequiredTags() const { return Tag_None; }
@@ -43,13 +43,13 @@ public:
 	virtual void CancelAbility();
 
 	// 이벤트 대기
-	DelegateHandle WaitEvent(EGameEvent eventType, function<void(CGameObject*)> callback);
+	DelegateHandle WaitEvent(EGameEvent eventType, function<void(GameObject*)> callback);
 	void EndWaitEvent(DelegateHandle& handle);
 	void ClearEventHandles();
 
 	// 상태 조회
 	bool IsActive() const { return isActive; }
-	CGameObject* GetOwner() const { return owner; }
+	GameObject* GetOwner() const { return owner; }
 	AbilitySystem* GetAbilitySystem() const { return abilitySystem; }
 
 	// 종료 이벤트
@@ -57,9 +57,9 @@ public:
 
 protected:
 	// 컴포넌트 접근 (지연 캐싱)
-	CAnimator* GetAnimator() const;
+	Animator* GetAnimator() const;
 	Rigidbody* GetRigidbody() const;
-	CBoxCollider* GetCollider() const;
+	BoxCollider* GetCollider() const;
 	StateSystem* GetStateSystem() const;
 	StatComponent* GetStatComponent() const;
 
@@ -72,15 +72,15 @@ protected:
 	void SetTimeScale(float scale, float duration);
 
 protected:
-	CGameObject* owner;
+	GameObject* owner;
 	AbilitySystem* abilitySystem;
 	bool isActive;
 	float cooldownRemaining;
 	vector<DelegateHandle> eventHandles;
 
-	mutable CAnimator* cachedAnimator = nullptr;
+	mutable Animator* cachedAnimator = nullptr;
 	mutable Rigidbody* cachedRigidbody = nullptr;
-	mutable CBoxCollider* cachedCollider = nullptr;
+	mutable BoxCollider* cachedCollider = nullptr;
 	mutable StateSystem* cachedStateSystem = nullptr;
 	mutable StatComponent* cachedStatComponent = nullptr;
 };

@@ -12,15 +12,15 @@
 // 상속의 경우 모든 상속하는 자식에게 반드시 기능이 포함되지만
 // 컴포넌트의 경우 필요한 객체에만 조립식으로 붙일 수 있음
 
-class CWorldManager;
+class WorldManager;
 template <typename T>
 class Composite;
-class CScene;
+class Scene;
 
 template <typename T>
 class Component
 {
-	friend CWorldManager;
+	friend WorldManager;
 	friend Composite<T>;
 public:
 	Component() {}
@@ -39,13 +39,13 @@ public:
 public:
 	T*				GetOwner()				{ return owner; }
 	bool			IsActive()				{ return active; }
-	CScene*			GetScene()				{ return (owner == nullptr) ? scene : owner->GetScene(); }
+	Scene*			GetScene()				{ return (owner == nullptr) ? scene : owner->GetScene(); }
 	bool			IsReservedDelete()		{ return reservedDelete; }
 
 protected:
 	void			SetOwner(T* owner)		{ this->owner = owner; }
 	virtual void			SetActive(bool active)	{ this->active = active; }
-	void			SetScene(CScene* scene) { this->scene = scene; }
+	void			SetScene(Scene* scene) { this->scene = scene; }
 	virtual void	SetReservedDelete()		{ reservedDelete = true; }	// 컴포넌트 삭제 예약
 
 	virtual void	DeleteReservedChild()	{}
@@ -53,7 +53,7 @@ protected:
 protected:
 	T*				owner					= nullptr;
 	bool			active					= false;
-	CScene*			scene					= nullptr;
+	Scene*			scene					= nullptr;
 	bool			reservedDelete			= false;					// 컴포넌트가 삭제예정인지 여부
 };
 

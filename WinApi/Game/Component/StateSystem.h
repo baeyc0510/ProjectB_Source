@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Game/Enum.h"
 
-class StateSystem : public Component<CGameObject>
+class StateSystem : public Component<GameObject>
 {
 public:
 	StateSystem();

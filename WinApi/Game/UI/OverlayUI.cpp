@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "OverlayUI.h"
-#include "Asset/CImage.h"
+#include "Asset/ImageResource.h"
 
 OverlayUI::OverlayUI()
 	: originalSize(0.f, 0.f)
@@ -41,7 +41,7 @@ Vec2 OverlayUI::ToScreenSize(const Vec2& origSize) const
 	return ToScreenSize(origSize.x, origSize.y);
 }
 
-void OverlayUI::SetFullscreen(CImage* img)
+void OverlayUI::SetFullscreen(ImageResource* img)
 {
 	if (img)
 	{
@@ -50,5 +50,5 @@ void OverlayUI::SetFullscreen(CImage* img)
 	}
 
 	pos = Vec2(0.f, 0.f);
-	scale = SINGLE(CEngine)->GetWinSize();  // UI는 윈도우 해상도 기준
+	scale = SINGLE(EngineInstance)->GetWinSize();  // UI는 윈도우 해상도 기준
 }

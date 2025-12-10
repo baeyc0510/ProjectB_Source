@@ -21,14 +21,14 @@ void VFXManager::PreLoad()
 
 VFXObject* VFXManager::CreateVFX(const wstring& key)
 {
-    CScene* currentScene = SINGLE(CSceneManager)->GetCurScene();
+    Scene* currentScene = SINGLE(SceneManager)->GetCurScene();
     if (currentScene == nullptr)
     {
         return nullptr;
     }
     
     // Spawn VFX
-    CAnimation* anim = SINGLE(CResourceManager)->AnimationFind(key);
+    AnimationResource* anim = SINGLE(ResourceManager)->AnimationFind(key);
     assert(anim);
     
     VFXObject* vfx = new VFXObject();

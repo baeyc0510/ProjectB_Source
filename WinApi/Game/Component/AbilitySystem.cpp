@@ -139,7 +139,7 @@ void AbilitySystem::CancelAbilitiesWithTag(EStateTag tag)
 }
 
 // 이벤트 중계
-void AbilitySystem::TriggerEvent(EGameEvent eventType, CGameObject* source)
+void AbilitySystem::TriggerEvent(EGameEvent eventType, GameObject* source)
 {
 	OnEvent.Broadcast(eventType, source);
 }

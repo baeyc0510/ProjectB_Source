@@ -1,6 +1,6 @@
 #pragma once
 
-class BossHUD : public CUI
+class BossHUD : public UIBase
 {
 public:
     BossHUD();
@@ -10,7 +10,7 @@ public:
     void SetVisibility(bool visibility);
     void SetHP(float current, float max);
     void SetHUDScale(float scale) { hudScale = scale; }
-    void SetBossNameImage(CImage* image);
+    void SetBossNameImage(ImageResource* image);
     
 private:
     void Init() override;
@@ -27,9 +27,9 @@ private:
     static constexpr float NAME_OFFSET_Y = -50.f;  // 프레임 상단 위
 	
     // Images
-    CImage* imgFrame;		// foreground frame
-    CImage* imgHPBar;		// background
-    CImage* imgName;
+    ImageResource* imgFrame;		// foreground frame
+    ImageResource* imgHPBar;		// background
+    ImageResource* imgName;
 
     // HP values
     float currentHP;

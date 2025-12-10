@@ -4,7 +4,7 @@
 class Ability;
 class StateSystem;
 
-class AbilitySystem : public Component<CGameObject>
+class AbilitySystem : public Component<GameObject>
 {
 public:
 	AbilitySystem();
@@ -24,7 +24,7 @@ public:
 	void CancelAbilitiesWithTag(EStateTag tag);
 	
 	// 이벤트 중계
-	void TriggerEvent(EGameEvent eventType, CGameObject* source = nullptr);
+	void TriggerEvent(EGameEvent eventType, GameObject* source = nullptr);
 	
 	// 상태 조회
 	bool IsAbilityActive(EAbility abilityType) const;
@@ -46,7 +46,7 @@ private:
 
 public:
 	// AbilitySystem 이벤트
-	MulticastDelegate<EGameEvent, CGameObject*> OnEvent;
+	MulticastDelegate<EGameEvent, GameObject*> OnEvent;
 	
 private:
 	map<EAbility, unique_ptr<Ability>>	abilities;

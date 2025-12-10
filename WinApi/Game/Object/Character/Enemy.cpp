@@ -181,7 +181,7 @@ void Enemy::MoveInDirection(int dir, float speed)
 	rigidbody->SetVelocity(Vec2(speed * dir, rigidbody->GetVelocity().y));
 }
 
-void Enemy::OnDamage(CGameObject* source, const CombatContext& context)
+void Enemy::OnDamage(GameObject* source, const CombatContext& context)
 {
 	if (stateSystem->HasTag(Tag_Dead))
 		return;

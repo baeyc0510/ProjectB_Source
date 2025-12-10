@@ -57,7 +57,7 @@ void Projectile_Spit::OnHitWall(Vec2 hitPos)
 	animator->Play(AnimKey::ThornBallDestroyed, true, BIND(this, Destroy));
 }
 
-void Projectile_Spit::OnHitPlayer(CGameObject* player)
+void Projectile_Spit::OnHitPlayer(GameObject* player)
 {
 	if (bIsDestroyed || bSpikeSpawned)
 	{
@@ -88,7 +88,7 @@ void Projectile_Spit::Release()
 	Projectile::Release();
 }
 
-void Projectile_Spit::OnDamage(CGameObject* source, const CombatContext& context)
+void Projectile_Spit::OnDamage(GameObject* source, const CombatContext& context)
 {
 	Projectile::OnDamage(source, context);
 	

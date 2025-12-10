@@ -21,7 +21,7 @@ protected:
     const wstring& GetAnimKey() const override;
     
 private:
-    void OnLanded(CGameObject* source);
+    void OnLanded(GameObject* source);
 
 private:
     vector<ComboData> AirComboTable;

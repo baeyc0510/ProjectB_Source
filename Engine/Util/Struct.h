@@ -132,11 +132,11 @@ struct Vec2
 	}
 };
 
-class CBoxCollider;
+class BoxCollider;
 
 struct HitResult
 {
-	CBoxCollider* collider;
+	BoxCollider* collider;
 	Vec2 hitCenter;
 };
 

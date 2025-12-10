@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "UI/CUI.h"
+#include "UI/UIBase.h"
 
-class CImage;
+class ImageResource;
 
-class OverlayUI : public CUI
+class OverlayUI : public UIBase
 {
 public:
 	OverlayUI();
@@ -31,7 +31,7 @@ protected:
 	Vec2 ToScreenSize(const Vec2& origSize) const;
 
 	// 전체화면으로 설정
-	void SetFullscreen(CImage* img);
+	void SetFullscreen(ImageResource* img);
 
 protected:
 	Vec2 originalSize;

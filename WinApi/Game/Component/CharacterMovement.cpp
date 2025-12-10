@@ -4,7 +4,7 @@
 #include "Rigidbody.h"
 #include "Game/Enum.h"
 #include "Game/Object/Character/Character.h"
-#include "Components/CLineCollider.h"
+#include "Components/LineCollider.h"
 
 namespace
 {
@@ -48,7 +48,7 @@ void CharacterMovement::ComponentInit()
 {
 	// 컴포넌트 캐시
 	rigidbody = owner->GetComponent<Rigidbody>();
-	collider = owner->GetComponent<CBoxCollider>();
+	collider = owner->GetComponent<BoxCollider>();
 
 	// 기본 설정 적용
 	maxSlopeAngleRad = config.maxSlopeAngle * 3.14159265f / 180.0f;
@@ -56,7 +56,7 @@ void CharacterMovement::ComponentInit()
 
 void CharacterMovement::ComponentOnEnable()
 {
-	Component<CGameObject>::ComponentOnEnable();
+	Component<GameObject>::ComponentOnEnable();
 
 	// 상태 초기화
 	groundState.Reset();
@@ -88,12 +88,12 @@ void CharacterMovement::SetGrounded(bool value)
 	}
 }
 
-void CharacterMovement::HandleCollisionEnter(CCollider* other)
+void CharacterMovement::HandleCollisionEnter(Collider* other)
 {
 	HandleCollisionStay(other);
 }
 
-void CharacterMovement::HandleCollisionStay(CCollider* other)
+void CharacterMovement::HandleCollisionStay(Collider* other)
 {
 	ELayer layer = static_cast<ELayer>(other->GetLayer());
 	bool isGround = (layer == ELayer::Ground);
@@ -109,7 +109,7 @@ void CharacterMovement::HandleCollisionStay(CCollider* other)
 		return;
 
 	// 라인 콜라이더(경사면) 또는 박스 콜라이더 처리
-	CLineCollider* lineCollider = dynamic_cast<CLineCollider*>(other);
+	LineCollider* lineCollider = dynamic_cast<LineCollider*>(other);
 	if (lineCollider)
 	{
 		HandleLineGround(lineCollider, isPlatform);
@@ -120,7 +120,7 @@ void CharacterMovement::HandleCollisionStay(CCollider* other)
 	}
 }
 
-void CharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPlatform)
+void CharacterMovement::HandleLineGround(LineCollider* lineCollider, bool isPlatform)
 {
 	Vec2 characterColPos = collider->GetPos();
 	Vec2 characterColHalf = collider->GetScale() * 0.5f;
@@ -178,7 +178,7 @@ void CharacterMovement::HandleLineGround(CLineCollider* lineCollider, bool isPla
 	}
 }
 
-void CharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
+void CharacterMovement::HandleBoxGround(Collider* other, bool isPlatform)
 {
 	Vec2 characterColPos = collider->GetPos();
 	Vec2 characterColHalf = collider->GetScale() * 0.5f;
@@ -245,7 +245,7 @@ void CharacterMovement::HandleBoxGround(CCollider* other, bool isPlatform)
 	}
 }
 
-void CharacterMovement::HandleCollisionExit(CCollider* other)
+void CharacterMovement::HandleCollisionExit(Collider* other)
 {
 	ELayer layer = static_cast<ELayer>(other->GetLayer());
 
@@ -260,7 +260,7 @@ void CharacterMovement::HandleCollisionExit(CCollider* other)
 	}
 
 	// 경사면 exit 시 미끄러짐 해제
-	if (layer == ELayer::Ground && dynamic_cast<CLineCollider*>(other))
+	if (layer == ELayer::Ground && dynamic_cast<LineCollider*>(other))
 	{
 		groundState.bIsOnSteepSlope = false;
 	}
@@ -272,7 +272,7 @@ void CharacterMovement::HandleCollisionExit(CCollider* other)
 	}
 }
 
-void CharacterMovement::HandleGroundExit(CCollider* other)
+void CharacterMovement::HandleGroundExit(Collider* other)
 {
 	// 현재 이동 방향 (velocity 기반)
 	Vec2 velocity = rigidbody->GetVelocity();
@@ -291,7 +291,7 @@ void CharacterMovement::HandleGroundExit(CCollider* other)
 
 	// 안전 위치로 보정
 	float edgeMinX, edgeMaxX;
-	CLineCollider* lineCollider = dynamic_cast<CLineCollider*>(other);
+	LineCollider* lineCollider = dynamic_cast<LineCollider*>(other);
 	if (lineCollider)
 	{
 		Vec2 start = lineCollider->GetWorldStart();
@@ -372,7 +372,7 @@ void CharacterMovement::ProcessMovement()
 // HandleLineGround 헬퍼 함수
 // ============================================================================
 
-void CharacterMovement::HandleSteepSlope(CLineCollider* lineCollider, const Vec2& velocity, bool bIsUpRight, float slopeAngle)
+void CharacterMovement::HandleSteepSlope(LineCollider* lineCollider, const Vec2& velocity, bool bIsUpRight, float slopeAngle)
 {
 	Vec2 characterColHalf = collider->GetScale() * 0.5f;
 
@@ -390,7 +390,7 @@ void CharacterMovement::HandleSteepSlope(CLineCollider* lineCollider, const Vec2
 	rigidbody->SetVelocity(slideVel);
 }
 
-void CharacterMovement::HandleGentleSlope(CLineCollider* lineCollider, Vec2& velocity, bool bIsGoingUp, float slopeAngle)
+void CharacterMovement::HandleGentleSlope(LineCollider* lineCollider, Vec2& velocity, bool bIsGoingUp, float slopeAngle)
 {
 	Vec2 characterColHalf = collider->GetScale() * 0.5f;
 
@@ -436,7 +436,7 @@ void CharacterMovement::HandleSquashState(int pushDir, float overlapX)
 	owner->SetPos(newPos);
 }
 
-void CharacterMovement::HandleFloorCollision(CCollider* other, const Vec2& otherPos, const Vec2& otherHalf, float overlapY)
+void CharacterMovement::HandleFloorCollision(Collider* other, const Vec2& otherPos, const Vec2& otherHalf, float overlapY)
 {
 	Vec2 velocity = rigidbody->GetVelocity();
 	float otherTop = otherPos.y - otherHalf.y;
@@ -484,7 +484,7 @@ void CharacterMovement::HandleCeilingCollision(float overlapY)
 	owner->SetPos(newPos);
 }
 
-void CharacterMovement::HandleWallCollision(CCollider* other, float overlapX)
+void CharacterMovement::HandleWallCollision(Collider* other, float overlapX)
 {
 	Vec2 characterColPos = collider->GetPos();
 	Vec2 otherPos = other->GetPos();

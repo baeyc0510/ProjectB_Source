@@ -66,7 +66,7 @@ void Ability_Parry::OnParryWindowClose()
     bParryWindowOpen = false;
 }
 
-void Ability_Parry::OnHit(CGameObject* source)
+void Ability_Parry::OnHit(GameObject* source)
 {
     if (!bParryWindowOpen)
     {

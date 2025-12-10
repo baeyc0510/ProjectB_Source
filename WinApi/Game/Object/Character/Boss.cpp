@@ -33,11 +33,6 @@ void Boss::Init()
 	moveConfig.bFlipDirectionAtWall = false;
 	movement->SetConfig(moveConfig);
 
-	// StatComponent 이벤트 바인딩
-	statComponent->OnStatChanged.Add([this](EStatType type, float current, float max) {
-		OnStatChanged(type, current, max);
-	});
-
 	// Boss AI Controller
 	bossAI = new BossAIController();
 	AddChild(bossAI);
@@ -106,12 +101,14 @@ void Boss::OnAppearanceComplete()
 	GAMEUI->SetBossHP(statComponent->GetCurrent(EStatType::HP), statComponent->GetMax(EStatType::HP));
 }
 
-void Boss::OnStatChanged(EStatType type, float current, float max)
+void Boss::OnStatChanged(EStatType type, float& current, float& max)
 {
 	if (type == EStatType::HP && bHasAppeared)
 	{
 		GAMEUI->SetBossHP(current, max);
 	}
+	
+	Character::OnStatChanged(type, current, max);
 }
 
 void Boss::UpdateBossAnimation()
@@ -146,7 +143,7 @@ void Boss::UpdateBossAI()
 	}
 }
 
-void Boss::OnDamage(CGameObject* source, const CombatContext& context)
+void Boss::OnDamage(GameObject* source, const CombatContext& context)
 {
 	// Trigger Event
 	abilitySystem->TriggerEvent(EGameEvent::Hit, source);

@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Component.h"
-#include "Core/CGameObject.h"
+#include "Core/GameObject.h"
 #include "Game/Enum.h"
 
 class Player;
@@ -20,7 +20,7 @@ struct FAIConfig
 	bool requireFacingTarget = true;	// true면 공격 범위 판정 시 타겟이 앞에 있어야 함
 };
 
-class AIController : public Component<CGameObject>
+class AIController : public Component<GameObject>
 {
 public:
 	AIController();
@@ -32,7 +32,7 @@ public:
 	FAIConfig& GetConfig() { return config; }
 
 	// 타겟
-	CGameObject* GetTarget() const { return target; }
+	GameObject* GetTarget() const { return target; }
 	bool HasTarget() const { return target != nullptr; }
 
 	// 유틸리티 (Ability에서 사용)
@@ -74,7 +74,7 @@ private:
 	FAIConfig config;
 
 	// 타겟
-	CGameObject* target = nullptr;
+	GameObject* target = nullptr;
 	bool hadTargetLastFrame = false;
 	bool wasInAttackRange = false;
 

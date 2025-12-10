@@ -12,7 +12,7 @@ protected:
 	void UpdateBossAI() override;
 	void UpdateBossAnimation() override;
 	bool CheckEncounterPlayer() override;
-	void OnDamage(CGameObject* source, const CombatContext& context) override;
+	void OnDamage(GameObject* source, const CombatContext& context) override;
 	
 	void OnDieStart() override;
 	void OnDieComplete() override;
@@ -57,5 +57,5 @@ private:
 	bool bIsChasing = false;
 	bool bIsTurningAround = false;
 	
-	CImage* nameImg = nullptr;
+	ImageResource* nameImg = nullptr;
 };

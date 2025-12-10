@@ -1,40 +1,40 @@
 ﻿#pragma once
 
 // Engine
-#include "CEngine.h"
+#include "EngineInstance.h"
 
 // Manager
-#include "Managers/CCameraManager.h"
-#include "Managers/CCollisionManager.h"
-#include "Managers/CWorldManager.h"
-#include "Managers/CInputManager.h"
-#include "Managers/CPathManager.h"
-#include "Managers/CRenderManager.h"
-#include "Managers/CResourceManager.h"
-#include "Managers/CSceneManager.h"
-#include "Managers/CSoundManager.h"
-#include "Managers/CTimeManager.h"
-#include "Managers/CUIManager.h"
+#include "Managers/CameraManager.h"
+#include "Managers/CollisionManager.h"
+#include "Managers/WorldManager.h"
+#include "Managers/InputManager.h"
+#include "Managers/PathManager.h"
+#include "Managers/RenderManager.h"
+#include "Managers/ResourceManager.h"
+#include "Managers/SceneManager.h"
+#include "Managers/SoundManager.h"
+#include "Managers/TimeManager.h"
+#include "Managers/UIManager.h"
 
 // Interface
 #include "Interface/IRender.h"
 
 // Component
-#include "Components/CAnimator.h"
-#include "Components/CBoxCollider.h"
-#include "Components/CLineCollider.h"
+#include "Components/Animator.h"
+#include "Components/BoxCollider.h"
+#include "Components/LineCollider.h"
 
 // Asset
-#include "Asset/CAnimation.h"
-#include "Asset/CImage.h"
-#include "Asset/CResource.h"
-#include "Asset/CSound.h"
+#include "Asset/AnimationResource.h"
+#include "Asset/ImageResource.h"
+#include "Asset/ResourceBase.h"
+#include "Asset/SoundResource.h"
 
 // Core
-#include "Core/CGameObject.h"
-#include "Core/CScene.h"
+#include "Core/GameObject.h"
+#include "Core/Scene.h"
 
 // UI
-#include "UI/CButton.h"
-#include "UI/CPanel.h"
-#include "UI/CUI.h"
+#include "UI/Button.h"
+#include "UI/Panel.h"
+#include "UI/UIBase.h"

@@ -39,13 +39,13 @@ protected:
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 	
 	/*~ ICombatInterface ~*/
-	void OnDamage(CGameObject* source, const CombatContext& context) override;
+	void OnDamage(GameObject* source, const CombatContext& context) override;
 
 	/*~ CBoss Interface ~*/
 	virtual void UpdateBossAnimation();
 	virtual void UpdateBossAI();
 	virtual bool CheckEncounterPlayer() = 0;
-	void OnStatChanged(EStatType type, float current, float max) override;
+	void OnStatChanged(EStatType type, float& current, float& max) override;
 	
 protected:
 	BossAIController* bossAI = nullptr;

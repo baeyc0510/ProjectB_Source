@@ -23,7 +23,7 @@ void BossHUD::SetHP(float current, float max)
     maxHP = max;
 }
 
-void BossHUD::SetBossNameImage(CImage* image)
+void BossHUD::SetBossNameImage(ImageResource* image)
 {
     imgName = image;
     if (image)

@@ -19,7 +19,7 @@ Ability::~Ability()
 	ClearEventHandles();
 }
 
-void Ability::Init(CGameObject* inOwner, AbilitySystem* inAbilitySystem)
+void Ability::Init(GameObject* inOwner, AbilitySystem* inAbilitySystem)
 {
 	owner = inOwner;
 	abilitySystem = inAbilitySystem;
@@ -66,13 +66,13 @@ void Ability::CancelAbility()
 	EndAbility();
 }
 
-DelegateHandle Ability::WaitEvent(EGameEvent eventType, function<void(CGameObject*)> callback)
+DelegateHandle Ability::WaitEvent(EGameEvent eventType, function<void(GameObject*)> callback)
 {
 	if (!abilitySystem)
 		return 0;
 
 	DelegateHandle handle = abilitySystem->OnEvent.Add(
-		[eventType, callback](EGameEvent triggeredEvent, CGameObject* source)
+		[eventType, callback](EGameEvent triggeredEvent, GameObject* source)
 		{
 			if (triggeredEvent == eventType)
 				callback(source);
@@ -114,11 +114,11 @@ void Ability::ClearEventHandles()
 	eventHandles.clear();
 }
 
-CAnimator* Ability::GetAnimator() const
+Animator* Ability::GetAnimator() const
 {
 	if (!cachedAnimator && owner)
 	{
-		cachedAnimator = owner->GetComponent<CAnimator>();
+		cachedAnimator = owner->GetComponent<Animator>();
 	}
 	return cachedAnimator;
 }
@@ -132,11 +132,11 @@ Rigidbody* Ability::GetRigidbody() const
 	return cachedRigidbody;
 }
 
-CBoxCollider* Ability::GetCollider() const
+BoxCollider* Ability::GetCollider() const
 {
 	if (!cachedCollider && owner)
 	{
-		cachedCollider = owner->GetComponent<CBoxCollider>();
+		cachedCollider = owner->GetComponent<BoxCollider>();
 	}
 	return cachedCollider;
 }
