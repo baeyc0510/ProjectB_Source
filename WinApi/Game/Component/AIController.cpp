@@ -42,7 +42,15 @@ void AIController::ComponentUpdate()
 	if (stateSystem->HasAnyTag(TAG_AI_BLOCKED))
 		return;
 
-	UpdateTargetDetection();
+	// 감지는 주기적으로만 (매 프레임 연산 방지)
+	detectionTimer += DT;
+	if (detectionTimer >= config.detectionInterval)
+	{
+		detectionTimer = 0.f;
+		UpdateTargetDetection();
+	}
+
+	// 순찰/추격은 매 프레임 (이동 필요)
 	UpdatePatrol();
 }
 
