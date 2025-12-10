@@ -25,7 +25,7 @@ void Enemy::Init()
 	Character::Init();
 
 	// Movement (AI 설정: 엣지 블로킹, 방향 전환)
-	FMovementConfig moveConfig;
+	MovementConfig moveConfig;
 	moveConfig.maxSlopeAngle = 50.0f;
 	moveConfig.bCanDropThrough = false;
 	moveConfig.bBlockAtEdges = true;

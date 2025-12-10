@@ -1,9 +1,9 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "MapManager.h"
 
 #include "Game/Object/Character/Enemy.h"
 #include "Game/Object/World/Ground.h"
-#include "Game/Object/World/Ladder.h"
+#include "Game/Object/World/LadderCollider.h"
 #include "Game/Object/World/LedgeCollider.h"
 #include "Game/Object/World/Platform.h"
 #include "Game/Util/CharacterFactory.h"
@@ -164,7 +164,7 @@ void MapManager::CreateWorldColliders(Scene* scene)
 
 		if (box.HasTag("Ladder"))
 		{
-			Ladder* ladder = new Ladder();
+			LadderCollider* ladder = new LadderCollider();
 			ladder->SetBoxCollider(center, size);
 			obj = ladder;
 		}

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Game/Map/Map.h"
 
 class Scene;

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Character.h"
 #include "Game/Interface/CombatInterface.h"
 #include "Game/Component/StatComponent.h"

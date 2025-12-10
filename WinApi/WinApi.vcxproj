@@ -221,7 +221,7 @@
     <ClInclude Include="Game\Object\Projectile\Projectile.h" />
     <ClInclude Include="Game\Object\Projectile\Projectile_Spit.h" />
     <ClInclude Include="Game\Object\World\Ground.h" />
-    <ClInclude Include="Game\Object\World\Ladder.h" />
+    <ClInclude Include="Game\Object\World\LadderCollider.h" />
     <ClInclude Include="Game\Object\World\LedgeCollider.h" />
     <ClInclude Include="Game\Object\World\Platform.h" />
     <ClInclude Include="Game\Object\World\TransitionArea.h" />
@@ -296,7 +296,7 @@
     <ClCompile Include="Game\Object\Projectile\Projectile.cpp" />
     <ClCompile Include="Game\Object\Projectile\Projectile_Spit.cpp" />
     <ClCompile Include="Game\Object\World\Ground.cpp" />
-    <ClCompile Include="Game\Object\World\Ladder.cpp" />
+    <ClCompile Include="Game\Object\World\LadderCollider.cpp" />
     <ClCompile Include="Game\Object\World\LedgeCollider.cpp" />
     <ClCompile Include="Game\Object\World\Platform.cpp" />
     <ClCompile Include="Game\Object\World\TransitionArea.cpp" />

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "WorldCollider.h"
 
 // 플랫폼 - Platform 레이어 (원웨이 플랫폼)

@@ -1,12 +1,12 @@
-#pragma once
+﻿#pragma once
 #include "WorldCollider.h"
 
 // 사다리 - Ladder 레이어
-class Ladder : public WorldCollider
+class LadderCollider : public WorldCollider
 {
 public:
-	Ladder() = default;
-	~Ladder() override = default;
+	LadderCollider() = default;
+	~LadderCollider() override = default;
 
 	/*~ WorldCollider Interface ~*/
 	void SetBoxCollider(const Vec2& center, const Vec2& size);

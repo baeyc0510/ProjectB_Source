@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Game/Enum.h"
 
 // 스탯 타입 열거형

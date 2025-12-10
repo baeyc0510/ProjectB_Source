@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "MapLayer.h"
 #include <vector>
 #include <string>

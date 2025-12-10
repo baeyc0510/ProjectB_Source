@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Boss.h"
 
 #include "Game/Data/AnimKey.h"
@@ -25,7 +25,7 @@ void Boss::Init()
 	Character::Init();
 
 	// Movement 설정 (보스는 엣지에서 블로킹, 벽에서 블로킹)
-	FMovementConfig moveConfig;
+	MovementConfig moveConfig;
 	moveConfig.maxSlopeAngle = 50.0f;
 	moveConfig.bCanDropThrough = false;
 	moveConfig.bBlockAtEdges = true;

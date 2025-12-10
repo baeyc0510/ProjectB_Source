@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Game/Enum.h"
 
 // 월드 콜라이더 베이스 클래스 - 지형 충돌 오브젝트의 공통 기능

@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CharacterMovement.h"
 
 #include "Rigidbody.h"
@@ -38,7 +38,7 @@ CharacterMovement::~CharacterMovement()
 {
 }
 
-void CharacterMovement::SetConfig(const FMovementConfig& inConfig)
+void CharacterMovement::SetConfig(const MovementConfig& inConfig)
 {
 	config = inConfig;
 	maxSlopeAngleRad = config.maxSlopeAngle * 3.14159265f / 180.0f;

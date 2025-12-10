@@ -54,7 +54,7 @@ void Player::Init()
 	collider->SetLayer((UINT)ELayer::Player);
 
 	// Movement (Player 기본 설정: 드롭다운 가능, 엣지 블로킹 없음)
-	FMovementConfig moveConfig;
+	MovementConfig moveConfig;
 	moveConfig.maxSlopeAngle = MAX_SLOPE_ANGLE;
 	moveConfig.bCanDropThrough = true;
 	moveConfig.bBlockAtEdges = false;

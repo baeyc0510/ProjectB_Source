@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Hazard.h"
 #include "Game/Util/CombatHelper.h"
 

@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "Ladder.h"
+#include "LadderCollider.h"
 #include "Game/Enum.h"
 #include "Game/Object/Character/Player.h"
 #include "Game/Component/StateSystem.h"
 
-void Ladder::SetBoxCollider(const Vec2& center, const Vec2& size)
+void LadderCollider::SetBoxCollider(const Vec2& center, const Vec2& size)
 {
 	WorldCollider::SetBoxCollider(center, size, ELayer::Ladder);
 	ladderX = center.x;
@@ -12,7 +12,7 @@ void Ladder::SetBoxCollider(const Vec2& center, const Vec2& size)
 	ladderBottomY = center.y + size.y * 0.5f;
 }
 
-void Ladder::OnCollisionEnter(Collider* other)
+void LadderCollider::OnCollisionEnter(Collider* other)
 {
 	if (other->GetLayer() != (UINT)ELayer::Player)
 		return;
@@ -24,7 +24,7 @@ void Ladder::OnCollisionEnter(Collider* other)
 	}
 }
 
-void Ladder::OnCollisionExit(Collider* other)
+void LadderCollider::OnCollisionExit(Collider* other)
 {
 	if (other->GetLayer() != (UINT)ELayer::Player)
 		return;

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Core/Component.h"
 
 class Character;
@@ -8,7 +8,7 @@ class Collider;
 class LineCollider;
 
 // 이동 설정
-struct FMovementConfig
+struct MovementConfig
 {
 	float maxSlopeAngle = 50.0f;			// 오를 수 있는 최대 경사각 (도)
 	bool bCanDropThrough = true;			// 플랫폼 드롭다운 가능 여부 (Player: true)
@@ -78,8 +78,8 @@ public:
 
 	/*~ CharacterMovement Interface ~*/
 	// 설정
-	void SetConfig(const FMovementConfig& inConfig);
-	const FMovementConfig& GetConfig() const { return config; }
+	void SetConfig(const MovementConfig& inConfig);
+	const MovementConfig& GetConfig() const { return config; }
 
 	// 충돌 처리 (Character가 호출)
 	void HandleCollisionEnter(Collider* other);
@@ -141,7 +141,7 @@ private:
 
 private:
 	// 설정
-	FMovementConfig config;
+	MovementConfig config;
 	float maxSlopeAngleRad = 0.0f;
 
 	// 상태
