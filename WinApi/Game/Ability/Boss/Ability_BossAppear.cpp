@@ -2,6 +2,7 @@
 #include "Ability_BossAppear.h"
 
 #include "Game/AnimKey.h"
+#include "Game/SFXKeys.h"
 #include "Game/CGame.h"
 #include "Game/Component/CBossAIController.h"
 #include "Game/Component/CStateSystem.h"
@@ -9,7 +10,6 @@
 #include "Game/Object/Character/CPlayer.h"
 #include "Game/Component/CAbilitySystem.h"
 #include "Game/Component/CRigidbody.h"
-#include "Game/Manager/CSFXManager.h"
 
 void Ability_BossAppear::OnActivate()
 {
@@ -85,10 +85,10 @@ void Ability_BossAppear::OnEnd()
 void Ability_BossAppear::PlayWakeUpSound()
 {
     // SFX 재생
-    SFX->PlayOnce(SFXKey::PiedadWakeUp);
+    PlaySFX(SFXKey::PiedadWakeUp);
 }
 
 void Ability_BossAppear::OnHitGround()
 {
-    CAMERA->Shake(ShakePreset::Heavy);
+    ShakeCamera(ShakePreset::Heavy);
 }

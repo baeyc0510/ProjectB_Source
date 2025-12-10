@@ -2,9 +2,9 @@
 #include "Ability_LedgeClimb.h"
 
 #include "Game/AnimKey.h"
+#include "Game/SFXKeys.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
-#include "Game/Manager/CSFXManager.h"
 #include "Game/Object/Character/CPlayer.h"
 
 Ability_LedgeClimb::Ability_LedgeClimb()
@@ -49,7 +49,7 @@ void Ability_LedgeClimb::OnActivate()
 	GetAnimator()->Play(AnimKey::LedgeHang, true);
 
 	// 잡기 사운드 재생
-	SFX->PlayOnce(SFXKey::PlayerLedgeGrab);
+	PlaySFX(SFXKey::PlayerLedgeGrab);
 	
 	// 이벤트 대기
 	WaitEvent(EGameEvent::Input_Up_Hold, BIND_EVENT(this, OnUpHold));

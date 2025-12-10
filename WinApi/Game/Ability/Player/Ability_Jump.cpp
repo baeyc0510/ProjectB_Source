@@ -3,9 +3,8 @@
 
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CRigidbody.h"
-#include "Game/Object/Character/CPlayer.h"
+#include "Game/Component/CStatComponent.h"
 
 Ability_Jump::Ability_Jump()
 {
@@ -15,7 +14,7 @@ void Ability_Jump::OnActivate()
 {
     Ability::OnActivate();
 
-    SFX->PlayOnce(SFXKey::PlayerJump);
+    PlaySFX(SFXKey::PlayerJump);
 
     Vec2 velocity = GetRigidbody()->GetVelocity();
 

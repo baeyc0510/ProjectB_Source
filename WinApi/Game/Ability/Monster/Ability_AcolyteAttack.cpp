@@ -2,7 +2,7 @@
 #include "Ability_AcolyteAttack.h"
 
 #include "Game/AnimKey.h"
-#include "Game/Manager/CSFXManager.h"
+#include "Game/SFXKeys.h"
 #include "Game/Util/CombatHelper.h"
 
 void Ability_AcolyteAttack::OnActivate()
@@ -11,12 +11,12 @@ void Ability_AcolyteAttack::OnActivate()
 
     CAnimator* animator = owner->GetComponent<CAnimator>();
     animator->Play(AnimKey::Attack, true, BIND(this, EndAbility), BIND(this, EndAbility));
-    SFX->PlayOnce(SFXKey::AcolytePrepareAttack);
-    
+    PlaySFX(SFXKey::AcolytePrepareAttack);
+
     WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));
     WaitEvent(EGameEvent::PlaySFX, [this](CGameObject* source)
     {
-        SFX->PlayOnce(SFXKey::AcolyteReleaseAttack);
+        PlaySFX(SFXKey::AcolyteReleaseAttack);
     });
 }
 

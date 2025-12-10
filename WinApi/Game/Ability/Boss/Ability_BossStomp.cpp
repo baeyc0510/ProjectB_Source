@@ -3,10 +3,10 @@
 
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
+#include "Game/SFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
-#include "Game/Manager/CSFXManager.h"
 
 void Ability_BossStomp::OnActivate()
 {
@@ -15,7 +15,7 @@ void Ability_BossStomp::OnActivate()
 	GetAnimator()->Play(AnimKey::BossStomp, true, BIND(this, EndAbility), BIND(this, EndAbility));
 
 	WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));
-	SFX->PlayOnce(SFXKey::PiedadStomp);
+	PlaySFX(SFXKey::PiedadStomp);
 }
 
 void Ability_BossStomp::OnEnd()
@@ -27,7 +27,7 @@ void Ability_BossStomp::OnEnd()
 void Ability_BossStomp::OnHitCheck()
 {
 	// Camera Shake
-	CAMERA->Shake(ShakePreset::Heavy);
+	ShakeCamera(ShakePreset::Heavy);
 	
 	Vec2 offset = GetTraceOffset();
 	Vec2 center = owner->GetWorldPos() + offset;

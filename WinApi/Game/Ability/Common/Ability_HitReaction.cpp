@@ -1,20 +1,20 @@
 ﻿#include "pch.h"
 #include "Ability_HitReaction.h"
 #include "Game/AnimKey.h"
+#include "Game/SFXKeys.h"
 #include "Game/Component/CRigidbody.h"
-#include "Game/Manager/CSFXManager.h"
 #include "Game/Object/Character/CCharacter.h"
 #include "Game/Object/Character/CPlayer.h"
 
 void Ability_HitReaction::OnActivate()
 {
     Ability::OnActivate();
-    
+
     GetAnimator()->Play(GetHitAnimKey(),true, BIND(this,OnFinishedReaction), BIND(this, OnInterruptedReaction));
-    
+
     // Hitstop + Camera Shake
-    TIMER->SetTimeScale(0.0f, 0.05f);
-    CAMERA->Shake(ShakePreset::Medium);
+    SetTimeScale(0.0f, 0.05f);
+    ShakeCamera(ShakePreset::Medium);
     
     // 리커버
     WaitEvent(EGameEvent::Recover, BIND_EVENT(this,OnRecover));
@@ -59,7 +59,7 @@ void Ability_PlayerPushback::OnActivate()
     Ability_HitReaction::OnActivate();
     GetRigidbody()->SetGravityScale(0.9f);
     WaitEvent(EGameEvent::Landed, BIND_EVENT(this,OnLanded));
-    SFX->PlayOnce(SFXKey::PlayerPushback);
+    PlaySFX(SFXKey::PlayerPushback);
 }
 
 void Ability_PlayerPushback::OnEnd()

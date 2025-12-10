@@ -3,10 +3,10 @@
 
 #include "Game/AnimKey.h"
 #include "Game/VFXKeys.h"
+#include "Game/SFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 #include "Game/Object/Hazard/CHazard_Spike.h"
 #include "Game/Component/CBossAIController.h"
-#include "Game/Manager/CSFXManager.h"
 #include "Game/Object/Character/CBoss.h"
 
 void Ability_BossGroundSmash::OnActivate()
@@ -19,8 +19,8 @@ void Ability_BossGroundSmash::OnActivate()
 	// HitCheck 이벤트에서 임팩트 처리
 	WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnSmashImpact));
 	WaitEvent(EGameEvent::PlaySFX, BIND_EVENT(this, PlaySmashSound));
-	
-	SFX->PlayOnce(SFXKey::PiedadSmashVoice);
+
+	PlaySFX(SFXKey::PiedadSmashVoice);
 }
 
 void Ability_BossGroundSmash::OnEnd()
@@ -31,13 +31,13 @@ void Ability_BossGroundSmash::OnEnd()
 
 void Ability_BossGroundSmash::PlaySmashSound()
 {
-	SFX->PlayOnce(SFXKey::PiedadSmash);
+	PlaySFX(SFXKey::PiedadSmash);
 }
 
 void Ability_BossGroundSmash::OnSmashImpact()
 {
 	// Camera Shake
-	CAMERA->Shake(ShakePreset::Boss);
+	ShakeCamera(ShakePreset::Boss);
 	
 	// 임팩트 시 가시 생성
 	SpawnSpikes();
@@ -68,9 +68,9 @@ void Ability_BossGroundSmash::OnSmashToIdle()
 {
 	// ground_smash_to_idle 애니메이션 재생
 	GetAnimator()->Play(AnimKey::BossGroundSmashToIdle, true, BIND(this, EndAbility), BIND(this, EndAbility));
-	
-	SFX->PlayOnce(SFXKey::PiedadSmashGetUp);
-	SFX->PlayOnce(SFXKey::PiedadSmashGetUpVoice);
+
+	PlaySFX(SFXKey::PiedadSmashGetUp);
+	PlaySFX(SFXKey::PiedadSmashGetUpVoice);
 }
 
 void Ability_BossGroundSmash::SpawnSpikes()

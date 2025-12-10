@@ -3,7 +3,6 @@
 
 #include "Game/AnimKey.h"
 #include "Game/SFXKeys.h"
-#include "Game/Manager/CSFXManager.h"
 #include "Game/Component/CRigidbody.h"
 #include "Game/Component/CStateSystem.h"
 
@@ -15,7 +14,7 @@ void Ability_Slide::OnActivate()
 {
     Ability::OnActivate();
 
-    SFX->PlayOnce(SFXKey::PlayerSlide);
+    PlaySFX(SFXKey::PlayerSlide);
     GetAnimator()->Play(AnimKey::Slide, true, BIND(this, OnFinishedAnim), BIND(this, OnInterruptedAnim));
 
     Vec2 velocity = GetRigidbody()->GetVelocity();

@@ -2,10 +2,9 @@
 #include "Ability_BossSpit.h"
 
 #include "Game/AnimKey.h"
+#include "Game/SFXKeys.h"
 #include "Game/Object/Projectile/CProjectile_Spit.h"
 #include <cmath>
-
-#include "Game/Manager/CSFXManager.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -21,8 +20,8 @@ void Ability_BossSpit::OnActivate()
 
 	// spit_start 애니메이션 재생
 	GetAnimator()->Play(AnimKey::BossSpitStart, true, BIND(this, OnSpitStart), BIND(this, EndAbility));
-	
-	SFX->PlayOnce(SFXKey::PiedadSpitVoice);
+
+	PlaySFX(SFXKey::PiedadSpitVoice);
 }
 
 void Ability_BossSpit::OnEnd()
