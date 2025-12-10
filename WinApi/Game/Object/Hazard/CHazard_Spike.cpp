@@ -33,7 +33,6 @@ void CHazard_Spike::Init()
 		OnGameEvent(event);
 	});
 
-	// TODO: Spike 애니메이션 설정
 	AddAnimation(AnimKey::ThornThrust, TEXT("Animations/Projectile/thorns_tower_anim.json"), false);
 }
 

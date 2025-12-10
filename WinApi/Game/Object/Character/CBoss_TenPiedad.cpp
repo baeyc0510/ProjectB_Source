@@ -68,8 +68,6 @@ void CBoss_TenPiedad::RegisterAnimations()
 	AddAnimation(AnimKey::BossGroundSmash, TEXT("Animations/Ten_Piedad/piedad_ground_smash_anim.json"), false);
 	AddAnimation(AnimKey::BossGroundSmashToIdle, TEXT("Animations/Ten_Piedad/piedad_ground_smashToIdle_anim.json"), false);
 	AddAnimation(AnimKey::Dead, TEXT("Animations/Ten_Piedad/piedad_death.json"), false);
-
-	// TODO: 사망애니메이션 추가
 }
 
 void CBoss_TenPiedad::RegisterAbilities()
