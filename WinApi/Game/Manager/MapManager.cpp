@@ -6,7 +6,7 @@
 #include "Game/Object/World/LadderCollider.h"
 #include "Game/Object/World/LedgeCollider.h"
 #include "Game/Object/World/Platform.h"
-#include "Game/Util/CharacterFactory.h"
+#include "Game/Util/WorldObjectFactory.h"
 
 MapManager::MapManager()
 	: currentMap(nullptr)
@@ -227,7 +227,7 @@ void MapManager::CreateWorldCharacters(Scene* scene)
 	
 	for (const auto& objData : currentMap->GetWorldObjects())
 	{
-		if (Character* character = CharacterFactory::CreateCharacter(objData.name))
+		if (GameObject* character = WorldObjectFactory::CreateWorldObject(objData.name))
 		{
 			character->SetPos(PixelToWorld(objData.pos));
 			scene->AddGameObject(character);

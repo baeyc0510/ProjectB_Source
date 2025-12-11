@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
-#include "AnimEventHelper.h"
+#include "AnimationHelper.h"
 #include "Game/Component/AbilitySystem.h"
 
-EGameEvent AnimEventHelper::ToGameEvent(const wstring& str)
+EGameEvent AnimationHelper::ToGameEvent(const wstring& str)
 {
 	if (str == L"HitCheck")			return EGameEvent::HitCheck;
 	if (str == L"ComboWindowOpen")	return EGameEvent::ComboWindowOpen;
@@ -22,7 +22,7 @@ EGameEvent AnimEventHelper::ToGameEvent(const wstring& str)
 	return EGameEvent::None;
 }
 
-void AnimEventHelper::ConnectAbilitySystem(Animator* animator, AbilitySystem* abilitySystem)
+void AnimationHelper::ConnectAbilitySystem(Animator* animator, AbilitySystem* abilitySystem)
 {
 	assert(animator && abilitySystem);
 
@@ -33,4 +33,16 @@ void AnimEventHelper::ConnectAbilitySystem(Animator* animator, AbilitySystem* ab
 			abilitySystem->TriggerEvent(event);
 		}
 	);
+}
+
+void AnimationHelper::AddAnimation(Animator* animator, const wstring& aniName, const wstring& path, bool bShouldRepeat)
+{
+	assert(animator && "animator is null");
+	assert(animator->GetOwner() && "animator needs owner");
+	
+	AnimationResource* animation = LOADANIMATION(animator->GetOwner()->GetName() + L"_" + aniName, path);
+	assert(animation && "animation is null");
+	
+	animation->SetRepeat(bShouldRepeat);
+	animator->AddAnimation(aniName, animation);
 }

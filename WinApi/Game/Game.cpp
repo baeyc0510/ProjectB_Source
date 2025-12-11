@@ -151,6 +151,7 @@ void Game::Init(HINSTANCE hInstance)
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Platform);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ledge);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Hazard);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Interaction);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Ground);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Platform);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Ground);

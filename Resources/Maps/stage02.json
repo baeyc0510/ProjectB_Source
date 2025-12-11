@@ -56,7 +56,15 @@
     384.2807240580127
   ],
   "checkpoints": [],
-  "objects": [],
+  "objects": [
+    {
+      "name": "CheckPoint",
+      "pos": [
+        467.8879074104096,
+        299.97251438244706
+      ]
+    }
+  ],
   "transitions": [
     {
       "rect": [

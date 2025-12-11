@@ -27,6 +27,7 @@ enum class ELayer : UINT
 	Projectile,	// 보스 투사체
 	Hazard,		// 환경 위험요소 (가시, 넝쿨 등)
 	LayerSize,
+	Interaction,
 };
 
 // StateTag (비트필드)
@@ -118,6 +119,7 @@ enum class EAbility
 	ParryHit,
 	Die,
 	HangOnLedge,
+	Interact,
 	// AI
 	AI_Patrol,
 	AI_Chase,

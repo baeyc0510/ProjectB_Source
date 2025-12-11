@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Stage_Beginning.h"
 
+#include "Game/Game.h"
 #include "Game/Data/AnimKey.h"
 #include "Game/Object/Character/Player.h"
 #include "Game/Component/StateSystem.h"
@@ -41,9 +42,15 @@ void Stage_Beginning::Enter()
 		animator->Stop();
 		player->SetIsDown(true);
 		
-		// 2초후 일어나기 시작
+		CAMERA->SetLookAt(player->GetPos() - Vec2(0.f, 300.f));
+		CAMERA->SetTargetPos(player->GetPos() + Game::DEFAULT_CAMERA_OFFSET , 2.0f);
+		CAMERA->SetTargetObj(nullptr);
+		
+		// 2.5초후 일어나기 시작
 		TIMER->SetTimer([this,player, animator]()
 		{
+			CAMERA->SetTargetObj(player);
+			
 			animator->Play(AnimKey::Rising,true,[this,player]()
 			{
 				// SFX
@@ -54,7 +61,7 @@ void Stage_Beginning::Enter()
 					player->SetIsDown(false);
 				},1.0f);
 			});
-		}, 2.0f);
+		}, 2.5f);
 	}
 }
 

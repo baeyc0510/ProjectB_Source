@@ -5,7 +5,8 @@ class Boss_TenPiedad : public Boss
 {
 public:
 	Boss_TenPiedad();
-
+	
+	wstring GetIntroSoundKey() const override;
 protected:
 	void Init() override;
 	void OnAppearanceComplete() override;

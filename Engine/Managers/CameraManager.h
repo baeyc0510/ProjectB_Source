@@ -43,7 +43,8 @@ public:
 	void				FadeOut(float duration);	// 씬 탈출 효과
 
 	void				SetTargetPos(const Vec2& targetPos, float timeToTarget = 0);
-	void				SetTargetObj(GameObject* targetObj);
+	void				SetTargetObj(GameObject* targetObj, bool instant = false);
+	void				SetLookAt(const Vec2& lookAt);
 
 	// 줌 기능 (연출용)
 	void				SetZoom(float zoom, float duration = 0);

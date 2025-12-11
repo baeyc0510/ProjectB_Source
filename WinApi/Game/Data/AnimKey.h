@@ -44,6 +44,11 @@ namespace AnimKey
 	// Player Special Action
 	constexpr const wchar_t* UseFlask		= L"UseFlask";
 	constexpr const wchar_t* Rising			= L"Rising";
+	constexpr const wchar_t* Pray			= L"Pray";
+	
+	// Interactions
+	constexpr const wchar_t* ActivateInteractable		= L"ActivateInteractable";
+	
 	
 	// Monster
 	constexpr const wchar_t* Attack			= L"Attack";

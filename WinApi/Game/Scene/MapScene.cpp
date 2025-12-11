@@ -63,7 +63,7 @@ void MapScene::Enter()
     Player* player = FindObjectByType<Player>();
     if (player)
     {
-        CAMERA->SetTargetObj(player);
+        CAMERA->SetTargetObj(player, true);
     }
 }
 

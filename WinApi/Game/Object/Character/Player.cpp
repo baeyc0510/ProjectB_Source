@@ -16,6 +16,7 @@
 #include "Game/Ability/Player/Ability_Slide.h"
 #include "Game/Ability/Player/Ability_UseFlask.h"
 #include "Game/Ability/Player/Ability_Climb.h"
+#include "Game/Ability/Player/Ability_Interact.h"
 #include "Game/Ability/Player/Ability_LedgeClimb.h"
 #include "Game/Component/Rigidbody.h"
 #include "Game/Component/StateSystem.h"
@@ -44,6 +45,7 @@ Vec2 Player::GetCenterPos()
 {
 	if (collider)
 		return collider->GetPos();
+	return pos;
 }
 
 void Player::Init()
@@ -83,6 +85,7 @@ void Player::Init()
 	AddAbility<Ability_LedgeClimb>(EAbility::HangOnLedge);
 	AddAbility<Ability_PlayerPushback>(EAbility::HitReact);
 	AddAbility<Ability_Die>(EAbility::Die);
+	AddAbility<Ability_Interact>(EAbility::Interact);
 	
 	// Animations
 	for (const auto& anim : PlayerAnimData::GetAnimations())
@@ -196,10 +199,20 @@ void Player::HandleActionInput()
 		abilitySystem->TryActivateAbility(EAbility::UseFlask);
 	}
 	
-	// Climb or Crouch
+	// Interact
+	if (INPUT->ButtonDown('E'))
+	{
+		abilitySystem->TryActivateAbility(EAbility::Interact);
+	}
+
+	// Climb, LedgeClimb, or Crouch (우선순위대로 시도)
 	if (INPUT->ButtonDown('W'))
 	{
-		abilitySystem->TryActivateAbility(EAbility::Climb);
+		if (abilitySystem->TryActivateAbility(EAbility::Climb))
+			return;
+		if (abilitySystem->TryActivateAbility(EAbility::HangOnLedge))
+			return;
+		abilitySystem->TryActivateAbility(EAbility::Crouch);
 	}
 	if (INPUT->ButtonDown('S'))
 	{
@@ -514,6 +527,11 @@ void Player::InitStartupStats()
 	statComponent->InitStat(EStatType::Flask, static_cast<float>(MAX_FLASK));
 	statComponent->InitStat(EStatType::JumpForce, JUMP_FORCE, JUMP_FORCE);
 	statComponent->InitStat(EStatType::AttackPower, ATTACK_POWER, ATTACK_POWER);
+	
+	// TEMP 플레이어 체력,포션
+	statComponent->SetCurrent(EStatType::HP, MAX_HP * 0.5f);
+	statComponent->SetCurrent(EStatType::MP, 0);
+	statComponent->SetCurrent(EStatType::Flask, 0);
 }
 
 /*~ State Events ~*/

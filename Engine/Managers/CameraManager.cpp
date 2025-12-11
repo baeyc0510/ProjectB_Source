@@ -187,16 +187,22 @@ void CameraManager::SetTargetPos(const Vec2& targetPos, float timeToTarget)
 	this->timeToTarget = timeToTarget;
 }
 
-void CameraManager::SetTargetObj(GameObject* targetObj)
+void CameraManager::SetTargetObj(GameObject* targetObj, bool instant)
 {
 	this->targetObj = targetObj;
 
 	// 타겟 설정 시 즉시 카메라를 타겟 위치로 이동 (오프셋 적용)
-	if (targetObj != nullptr)
+	if (targetObj != nullptr && instant)
 	{
 		lookAt = targetObj->GetPos() + offset;
 		targetPos = lookAt;
 	}
+}
+
+void CameraManager::SetLookAt(const Vec2& lookAt)
+{
+	this->lookAt = lookAt; 
+	//targetPos = lookAt;
 }
 
 void CameraManager::MoveToTarget()

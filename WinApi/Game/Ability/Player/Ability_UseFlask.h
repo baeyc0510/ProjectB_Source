@@ -18,5 +18,5 @@ private:
     void UseFlask();
 
 private:
-    static constexpr float HEAL_AMOUNT = 50.0f;
+    static constexpr float HEAL_AMOUNT = 150.0f;
 };

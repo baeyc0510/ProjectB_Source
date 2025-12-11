@@ -8,7 +8,7 @@
 #include "Game/Data/VFXKeys.h"
 #include "Game/Manager/VFXManager.h"
 #include "Game/Object/VFXObject.h"
-#include "Game/Util/AnimEventHelper.h"
+#include "Game/Util/AnimationHelper.h"
 
 Character::Character()
 {
@@ -114,11 +114,11 @@ void Character::Init()
     AddChild(animator);
 
     // Animator -> AbilitySystem 이벤트 연결
-    AnimEventHelper::ConnectAbilitySystem(animator, abilitySystem);
+    AnimationHelper::ConnectAbilitySystem(animator, abilitySystem);
 
     // Animator -> Character 이벤트 연결
     animator->OnFrameEvent.Add([this](const wstring& eventName) {
-        HandleAnimationEvent(AnimEventHelper::ToGameEvent(eventName));
+        HandleAnimationEvent(AnimationHelper::ToGameEvent(eventName));
     });
 
     // 필수 컴포넌트 검증
@@ -226,11 +226,7 @@ void Character::OnStatChanged(EStatType type, float& current, float& max)
 
 void Character::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
-    assert(animator);
-    AnimationResource* animation = LOADANIMATION(name + L"_" + aniName, path);
-    assert(animation);
-    animation->SetRepeat(bShouldRepeat);
-    animator->AddAnimation(aniName, animation);
+    AnimationHelper::AddAnimation(animator,aniName,path,bShouldRepeat);
 }
 
 void Character::SpawnDamageVFX(const CombatContext& context, int spawnDirection)

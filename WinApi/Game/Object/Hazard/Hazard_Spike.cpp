@@ -3,7 +3,7 @@
 
 #include "Game/Data/AnimKey.h"
 #include "Game/Enum.h"
-#include "Game/Util/AnimEventHelper.h"
+#include "Game/Util/AnimationHelper.h"
 
 
 Hazard_Spike::Hazard_Spike()
@@ -25,7 +25,7 @@ void Hazard_Spike::Init()
 	// animator 설정
 	animator->OnFrameEvent.Add([this](const wstring& eventName)
 	{
-		EGameEvent event = AnimEventHelper::ToGameEvent(eventName);
+		EGameEvent event = AnimationHelper::ToGameEvent(eventName);
 		OnGameEvent(event);
 	});
 

@@ -45,7 +45,12 @@ public:
 protected:
 	// 오브젝트 파괴 시 호출 (파생 클래스에서 오버라이드)
 	virtual void	OnDestroy() {}
-
+	virtual void	OnEnable()	{}
+	virtual void	OnDisable()	{}
+	virtual void	Release()	{}
+	virtual void	Update()	 {}
+	virtual void	LateUpdate() {}
+	virtual void	Render()	{}
 protected:
 	wstring			name;
 	Vec2			pos;
@@ -58,12 +63,6 @@ protected:
 
 private:
 	virtual void	Init()		= 0;
-	virtual void	OnEnable()	{}
-	virtual void	OnDisable()	{}
-	virtual void	Release()	{}
-	virtual void	Update()	 {}
-	virtual void	LateUpdate() {}
-	//virtual void	Render()	= 0;
 	
 	void			ComponentInit()			override;
 	void			ComponentOnEnable()		override;

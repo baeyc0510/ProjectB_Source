@@ -177,6 +177,7 @@
     <ClInclude Include="Game\Ability\Player\Ability_Crouch.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Climb.h" />
     <ClInclude Include="Game\Ability\Player\Ability_CrouchAttack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Interact.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Jump.h" />
     <ClInclude Include="Game\Ability\Player\Ability_LedgeClimb.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Parry.h" />
@@ -203,6 +204,7 @@
     <ClInclude Include="Game\Enum.h" />
     <ClInclude Include="Game\Interface\CombatInterface.h" />
     <ClInclude Include="Game\Event\EventData.h" />
+    <ClInclude Include="Game\Interface\InteractInterface.h" />
     <ClInclude Include="Game\Manager\EventBusManager.h" />
     <ClInclude Include="Game\Manager\GameUIManager.h" />
     <ClInclude Include="Game\Manager\MapManager.h" />
@@ -223,6 +225,7 @@
     <ClInclude Include="Game\Object\Hazard\Hazard_Spike.h" />
     <ClInclude Include="Game\Object\Projectile\Projectile.h" />
     <ClInclude Include="Game\Object\Projectile\Projectile_Spit.h" />
+    <ClInclude Include="Game\Object\World\Checkpoint.h" />
     <ClInclude Include="Game\Object\World\Ground.h" />
     <ClInclude Include="Game\Object\World\LadderCollider.h" />
     <ClInclude Include="Game\Object\World\LedgeCollider.h" />
@@ -241,8 +244,8 @@
     <ClInclude Include="Game\UI\OverlayUI.h" />
     <ClInclude Include="Game\UI\PlayerStatusHUD.h" />
     <ClInclude Include="Game\Util\AIUtils.h" />
-    <ClInclude Include="Game\Util\AnimEventHelper.h" />
-    <ClInclude Include="Game\Util\CharacterFactory.h" />
+    <ClInclude Include="Game\Util\AnimationHelper.h" />
+    <ClInclude Include="Game\Util\WorldObjectFactory.h" />
     <ClInclude Include="Game\Util\LedgeHelper.h" />
     <ClInclude Include="Game\Util\CombatHelper.h" />
     <ClInclude Include="Game\Util\TransitionHelper.h" />
@@ -267,6 +270,7 @@
     <ClCompile Include="Game\Ability\Player\Ability_Crouch.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Climb.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_CrouchAttack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Interact.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Jump.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_LedgeClimb.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Parry.cpp" />
@@ -301,6 +305,7 @@
     <ClCompile Include="Game\Object\Hazard\Hazard_Spike.cpp" />
     <ClCompile Include="Game\Object\Projectile\Projectile.cpp" />
     <ClCompile Include="Game\Object\Projectile\Projectile_Spit.cpp" />
+    <ClCompile Include="Game\Object\World\Checkpoint.cpp" />
     <ClCompile Include="Game\Object\World\Ground.cpp" />
     <ClCompile Include="Game\Object\World\LadderCollider.cpp" />
     <ClCompile Include="Game\Object\World\LedgeCollider.cpp" />
@@ -319,8 +324,8 @@
     <ClCompile Include="Game\UI\OverlayUI.cpp" />
     <ClCompile Include="Game\UI\PlayerStatusHUD.cpp" />
     <ClCompile Include="Game\Util\AIUtils.cpp" />
-    <ClCompile Include="Game\Util\AnimEventHelper.cpp" />
-    <ClCompile Include="Game\Util\CharacterFactory.cpp" />
+    <ClCompile Include="Game\Util\AnimationHelper.cpp" />
+    <ClCompile Include="Game\Util\WorldObjectFactory.cpp" />
     <ClCompile Include="Game\Util\LedgeHelper.cpp" />
     <ClCompile Include="Game\Util\CombatHelper.cpp" />
     <ClCompile Include="Game\Util\TransitionHelper.cpp" />

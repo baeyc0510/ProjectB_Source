@@ -30,7 +30,7 @@ void SceneTitle::Init()
 	{
 		ShowMainMenu(false);
 		CAMERA->FadeOut(0.5f);
-		WORLD->ChangeScene((int)ESceneType::Stage_Boss01, 0.5f);
+		WORLD->ChangeScene((int)ESceneType::Stage01, 0.5f);
 	});
 	AddUI(btnEnter);
 	
@@ -79,7 +79,7 @@ void SceneTitle::Enter()
 	}
 	
 	// 카메라 중앙에 오게 설정
-	CAMERA->SetTargetObj(mainLayer);
+	CAMERA->SetTargetObj(mainLayer, true);
 
 	// 모든 애니메이션 재생
 	bgLayer->PlayVFX();

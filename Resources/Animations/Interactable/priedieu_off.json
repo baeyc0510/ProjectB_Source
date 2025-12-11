@@ -1,0 +1,8 @@
+{
+    "image": "Image/Interactable/priedieu_stand_and_liton_anim0.bmp",
+    "pivot": [30.0, 4.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 66, 145], "events": []}
+    ]
+}

@@ -3,6 +3,7 @@
 
 #include "Game/Data/VFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
+#include "Game/Util/AnimationHelper.h"
 
 Hazard::Hazard()
 {
@@ -100,9 +101,5 @@ void Hazard::OnSpawn()
 }
 void Hazard::AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat)
 {
-	assert(animator);
-	AnimationResource* animation = LOADANIMATION(name + L"_" + aniName, path);
-	assert(animation);
-	animation->SetRepeat(bShouldRepeat);
-	animator->AddAnimation(aniName, animation);
+	AnimationHelper::AddAnimation(animator,aniName,path,bShouldRepeat);
 }

@@ -24,6 +24,11 @@ Boss_TenPiedad::Boss_TenPiedad()
 	name = TEXT("Ten Piedad");
 }
 
+wstring Boss_TenPiedad::GetIntroSoundKey() const
+{
+	return SFXKey::PiedadWakeUp;
+}
+
 void Boss_TenPiedad::Init()
 {
 	Boss::Init();

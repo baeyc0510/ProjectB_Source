@@ -41,9 +41,9 @@ void Ability_BossAppear::OnActivate()
     WaitEvent(EGameEvent::DoAction, BIND_EVENT(this,PlayIntroSound));
     
     // 카메라 연출: 보스쪽으로 천천히 카메라 이동
-    CAMERA->SetSmoothSpeed(1.f);
+    // CAMERA->SetSmoothSpeed(1.f);
     CAMERA->SetTargetObj(nullptr);
-    CAMERA->SetTargetPos(owner->GetPos());
+    CAMERA->SetTargetPos(owner->GetPos(),2.5f);
     
     // 플레이어 정지
     player->GetComponent<Rigidbody>()->SetVelocity(Vec2(0.f,0.f));
@@ -65,8 +65,8 @@ void Ability_BossAppear::OnEnd()
 
     // 카메라를 플레이어 쪽으로 복귀
     GameObject* playerObj = bossAI->GetTarget();
-    CAMERA->SetTargetPos(bossAI->GetTarget()->GetPos() + Game::DEFAULT_CAMERA_OFFSET);
-
+    CAMERA->SetTargetPos(playerObj->GetPos() + Game::DEFAULT_CAMERA_OFFSET);
+    
     // 연출 종료 후 전투 시작
     TIMER->SetTimer([this, playerObj]()
     {
@@ -75,7 +75,6 @@ void Ability_BossAppear::OnEnd()
         
         // 카메라 세팅 기본값으로 리셋
         CAMERA->SetTargetObj(playerObj);
-        CAMERA->SetSmoothSpeed(Game::DEFAULT_CAMERA_SMOOTH);
     }, 2.0f);
 }
 

@@ -33,6 +33,7 @@ struct PlayerAnimData
             {AnimKey::Crouch, TEXT("Animations/Penitent/penitent_crouch_anim.json"), false},
             {AnimKey::CrouchUp, TEXT("Animations/Penitent/penitent_crouch_up_anim.json"), false},
             {AnimKey::UseFlask, TEXT("Animations/Penitent/penitent_healthposion_anim.json"), false},
+            {AnimKey::Pray, TEXT("Animations/Penitent/player_pray.json"), false},
             {AnimKey::Climbing, TEXT("Animations/Penitent/penitent_ladder_climb_loop_anim.json"), true},
             {AnimKey::LedgeHang, TEXT("Animations/Penitent/penitent_hangonledge_anim.json"), false},
             {AnimKey::LedgeClimbOver,TEXT("Animations/Penitent/penitent_climbledge.json"), false},
