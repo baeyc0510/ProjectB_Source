@@ -29,7 +29,11 @@ public:
 	
 	// Down 연출
 	void SetIsDown(bool value) { bIsDown = value; }
-	
+
+public:
+	// 피격 이벤트 델리게이트 (Parry 등에서 사용)
+	MulticastDelegate<GameObject*, const CombatContext&> OnDamageReceived;
+
 protected:
 	/*~ GameObject Interface ~*/
 	void Init() override;

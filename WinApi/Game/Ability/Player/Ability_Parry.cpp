@@ -5,8 +5,10 @@
 #include "Game/Data/SFXKeys.h"
 #include "Game/Component/AbilitySystem.h"
 #include "Game/Component/StatComponent.h"
+#include "Game/Component/StateSystem.h"
 #include "Game/Interface/CombatInterface.h"
 #include "Game/Util/CombatHelper.h"
+#include "Game/Object/Character/Player.h"
 
 namespace
 {
@@ -28,7 +30,15 @@ void Ability_Parry::OnActivate()
 
     GetAnimator()->Play(AnimKey::Parry, true, BIND(this, OnEndParryAnim));
 
-    WaitEvent(EGameEvent::Hit, BIND_ARGS(this, OnHit));
+    // Player의 OnDamageReceived 델리게이트에 바인딩
+    Player* player = dynamic_cast<Player*>(owner);
+    if (player)
+    {
+        onHitHandle = player->OnDamageReceived.SafeAdd([this](GameObject* source, const CombatContext& context) {
+            OnHit(source, context);
+        });
+    }
+
     WaitEvent(EGameEvent::ParryWindowOpen, BIND_EVENT(this, OnParryWindowOpen));
     WaitEvent(EGameEvent::ParryWindowClose, BIND_EVENT(this, OnParryWindowClose));
 }
@@ -37,7 +47,16 @@ void Ability_Parry::OnEnd()
 {
     Ability::OnEnd();
 
+    // 델리게이트 해제
+    onHitHandle.Release();
     ClearEventHandles();
+
+    if (bParrySuccess)
+    {
+        // 무적 해제
+        GetStateSystem()->RemoveTag(Tag_Invincible);
+    }
+
     bParryWindowOpen = false;
     bParrySuccess = false;
     bShouldCounter = false;
@@ -66,7 +85,7 @@ void Ability_Parry::OnParryWindowClose()
     bParryWindowOpen = false;
 }
 
-void Ability_Parry::OnHit(GameObject* source)
+void Ability_Parry::OnHit(GameObject* source, const CombatContext& context)
 {
     // 패리 윈도우가 아니면 일반 가드
     if (!bParryWindowOpen)
@@ -77,6 +96,9 @@ void Ability_Parry::OnHit(GameObject* source)
 
     if (!source)
         return;
+
+    // CombatContext 활용: 특정 데미지 타입은 패리 불가 등의 로직 추가 가능
+    // 예: if (context.damageType == EDamageType::Unparriable) return;
 
     // 패리 성공: 상대방 스턴
     if (AbilitySystem* sourceAbilitySystem = source->GetComponent<AbilitySystem>())
@@ -91,6 +113,9 @@ void Ability_Parry::OnHit(GameObject* source)
     onCounterOpenHandle = WaitEvent(EGameEvent::ComboWindowOpen, BIND_EVENT(this, OnCounterOpen));
     onCounterCloseHandle = WaitEvent(EGameEvent::ComboWindowClose, BIND_EVENT(this, OnCounterClose));
     bParrySuccess = true;
+
+    // 무적판정
+    GetStateSystem()->AddTag(Tag_Invincible);
 }
 
 void Ability_Parry::OnCounterInput()

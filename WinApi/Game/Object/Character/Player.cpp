@@ -418,6 +418,8 @@ void Player::OnDamage(GameObject* source, const CombatContext& context)
 		return;
 
 	abilitySystem->TriggerEvent(EGameEvent::Hit, source);
+	// 피격 델리게이트 브로드캐스트 (컨텍스트 전달)
+	OnDamageReceived.Broadcast(source, context);
 
 	if (context.value <= 0.0001f)
 		return;
@@ -444,7 +446,10 @@ void Player::OnDamage(GameObject* source, const CombatContext& context)
 	}
 
 	// 데미지 적용
-	statComponent->TakeDamage(context.value);
+	if (!stateSystem->HasTag(Tag_Invincible))
+	{
+		statComponent->TakeDamage(context.value);	
+	}
 }
 
 bool Player::IsDead()

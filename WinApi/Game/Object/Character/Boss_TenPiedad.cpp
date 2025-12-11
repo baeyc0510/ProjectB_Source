@@ -39,7 +39,7 @@ void Boss_TenPiedad::Init()
 	collider->SetLayer((UINT)ELayer::Monster);
 
 	// 이름 이미지
-	 nameImg = LOADIMAGE(L"Ten_Piedad_Name", L"Image/Sheet/boss_tenpiedad_name.bmp");
+	nameImg = LOADIMAGE(L"Ten_Piedad_Name", L"Image/Sheet/boss_tenpiedad_name.bmp");
 	
 	RegisterAnimations();
 	RegisterAbilities();

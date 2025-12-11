@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Game/Ability/Ability.h"
 
+struct CombatContext;
+
 class Ability_Parry : public Ability
 {
 public:
@@ -20,7 +22,7 @@ private:
     void OnInterruptedParryAnim();
     void OnParryWindowOpen();
     void OnParryWindowClose();
-    void OnHit(GameObject* source);
+    void OnHit(GameObject* source, const CombatContext& context);
     void OnCounterInput();
     void OnCounterOpen();
     void OnCounterClose();
@@ -31,6 +33,7 @@ private:
     bool bParrySuccess;
     bool bShouldCounter;
 
+    SafeDelegateHandle<GameObject*, const CombatContext&> onHitHandle;
     DelegateHandle onCounterOpenHandle;
     DelegateHandle onCounterCloseHandle;
     DelegateHandle onCounterInputHandle;
