@@ -1,0 +1,19 @@
+{
+    "image": "Image/Enemy/stoner_idle_anim.bmp",
+    "pivot": [44.0, 3.0],
+    "frame_interval": 0.0833,
+    "frames": [
+        {"rect": [0, 0, 94, 53], "events": []},
+        {"rect": [94, 0, 94, 53], "events": []},
+        {"rect": [188, 0, 94, 53], "events": []},
+        {"rect": [282, 0, 94, 53], "events": []},
+        {"rect": [376, 0, 94, 53], "events": []},
+        {"rect": [470, 0, 94, 53], "events": []},
+        {"rect": [564, 0, 94, 53], "events": []},
+        {"rect": [658, 0, 94, 53], "events": []},
+        {"rect": [752, 0, 94, 53], "events": []},
+        {"rect": [846, 0, 94, 53], "events": []},
+        {"rect": [940, 0, 94, 53], "events": []},
+        {"rect": [1034, 0, 94, 53], "events": []}
+    ]
+}
