@@ -2,7 +2,6 @@
 #include "Character.h"
 #include "Game/Enum.h"
 #include "Game/Interface/CombatInterface.h"
-#include "Game/Component/StatComponent.h"
 #include "Game/Util/LedgeHelper.h"
 
 class Player : public Character, public ICombatInterface
@@ -12,6 +11,8 @@ public:
 	~Player() override;
 
 	/*~ Player Interface ~*/
+	Vec2 GetCenterPos();
+	
 	void SetLadderInfo(float x, float topY, float bottomY) { ladderX = x; ladderTopY = topY; ladderBottomY = bottomY; }
 
 	float GetLadderX() const { return ladderX; }
@@ -35,9 +36,6 @@ protected:
 	void OnEnable() override;
 	void Update() override;
 	void LateUpdate() override;
-	void Render() override;
-	void OnDisable() override;
-	void Release() override;
 	void OnCollisionEnter(Collider* other) override;
 	void OnCollisionStay(Collider* other) override;
 	void OnCollisionExit(Collider* other) override;
@@ -46,10 +44,12 @@ protected:
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 	void HandleAnimationEvent(EGameEvent event) override;
 	bool ShouldIgnorePlatform() const override;
+	void OnDieComplete() override;
 	
 	/*~ ICombatInterface ~*/
 	void OnDamage(GameObject* source, const CombatContext& context) override;
-
+	bool IsDead() override;
+	
 	/*~ Player Interface ~*/
 	void InitStartupStats();
 	void OnStatChanged(EStatType type, float& current, float& max) override;
@@ -64,6 +64,7 @@ protected:
 	
 private:
 	// Active Input
+	void HandleReturnToTitleInput();
 	void ProcessActiveInput();
 	void HandleCombatInput();
 	void HandleActionInput();
@@ -105,7 +106,7 @@ private:
 	static constexpr float HEAVY_GUARD_PUSHBACK_MULT = 2.0f;
 
 	// 캐릭터 크기
-	static constexpr float CHARACTER_WIDTH = 42.f;
+	static constexpr float CHARACTER_WIDTH = 33.f;
 	static constexpr float CHARACTER_HEIGHT = 66.f;
 	static constexpr float COLLIDER_OFFSET_Y = -33.f;
 	static constexpr float CROUCH_HEIGHT_SCALE = 0.5f;
@@ -128,4 +129,7 @@ private:
 
 	bool bWasMovingInput = false;
 	bool bIsDown = false;
+	
+	// 사망 연출용 타이머
+	SafeTimerHandle deathTimerHandle;
 };

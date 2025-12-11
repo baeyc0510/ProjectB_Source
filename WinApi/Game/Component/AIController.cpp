@@ -20,8 +20,12 @@ AIController::~AIController()
 
 void AIController::ComponentInit()
 {
-	// 베이스 클래스의 컴포넌트 캐싱 호출
-	CacheComponents();
+	// 컴포넌트 캐싱
+	stateSystem = owner->GetComponent<StateSystem>();
+	abilitySystem = owner->GetComponent<AbilitySystem>();
+
+	assert(stateSystem && "AIController requires StateSystem");
+	assert(abilitySystem && "AIController requires AbilitySystem");
 
 	// 상태 변경 이벤트 구독 (RAII 자동 해제)
 	stateChangedHandle = stateSystem->OnStateChanged.SafeAdd(
@@ -125,7 +129,7 @@ bool AIController::IsTargetInAttackRange() const
 	// 타겟이 앞에 있어야 하는 경우 방향 체크
 	if (config.requireFacingTarget && owner)
 	{
-		int facingDir = (owner->GetScale().x >= 0) ? 1 : -1;
+		int facingDir = (owner->GetForward() >= 0) ? 1 : -1;
 		int targetDir = GetDirectionToTarget();
 		if (facingDir != targetDir)
 			return false;

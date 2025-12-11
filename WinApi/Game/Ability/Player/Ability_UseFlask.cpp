@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Ability_UseFlask.h"
 
+#include "Game/Component/StatComponent.h"
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/SFXKeys.h"
 #include "Game/Object/Character/Player.h"

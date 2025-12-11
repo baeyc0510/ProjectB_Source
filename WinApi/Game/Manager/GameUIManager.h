@@ -43,6 +43,7 @@ public:
 	// HUD 표시 여부
 	void ShowPlayerHUD(bool show);
 	void ShowBossHUD(bool show);
+	void CloseHUD();
 
 private:
 	void AddUI(UIBase* ui);

@@ -23,10 +23,7 @@ public:
 
 protected:
 	void FindPlayer();
-	void CacheComponents();
 
 protected:
 	GameObject* target = nullptr;
-	StateSystem* stateSystem = nullptr;
-	AbilitySystem* abilitySystem = nullptr;
 };

@@ -20,8 +20,12 @@ BossAIController::~BossAIController()
 
 void BossAIController::ComponentInit()
 {
-	// 베이스 클래스의 컴포넌트 캐싱 호출
-	CacheComponents();
+	// 컴포넌트 캐싱
+	stateSystem = owner->GetComponent<StateSystem>();
+	abilitySystem = owner->GetComponent<AbilitySystem>();
+
+	assert(stateSystem && "AIController requires StateSystem");
+	assert(abilitySystem && "AIController requires AbilitySystem");
 }
 
 void BossAIController::ComponentOnEnable()

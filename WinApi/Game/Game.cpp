@@ -9,6 +9,7 @@
 #include "Manager/GameUIManager.h"
 #include "Manager/EventBusManager.h"
 #include "Object/VFXObject.h"
+#include "Scene/ScenePlayerDeath.h"
 #include "Scene/Stage_Beginning.h"
 #include "Scene/SceneTitle.h"
 #include "Scene/SimpleStage.h"
@@ -140,6 +141,7 @@ void Game::Init(HINSTANCE hInstance)
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage04,	new SimpleStage(TEXT("Maps/stage04.json")));
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage05,	new SimpleStage(TEXT("Maps/stage05.json")));
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage_Boss01,	new Stage_Boss01());
+	SINGLE(SceneManager)->AddScene((int)ESceneType::PlayerDeath,	new ScenePlayerDeath());
 
 	// 충돌 레이어 설정
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Monster);
@@ -148,11 +150,12 @@ void Game::Init(HINSTANCE hInstance)
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ladder);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Platform);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Ledge);
+	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Player, (UINT)ELayer::Hazard);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Ground);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Monster, (UINT)ELayer::Platform);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Ground);
 	SINGLE(CollisionManager)->CheckLayer((UINT)ELayer::Projectile, (UINT)ELayer::Player);
-
+	
 	// 리소스 프리로드
 	SINGLE(VFXManager)->PreLoad();
 	SINGLE(SFXManager)->PreLoad();
@@ -207,9 +210,9 @@ void Game::Update()
 	SINGLE(UIManager)->Update();
 	SINGLE(GameUIManager)->Update();
 	SINGLE(SceneManager)->Update();
+	SINGLE(CollisionManager)->Update();
 	SINGLE(CameraManager)->Update();
 	SINGLE(SoundManager)->Update();
-	SINGLE(CollisionManager)->Update();
 }
 
 void Game::Render()

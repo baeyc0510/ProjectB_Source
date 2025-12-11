@@ -38,11 +38,6 @@ void Boss::Init()
 	AddChild(bossAI);
 }
 
-void Boss::OnEnable()
-{
-	Character::OnEnable();
-}
-
 void Boss::Update()
 {
 	Character::Update();
@@ -68,20 +63,10 @@ void Boss::Update()
 	animator->SetDirection(GetForward());
 }
 
-void Boss::Render()
-{
-	Character::Render();
-}
-
 void Boss::OnDisable()
 {
 	Character::OnDisable();
 	GAMEUI->ShowBossHUD(false);
-}
-
-void Boss::Release()
-{
-	Character::Release();
 }
 
 void Boss::TriggerAppearance()
@@ -101,6 +86,15 @@ void Boss::OnAppearanceComplete()
 	GAMEUI->ShowBossHUD(true);
 	// HP 이벤트 강제 발생 (UI 초기 업데이트)
 	GAMEUI->SetBossHP(statComponent->GetCurrent(EStatType::HP), statComponent->GetMax(EStatType::HP));
+}
+
+bool Boss::IsTargetDead()
+{
+	if (ICombatInterface* combat = dynamic_cast<ICombatInterface*>(bossAI->GetTarget()))
+	{
+		return combat->IsDead();
+	}
+	return false;
 }
 
 void Boss::OnStatChanged(EStatType type, float& current, float& max)
@@ -137,6 +131,11 @@ void Boss::UpdateBossAI()
 	// AI 컨트롤러에서 공격 선택 및 실행
 	if (bossAI && bossAI->HasTarget())
 	{
+		// 타겟이 사망한 경우 공격 x
+		if (IsTargetDead())
+			return;
+		
+		// 타겟이 살아있는 경우 공격 선택
 		EAbility nextAttack = bossAI->SelectNextAttack();
 		if (nextAttack != EAbility::None)
 		{
@@ -158,6 +157,11 @@ void Boss::OnDamage(GameObject* source, const CombatContext& context)
 		// Apply Damage (OnStatChanged handles UI update)
 		statComponent->TakeDamage(context.value);
 	}
+}
+
+bool Boss::IsDead()
+{
+	return stateSystem->HasTag(Tag_Dead);
 }
 
 void Boss::OnStateChanged(EStateTag oldTags, EStateTag newTags)

@@ -7,8 +7,40 @@ OverlayUI::OverlayUI()
 {
 }
 
+OverlayUI::OverlayUI(const wstring& imgPath)
+{
+	bgImgPath = imgPath;
+}
+
 OverlayUI::~OverlayUI()
 {
+}
+
+void OverlayUI::Init()
+{
+	if (bgImgPath.empty())
+		return;
+	
+	imgBackground = LOADIMAGE(bgImgPath,bgImgPath);
+	if (imgBackground)
+	{
+		SetFullscreenToImg(imgBackground);
+	}
+}
+
+void OverlayUI::Render()
+{
+	if (!imgBackground)
+		return;
+	
+	RENDER->TransparentImage(imgBackground,
+		renderPos.x, renderPos.y,
+		renderPos.x + scale.x, renderPos.y + scale.y);
+}
+
+void OverlayUI::SetBackgroundImage(ImageResource* img)
+{
+	imgBackground = img;
 }
 
 Vec2 OverlayUI::GetScaleRatio() const
@@ -41,7 +73,15 @@ Vec2 OverlayUI::ToScreenSize(const Vec2& origSize) const
 	return ToScreenSize(origSize.x, origSize.y);
 }
 
-void OverlayUI::SetFullscreen(ImageResource* img)
+void OverlayUI::SetFullscreen()
+{
+	if (imgBackground)
+	{
+		SetFullscreenToImg(imgBackground);
+	}
+}
+
+void OverlayUI::SetFullscreenToImg(ImageResource* img)
 {
 	if (img)
 	{

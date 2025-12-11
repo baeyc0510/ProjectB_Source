@@ -84,6 +84,16 @@ bool InputManager::ButtonDown(const int key, bool ignoreUI)
 	return prevKeys[key] == false && curKeys[key] == true;
 }
 
+bool InputManager::AnyButtonDown()
+{
+	for (UINT key = 0; key < VKEY_SIZE; key++)
+	{
+		if (prevKeys[key] == false && curKeys[key] == true)
+			return true;
+	}
+	return false;
+}
+
 Vec2 InputManager::MouseScreenPos()
 {
 	return Vec2((float)mousePos.x, (float)mousePos.y);

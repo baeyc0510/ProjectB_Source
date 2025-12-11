@@ -14,7 +14,7 @@ InventoryUI::~InventoryUI()
 void InventoryUI::Init()
 {
 	imgBackground = LOADIMAGE(L"Inventory_Base", L"Image/Sheet/inventory_base.bmp");
-	SetFullscreen(imgBackground);
+	SetFullscreenToImg(imgBackground);
 }
 
 void InventoryUI::OnEnable()

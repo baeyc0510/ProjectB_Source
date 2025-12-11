@@ -11,10 +11,6 @@ void Ability_HitReaction::OnActivate()
     Ability::OnActivate();
 
     GetAnimator()->Play(GetHitAnimKey(),true, BIND(this,OnFinishedReaction), BIND(this, OnInterruptedReaction));
-
-    // Hitstop + Camera Shake
-    SetTimeScale(0.0f, 0.05f);
-    ShakeCamera(ShakePreset::Medium);
     
     // 리커버
     WaitEvent(EGameEvent::Recover, BIND_EVENT(this,OnRecover));

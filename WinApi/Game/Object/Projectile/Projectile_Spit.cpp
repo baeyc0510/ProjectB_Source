@@ -26,7 +26,7 @@ void Projectile_Spit::Init()
 	animator->Play(AnimKey::ThornBall);
 }
 
-void Projectile_Spit::OnHitGround(Vec2 hitPos)
+void Projectile_Spit::OnHitGround(Vec2 hitPos, Collider* collider)
 {
 	if (bIsDestroyed)
 		return;

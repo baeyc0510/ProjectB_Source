@@ -13,7 +13,7 @@ public:
     Vec2 GetVelocity() { return velocity; }
     bool IsUsingGravity() { return bUseGravity; }
     float GetGravityScale() { return gravityScale; }
-
+    
     void SetVelocity(Vec2 inVelocity) { velocity = inVelocity; }
     void SetVelocity(float x, float y) { velocity = Vec2(x, y); }
     void UseGravity(bool use) { bUseGravity = use; }
@@ -25,14 +25,13 @@ protected:
     /*~ Component Interface ~*/
 	void ComponentInit() override;
 	void ComponentUpdate() override;
-	void ComponentRender() override;
-	void ComponentRelease() override;
 
+public:
+    static constexpr float GRAVITY_CONSTANT = 980.f;
+    
 private:
     Vec2 velocity;
     float gravityScale;
     bool bUseGravity;
     bool bGrounded;
-
-    static constexpr float GRAVITY_CONSTANT = 980.f;
 };

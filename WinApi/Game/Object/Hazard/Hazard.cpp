@@ -59,7 +59,7 @@ void Hazard::OnCollisionEnter(Collider* other)
 	if (other->GetLayer() == (UINT)ELayer::Player)
 	{
 		GameObject* player = other->GetOwner();
-		DealDamageToPlayer(player);
+		ApplyDamageToPlayer(player);
 	}
 }
 
@@ -75,17 +75,17 @@ void Hazard::OnCollisionStay(Collider* other)
 	if (other->GetLayer() == (UINT)ELayer::Player)
 	{
 		GameObject* player = other->GetOwner();
-		DealDamageToPlayer(player);
+		ApplyDamageToPlayer(player);
 	}
 }
 
-void Hazard::DealDamageToPlayer(GameObject* player)
+void Hazard::ApplyDamageToPlayer(GameObject* player)
 {
 	ICombatInterface* combat = dynamic_cast<ICombatInterface*>(player);
 	if (combat && damage > 0.f)
 	{
 		CombatContext context;
-		context.damageType = EDamageType::Slash;
+		context.damageType = EDamageType::Normal;
 		context.value = damage;
 		context.vfxKey = VFXKey::PlayerHit;
 		combat->OnDamage(this, context);

@@ -20,10 +20,6 @@ void Rigidbody::ComponentInit()
 {
 }
 
-void Rigidbody::ComponentRender()
-{
-}
-
 void Rigidbody::ComponentUpdate()
 {
     // Apply gravity (땅에 있지 않을 때만)
@@ -43,8 +39,4 @@ void Rigidbody::ComponentUpdate()
     }
 
     GetOwner()->SetPos(vPos);
-}
-
-void Rigidbody::ComponentRelease()
-{
 }

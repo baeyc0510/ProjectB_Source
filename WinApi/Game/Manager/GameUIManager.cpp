@@ -4,8 +4,6 @@
 #include "Game/UI/BossHUD.h"
 #include "Game/UI/PlayerStatusHUD.h"
 #include "Game/UI/InventoryUI.h"
-#include "Game/UI/Overlay_BossDefeat.h"
-#include "Game/UI/Buttons/Button_MainMenu.h"
 
 GameUIManager::GameUIManager()
 	: statusHUD(nullptr)
@@ -120,6 +118,13 @@ void GameUIManager::ShowBossHUD(bool show)
 	if (bossHUD)
 		bossHUD->SetVisibility(show);
 }
+
+void GameUIManager::CloseHUD()
+{
+	ShowPlayerHUD(false);
+	ShowBossHUD(false);
+}
+
 void GameUIManager::AddUI(UIBase* ui)
 {
 	uiList.push_back(ui);
@@ -179,7 +184,7 @@ UIBase* GameUIManager::CreateOverlay(EOverlayUI type)
 	case EOverlayUI::Inventory:
 		return new InventoryUI();
 	case EOverlayUI::BossDefeat:
-		return new Overlay_BossDefeat();
+		return new OverlayUI(L"Image/Background/boss-defeated-screen-title.bmp");
 	default:
 		return nullptr;
 	}

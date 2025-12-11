@@ -145,18 +145,6 @@ void Character::Update()
 	}
 }
 
-void Character::Render()
-{
-}
-
-void Character::OnDisable()
-{
-}
-
-void Character::Release()
-{
-}
-
 void Character::OnCollisionEnter(Collider* other)
 {
     movement->HandleCollisionEnter(other);

@@ -3,17 +3,13 @@
 
 #include "Game/Data/AnimKey.h"
 #include "Game/Enum.h"
-#include "Game/Data/VFXKeys.h"
 #include "Game/Util/AnimEventHelper.h"
-#include "Game/Util/CombatHelper.h"
 
-const AttackData Hazard_Spike::AttackData = {
-	{0.f, -40.f}, {15.f, 40.f}, VFXKey::AttackHit1, 10.f, EDamageType::Heavy
-};
 
 Hazard_Spike::Hazard_Spike()
 {
 	name = TEXT("Spike");
+	damage = 20.0f;
 }
 
 void Hazard_Spike::Init()
@@ -62,6 +58,14 @@ void Hazard_Spike::OnSpawn()
 	animator->Play(AnimKey::ThornThrust, true, BIND(this,OnExpire));
 }
 
+void Hazard_Spike::OnCollisionStay(Collider* other)
+{
+	if (!bDamageEnabled)
+		return;
+	
+	Hazard::OnCollisionStay(other);
+}
+
 void Hazard_Spike::OnExpire()
 {
 	// 사라지는 애니메이션 재생 후 삭제
@@ -72,13 +76,12 @@ void Hazard_Spike::OnGameEvent(EGameEvent event)
 {
 	if (event == EGameEvent::HitCheck)
 	{
-		OnHitCheck();
+		bDamageEnabled = true;
 		return;
 	}
 }
 
-void Hazard_Spike::OnHitCheck()
+void Hazard_Spike::ApplyDamage()
 {
-	vector<HitResult> hitResults;
-	CombatHelper::ApplyDamageWithAttackData(this, AttackData, {ELayer::Player}, hitResults);
+	
 }

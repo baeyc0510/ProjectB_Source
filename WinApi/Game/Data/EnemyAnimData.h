@@ -17,3 +17,18 @@ struct EnemyAcolyteAnimData
         return animations;
     }
 };
+
+struct EnemyStonerAnimData
+{
+    static const vector<AnimationEntry>& GetAnimations()
+    {
+        static const vector<AnimationEntry> animations = {
+            {AnimKey::Idle, TEXT("Animations/Enemy/stoner_idle_anim.json"), true},
+            {AnimKey::StartAggro, TEXT("Animations/Enemy/stoner_rising_anim.json"), false},
+            {AnimKey::Attack, TEXT("Animations/Enemy/stoner_attack_anim.json"), false},
+            {AnimKey::Turnaround, TEXT("Animations/Enemy/stoner_leftright_anim.json"), false},
+            {AnimKey::Dead, TEXT("Animations/Enemy/stoner_death_anim.json"), false},
+        };
+        return animations;
+    }
+};

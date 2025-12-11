@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "Ability_BossGroundSmash.h"
+#include "Ability_PiedadGroundSmash.h"
 
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/VFXKeys.h"
@@ -9,7 +9,7 @@
 #include "Game/Component/BossAIController.h"
 #include "Game/Object/Character/Boss.h"
 
-void Ability_BossGroundSmash::OnActivate()
+void Ability_PiedadGroundSmash::OnActivate()
 {
 	Ability::OnActivate();
 
@@ -23,18 +23,18 @@ void Ability_BossGroundSmash::OnActivate()
 	PlaySFX(SFXKey::PiedadSmashVoice);
 }
 
-void Ability_BossGroundSmash::OnEnd()
+void Ability_PiedadGroundSmash::OnEnd()
 {
 	Ability::OnEnd();
 	ClearEventHandles();
 }
 
-void Ability_BossGroundSmash::PlaySmashSound()
+void Ability_PiedadGroundSmash::PlaySmashSound()
 {
 	PlaySFX(SFXKey::PiedadSmash);
 }
 
-void Ability_BossGroundSmash::OnSmashImpact()
+void Ability_PiedadGroundSmash::OnSmashImpact()
 {
 	// Camera Shake
 	ShakeCamera(ShakePreset::Boss);
@@ -64,7 +64,7 @@ void Ability_BossGroundSmash::OnSmashImpact()
 	}
 }
 
-void Ability_BossGroundSmash::OnSmashToIdle()
+void Ability_PiedadGroundSmash::OnSmashToIdle()
 {
 	// ground_smash_to_idle 애니메이션 재생
 	GetAnimator()->Play(AnimKey::BossGroundSmashToIdle, true, BIND(this, EndAbility), BIND(this, EndAbility));
@@ -73,7 +73,7 @@ void Ability_BossGroundSmash::OnSmashToIdle()
 	PlaySFX(SFXKey::PiedadSmashGetUpVoice);
 }
 
-void Ability_BossGroundSmash::SpawnSpikes()
+void Ability_PiedadGroundSmash::SpawnSpikes()
 {
 	if (!owner->GetScene())
 		return;
@@ -100,7 +100,7 @@ void Ability_BossGroundSmash::SpawnSpikes()
 	}
 }
 
-int Ability_BossGroundSmash::CalculateSpikeCount() const
+int Ability_PiedadGroundSmash::CalculateSpikeCount() const
 {
 	// 보스 AI 컨트롤러에서 플레이어 거리 가져오기
 	Boss* boss = dynamic_cast<Boss*>(owner);
@@ -111,8 +111,8 @@ int Ability_BossGroundSmash::CalculateSpikeCount() const
 
 	// 거리가 가까울수록 가시가 적게 생성 (플레이어가 멀리 도망갔으면 더 많이)
 	// 100 이하: 2개, 200 이하: 3개, 300 이하: 4개, 그 이상: 5개
-	if (distance <= 100.f) return 2;
-	if (distance <= 200.f) return 3;
-	if (distance <= 300.f) return 4;
+	if (distance <= 100.f) return 3;
+	if (distance <= 200.f) return 4;
+	if (distance <= 300.f) return 5;
 	return MAX_SPIKES_PER_SIDE;
 }

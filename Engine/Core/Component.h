@@ -28,7 +28,7 @@ public:
 
 public:
 	// 선택적 오버라이드 - 자식 클래스에서 필요한 경우에만 구현
-	virtual void	ComponentInit()			{}
+	virtual void	ComponentInit()			= 0;
 	virtual void	ComponentOnEnable()		{ active = true; }
 	virtual void	ComponentUpdate()		{}
 	virtual void	ComponentLateUpdate()	{}

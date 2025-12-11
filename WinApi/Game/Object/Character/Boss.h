@@ -25,26 +25,27 @@ public:
 	void TriggerAppearance();
 	virtual void OnAppearanceComplete();
 
+	// 등장 사운드
+	virtual wstring GetIntroSoundKey() const {return L"";}
 	
 protected:
 	/*~ GameObject Interface ~*/
 	void Init() override;
-	void OnEnable() override;
 	void Update() override;
-	void Render() override;
 	void OnDisable() override;
-	void Release() override;
 
 	/*~ Character Interface ~*/
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 	
 	/*~ ICombatInterface ~*/
 	void OnDamage(GameObject* source, const CombatContext& context) override;
-
+	bool IsDead() override;
+	
 	/*~ Boss Interface ~*/
 	virtual void UpdateBossAnimation();
 	virtual void UpdateBossAI();
 	virtual bool CheckEncounterPlayer() = 0;
+	bool IsTargetDead();
 	void OnStatChanged(EStatType type, float& current, float& max) override;
 	
 protected:

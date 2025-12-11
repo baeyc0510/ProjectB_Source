@@ -8,6 +8,7 @@
 #include "Game/Component/StatComponent.h"
 #include "Game/Component/AIController.h"
 #include "Game/Component/CharacterMovement.h"
+#include "Game/Manager/EventBusManager.h"
 
 
 Enemy::Enemy()
@@ -50,27 +51,14 @@ void Enemy::Update()
 
 	UpdateStates();
 	HandleMovementEvents();
-	UpdateAIMovement();
+	UpdateAIActions();
 	UpdateAnimation();
-}
-
-void Enemy::Render()
-{
-	Character::Render();
-}
-
-void Enemy::OnDisable()
-{
-	Character::OnDisable();
-}
-
-void Enemy::Release()
-{
-	Character::Release();
 }
 
 void Enemy::UpdateAnimation()
 {
+	animator->SetDirection(GetForward());
+	
 	if (stateSystem->HasTag(Tag_AbilityAnimation))
 		return;
 	
@@ -107,7 +95,7 @@ void Enemy::HandleMovementEvents()
 	}
 }
 
-void Enemy::UpdateAIMovement()
+void Enemy::UpdateAIActions()
 {
 	// 이동 차단 태그 그룹
 	const EStateTag TAG_MOVEMENT_BLOCKED = Tag_StopVelocity | Tag_Hit | Tag_Stunned | Tag_Attacking | Tag_BlockMovement;
@@ -122,12 +110,12 @@ void Enemy::UpdateAIMovement()
 	// 순찰 모드
 	if (stateSystem->HasTag(Tag_AIPatrol))
 	{
-		UpdatePatrolMovement();
+		UpdatePatrol();
 	}
 	// 추격 모드
 	else if (stateSystem->HasTag(Tag_AIChase))
 	{
-		UpdateChaseMovement();
+		UpdateChase();
 	}
 	// 기본 상태 - 정지
 	else
@@ -136,7 +124,7 @@ void Enemy::UpdateAIMovement()
 	}
 }
 
-void Enemy::UpdatePatrolMovement()
+void Enemy::UpdatePatrol()
 {
 	int dir = aiController->GetPatrolDirection();
 
@@ -150,7 +138,7 @@ void Enemy::UpdatePatrolMovement()
 	MoveInDirection(dir, aiController->GetConfig().patrolSpeed);
 }
 
-void Enemy::UpdateChaseMovement()
+void Enemy::UpdateChase()
 {
 	int dir = aiController->GetDirectionToTarget();
 
@@ -174,7 +162,6 @@ void Enemy::UpdateChaseMovement()
 void Enemy::MoveInDirection(int dir, float speed)
 {
 	SetForward(dir);
-	animator->SetDirection(dir);
 	rigidbody->SetVelocity(Vec2(speed * dir, rigidbody->GetVelocity().y));
 }
 
@@ -191,6 +178,10 @@ void Enemy::OnDamage(GameObject* source, const CombatContext& context)
 
 	if (context.value > 0.0001f)
 	{
+		// Hitstop + Camera Shake
+		EVENT->OnSetTimeScale(this, {0.0f, 0.05f});
+		EVENT->OnCameraShake(this,{ShakePreset::Medium});
+		
 		// Hit Reaction
 		abilitySystem->CancelAbilitiesWithTag(Tag_Hit);
 		abilitySystem->TryActivateAbility(EAbility::HitReact);
@@ -200,9 +191,9 @@ void Enemy::OnDamage(GameObject* source, const CombatContext& context)
 	}
 }
 
-void Enemy::OnStateChanged(EStateTag oldTags, EStateTag newTags)
+bool Enemy::IsDead()
 {
-	Character::OnStateChanged(oldTags, newTags);
+	return stateSystem->HasTag(Tag_Dead);
 }
 
 void Enemy::OnDieComplete()

@@ -7,18 +7,21 @@ class OverlayUI : public UIBase
 {
 public:
 	OverlayUI();
+	OverlayUI(const wstring& imgPath);
 	virtual ~OverlayUI();
 
 protected:
 	/*~ UIBase Interface ~*/
-	void Init() override {}
+	void Init() override;
 	void OnEnable() override {}
 	void Update() override {}
-	void Render() override {}
+	void Render() override;
 	void OnDisable() override {}
 	void Release() override {}
 
 	/*~ OverlayUI Interface ~*/
+	void SetBackgroundImage(ImageResource* img);
+	
 	// 원본 이미지 크기 대비 화면 비율
 	Vec2 GetScaleRatio() const;
 
@@ -31,8 +34,13 @@ protected:
 	Vec2 ToScreenSize(const Vec2& origSize) const;
 
 	// 전체화면으로 설정
-	void SetFullscreen(ImageResource* img);
+	void SetFullscreen();
+	void SetFullscreenToImg(ImageResource* img);
 
 protected:
 	Vec2 originalSize;
+	ImageResource* imgBackground;
+	
+private:
+	wstring bgImgPath;
 };

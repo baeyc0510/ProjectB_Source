@@ -54,7 +54,11 @@ void Animator::Play(const wstring& aniName, bool reset,
 		return;
 
 	AnimationResource* animation = FindAnimation(aniName);
-	assert(animation && "Animation not found");
+	if (!animation)
+	{
+		assert(animation && "Animation not found");
+		return;
+	}
 
 	// 이전 애니메이션 중단 처리
 	if (currentAnimation && currentAnimation != animation && !bFinished)

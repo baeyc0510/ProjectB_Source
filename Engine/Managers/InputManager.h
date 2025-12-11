@@ -16,6 +16,8 @@ public:
 	bool					ButtonStay(const int key, bool ignoreUI = false);	// 키를 누르고 있는 중
 	bool					ButtonUp(const int key, bool ignoreUI = false);		// 키가 올라간 순간
 	bool					ButtonDown(const int key, bool ignoreUI = false);	// 키가 내려간 순간
+	bool					AnyButtonDown();
+	
 	Vec2					MouseScreenPos();									// 마우스 화면 위치
 	Vec2					MouseWorldPos();									// 마우스 게임 위치
 

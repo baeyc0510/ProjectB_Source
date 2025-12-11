@@ -135,7 +135,7 @@ void Ability_Parry::OnCounterHitCheck()
     data.traceOffset = TRACE_OFFSET;
     data.traceSize = TRACE_SIZE;
     data.damage = baseAttack * COUNTER_DAMAGE_MULTIPLIER;
-    data.damageType = EDamageType::Slash;
+    data.damageType = EDamageType::Normal;
     data.vfxKey = VFXKey::AttackHit1;
 
     vector<HitResult> hitResults;

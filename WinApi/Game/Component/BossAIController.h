@@ -53,21 +53,23 @@ protected:
 	void ComponentInit() override;
 	void ComponentOnEnable() override;
 	void ComponentUpdate() override;
-	void ComponentRender() override {}
-	void ComponentOnDisable() override {}
-	void ComponentRelease() override {}
 
 private:
 	float GetTotalWeight(const vector<BossAttackData*>& validAttacks) const;
 	EAbility SelectByWeight(const vector<BossAttackData*>& validAttacks, float totalWeight) const;
 
 private:
+	// 추격 설정
+	BossChaseConfig chaseConfig;
+	
+	// Components
+	StateSystem* stateSystem = nullptr;
+	AbilitySystem* abilitySystem = nullptr;
+	
+	// 공격 패턴 데이터
 	vector<BossAttackData> attacks;
 
 	// 결정 타이머 (매 프레임 공격 체크 방지)
 	float decisionTimer = 0.f;
 	float decisionInterval = 0.5f;
-
-	// 추격 설정
-	BossChaseConfig chaseConfig;
 };

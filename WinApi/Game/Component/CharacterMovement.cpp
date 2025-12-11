@@ -68,8 +68,15 @@ void CharacterMovement::ComponentOnEnable()
 	ignoredPlatformID = 0;
 }
 
+void CharacterMovement::ComponentUpdate()
+{
+}
+
 void CharacterMovement::ComponentLateUpdate()
 {
+	// Rigidbody가 위치 업데이트 완료한 후 CCD 수행
+	ProbeGroundCCD();
+
 	// 프레임별 충돌 정보 리셋
 	frameFlags.Reset();
 }
@@ -86,6 +93,40 @@ void CharacterMovement::SetGrounded(bool value)
 {
 	groundState.bIsGrounded = value;
 	rigidbody->SetGrounded(groundState.bIsGrounded);
+}
+
+void CharacterMovement::UpdateActiveGround(Collider* ground, float groundTop)
+{
+	if (groundState.activeGroundID == 0 || groundTop > groundState.activeGroundTop)
+	{
+		groundState.activeGroundID = ground->GetID();
+		groundState.activeGroundTop = groundTop;
+
+		Vec2 pos = ground->GetPos();
+		Vec2 half = ground->GetScale() * 0.5f;
+		groundState.groundMinX = pos.x - half.x;
+		groundState.groundMaxX = pos.x + half.x;
+	}
+}
+
+void CharacterMovement::SnapToGroundTop(float groundTop)
+{
+	Vec2 colHalf = collider->GetScale() * 0.5f;
+	Vec2 newPos = owner->GetPos();
+	newPos.y = groundTop - colHalf.y - collider->GetOffset().y + GROUND_SNAP_OFFSET;
+	owner->SetPos(newPos);
+}
+
+void CharacterMovement::OnLandGround()
+{
+	SetGrounded(true);
+
+	Vec2 velocity = rigidbody->GetVelocity();
+	if (velocity.y > 0)
+	{
+		velocity.y = 0.f;
+		rigidbody->SetVelocity(velocity);
+	}
 }
 
 void CharacterMovement::HandleCollisionEnter(Collider* other)
@@ -192,14 +233,7 @@ void CharacterMovement::HandleBoxGround(Collider* other, bool isPlatform)
 	float myHead = characterColPos.y - characterColHalf.y;
 	float myFoot = characterColPos.y + characterColHalf.y;
 
-	// activeGround 갱신 (더 아래 Ground 우선)
-	if (groundState.activeGroundID == 0 || otherTop > groundState.activeGroundTop)
-	{
-		groundState.activeGroundID = other->GetID();
-		groundState.activeGroundTop = otherTop;
-		groundState.groundMinX = otherPos.x - otherHalf.x;
-		groundState.groundMaxX = otherPos.x + otherHalf.x;
-	}
+	UpdateActiveGround(other, otherTop);
 
 	// 원웨이 플랫폼: 상승 중이거나 이미 통과한 경우 무시
 	if (isPlatform)
@@ -226,9 +260,12 @@ void CharacterMovement::HandleBoxGround(Collider* other, bool isPlatform)
 			HandleSquashState(pushDir, overlapX);
 			return;
 		}
-
+		
+		// 플랫폼 스냅 방지용 chekY
+		//float checkY = floorf((otherTop + otherBottom) *0.5f);
+		
 		// 바닥 충돌
-		if (myFoot >= otherTop)
+		if (myFoot >= otherTop )//&& myFoot < checkY)
 		{
 			HandleFloorCollision(other, otherPos, otherHalf, overlapY);
 		}
@@ -238,8 +275,8 @@ void CharacterMovement::HandleBoxGround(Collider* other, bool isPlatform)
 			HandleCeilingCollision(overlapY);
 		}
 	}
-	// 벽 충돌
-	else
+	// 벽 충돌 (플랫폼은 원웨이이므로 벽으로 막지 않음)
+	else if (!isPlatform)
 	{
 		HandleWallCollision(other, overlapX);
 	}
@@ -437,29 +474,13 @@ void CharacterMovement::HandleFloorCollision(Collider* other, const Vec2& otherP
 	if (velocity.y < 0)
 		return;
 
-	// activeGround 갱신
-	if (groundState.activeGroundID == 0 || otherTop > groundState.activeGroundTop)
-	{
-		groundState.activeGroundID = other->GetID();
-		groundState.activeGroundTop = otherTop;
-		groundState.groundMinX = otherPos.x - otherHalf.x;
-		groundState.groundMaxX = otherPos.x + otherHalf.x;
-	}
+	UpdateActiveGround(other, otherTop);
 
 	if (other->GetID() != groundState.activeGroundID)
 		return;
 
-	SetGrounded(true);
-
-	Vec2 newPos = owner->GetPos();
-	newPos.y = otherTop + GROUND_SNAP_OFFSET;
-	owner->SetPos(newPos);
-
-	if (velocity.y > 0)
-	{
-		velocity.y = 0.f;
-		rigidbody->SetVelocity(velocity);
-	}
+	SnapToGroundTop(otherTop);
+	OnLandGround();
 }
 
 void CharacterMovement::HandleCeilingCollision(float overlapY)
@@ -506,4 +527,94 @@ void CharacterMovement::HandleWallCollision(Collider* other, float overlapX)
 	Vec2 newPos = owner->GetPos();
 	newPos.x += pushDir * overlapX;
 	owner->SetPos(newPos);
+}
+
+void CharacterMovement::ProbeGroundCCD()
+{
+	// 이미 착지 상태면 스킵
+	if (groundState.bIsGrounded)
+		return;
+
+	Vec2 velocity = rigidbody->GetVelocity();
+
+	// 상승 중이면 스킵 (낙하 중에만 CCD)
+	if (velocity.y <= 0)
+		return;
+
+	Vec2 colPos = collider->GetPos();
+	Vec2 colHalf = collider->GetScale() * 0.5f;
+	float footY = colPos.y + colHalf.y;
+
+	// 이번 프레임 이동 거리 (통과했을 수 있는 거리)
+	float deltaY = velocity.y * DT;
+
+	// probe 영역: 이전 프레임 발 위치 ~ 현재 발 위치 + 여유
+	float prevFootY = footY - deltaY;  // 이전 프레임 발 위치
+	float probeTop = prevFootY;
+	float probeBottom = footY + 2.f;
+	float probeHeight = probeBottom - probeTop;
+
+	Vec2 probeCenter = Vec2(colPos.x, (probeTop + probeBottom) * 0.5f);
+	Vec2 probeHalf = Vec2(colHalf.x * 0.9f, probeHeight * 0.5f);
+
+	// Ground, Platform 레이어 체크
+	auto groundHits = COLLISION->BoxTrace(probeCenter, probeHalf, (UINT)ELayer::Ground);
+	auto platformHits = COLLISION->BoxTrace(probeCenter, probeHalf, (UINT)ELayer::Platform);
+
+	// 가장 높은 지면 찾기 (발보다 위에 있는 것 중)
+	float highestTop = FLT_MAX;
+	Collider* hitGround = nullptr;
+
+	for (auto& hit : groundHits)
+	{
+		Vec2 hitPos = hit.collider->GetPos();
+		Vec2 hitHalf = hit.collider->GetScale() * 0.5f;
+		float top = hitPos.y - hitHalf.y;
+
+		// 수평 범위 체크: 캐릭터가 ground 위에 있어야 함 (벽면 스냅 방지)
+		float groundLeft = hitPos.x - hitHalf.x;
+		float groundRight = hitPos.x + hitHalf.x;
+		if (colPos.x < groundLeft || colPos.x > groundRight)
+			continue;
+
+		// 이전 프레임에서 발이 ground top보다 위에 있어야 착지 대상
+		if (prevFootY > top)
+			continue;
+
+		if (top < highestTop && top <= footY)
+		{
+			highestTop = top;
+			hitGround = hit.collider;
+		}
+	}
+
+	for (auto& hit : platformHits)
+	{
+		// 무시 중인 플랫폼 제외
+		if (hit.collider->GetID() == ignoredPlatformID)
+			continue;
+
+		Vec2 hitPos = hit.collider->GetPos();
+		Vec2 hitHalf = hit.collider->GetScale() * 0.5f;
+		float top = hitPos.y - hitHalf.y;
+
+		// 이전 프레임에서 발이 플랫폼 top보다 위에 있어야 착지 대상
+		// (아래에서 올라온 게 아니라 위에서 내려온 경우만)
+		if (prevFootY > top)
+			continue;
+
+		if (top < highestTop && top <= footY)
+		{
+			highestTop = top;
+			hitGround = hit.collider;
+		}
+	}
+
+	// 통과한 지면 발견 시 착지 처리
+	if (hitGround)
+	{
+		UpdateActiveGround(hitGround, highestTop);
+		SnapToGroundTop(highestTop);
+		OnLandGround();
+	}
 }

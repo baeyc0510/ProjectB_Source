@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "Ability_BossSlash.h"
+#include "Ability_PiedadSlash.h"
 
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/VFXKeys.h"
 #include "Game/Data/SFXKeys.h"
 #include "Game/Interface/CombatInterface.h"
 
-void Ability_BossSlash::OnActivate()
+void Ability_PiedadSlash::OnActivate()
 {
 	Ability::OnActivate();
 
@@ -17,13 +17,13 @@ void Ability_BossSlash::OnActivate()
 	PlaySFX(SFXKey::PiedadSlash);
 }
 
-void Ability_BossSlash::OnEnd()
+void Ability_PiedadSlash::OnEnd()
 {
 	Ability::OnEnd();
 	ClearEventHandles();
 }
 
-void Ability_BossSlash::OnHitCheck()
+void Ability_PiedadSlash::OnHitCheck()
 {
 	Vec2 offset = GetTraceOffset();
 	Vec2 center = owner->GetWorldPos() + offset;
@@ -46,14 +46,14 @@ void Ability_BossSlash::OnHitCheck()
 	}
 }
 
-Vec2 Ability_BossSlash::GetTraceOffset() const
+Vec2 Ability_PiedadSlash::GetTraceOffset() const
 {
 	Vec2 offset(80.f, -50.f);
 	offset.x *= owner->GetForward();
 	return offset;
 }
 
-Vec2 Ability_BossSlash::GetTraceSize() const
+Vec2 Ability_PiedadSlash::GetTraceSize() const
 {
 	return Vec2(100.f, 80.f);
 }

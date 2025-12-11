@@ -8,9 +8,8 @@
 void Ability_AcolyteAttack::OnActivate()
 {
     Ability::OnActivate();
-
-    Animator* animator = owner->GetComponent<Animator>();
-    animator->Play(AnimKey::Attack, true, BIND(this, EndAbility), BIND(this, EndAbility));
+    
+    GetAnimator()->Play(AnimKey::Attack, true, BIND(this, EndAbility), BIND(this, EndAbility));
     PlaySFX(SFXKey::AcolytePrepareAttack);
 
     WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitCheck));

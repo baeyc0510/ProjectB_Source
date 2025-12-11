@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "Ability_BossStomp.h"
+#include "Ability_PiedadStomp.h"
 
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/VFXKeys.h"
@@ -8,7 +8,7 @@
 #include "Game/Component/Rigidbody.h"
 #include "Game/Component/StateSystem.h"
 
-void Ability_BossStomp::OnActivate()
+void Ability_PiedadStomp::OnActivate()
 {
 	Ability::OnActivate();
 
@@ -18,13 +18,13 @@ void Ability_BossStomp::OnActivate()
 	PlaySFX(SFXKey::PiedadStomp);
 }
 
-void Ability_BossStomp::OnEnd()
+void Ability_PiedadStomp::OnEnd()
 {
 	Ability::OnEnd();
 	ClearEventHandles();
 }
 
-void Ability_BossStomp::OnHitCheck()
+void Ability_PiedadStomp::OnHitCheck()
 {
 	// Camera Shake
 	ShakeCamera(ShakePreset::Heavy);
@@ -54,27 +54,27 @@ void Ability_BossStomp::OnHitCheck()
 	}
 }
 
-void Ability_BossStomp::SpawnHazard()
+void Ability_PiedadStomp::SpawnHazard()
 {
 	// TODO: 착지 예상 위치에 가시 생성 (추후 Hazard 시스템 구현 후)
 	// Vec2 landingPos = PredictLandingPosition(player);
 	// ScheduleSpikeSpawn(landingPos);
 }
 
-void Ability_BossStomp::ScheduleSpikeSpawn(Vec2 landingPos)
+void Ability_PiedadStomp::ScheduleSpikeSpawn(Vec2 landingPos)
 {
 	// TODO: Hazard 시스템 구현 후 가시 생성 로직 추가
 	// 플레이어 착지 예상 위치에 가시를 생성
 }
 
-Vec2 Ability_BossStomp::GetTraceOffset() const
+Vec2 Ability_PiedadStomp::GetTraceOffset() const
 {
 	Vec2 offset(90.f, -40.f);
 	offset.x *= owner->GetForward();
 	return offset;
 }
 
-Vec2 Ability_BossStomp::GetTraceSize() const
+Vec2 Ability_PiedadStomp::GetTraceSize() const
 {
 	return Vec2(80.f, 60.f);
 }

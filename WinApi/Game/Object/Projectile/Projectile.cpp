@@ -1,10 +1,6 @@
 ﻿#include "pch.h"
 #include "Projectile.h"
-
 #include "Game/Component/Rigidbody.h"
-#include "Game/Data/VFXKeys.h"
-#include "Game/Manager/VFXManager.h"
-#include "Game/Object/VFXObject.h"
 
 Projectile::Projectile()
 {
@@ -61,6 +57,22 @@ void Projectile::SetVelocity(Vec2 vel)
 	}
 }
 
+void Projectile::UseGravity(bool bUseGravity)
+{
+	if (rigidbody)
+	{
+		rigidbody->UseGravity(bUseGravity);
+	}
+}
+
+void Projectile::SetGravityScale(float gravityScale)
+{
+	if (rigidbody)
+	{
+		rigidbody->SetGravityScale(gravityScale);
+	}
+}
+
 void Projectile::Launch(Vec2 velocity)
 {
 	SetVelocity(velocity);
@@ -80,7 +92,7 @@ void Projectile::OnCollisionEnter(Collider* other)
 	// 땅과 충돌
 	if (otherLayer == (UINT)ELayer::Ground)
 	{
-		OnHitGround(GetPos());
+		OnHitGround(GetPos(), other);
 	}
 	// 벽과 충돌 (플랫폼 측면 등)
 	// Ground와 동일하게 처리하되 별도의 이벤트 호출
@@ -101,7 +113,7 @@ void Projectile::OnDamage(GameObject* source, const CombatContext& context)
 {
 }
 
-void Projectile::OnHitGround(Vec2 hitPos)
+void Projectile::OnHitGround(Vec2 hitPos, Collider* groundCol)
 {
 	// 기본 구현: 없음 (파생 클래스에서 오버라이드)
 }

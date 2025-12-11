@@ -38,9 +38,9 @@ void Ability_BossAppear::OnActivate()
     
     GetAnimator()->Play(AnimKey::BossAppear,true, BIND(this,EndAbility));
     WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnHitGround));
-    WaitEvent(EGameEvent::DoAction, BIND_EVENT(this,PlayWakeUpSound));
+    WaitEvent(EGameEvent::DoAction, BIND_EVENT(this,PlayIntroSound));
     
-    // 카메라 연출
+    // 카메라 연출: 보스쪽으로 천천히 카메라 이동
     CAMERA->SetSmoothSpeed(1.f);
     CAMERA->SetTargetObj(nullptr);
     CAMERA->SetTargetPos(owner->GetPos());
@@ -79,10 +79,10 @@ void Ability_BossAppear::OnEnd()
     }, 2.0f);
 }
 
-void Ability_BossAppear::PlayWakeUpSound()
+void Ability_BossAppear::PlayIntroSound()
 {
     // SFX 재생
-    PlaySFX(SFXKey::PiedadWakeUp);
+    PlaySFX(boss->GetIntroSoundKey());
 }
 
 void Ability_BossAppear::OnHitGround()

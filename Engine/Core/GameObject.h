@@ -58,9 +58,9 @@ protected:
 
 private:
 	virtual void	Init()		= 0;
-	virtual void	OnEnable()	= 0;
-	virtual void	OnDisable()	= 0;
-	virtual void	Release()	= 0;
+	virtual void	OnEnable()	{}
+	virtual void	OnDisable()	{}
+	virtual void	Release()	{}
 	virtual void	Update()	 {}
 	virtual void	LateUpdate() {}
 	//virtual void	Render()	= 0;

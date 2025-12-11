@@ -8,7 +8,7 @@ public:
 
 protected:
 	void Init() override;
-	void OnHitGround(Vec2 hitPos) override;
+	void OnHitGround(Vec2 hitPos, Collider* collider) override;
 	void OnHitWall(Vec2 hitPos) override;
 	void OnHitPlayer(GameObject* player) override;
 	void OnDisable() override;

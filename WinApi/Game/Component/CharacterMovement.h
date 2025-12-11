@@ -71,10 +71,8 @@ public:
 	/*~ Component Interface ~*/
 	void ComponentInit() override;
 	void ComponentOnEnable() override;
-	void ComponentUpdate() override {}
+	void ComponentUpdate() override;
 	void ComponentLateUpdate() override;
-	void ComponentRender() override {}
-	void ComponentRelease() override {}
 
 	/*~ CharacterMovement Interface ~*/
 	// 설정
@@ -135,6 +133,14 @@ private:
 
 	// 엣지 감지 (AI용)
 	bool CheckGroundAhead(int direction);
+
+	// 연속 충돌 감지 (터널링 방지)
+	void ProbeGroundCCD();
+
+	// 공통 헬퍼
+	void UpdateActiveGround(Collider* ground, float groundTop);
+	void SnapToGroundTop(float groundTop);
+	void OnLandGround();
 
 	// 상태 리셋
 	void ResetGroundState();

@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "Ability_BossSpit.h"
+#include "Ability_PiedadSpit.h"
 
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/SFXKeys.h"
@@ -10,7 +10,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-void Ability_BossSpit::OnActivate()
+void Ability_PiedadSpit::OnActivate()
 {
 	Ability::OnActivate();
 
@@ -24,13 +24,13 @@ void Ability_BossSpit::OnActivate()
 	PlaySFX(SFXKey::PiedadSpitVoice);
 }
 
-void Ability_BossSpit::OnEnd()
+void Ability_PiedadSpit::OnEnd()
 {
 	Ability::OnEnd();
 	ClearEventHandles();
 }
 
-void Ability_BossSpit::OnSpitStart()
+void Ability_PiedadSpit::OnSpitStart()
 {
 	// spit_loop 시작
 	GetAnimator()->Play(AnimKey::BossSpitLoop, true, BIND(this, OnSpitLoop), BIND(this, EndAbility));
@@ -39,7 +39,7 @@ void Ability_BossSpit::OnSpitStart()
 	WaitEvent(EGameEvent::DoAction, BIND_EVENT(this, SpawnProjectile));
 }
 
-void Ability_BossSpit::OnSpitLoop()
+void Ability_PiedadSpit::OnSpitLoop()
 {
 	currentSpitCount++;
 
@@ -56,16 +56,18 @@ void Ability_BossSpit::OnSpitLoop()
 	}
 }
 
-void Ability_BossSpit::OnSpitFinish()
+void Ability_PiedadSpit::OnSpitFinish()
 {
 	EndAbility();
 }
 
-void Ability_BossSpit::SpawnProjectile()
+void Ability_PiedadSpit::SpawnProjectile()
 {
 	if (!owner->GetScene())
 		return;
 
+	
+	
 	// 투사체 생성 위치 (보스 입 위치 근처)
 	Vec2 spawnOffset(50.f * owner->GetForward(), -120.f);
 	Vec2 spawnPos = owner->GetWorldPos() + spawnOffset;
@@ -74,7 +76,6 @@ void Ability_BossSpit::SpawnProjectile()
 	float angleRad = PROJECTILE_ANGLE * static_cast<float>(M_PI) / 180.f;
 	float dirX = static_cast<float>(owner->GetForward());
 	Vec2 velocity;
-	
 	
 	float speed = float(currentSpitCount + 1) / (maxSpitCount + 1) * PROJECTILE_SPEED;  
 	velocity.x = speed * cos(angleRad) * dirX;

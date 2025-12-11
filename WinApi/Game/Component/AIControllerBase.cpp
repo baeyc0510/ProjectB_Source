@@ -4,14 +4,6 @@
 #include "StateSystem.h"
 #include "Game/Util/AIUtils.h"
 
-void AIControllerBase::CacheComponents()
-{
-	stateSystem = owner->GetComponent<StateSystem>();
-	abilitySystem = owner->GetComponent<AbilitySystem>();
-
-	assert(stateSystem && "AIControllerBase requires StateSystem");
-	assert(abilitySystem && "AIControllerBase requires AbilitySystem");
-}
 
 void AIControllerBase::FindPlayer()
 {

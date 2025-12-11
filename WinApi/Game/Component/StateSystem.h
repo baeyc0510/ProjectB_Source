@@ -25,11 +25,6 @@ public:
 private:
 	/*~ Component Interface ~*/
 	void ComponentInit() override;
-	void ComponentOnEnable() override {}
-	void ComponentUpdate() override {}
-	void ComponentRender() override {}
-	void ComponentOnDisable() override {}
-	void ComponentRelease() override {}
 
 public:
 	// 상태 변경 이벤트 (oldTags, newTags)

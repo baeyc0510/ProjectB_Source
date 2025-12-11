@@ -27,7 +27,7 @@ protected:
 
 	/*~ Hazard Interface ~*/
 	virtual void OnSpawn();
-	void DealDamageToPlayer(GameObject* player);
+	void ApplyDamageToPlayer(GameObject* player);
 	
 	void AddAnimation(const wstring& aniName, const wstring& path, bool bShouldRepeat);
 

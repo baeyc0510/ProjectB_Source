@@ -8,7 +8,7 @@ struct AttackData
     Vec2 traceSize;
     const wchar_t* vfxKey = nullptr;
     float damage = 10.f;
-    EDamageType damageType = EDamageType::Slash;
+    EDamageType damageType = EDamageType::Normal;
 };
 
 class CombatHelper
@@ -25,7 +25,7 @@ public:
         std::initializer_list<ELayer> targetLayers,
         float damage,
         vector<HitResult>& outHitResults,
-        EDamageType damageType = EDamageType::Slash,
+        EDamageType damageType = EDamageType::Normal,
         const wchar_t* vfxKey = nullptr
     );
 

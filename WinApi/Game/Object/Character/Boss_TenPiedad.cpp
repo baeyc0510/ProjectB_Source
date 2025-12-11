@@ -7,10 +7,10 @@
 // Boss Abilities
 #include "Player.h"
 #include "Game/Ability/Boss/Ability_BossAppear.h"
-#include "Game/Ability/Boss/Ability_BossSlash.h"
-#include "Game/Ability/Boss/Ability_BossSpit.h"
-#include "Game/Ability/Boss/Ability_BossStomp.h"
-#include "Game/Ability/Boss/Ability_BossGroundSmash.h"
+#include "Game/Ability/Boss/Ability_PiedadSlash.h"
+#include "Game/Ability/Boss/Ability_PiedadSpit.h"
+#include "Game/Ability/Boss/Ability_PiedadStomp.h"
+#include "Game/Ability/Boss/Ability_PiedadGroundSmash.h"
 #include "Game/Ability/Common/Ability_Die.h"
 #include "Game/Component/Rigidbody.h"
 #include "Game/Component/StateSystem.h"
@@ -41,7 +41,7 @@ void Boss_TenPiedad::Init()
 	ConfigureAI();
 
 	// Stats
-	statComponent->InitStat(EStatType::HP, 1000.f);
+	statComponent->InitStat(EStatType::HP, 5000.f);
 
 	// 등장 장면 첫 프레임에 고정
 	animator->Play(AnimKey::BossAppear,true);
@@ -60,10 +60,10 @@ void Boss_TenPiedad::RegisterAnimations()
 void Boss_TenPiedad::RegisterAbilities()
 {
 	// 보스 공격 어빌리티
-	AddAbility<Ability_BossSlash>(EAbility::Boss_Slash);
-	AddAbility<Ability_BossSpit>(EAbility::Boss_Spit);
-	AddAbility<Ability_BossStomp>(EAbility::Boss_Stomp);
-	AddAbility<Ability_BossGroundSmash>(EAbility::Boss_GroundSmash);
+	AddAbility<Ability_PiedadSlash>(EAbility::Boss_Slash);
+	AddAbility<Ability_PiedadSpit>(EAbility::Boss_Spit);
+	AddAbility<Ability_PiedadStomp>(EAbility::Boss_Stomp);
+	AddAbility<Ability_PiedadGroundSmash>(EAbility::Boss_GroundSmash);
 	AddAbility<Ability_BossAppear>(EAbility::Boss_Appear);
 	AddAbility<Ability_Die>(EAbility::Die);
 }
@@ -201,7 +201,7 @@ void Boss_TenPiedad::UpdateBossAI()
 		return;
 	}
 
-	if (!bossAI || !bossAI->HasTarget())
+	if (!bossAI || !bossAI->HasTarget() || IsTargetDead())
 		return;
 
 	// 플레이어가 뒤에 있으면 턴어라운드 먼저
@@ -270,7 +270,7 @@ void Boss_TenPiedad::StartTurnaround()
 	StopHorizontalMovement();
 
 	// 턴어라운드 애니메이션 재생, 완료 시 콜백
-	animator->Play(AnimKey::Turnaround, false, [this]() { OnTurnaroundComplete(); });
+	animator->Play(AnimKey::Turnaround, false, BIND(this,OnTurnaroundComplete));
 	
 	SFX->PlayOnce(SFXKey::PiedadTurn);
 }

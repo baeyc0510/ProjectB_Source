@@ -48,9 +48,9 @@ protected:
     void Init() override;
     void OnEnable() override;
     void Update() override;
-    void Render() override;
-    void OnDisable() override;
-    void Release() override;
+    void Render() override {}
+    void OnDisable() override {}
+    void Release() override {}
 
     void OnCollisionEnter(Collider* other) override;
     void OnCollisionStay(Collider* other) override;

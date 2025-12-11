@@ -35,10 +35,7 @@ public:
 protected:
 	/*~ Component Interface ~*/
 	void ComponentInit() override;
-	void ComponentOnEnable() override {}
 	void ComponentUpdate() override;
-	void ComponentRender() override {}
-	void ComponentOnDisable() override {}
 	void ComponentRelease() override;
 	
 private:

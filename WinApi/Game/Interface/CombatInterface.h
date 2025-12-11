@@ -13,4 +13,5 @@ class ICombatInterface
 {
 public:
     virtual void OnDamage(GameObject* source, const CombatContext& context) = 0;
+    virtual bool IsDead() {return false;}
 };

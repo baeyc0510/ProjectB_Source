@@ -1,7 +1,7 @@
 #pragma once
 #include "Game/Ability/Ability.h"
 
-class Ability_BossStomp : public Ability
+class Ability_PiedadStomp : public Ability
 {
 public:
 	/*~ Ability Interface ~*/

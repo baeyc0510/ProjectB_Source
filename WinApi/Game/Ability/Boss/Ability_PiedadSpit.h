@@ -1,7 +1,7 @@
 #pragma once
 #include "Game/Ability/Ability.h"
 
-class Ability_BossSpit : public Ability
+class Ability_PiedadSpit : public Ability
 {
 public:
 	/*~ Ability Interface ~*/
@@ -19,9 +19,10 @@ private:
 	void OnSpitFinish();
 	void SpawnProjectile();
 
-	int currentSpitCount = 0;
-	int maxSpitCount = 3;
-
+private:
 	static constexpr float PROJECTILE_SPEED = 500.f;
 	static constexpr float PROJECTILE_ANGLE = 30.f;  // degrees
+	
+	int currentSpitCount = 0;
+	int maxSpitCount = 3;
 };

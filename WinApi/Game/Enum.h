@@ -4,6 +4,7 @@
 enum class ESceneType
 {
 	Title,
+	PlayerDeath,
 	Stage01,
 	Stage02,
 	Stage03,
@@ -174,7 +175,7 @@ enum class EGameEvent
 enum class EDamageType
 {
 	None,
-	Slash,
+	Normal,
 	Heavy,
 	SuperHeavy,
 	Parry,

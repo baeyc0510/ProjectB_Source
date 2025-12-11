@@ -14,6 +14,8 @@ public:
 	/*~ Projectile Interface ~*/
 	void SetProjectileOwner(GameObject* inOwner) { projectileOwner = inOwner; }
 	void SetVelocity(Vec2 vel);
+	void UseGravity(bool bUseGravity);
+	void SetGravityScale(float gravityScale);
 	void SetDamage(float dmg) { damage = dmg; }
 	void Launch(Vec2 velocity);
 
@@ -33,7 +35,7 @@ protected:
 	void OnDamage(GameObject* source, const CombatContext& context) override;
 
 	/*~ Projectile Interface ~*/
-	virtual void OnHitGround(Vec2 hitPos);
+	virtual void OnHitGround(Vec2 hitPos, Collider* groundCol);
 	virtual void OnHitWall(Vec2 hitPos);
 	virtual void OnHitPlayer(GameObject* player);
 

@@ -167,10 +167,11 @@
     <ClInclude Include="Game\Ability\Common\Ability_Die.h" />
     <ClInclude Include="Game\Ability\Common\Ability_HitReaction.h" />
     <ClInclude Include="Game\Ability\Monster\Ability_AcolyteAttack.h" />
-    <ClInclude Include="Game\Ability\Boss\Ability_BossSlash.h" />
-    <ClInclude Include="Game\Ability\Boss\Ability_BossSpit.h" />
-    <ClInclude Include="Game\Ability\Boss\Ability_BossStomp.h" />
-    <ClInclude Include="Game\Ability\Boss\Ability_BossGroundSmash.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_PiedadSlash.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_PiedadSpit.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_PiedadStomp.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_PiedadGroundSmash.h" />
+    <ClInclude Include="Game\Ability\Monster\Ability_StonerAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_AirAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_ComboAttack.h" />
     <ClInclude Include="Game\Ability\Player\Ability_Crouch.h" />
@@ -214,7 +215,9 @@
     <ClInclude Include="Game\Object\Character\Character.h" />
     <ClInclude Include="Game\Object\Character\Enemy.h" />
     <ClInclude Include="Game\Object\Character\Enemy_Acolyte.h" />
+    <ClInclude Include="Game\Object\Character\Enemy_Stoner.h" />
     <ClInclude Include="Game\Object\Character\Player.h" />
+    <ClInclude Include="Game\Object\Projectile\Projectile_Stone.h" />
     <ClInclude Include="Game\Object\VFXObject.h" />
     <ClInclude Include="Game\Object\Hazard\Hazard.h" />
     <ClInclude Include="Game\Object\Hazard\Hazard_Spike.h" />
@@ -227,6 +230,7 @@
     <ClInclude Include="Game\Object\World\TransitionArea.h" />
     <ClInclude Include="Game\Object\World\WorldCollider.h" />
     <ClInclude Include="Game\Scene\MapScene.h" />
+    <ClInclude Include="Game\Scene\ScenePlayerDeath.h" />
     <ClInclude Include="Game\Scene\Stage_Beginning.h" />
     <ClInclude Include="Game\Scene\SimpleStage.h" />
     <ClInclude Include="Game\Scene\SceneTitle.h" />
@@ -235,7 +239,6 @@
     <ClInclude Include="Game\UI\BossHUD.h" />
     <ClInclude Include="Game\UI\InventoryUI.h" />
     <ClInclude Include="Game\UI\OverlayUI.h" />
-    <ClInclude Include="Game\UI\Overlay_BossDefeat.h" />
     <ClInclude Include="Game\UI\PlayerStatusHUD.h" />
     <ClInclude Include="Game\Util\AIUtils.h" />
     <ClInclude Include="Game\Util\AnimEventHelper.h" />
@@ -254,10 +257,11 @@
     <ClCompile Include="Game\Ability\Common\Ability_Die.cpp" />
     <ClCompile Include="Game\Ability\Common\Ability_HitReaction.cpp" />
     <ClCompile Include="Game\Ability\Monster\Ability_AcolyteAttack.cpp" />
-    <ClCompile Include="Game\Ability\Boss\Ability_BossSlash.cpp" />
-    <ClCompile Include="Game\Ability\Boss\Ability_BossSpit.cpp" />
-    <ClCompile Include="Game\Ability\Boss\Ability_BossStomp.cpp" />
-    <ClCompile Include="Game\Ability\Boss\Ability_BossGroundSmash.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_PiedadSlash.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_PiedadSpit.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_PiedadStomp.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_PiedadGroundSmash.cpp" />
+    <ClCompile Include="Game\Ability\Monster\Ability_StonerAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_AirAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_ComboAttack.cpp" />
     <ClCompile Include="Game\Ability\Player\Ability_Crouch.cpp" />
@@ -289,7 +293,9 @@
     <ClCompile Include="Game\Object\Character\Character.cpp" />
     <ClCompile Include="Game\Object\Character\Enemy.cpp" />
     <ClCompile Include="Game\Object\Character\Enemy_Acolyte.cpp" />
+    <ClCompile Include="Game\Object\Character\Enemy_Stoner.cpp" />
     <ClCompile Include="Game\Object\Character\Player.cpp" />
+    <ClCompile Include="Game\Object\Projectile\Projectile_Stone.cpp" />
     <ClCompile Include="Game\Object\VFXObject.cpp" />
     <ClCompile Include="Game\Object\Hazard\Hazard.cpp" />
     <ClCompile Include="Game\Object\Hazard\Hazard_Spike.cpp" />
@@ -302,6 +308,7 @@
     <ClCompile Include="Game\Object\World\TransitionArea.cpp" />
     <ClCompile Include="Game\Object\World\WorldCollider.cpp" />
     <ClCompile Include="Game\Scene\MapScene.cpp" />
+    <ClCompile Include="Game\Scene\ScenePlayerDeath.cpp" />
     <ClCompile Include="Game\Scene\Stage_Beginning.cpp" />
     <ClCompile Include="Game\Scene\SimpleStage.cpp" />
     <ClCompile Include="Game\Scene\SceneTitle.cpp" />
@@ -310,7 +317,6 @@
     <ClCompile Include="Game\UI\BossHUD.cpp" />
     <ClCompile Include="Game\UI\InventoryUI.cpp" />
     <ClCompile Include="Game\UI\OverlayUI.cpp" />
-    <ClCompile Include="Game\UI\Overlay_BossDefeat.cpp" />
     <ClCompile Include="Game\UI\PlayerStatusHUD.cpp" />
     <ClCompile Include="Game\Util\AIUtils.cpp" />
     <ClCompile Include="Game\Util\AnimEventHelper.cpp" />

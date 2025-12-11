@@ -50,9 +50,7 @@ protected:
 	void ComponentInit() override;
 	void ComponentUpdate() override;
 	void ComponentOnEnable() override;
-	void ComponentRender() override {}
-	void ComponentRelease() override {}
-	
+
 private:
 	void UpdateTargetDetection();
 	void UpdatePatrol();
@@ -69,6 +67,10 @@ private:
 private:
 	AIConfig config;
 
+	// Components
+	StateSystem* stateSystem = nullptr;
+	AbilitySystem* abilitySystem = nullptr;
+	
 	// 타겟 감지 상태
 	float detectionTimer = 0.f;
 	bool hadTargetLastFrame = false;

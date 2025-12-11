@@ -19,8 +19,9 @@ void Enemy_Acolyte::Init()
     Enemy::Init();
 
     // Stats
-    statComponent->InitStat(EStatType::HP, 50.f);
-
+    statComponent->InitStat(EStatType::HP, MAX_HP);
+	statComponent->InitStat(EStatType::AttackPower, ATTACK_POWER);
+	
     // Collider
     collider->SetScale(Vec2(32, 66));
     collider->SetOffset(Vec2(0, -33));

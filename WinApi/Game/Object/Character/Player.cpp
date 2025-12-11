@@ -22,6 +22,7 @@
 #include "Game/Component/StatComponent.h"
 #include "Game/Component/AbilitySystem.h"
 #include "Game/Component/CharacterMovement.h"
+#include "Game/Manager/EventBusManager.h"
 #include "Game/Manager/GameUIManager.h"
 #include "Game/Manager/VFXManager.h"
 #include "Game/Object/VFXObject.h"
@@ -37,6 +38,12 @@ Player::Player()
 Player::~Player()
 {
 
+}
+
+Vec2 Player::GetCenterPos()
+{
+	if (collider)
+		return collider->GetPos();
 }
 
 void Player::Init()
@@ -359,21 +366,6 @@ void Player::UpdateAnimation()
 	}
 }
 
-void Player::Render()
-{
-	Character::Render();
-}
-
-void Player::OnDisable()
-{
-	Character::OnDisable();
-}
-
-void Player::Release()
-{
-	Character::Release();
-}
-
 /*~ Collision ~*/
 
 void Player::OnCollisionEnter(Collider* other)
@@ -442,6 +434,11 @@ void Player::OnDamage(GameObject* source, const CombatContext& context)
 	statComponent->TakeDamage(context.value);
 }
 
+bool Player::IsDead()
+{
+	return stateSystem->HasTag(Tag_Dead);
+}
+
 bool Player::ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& outForce)
 {
 	bool bIsGuarding = stateSystem->HasTag(Tag_Guard);
@@ -470,13 +467,18 @@ bool Player::ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& ou
 	return bShouldHitReact;
 }
 
+void Player::HandleReturnToTitleInput()
+{
+}
+
 void Player::ApplyHitReaction(float dir, Vec2 force, EDamageType damageType)
 {
-	abilitySystem->TryActivateAbility(EAbility::HitReact);
-
-	// 넉백 적용
-	SetForward(-dir);
-	rigidbody->SetVelocity(Vec2(force.x * dir, -force.y));
+	if (abilitySystem->TryActivateAbility(EAbility::HitReact))
+	{
+		// 넉백 적용
+		SetForward(-dir);
+		rigidbody->SetVelocity(Vec2(force.x * dir, -force.y));	
+	}
 
 	// 무거운 공격 사운드
 	if (damageType == EDamageType::SuperHeavy || damageType == EDamageType::Heavy)
@@ -487,7 +489,7 @@ void Player::ApplyHitReaction(float dir, Vec2 force, EDamageType damageType)
 
 void Player::SpawnPlayerDamageVFX(const CombatContext& context, int spawnDirection)
 {
-	Vec2 spawnPos = context.hitResult.hitCenter;
+	Vec2 spawnPos = GetCenterPos();
 
 	// Hit VFX
 	if (VFXObject* vfx = VFX->CreateVFX(GetPlayerHitVfxKey(context.damageType), spawnPos, spawnDirection))
@@ -583,6 +585,19 @@ void Player::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 bool Player::ShouldIgnorePlatform() const
 {
 	return (stateSystem->HasTag(Tag_Climbing));
+}
+
+void Player::OnDieComplete()
+{
+	Character::OnDieComplete();
+	
+	// 2초뒤 사망 화면(씬)으로 전환
+	deathTimerHandle = TIMER->SetTimer([this]()
+	{
+		GAMEUI->CloseHUD();
+		WORLD->ChangeScene((int)ESceneType::PlayerDeath,1.5f);
+		EVENT->OnCameraFadeOut(this, {1.5f});
+	},2.0f);
 }
 
 void Player::CheckVelocitySignChanged()

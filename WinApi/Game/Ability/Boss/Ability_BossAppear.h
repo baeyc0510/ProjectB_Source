@@ -8,7 +8,7 @@ public:
     void OnEnd() override;
     
 private:
-    void PlayWakeUpSound();
+    void PlayIntroSound();
     void OnHitGround();
     
 private:

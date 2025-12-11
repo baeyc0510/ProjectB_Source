@@ -1,23 +1,27 @@
 #pragma once
 #include "Game/Ability/Ability.h"
 
-class Ability_BossSlash : public Ability
+class Ability_PiedadGroundSmash : public Ability
 {
 public:
 	/*~ Ability Interface ~*/
 	EStateTag GetRequiredTags() const override { return Tag_Grounded; }
 	EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit; }
 	EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
-	float GetCooldown() const override { return 2.0f; }
+	float GetCooldown() const override { return 5.0f; }
 
 	void OnActivate() override;
 	void OnEnd() override;
 
 private:
-	void OnHitCheck();
+	void PlaySmashSound();
+	void OnSmashImpact();
+	void OnSmashToIdle();
+	void SpawnSpikes();
+	int CalculateSpikeCount() const;
 
-	Vec2 GetTraceOffset() const;
-	Vec2 GetTraceSize() const;
-
-	static constexpr float DAMAGE = 20.f;
+	static constexpr float DAMAGE = 25.f;
+	static constexpr int MAX_SPIKES_PER_SIDE = 6;
+	static constexpr float SPIKE_SPACING = 60.f;
+	static constexpr float SPIKE_SPAWN_DELAY_INTERVAL = 0.1f;
 };
