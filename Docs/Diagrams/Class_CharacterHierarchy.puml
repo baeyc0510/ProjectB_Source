@@ -65,7 +65,6 @@ Enemy ..|> ICombatInterface
 Boss ..|> ICombatInterface
 
 note top of Character
-  **Composition over Inheritance**
   공통 기능은 컴포넌트로 분리
   파생 클래스는 고유 로직만 담당
 end note
