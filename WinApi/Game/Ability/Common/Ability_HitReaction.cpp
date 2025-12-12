@@ -3,6 +3,7 @@
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/SFXKeys.h"
 #include "Game/Component/Rigidbody.h"
+#include "Game/Component/StateSystem.h"
 #include "Game/Object/Character/Character.h"
 #include "Game/Object/Character/Player.h"
 
@@ -96,11 +97,4 @@ void Ability_PlayerPushback::OnInterruptedReaction()
 void Ability_PlayerPushback::OnLanded()
 {
     EndAbility();
-    
-    // if (bIsGettingUp)
-    //     return;
-    //
-    // GetRigidbody()->SetVelocity(Vec2(0,0));
-    // bIsGettingUp = true;
-    // GetAnimator()->Play(AnimKey::Pushback_Land,false, BIND(this, EndAbility), BIND(this,EndAbility));
 }

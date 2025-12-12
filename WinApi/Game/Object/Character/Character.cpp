@@ -71,6 +71,11 @@ bool Character::HasPlatformBounds() const
     return movement ? movement->HasGroundBounds() : false;
 }
 
+Vec2 Character::GetPushbackForce(EDamageType damageType) const
+{
+    return pushbackForce;
+}
+
 void Character::StopHorizontalMovement()
 {
     if (rigidbody)

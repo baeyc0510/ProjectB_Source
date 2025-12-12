@@ -63,6 +63,7 @@ enum EStateTag
 	Tag_FixedVelocity		= 1 << 26,
 	Tag_StopVelocity 		= 1 << 27,
 	Tag_Dead				= 1 << 28,
+	Tag_BlockSlideThrough	= 1 << 29,
 };
 
 inline EStateTag operator|(EStateTag a, EStateTag b)

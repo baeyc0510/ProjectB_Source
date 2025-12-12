@@ -38,7 +38,15 @@ Player::Player()
 
 Player::~Player()
 {
+}
 
+Vec2 Player::GetPushbackForce(EDamageType damageType) const
+{
+	if (damageType == EDamageType::Heavy)
+		return pushbackForce * HEAVY_GUARD_PUSHBACK_MULT;
+	if (damageType == EDamageType::SuperHeavy)
+		return pushbackForce * SUPER_HEAVY_PUSHBACK_MULT;
+	return Character::GetPushbackForce(damageType);
 }
 
 Vec2 Player::GetCenterPos()
@@ -384,6 +392,27 @@ void Player::UpdateAnimation()
 void Player::OnCollisionEnter(Collider* other)
 {
 	Character::OnCollisionEnter(other);
+	
+	// 다른 적과 닿았을 때 처리
+	ELayer layer = static_cast<ELayer>(other->GetLayer());
+	if (layer == ELayer::Monster)
+	{
+		if (!other->GetOwner())
+			return;
+		
+		StateSystem* otherState = other->GetOwner()->GetComponent<StateSystem>();
+		if (!otherState)
+			return;
+		
+		// 슬라이딩 중이고 상대가 Block하지 않는 경우는 지나침 
+		if (stateSystem->HasTag(Tag_Sliding) && !otherState->HasTag(Tag_BlockSlideThrough))
+			return;
+		
+		// 넉백으로 밀려남
+		CombatContext context;
+		context.value = 1.0f;
+		OnDamage(other->GetOwner(), context);
+	}
 }
 
 void Player::OnCollisionStay(Collider* other)
@@ -429,8 +458,8 @@ void Player::OnDamage(GameObject* source, const CombatContext& context)
 	dir = dir < 0 ? -1.0f : 1.0f;
 
 	// 가드 상호작용 처리
-	Vec2 force = GetPushbackForce();
-	bool bShouldHitReact = ProcessGuardInteraction(context.damageType, dir, force);
+	Vec2 force = GetPushbackForce(context.damageType);
+	bool bShouldHitReact = ProcessGuardInteraction(context.damageType, dir);
 
 	// 피격 반응 적용
 	if (bShouldHitReact)
@@ -457,10 +486,10 @@ bool Player::IsDead()
 	return stateSystem->HasTag(Tag_Dead);
 }
 
-bool Player::ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& outForce)
+bool Player::ProcessGuardInteraction(EDamageType damageType, float dir)
 {
 	bool bIsGuarding = stateSystem->HasTag(Tag_Guard);
-	bool bShouldHitReact = !bIsGuarding;
+	bool bShouldHitReact = !bIsGuarding; // 가드 안하면 기본적으로 피격 모션 재생
 
 	if (damageType == EDamageType::SuperHeavy)
 	{
@@ -470,7 +499,6 @@ bool Player::ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& ou
 			abilitySystem->CancelAbilitiesWithTag(Tag_Guard);
 			bShouldHitReact = true;
 		}
-		outForce *= SUPER_HEAVY_KNOCKBACK_MULT;
 	}
 	else if (damageType == EDamageType::Heavy)
 	{
@@ -478,7 +506,7 @@ bool Player::ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& ou
 		if (bIsGuarding)
 		{
 			SetForward(-dir);
-			rigidbody->SetVelocity(Vec2(HEAVY_GUARD_PUSHBACK_MULT * outForce.x * dir, 0.f));
+			rigidbody->SetVelocity(Vec2(GetPushbackForce(EDamageType::Heavy).x * dir, 0.f));
 		}
 	}
 

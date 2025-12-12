@@ -11,7 +11,8 @@ public:
     EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit | Tag_BlockMovement; }
     EStateTag GetTagsToAdd() const override { return Tag_Sliding | Tag_Moving | Tag_BlockMovement | Tag_AbilityAnimation | Tag_FixedVelocity; }
     EStateTag GetCancelTags() const override { return Tag_Moving; }
-
+    float GetCooldown() const override { return SLIDE_COOLTIME; }
+    
     void OnActivate() override;
 
 private:
@@ -19,5 +20,6 @@ private:
     void OnInterruptedAnim();
 
 private:
+    static constexpr float SLIDE_COOLTIME = 2.f;
     static constexpr float SLIDE_SPEED = 360.f; 
 };

@@ -21,7 +21,7 @@ private:
 	int CalculateSpikeCount() const;
 
 	static constexpr float DAMAGE = 25.f;
-	static constexpr int MAX_SPIKES_PER_SIDE = 6;
+	static constexpr int MAX_SPIKES_PER_SIDE = 5;
 	static constexpr float SPIKE_SPACING = 60.f;
 	static constexpr float SPIKE_SPAWN_DELAY_INTERVAL = 0.1f;
 };

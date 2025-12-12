@@ -32,7 +32,7 @@ public:
     float GetPlatformMaxX() const;
     bool HasPlatformBounds() const;
 
-    Vec2 GetPushbackForce() const { return pushbackForce; }
+    virtual Vec2 GetPushbackForce(EDamageType damageType) const;
 
     // 수평 이동 정지 (y속도 유지)
     void StopHorizontalMovement();

@@ -10,6 +10,9 @@ public:
 	Player();
 	~Player() override;
 
+	/*~ Character Interface ~*/
+	Vec2 GetPushbackForce(EDamageType damageType) const override;
+	
 	/*~ Player Interface ~*/
 	Vec2 GetCenterPos();
 	
@@ -64,7 +67,7 @@ protected:
 	// OnDamage 헬퍼
 	void SpawnPlayerDamageVFX(const CombatContext& context, int spawnDirection);
 	void ApplyHitReaction(float dir, Vec2 force, EDamageType damageType);
-	bool ProcessGuardInteraction(EDamageType damageType, float dir, Vec2& outForce);
+	bool ProcessGuardInteraction(EDamageType damageType, float dir);
 	
 private:
 	// Active Input
@@ -104,9 +107,9 @@ private:
 
 	// 넉백/피격
 	static constexpr float KNOCKBACK_POWER = 100.f;
-	static constexpr float PUSHBACK_FORCE_X = 300.f;
-	static constexpr float PUSHBACK_FORCE_Y = 150.f;
-	static constexpr float SUPER_HEAVY_KNOCKBACK_MULT = 1.6f;
+	static constexpr float PUSHBACK_FORCE_X = 200.f;
+	static constexpr float PUSHBACK_FORCE_Y = 100.f;
+	static constexpr float SUPER_HEAVY_PUSHBACK_MULT = 1.6f;
 	static constexpr float HEAVY_GUARD_PUSHBACK_MULT = 2.0f;
 
 	// 캐릭터 크기

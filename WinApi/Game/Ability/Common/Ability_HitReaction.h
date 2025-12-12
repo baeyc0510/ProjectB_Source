@@ -46,4 +46,5 @@ private:
     
 private:
     bool bIsGettingUp = false;
+    SafeTimerHandle recoverTimerHandle;
 };
