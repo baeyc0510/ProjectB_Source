@@ -1,5 +1,6 @@
 #pragma once
 #include "ResourceTypes.h"
+#include "SFXKeys.h"
 
 struct SFXData
 {
@@ -74,6 +75,10 @@ struct SFXData
             {SFXKey::BGM_Title, TEXT("Sound/TITLE.wav")},
             {SFXKey::MapEnter, TEXT("Sound/ZONE_INFO.wav")},
             {SFXKey::ClearBoss, TEXT("Sound/Boss_Clear.wav")},
+            {SFXKey::Ambient_PiedadBreath, TEXT("Sound/ten_piedad/Pietat Monster Breath.wav")},
+            {SFXKey::BGM_Brotherhood, TEXT("Sound/Brotherhood.wav")},
+            {SFXKey::Ambient_Brotherhood, TEXT("Sound/Brotherhood_Ambient.wav")},
+            {SFXKey::GameOver, TEXT("Sound/GameOver.wav")},
         };
         return sounds;
     }

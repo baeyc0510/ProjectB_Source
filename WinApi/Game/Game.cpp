@@ -14,6 +14,7 @@
 #include "Scene/SceneTitle.h"
 #include "Scene/SimpleStage.h"
 #include "Scene/Stage_Boss01.h"
+#include "Scene/Stage_Brotherhood.h"
 
 const Vec2 Game::WINSTART		= Vec2(100, 100);
 const Vec2 Game::WINSIZE		= Vec2(1280, 720);	// 실제 윈도우 크기
@@ -136,10 +137,10 @@ void Game::Init(HINSTANCE hInstance)
 
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Title,	new SceneTitle());
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage01,	new Stage_Beginning());
-	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage02,	new SimpleStage(TEXT("Maps/stage02.json")));
-	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage03,	new SimpleStage(TEXT("Maps/stage03.json")));
-	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage04,	new SimpleStage(TEXT("Maps/stage04.json")));
-	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage05,	new SimpleStage(TEXT("Maps/stage05.json")));
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage02,	new Stage_Brotherhood(TEXT("Maps/stage02.json")));
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage03,	new Stage_Brotherhood(TEXT("Maps/stage03.json")));
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage04,	new Stage_Brotherhood(TEXT("Maps/stage04.json")));
+	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage05,	new Stage_Brotherhood(TEXT("Maps/stage05.json")));
 	SINGLE(SceneManager)->AddScene((int)ESceneType::Stage_Boss01,	new Stage_Boss01());
 	SINGLE(SceneManager)->AddScene((int)ESceneType::PlayerDeath,	new ScenePlayerDeath());
 

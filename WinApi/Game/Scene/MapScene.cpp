@@ -106,6 +106,4 @@ void MapScene::SpawnTransitionArea()
 
 void MapScene::OnLoadMap()
 {
-    
-    
 }

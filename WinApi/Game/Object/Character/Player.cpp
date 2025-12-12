@@ -394,24 +394,23 @@ void Player::OnCollisionEnter(Collider* other)
 	Character::OnCollisionEnter(other);
 	
 	// 다른 적과 닿았을 때 처리
-	ELayer layer = static_cast<ELayer>(other->GetLayer());
-	if (layer == ELayer::Monster)
+	if (ICombatInterface* combat = dynamic_cast<ICombatInterface*>(other->GetOwner()))
 	{
-		if (!other->GetOwner())
-			return;
-		
-		StateSystem* otherState = other->GetOwner()->GetComponent<StateSystem>();
-		if (!otherState)
+		// 사망한 적이면 지나침
+		if (combat->IsDead())
 			return;
 		
 		// 슬라이딩 중이고 상대가 Block하지 않는 경우는 지나침 
-		if (stateSystem->HasTag(Tag_Sliding) && !otherState->HasTag(Tag_BlockSlideThrough))
+		if (stateSystem->HasTag(Tag_Sliding) && !combat->ShouldBlockThrough())
 			return;
 		
-		// 넉백으로 밀려남
-		CombatContext context;
-		context.value = 1.0f;
-		OnDamage(other->GetOwner(), context);
+		if (combat->ShouldBlockEnemy())
+		{
+			// 넉백으로 밀려남
+			CombatContext context;
+			context.value = 1.0f;
+			OnDamage(other->GetOwner(), context);
+		}
 	}
 }
 
@@ -589,13 +588,6 @@ void Player::OnStatChanged(EStatType type, float& current, float& max)
 	Character::OnStatChanged(type, current, max);
 }
 
-Vec2 Player::GetKnockbackVelocity(GameObject* source, const CombatContext& context)
-{
-	Vec2 direction = GetPos() - source->GetPos();
-	float dirX = direction.x > 0 ? 1.f : -1.f;
-	return Vec2(KNOCKBACK_POWER * dirX, KNOCKBACK_POWER);
-}
-
 wstring Player::GetPlayerHitVfxKey(EDamageType damageType)
 {
 	return VFXKey::PlayerHit;
@@ -636,6 +628,12 @@ void Player::OnStateChanged(EStateTag oldTags, EStateTag newTags)
 bool Player::ShouldIgnorePlatform() const
 {
 	return (stateSystem->HasTag(Tag_Climbing));
+}
+
+void Player::OnDieStart()
+{
+	Character::OnDieStart();
+	SFX->PlayOnce(SFXKey::PlayerDeath);
 }
 
 void Player::OnDieComplete()

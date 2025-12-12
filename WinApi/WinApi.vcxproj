@@ -238,6 +238,7 @@
     <ClInclude Include="Game\Scene\SimpleStage.h" />
     <ClInclude Include="Game\Scene\SceneTitle.h" />
     <ClInclude Include="Game\Scene\Stage_Boss01.h" />
+    <ClInclude Include="Game\Scene\Stage_Brotherhood.h" />
     <ClInclude Include="Game\UI\Buttons\Button_MainMenu.h" />
     <ClInclude Include="Game\UI\BossHUD.h" />
     <ClInclude Include="Game\UI\InventoryUI.h" />
@@ -318,6 +319,7 @@
     <ClCompile Include="Game\Scene\SimpleStage.cpp" />
     <ClCompile Include="Game\Scene\SceneTitle.cpp" />
     <ClCompile Include="Game\Scene\Stage_Boss01.cpp" />
+    <ClCompile Include="Game\Scene\Stage_Brotherhood.cpp" />
     <ClCompile Include="Game\UI\Buttons\Button_MainMenu.cpp" />
     <ClCompile Include="Game\UI\BossHUD.cpp" />
     <ClCompile Include="Game\UI\InventoryUI.cpp" />

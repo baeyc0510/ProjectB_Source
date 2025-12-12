@@ -19,10 +19,13 @@ void Stage_Boss01::OnLoadMap()
 void Stage_Boss01::Enter()
 {
     MapScene::Enter();
+    SFX->StopBGM();
+    SFX->PlayAmbient(SFXKey::Ambient_PiedadBreath);
 }
 
 void Stage_Boss01::Exit()
 {
     MapScene::Exit();
-    SFX->Stop(SFXKey::BGM_Piedad);
+    SFX->StopBGM();
+    SFX->StopAmbient();
 }

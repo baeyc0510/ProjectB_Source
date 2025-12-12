@@ -28,6 +28,8 @@ void Stage_Beginning::Init()
 void Stage_Beginning::Enter()
 {
 	MapScene::Enter();
+	SFX->PlayBGM(SFXKey::BGM_Brotherhood);
+	SFX->PlayAmbient(SFXKey::Ambient_Brotherhood);
 	
 	// 시작 씬 연출
 	if (spawnId == 0)

@@ -16,6 +16,9 @@ public:
     void PlayBGM(const wstring& key, float volume = 1.f);
     void StopBGM();
     
+    void PlayAmbient(const wstring& key, float volume = 1.f);
+    void StopAmbient();
+    
     void Stop(const wstring& key);
     void StopAll();
 
@@ -24,6 +27,7 @@ private:
     
 private:
     wstring currentBGM;
+    wstring currentAmbient;
 };
 
 #define SFX SFXManager::GetInstance()

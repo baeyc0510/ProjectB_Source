@@ -20,6 +20,6 @@ private:
     void OnInterruptedAnim();
 
 private:
-    static constexpr float SLIDE_COOLTIME = 2.f;
+    static constexpr float SLIDE_COOLTIME = 1.f;
     static constexpr float SLIDE_SPEED = 360.f; 
 };

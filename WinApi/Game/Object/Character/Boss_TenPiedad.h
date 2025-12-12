@@ -8,15 +8,22 @@ public:
 	
 	wstring GetIntroSoundKey() const override;
 protected:
+	/*~  GameObject Interface ~*/
 	void Init() override;
+	
+	/*~ Character Interface ~*/
+	void OnDieStart() override;
+	void OnDieComplete() override;
+	
+	/*~ Combat Interface ~*/
+	void OnDamage(GameObject* source, const CombatContext& context) override;
+	bool ShouldBlockEnemy() override {return true;}
+	
+	/*~ Boss Interface ~*/
 	void OnAppearanceComplete() override;
 	void UpdateBossAI() override;
 	void UpdateBossAnimation() override;
 	bool CheckEncounterPlayer() override;
-	void OnDamage(GameObject* source, const CombatContext& context) override;
-	
-	void OnDieStart() override;
-	void OnDieComplete() override;
 	
 private:
 	void RegisterAnimations();

@@ -39,7 +39,4 @@ void SimpleStage::OnLoadMap()
 void SimpleStage::Enter()
 {
     MapScene::Enter();
-    
-    // SFX
-    SFX->PlayOnce(SFXKey::MapEnter);
 }

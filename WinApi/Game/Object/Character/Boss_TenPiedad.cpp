@@ -110,6 +110,7 @@ void Boss_TenPiedad::OnAppearanceComplete()
 	animator->Play(AnimKey::Idle);
 	
 	// BGM 재생
+	SFX->StopAmbient();
 	SFX->PlayBGM(SFXKey::BGM_Piedad, 0.8f);
 }
 

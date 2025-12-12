@@ -14,4 +14,6 @@ class ICombatInterface
 public:
     virtual void OnDamage(GameObject* source, const CombatContext& context) = 0;
     virtual bool IsDead() {return false;}
+    virtual bool ShouldBlockEnemy() {return false;}
+    virtual bool ShouldBlockThrough() {return false;}
 };

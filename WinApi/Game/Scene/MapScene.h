@@ -7,7 +7,7 @@ class MapScene : public Scene
 {
 public:
     MapScene();
-    ~MapScene();
+    ~MapScene() override;
     
     /*~ MapScene Interface ~*/
     Player* SpawnPlayer();

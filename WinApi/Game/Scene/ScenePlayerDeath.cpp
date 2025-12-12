@@ -3,6 +3,7 @@
 
 #include "Game/Enum.h"
 #include "Game/Manager/EventBusManager.h"
+#include "Game/Manager/SFXManager.h"
 #include "Game/UI/OverlayUI.h"
 
 void ScenePlayerDeath::Init()
@@ -13,6 +14,8 @@ void ScenePlayerDeath::Init()
 
 void ScenePlayerDeath::Enter()
 {
+    SFX->StopAll();
+    SFX->PlayOnce(SFXKey::GameOver);
     CAMERA->FadeIn(1.5f);
 }
 

@@ -56,6 +56,24 @@ void SFXManager::StopBGM()
     Stop(currentBGM);
 }
 
+void SFXManager::PlayAmbient(const wstring& key, float volume)
+{
+    if (currentAmbient == key)
+        return;
+    
+    Stop(currentAmbient);
+    currentAmbient = key;
+    PlayLoop(key, volume);
+}
+
+void SFXManager::StopAmbient()
+{
+    if (currentAmbient.empty())
+        return;
+    
+    Stop(currentAmbient);
+}
+
 SoundResource* SFXManager::GetSound(const wstring& key)
 {
     return SINGLE(ResourceManager)->SoundFind(key);

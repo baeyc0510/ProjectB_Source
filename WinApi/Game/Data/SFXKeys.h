@@ -69,8 +69,11 @@ namespace SFXKey
     
     // BGM
     constexpr const wchar_t* BGM_Piedad = L"BGM_Piedad"; // 보스
+    constexpr const wchar_t* Ambient_PiedadBreath  = L"BGM_PiedadBreath"; // 보스 조우전 BGM
     constexpr const wchar_t* BGM_Title  = L"BGM_Title"; // 타이틀
-    
+    constexpr const wchar_t* BGM_Brotherhood  = L"BGM_Brotherhood"; // Brotherhood 맵
+    constexpr const wchar_t* Ambient_Brotherhood  = L"Ambient_Brotherhood"; // Brotherhood 맵
+    constexpr const wchar_t* GameOver  = L"GameOver"; // 게임오버
     
     // 기타
     constexpr const wchar_t* MapEnter = L"MapEnter";

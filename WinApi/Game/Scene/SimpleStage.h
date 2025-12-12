@@ -6,7 +6,7 @@ class SimpleStage : public MapScene
 public:
     SimpleStage();
     SimpleStage(const wstring& inMapPath);
-    ~SimpleStage();
+    ~SimpleStage() override;
     
     void SetMapFilePath(const wstring& path);
     

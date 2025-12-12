@@ -51,6 +51,7 @@ protected:
 	void OnStateChanged(EStateTag oldTags, EStateTag newTags) override;
 	void HandleAnimationEvent(EGameEvent event) override;
 	bool ShouldIgnorePlatform() const override;
+	void OnDieStart() override;
 	void OnDieComplete() override;
 	
 	/*~ ICombatInterface ~*/
@@ -61,7 +62,6 @@ protected:
 	void InitStartupStats();
 	void OnStatChanged(EStatType type, float& current, float& max) override;
 
-	Vec2 GetKnockbackVelocity(GameObject* source, const CombatContext& context);
 	wstring GetPlayerHitVfxKey(EDamageType damageType);
 
 	// OnDamage 헬퍼
@@ -106,9 +106,8 @@ private:
 	static constexpr float ATTACK_POWER = 100.f;
 
 	// 넉백/피격
-	static constexpr float KNOCKBACK_POWER = 100.f;
-	static constexpr float PUSHBACK_FORCE_X = 200.f;
-	static constexpr float PUSHBACK_FORCE_Y = 100.f;
+	static constexpr float PUSHBACK_FORCE_X = 250.f;
+	static constexpr float PUSHBACK_FORCE_Y = 150.f;
 	static constexpr float SUPER_HEAVY_PUSHBACK_MULT = 1.6f;
 	static constexpr float HEAVY_GUARD_PUSHBACK_MULT = 2.0f;
 
