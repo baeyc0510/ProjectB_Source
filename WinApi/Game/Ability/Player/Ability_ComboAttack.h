@@ -15,10 +15,8 @@ public:
 
     /*~ Ability Interface ~*/
     EStateTag GetRequiredTags() const override { return Tag_Grounded; }
-    EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Airborne | Tag_Hit; }
-    EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_StopVelocity | Tag_AbilityAnimation; }
-    EStateTag GetTagsToRemove() const override { return Tag_None; }
-    EStateTag GetCancelTags() const override { return Tag_Crouching; }
+    EStateTag GetBlockedTags() const override { return Tag_BlockAbility | Tag_Hit; }
+    EStateTag GetTagsToAdd() const override { return Tag_Attacking | Tag_BlockMovement | Tag_AbilityAnimation; }
 
     void OnActivate() override;
     void OnEnd() override;
