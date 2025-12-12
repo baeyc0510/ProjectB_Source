@@ -44,6 +44,7 @@ namespace SFXKey
     constexpr const wchar_t* PlayerRespawn = L"PlayerRespawn";
     constexpr const wchar_t* PlayerGetItem = L"PlayerGetItem";
     constexpr const wchar_t* PlayerOverthrow = L"PlayerOverthrow";
+    constexpr const wchar_t* PlayerActivatePrayer = L"PlayerActivatePrayer";
     
     // Acolyte
     constexpr const wchar_t* AcolyteDeath = L"AcolyteDeath";

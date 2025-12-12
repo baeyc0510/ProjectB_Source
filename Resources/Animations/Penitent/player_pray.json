@@ -1,7 +1,7 @@
 {
     "image": "Image/Penitent/payer_pray.bmp",
     "pivot": [45.0, 10.0],
-    "frame_interval": 0.07,
+    "frame_interval": 0.03,
     "frames": [
         {"rect": [0, 0, 100, 95], "events": []},
         {"rect": [100, 0, 100, 95], "events": []},

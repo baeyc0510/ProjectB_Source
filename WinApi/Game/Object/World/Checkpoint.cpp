@@ -3,6 +3,7 @@
 
 #include "Game/Component/StatComponent.h"
 #include "Game/Data/AnimKey.h"
+#include "Game/Data/SFXKeys.h"
 #include "Game/Object/Character/Character.h"
 #include "Game/Util/AnimationHelper.h"
 
@@ -95,7 +96,7 @@ const wstring Checkpoint::GetInteractionAnimKey(GameObject* interactor) const
 
 const wstring Checkpoint::GetInteractionSFXKey(GameObject* interactor) const
 {
-    return L"";
+    return SFXKey::PlayerActivatePrayer;
 }
 
 void Checkpoint::Activate()

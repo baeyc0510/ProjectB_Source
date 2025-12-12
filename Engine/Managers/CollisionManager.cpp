@@ -302,12 +302,12 @@ vector<HitResult> CollisionManager::BoxTrace(const Vec2& center, const Vec2& hal
 		}
 	}
 
-	if (bDrawDebug)
-	{
-		bool bHit = !results.empty();
-		COLORREF color = bHit ? RGB(0, 255, 0) : RGB(255, 0, 0);
-		DrawDebugBox(center, halfSize, color, 0.1f);
-	}
+	// if (bDrawDebug)
+	// {
+	// 	bool bHit = !results.empty();
+	// 	COLORREF color = bHit ? RGB(0, 255, 0) : RGB(255, 0, 0);
+	// 	DrawDebugBox(center, halfSize, color, 0.1f);
+	// }
 
 	return results;
 }

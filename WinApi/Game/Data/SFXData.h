@@ -49,6 +49,7 @@ struct SFXData
             {SFXKey::PlayerRespawn, TEXT("Sound/penitent/PENITENT_RESPAWN.wav")},
             {SFXKey::PlayerGetItem, TEXT("Sound/penitent/GET_FLOOR_ITEM.wav")},
             {SFXKey::PlayerOverthrow, TEXT("Sound/penitent/PENITENT_OVERTHROW_DEFAULT.wav")},
+            {SFXKey::PlayerActivatePrayer, TEXT("Sound/penitent/PENITENT_ACTIVATE_PRAYER.wav")},
 
             /*~ Acolyte ~*/
             {SFXKey::AcolytePrepareAttack, TEXT("Sound/enemy/ACOLYTE_CHARGE_ATTACK_DEFAULT.wav")},

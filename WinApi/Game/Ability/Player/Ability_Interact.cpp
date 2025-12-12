@@ -66,6 +66,9 @@ void Ability_Interact::OnActivate()
                         true,
                         BIND(this, OnInteractionComplete),
                         BIND(this, OnInteractionComplete));
+    
+    // 사운드 재생
+    PlaySFX(cachedTarget->GetInteractionSFXKey(owner));
 
     // DoAction 이벤트 대기
     WaitEvent(EGameEvent::DoAction, BIND_EVENT(this, ExecuteInteraction));
@@ -85,9 +88,6 @@ void Ability_Interact::ExecuteInteraction()
     if (cachedTarget)
     {
         cachedTarget->OnInteract(owner);
-        
-        // TODO: VFX/SFX 재생
-        // PlaySFX(cachecTarget->GetInteractionSFXKey());
     }
 }
 

@@ -23,9 +23,6 @@ private:
     void OnParryWindowOpen();
     void OnParryWindowClose();
     void OnHit(GameObject* source, const CombatContext& context);
-    void OnCounterInput();
-    void OnCounterOpen();
-    void OnCounterClose();
     void OnCounterHitCheck();
 
 private:
@@ -34,7 +31,4 @@ private:
     bool bShouldCounter;
 
     SafeDelegateHandle<GameObject*, const CombatContext&> onHitHandle;
-    DelegateHandle onCounterOpenHandle;
-    DelegateHandle onCounterCloseHandle;
-    DelegateHandle onCounterInputHandle;
 };

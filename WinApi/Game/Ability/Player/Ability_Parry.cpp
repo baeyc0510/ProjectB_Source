@@ -64,7 +64,16 @@ void Ability_Parry::OnEnd()
 
 void Ability_Parry::OnEndParryAnim()
 {
-    EndAbility();
+    if (bShouldCounter)
+    {
+        bShouldCounter = false;
+        GetAnimator()->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
+        WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnCounterHitCheck));
+    }
+    else
+    {
+        EndAbility();    
+    }
 }
 
 void Ability_Parry::OnInterruptedParryAnim()
@@ -97,55 +106,31 @@ void Ability_Parry::OnHit(GameObject* source, const CombatContext& context)
     if (!source)
         return;
 
-    // CombatContext 활용: 특정 데미지 타입은 패리 불가 등의 로직 추가 가능
-    // 예: if (context.damageType == EDamageType::Unparriable) return;
-
-    // 패리 성공: 상대방 스턴
-    if (AbilitySystem* sourceAbilitySystem = source->GetComponent<AbilitySystem>())
-    {
-        sourceAbilitySystem->TryActivateAbility(EAbility::ParryHit);
-    }
-
-    // 패리 성공 연출 -> 카운터 윈도우 대기
-    GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
-    PlaySFX(SFXKey::PlayerParrySuccess);
-
-    onCounterOpenHandle = WaitEvent(EGameEvent::ComboWindowOpen, BIND_EVENT(this, OnCounterOpen));
-    onCounterCloseHandle = WaitEvent(EGameEvent::ComboWindowClose, BIND_EVENT(this, OnCounterClose));
     bParrySuccess = true;
-
     // 무적판정
     GetStateSystem()->AddTag(Tag_Invincible);
-}
-
-void Ability_Parry::OnCounterInput()
-{
-    if (!bParrySuccess)
+    
+    // 무거운 공격은 패링반격 X
+    if (context.damageType == EDamageType::Heavy || context.damageType == EDamageType::SuperHeavy)
     {
-        assert(!bParryWindowOpen);
+        // TODO: 패링 깨지는 애니메이션 재생
+        GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
+        PlaySFX(SFXKey::PlayerParrySuccess);
         return;
     }
-    
-    bShouldCounter = true;
-}
-
-void Ability_Parry::OnCounterOpen()
-{
-    onCounterInputHandle = WaitEvent(EGameEvent::Input_Attack_Pressed, BIND_EVENT(this,OnCounterInput));
-}
-
-void Ability_Parry::OnCounterClose()
-{
-    EndWaitEvent(onCounterInputHandle);
-    EndWaitEvent(onCounterOpenHandle);
-    EndWaitEvent(onCounterCloseHandle);
-
-    // 카운터 윈도우 동안 공격 입력이 있었으면 카운터 공격 실행
-    if (bShouldCounter)
+    // 가벼운 공격은 패링반격 O
+    else
     {
-        bShouldCounter = false;
-        GetAnimator()->Play(AnimKey::ParryCounter, true, BIND(this, EndAbility), BIND(this, OnInterruptedParryAnim));
-        WaitEvent(EGameEvent::HitCheck, BIND_EVENT(this, OnCounterHitCheck));
+        // 패리 성공 연출 -> 카운터 대기
+        bShouldCounter = true;
+        GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
+        PlaySFX(SFXKey::PlayerParrySuccess);
+        
+        // 패리 성공: 상대방 스턴
+        if (AbilitySystem* sourceAbilitySystem = source->GetComponent<AbilitySystem>())
+        {
+            sourceAbilitySystem->TryActivateAbility(EAbility::ParryHit);
+        }
     }
 }
 

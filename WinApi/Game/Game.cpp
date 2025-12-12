@@ -226,7 +226,7 @@ void Game::Render()
 	SINGLE(CameraManager)->Render();
 
 	// 디버그 드로우
-	SINGLE(CollisionManager)->RenderDebug();
+	// SINGLE(CollisionManager)->RenderDebug();
 
 	// Game UI
 	SINGLE(GameUIManager)->Render();
