@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{ec1befa7-9b19-43f9-951f-36f4a9236cd5}</ProjectGuid>
+    <RootNamespace>WinApi</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)Engine\;$(SolutionDir)External\;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)External\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)Engine\;$(SolutionDir)External\;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)External\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)Engine\;$(SolutionDir)External\;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)External\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)Engine\;$(SolutionDir)External\;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)External\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="Game\Ability\Ability.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_BossAppear.h" />
+    <ClInclude Include="Game\Ability\Common\Ability_Die.h" />
+    <ClInclude Include="Game\Ability\Common\Ability_HitReaction.h" />
+    <ClInclude Include="Game\Ability\Monster\Ability_AcolyteAttack.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_PiedadSlash.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_PiedadSpit.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_PiedadStomp.h" />
+    <ClInclude Include="Game\Ability\Boss\Ability_PiedadGroundSmash.h" />
+    <ClInclude Include="Game\Ability\Monster\Ability_StonerAttack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_AirAttack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_ComboAttack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Crouch.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Climb.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_CrouchAttack.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Interact.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Jump.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_LedgeClimb.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Parry.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_Slide.h" />
+    <ClInclude Include="Game\Ability\Player\Ability_UseFlask.h" />
+    <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Game\Data\AnimKey.h" />
+    <ClInclude Include="Game\Data\ResourceTypes.h" />
+    <ClInclude Include="Game\Data\PlayerAnimData.h" />
+    <ClInclude Include="Game\Data\BossAnimData.h" />
+    <ClInclude Include="Game\Data\EnemyAnimData.h" />
+    <ClInclude Include="Game\Data\SFXData.h" />
+    <ClInclude Include="Game\Data\SFXKeys.h" />
+    <ClInclude Include="Game\Data\VFXData.h" />
+    <ClInclude Include="Game\Component\AbilitySystem.h" />
+    <ClInclude Include="Game\Component\AIControllerBase.h" />
+    <ClInclude Include="Game\Component\AIController.h" />
+    <ClInclude Include="Game\Component\BossAIController.h" />
+    <ClInclude Include="Game\Component\CharacterMovement.h" />
+    <ClInclude Include="Game\Component\Rigidbody.h" />
+    <ClInclude Include="Game\Component\StatComponent.h" />
+    <ClInclude Include="Game\Component\StateSystem.h" />
+    <ClInclude Include="Game\Data\VFXKeys.h" />
+    <ClInclude Include="Game\Enum.h" />
+    <ClInclude Include="Game\Interface\CombatInterface.h" />
+    <ClInclude Include="Game\Event\EventData.h" />
+    <ClInclude Include="Game\Interface\InteractInterface.h" />
+    <ClInclude Include="Game\Manager\EventBusManager.h" />
+    <ClInclude Include="Game\Manager\GameUIManager.h" />
+    <ClInclude Include="Game\Manager\MapManager.h" />
+    <ClInclude Include="Game\Manager\SaveManager.h" />
+    <ClInclude Include="Game\Manager\SFXManager.h" />
+    <ClInclude Include="Game\Manager\VFXManager.h" />
+    <ClInclude Include="Game\Map\Map.h" />
+    <ClInclude Include="Game\Map\MapLayer.h" />
+    <ClInclude Include="Game\Object\Character\Boss.h" />
+    <ClInclude Include="Game\Object\Character\Boss_TenPiedad.h" />
+    <ClInclude Include="Game\Object\Character\Character.h" />
+    <ClInclude Include="Game\Object\Character\Enemy.h" />
+    <ClInclude Include="Game\Object\Character\Enemy_Acolyte.h" />
+    <ClInclude Include="Game\Object\Character\Enemy_Stoner.h" />
+    <ClInclude Include="Game\Object\Character\Player.h" />
+    <ClInclude Include="Game\Object\Projectile\Projectile_Stone.h" />
+    <ClInclude Include="Game\Object\VFXObject.h" />
+    <ClInclude Include="Game\Object\Hazard\Hazard.h" />
+    <ClInclude Include="Game\Object\Hazard\Hazard_Spike.h" />
+    <ClInclude Include="Game\Object\Projectile\Projectile.h" />
+    <ClInclude Include="Game\Object\Projectile\Projectile_Spit.h" />
+    <ClInclude Include="Game\Object\World\Checkpoint.h" />
+    <ClInclude Include="Game\Object\World\Ground.h" />
+    <ClInclude Include="Game\Object\World\LadderCollider.h" />
+    <ClInclude Include="Game\Object\World\LedgeCollider.h" />
+    <ClInclude Include="Game\Object\World\Platform.h" />
+    <ClInclude Include="Game\Object\World\TransitionArea.h" />
+    <ClInclude Include="Game\Object\World\WorldCollider.h" />
+    <ClInclude Include="Game\Scene\MapScene.h" />
+    <ClInclude Include="Game\Scene\ScenePlayerDeath.h" />
+    <ClInclude Include="Game\Scene\Stage_Beginning.h" />
+    <ClInclude Include="Game\Scene\SimpleStage.h" />
+    <ClInclude Include="Game\Scene\SceneTitle.h" />
+    <ClInclude Include="Game\Scene\Stage_Boss01.h" />
+    <ClInclude Include="Game\Scene\Stage_Brotherhood.h" />
+    <ClInclude Include="Game\UI\Buttons\Button_MainMenu.h" />
+    <ClInclude Include="Game\UI\BossHUD.h" />
+    <ClInclude Include="Game\UI\InventoryUI.h" />
+    <ClInclude Include="Game\UI\OverlayUI.h" />
+    <ClInclude Include="Game\UI\PlayerStatusHUD.h" />
+    <ClInclude Include="Game\Util\AIUtils.h" />
+    <ClInclude Include="Game\Util\AnimationHelper.h" />
+    <ClInclude Include="Game\Util\WorldObjectFactory.h" />
+    <ClInclude Include="Game\Util\LedgeHelper.h" />
+    <ClInclude Include="Game\Util\CombatHelper.h" />
+    <ClInclude Include="Game\Util\TransitionHelper.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="WinApi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Game\Ability\Ability.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_BossAppear.cpp" />
+    <ClCompile Include="Game\Ability\Common\Ability_Die.cpp" />
+    <ClCompile Include="Game\Ability\Common\Ability_HitReaction.cpp" />
+    <ClCompile Include="Game\Ability\Monster\Ability_AcolyteAttack.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_PiedadSlash.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_PiedadSpit.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_PiedadStomp.cpp" />
+    <ClCompile Include="Game\Ability\Boss\Ability_PiedadGroundSmash.cpp" />
+    <ClCompile Include="Game\Ability\Monster\Ability_StonerAttack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_AirAttack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_ComboAttack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Crouch.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Climb.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_CrouchAttack.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Interact.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Jump.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_LedgeClimb.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Parry.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_Slide.cpp" />
+    <ClCompile Include="Game\Ability\Player\Ability_UseFlask.cpp" />
+    <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Game\Component\AbilitySystem.cpp" />
+    <ClCompile Include="Game\Component\AIControllerBase.cpp" />
+    <ClCompile Include="Game\Component\AIController.cpp" />
+    <ClCompile Include="Game\Component\BossAIController.cpp" />
+    <ClCompile Include="Game\Component\CharacterMovement.cpp" />
+    <ClCompile Include="Game\Component\Rigidbody.cpp" />
+    <ClCompile Include="Game\Component\StatComponent.cpp" />
+    <ClCompile Include="Game\Component\StateSystem.cpp" />
+    <ClCompile Include="Game\Interface\CombatInterface.cpp" />
+    <ClCompile Include="Game\Manager\GameUIManager.cpp" />
+    <ClCompile Include="Game\Manager\MapManager.cpp" />
+    <ClCompile Include="Game\Manager\SaveManager.cpp" />
+    <ClCompile Include="Game\Manager\SFXManager.cpp" />
+    <ClCompile Include="Game\Manager\VFXManager.cpp" />
+    <ClCompile Include="Game\Map\Map.cpp" />
+    <ClCompile Include="Game\Map\MapLayer.cpp" />
+    <ClCompile Include="Game\Object\Character\Boss.cpp" />
+    <ClCompile Include="Game\Object\Character\Boss_TenPiedad.cpp" />
+    <ClCompile Include="Game\Object\Character\Character.cpp" />
+    <ClCompile Include="Game\Object\Character\Enemy.cpp" />
+    <ClCompile Include="Game\Object\Character\Enemy_Acolyte.cpp" />
+    <ClCompile Include="Game\Object\Character\Enemy_Stoner.cpp" />
+    <ClCompile Include="Game\Object\Character\Player.cpp" />
+    <ClCompile Include="Game\Object\Projectile\Projectile_Stone.cpp" />
+    <ClCompile Include="Game\Object\VFXObject.cpp" />
+    <ClCompile Include="Game\Object\Hazard\Hazard.cpp" />
+    <ClCompile Include="Game\Object\Hazard\Hazard_Spike.cpp" />
+    <ClCompile Include="Game\Object\Projectile\Projectile.cpp" />
+    <ClCompile Include="Game\Object\Projectile\Projectile_Spit.cpp" />
+    <ClCompile Include="Game\Object\World\Checkpoint.cpp" />
+    <ClCompile Include="Game\Object\World\Ground.cpp" />
+    <ClCompile Include="Game\Object\World\LadderCollider.cpp" />
+    <ClCompile Include="Game\Object\World\LedgeCollider.cpp" />
+    <ClCompile Include="Game\Object\World\Platform.cpp" />
+    <ClCompile Include="Game\Object\World\TransitionArea.cpp" />
+    <ClCompile Include="Game\Object\World\WorldCollider.cpp" />
+    <ClCompile Include="Game\Scene\MapScene.cpp" />
+    <ClCompile Include="Game\Scene\ScenePlayerDeath.cpp" />
+    <ClCompile Include="Game\Scene\Stage_Beginning.cpp" />
+    <ClCompile Include="Game\Scene\SimpleStage.cpp" />
+    <ClCompile Include="Game\Scene\SceneTitle.cpp" />
+    <ClCompile Include="Game\Scene\Stage_Boss01.cpp" />
+    <ClCompile Include="Game\Scene\Stage_Brotherhood.cpp" />
+    <ClCompile Include="Game\UI\Buttons\Button_MainMenu.cpp" />
+    <ClCompile Include="Game\UI\BossHUD.cpp" />
+    <ClCompile Include="Game\UI\InventoryUI.cpp" />
+    <ClCompile Include="Game\UI\OverlayUI.cpp" />
+    <ClCompile Include="Game\UI\PlayerStatusHUD.cpp" />
+    <ClCompile Include="Game\Util\AIUtils.cpp" />
+    <ClCompile Include="Game\Util\AnimationHelper.cpp" />
+    <ClCompile Include="Game\Util\WorldObjectFactory.cpp" />
+    <ClCompile Include="Game\Util\LedgeHelper.cpp" />
+    <ClCompile Include="Game\Util\CombatHelper.cpp" />
+    <ClCompile Include="Game\Util\TransitionHelper.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="WinApi.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WinApi.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="main_icon.ico" />
+    <Image Include="small.ico" />
+    <Image Include="WinApi.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
