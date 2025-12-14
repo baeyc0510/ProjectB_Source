@@ -4,7 +4,9 @@
 #include "Game/Component/StatComponent.h"
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/SFXKeys.h"
+#include "Game/Manager/SaveManager.h"
 #include "Game/Object/Character/Character.h"
+#include "Game/Scene/MapScene.h"
 #include "Game/Util/AnimationHelper.h"
 
 Checkpoint::Checkpoint()
@@ -109,8 +111,15 @@ void Checkpoint::Activate()
 
 void Checkpoint::ApplyCheckpointEffects(GameObject* player)
 {
-    // TODO: 세이브 시스템 ?
-    // TODO: 적 리스폰 ?
+    // 모든 게임 씬 리셋 예약 (적 리스폰) - 프레임 끝에서 안전하게 처리
+    WORLD->ResetAllScenes();
+
+    // 체크포인트 저장
+    SAVE->SaveCheckpoint(
+        checkpointID,
+        GetPos(),
+        (int)SINGLE(SceneManager)->GetCurSceneKey()
+    );
 }
 
 void Checkpoint::RestorePlayerResources(StatComponent* playerStat)

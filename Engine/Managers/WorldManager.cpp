@@ -26,6 +26,7 @@ void WorldManager::Update()
 	ProgressShowUI();
 
 	ProgressChangeScene();
+	ProgressResetScene();
 }
 
 void WorldManager::Release()
@@ -215,5 +216,29 @@ void WorldManager::ProgressChangeScene()
 		delete changeSceneEvent;
 		changeSceneEvent = nullptr;
 		SINGLE(SceneManager)->ChangeScene(scene);
+	}
+}
+
+void WorldManager::ResetScene(Scene* scene)
+{
+	resetSceneQueue.push(scene);
+}
+
+void WorldManager::ResetAllScenes()
+{
+	const map<int, Scene*>& allScenes = SINGLE(SceneManager)->GetAllScenes();
+	for (const auto& pair : allScenes)
+	{
+		resetSceneQueue.push(pair.second);
+	}
+}
+
+void WorldManager::ProgressResetScene()
+{
+	while (!resetSceneQueue.empty())
+	{
+		Scene* scene = resetSceneQueue.front();
+		resetSceneQueue.pop();
+		scene->ResetScene();
 	}
 }

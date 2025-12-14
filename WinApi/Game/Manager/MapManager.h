@@ -16,9 +16,10 @@ public:
 	void Release();
 
 	// 맵 관리
-	void LoadMap(const wstring& mapPath);
+	Map* LoadMap(const wstring& mapPath);			// 맵 로드 및 캐싱
+	void SetActiveMap(const wstring& mapPath);		// 활성 맵 설정
 	void UnloadMap();
-	bool IsMapLoaded() const { return currentMap != nullptr; }
+	bool IsMapLoaded() const { return activeMap != nullptr; }
 
 	Map* FindMap(const wstring& mapPath);
 	
@@ -43,16 +44,19 @@ public:
 	const vector<SceneTransitionData>& GetTransitions() const;
 	
 	Map* GetCurrentMap() { return currentMap; }
+	Map* GetActiveMap() { return activeMap; }
 
-	// 월드 콜라이더 생성/해제
+	// 월드 콜라이더/오브젝트 생성
 	void CreateWorldColliders(Scene* scene);
 	void DestroyWorldColliders();
 	void CreateWorldCharacters(Scene* scene);
+	void CreateWorldCheckpoints(Scene* scene);
 
 private:
-	Map* currentMap;
-	Vec2 virtualCenter;		// 가상 해상도 중심
-	vector<GameObject*> worldColliders;	// 생성된 콜라이더 오브젝트들
+	Map* currentMap;		// 현재 작업 중인 맵 (로드/스폰용)
+	Map* activeMap;			// 활성 맵 (렌더링용)
+	Vec2 virtualCenter;
+	vector<GameObject*> worldColliders;
 	unordered_map<wstring, Map*> mapCache;
 };
 

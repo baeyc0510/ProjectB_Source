@@ -20,6 +20,7 @@ public:
 	void				RemoveGameObject(GameObject* obj);		// 삭제 없이 리스트에서만 제거
 	void				DeleteGameObject(GameObject* obj);
 	void				DeleteAllObject();
+	void				DeletePersistentObjects();
 
 	// 타입으로 오브젝트 검색
 	template <typename T>
@@ -33,11 +34,29 @@ public:
 		return nullptr;
 	}
 
+	// 타입으로 오브젝트 삭제
+	template <typename T>
+	void DeleteObjectsByType()
+	{
+		list<GameObject*> toDelete;
+		for (GameObject* obj : objList)
+		{
+			if (dynamic_cast<T*>(obj))
+				toDelete.push_back(obj);
+		}
+		for (GameObject* obj : toDelete)
+		{
+			DeleteGameObject(obj);
+		}
+	}
+
 	void				AddRenderer(IRender* renderer);
 
 	void				AddUI(UIBase* ui);
 	void				DeleteUI(UIBase* ui);
 	void				DeleteAllUI();
+
+	void				ResetScene();
 
 private:
 	// 순수가상함수 :
@@ -49,6 +68,7 @@ private:
 	virtual void		Render()	= 0;	// 게임표현 갱신
 	virtual void		Exit()		= 0;	// 탈출
 	virtual void		Release()	= 0;	// 마무리
+	virtual void		Reset() {}			// 리셋 (각 씬에서 구현)
 
 	// 배경, 전경 렌더링
 	virtual void		RenderBackground() {}	// 배경 레이어
@@ -62,11 +82,13 @@ private:
 	void				SceneRender();		
 	void				SceneExit();		
 	void				SceneRelease();		
-
+	void				SetSceneId(int id) {sceneId = id;}
+	int					GetSceneId() const {return sceneId;}
 private:
 	list<GameObject*>						objList;
 	list<UIBase*>								uiList;
 	bool									active;
 	priority_queue<pair<float, IRender*>>	renderPQueue;
+	int										sceneId;
 };
 

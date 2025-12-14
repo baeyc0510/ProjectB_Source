@@ -1,7 +1,9 @@
 ﻿#include "pch.h"
 #include "SceneTitle.h"
 #include "Game/Data/VFXKeys.h"
+#include "Game/Enum.h"
 #include "Game/Manager/GameUIManager.h"
+#include "Game/Manager/SaveManager.h"
 #include "Game/Manager/SFXManager.h"
 #include "Game/Manager/VFXManager.h"
 #include "Game/Object/VFXObject.h"
@@ -30,8 +32,20 @@ void SceneTitle::Init()
 	{
 		ShowMainMenu(false);
 		CAMERA->FadeOut(0.5f);
-		// 스테이지 전환
-		WORLD->ChangeScene((int)ESceneType::Stage01, 0.5f);
+
+		// 체크포인트 확인하여 시작 씬 결정
+		auto checkpoint = SAVE->GetLastCheckpoint();
+		if (checkpoint.IsValid())
+		{
+			// 체크포인트에서 리스폰
+			WORLD->ChangeScene(checkpoint.sceneType, 0.5f);
+		}
+		else
+		{
+			// 새 게임 시작
+			WORLD->ChangeScene((int)ESceneType::Stage05, 0.5f);
+		}
+
 		SINGLE(UIManager)->SetFocusedUI(nullptr); // 포커스 해제해야 키입력 받음
 	});
 	AddUI(btnEnter);
@@ -50,6 +64,17 @@ void SceneTitle::Init()
 
 void SceneTitle::Enter()
 {
+	static bool bFirstEnter = true;
+
+	if (!bFirstEnter)
+	{
+		// 게임에서 돌아온 경우: 게임 상태 리셋
+		WORLD->ResetAllScenes();
+		DeletePersistentObjects();
+		GAMEUI->CloseHUD();
+	}
+	bFirstEnter = false;
+
 	CAMERA->FadeIn(0.5f);
 	
 	// 배경 레이어

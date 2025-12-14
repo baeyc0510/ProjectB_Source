@@ -50,6 +50,7 @@ void SceneManager::AddScene(int key, Scene* scene)
 	Scene* findScene = FindScene(key);
 	assert(nullptr != scene && "Scene already exist");
 
+	scene->SetSceneId(key);
 	scene->SceneInit();
 	mapScene.insert(make_pair(key, scene));
 }
@@ -111,5 +112,22 @@ void SceneManager::SetStartScene(int key)
 Scene* SceneManager::GetCurScene()
 {
 	return curScene;
+}
+
+int SceneManager::GetCurSceneKey()
+{
+	if (!curScene)
+		return -1;
+	
+	return curScene->GetSceneId();
+}
+
+void SceneManager::ResetAllGameScenes()
+{
+	for (auto& pair : mapScene)
+	{
+		Scene* scene = pair.second;
+		scene->ResetScene();
+	}
 }
 

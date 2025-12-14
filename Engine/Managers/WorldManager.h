@@ -26,6 +26,8 @@ public:
 	void ShowUI(UIBase* ui, bool show);												// UI 표시 변경 이벤트 추가
 
 	void ChangeScene(int sceneType, float delay = 0);								// 씬 전환 이벤트 추가
+	void ResetScene(Scene* scene);												// 씬 리셋 예약
+	void ResetAllScenes();														// 전체 씬 리셋 예약
 
 private:
 	void ProgressAddGameObject();													// 게임오브젝트 추가 이벤트 진행
@@ -38,6 +40,7 @@ private:
 	void ProgressShowUI();															// UI 표시 변경 이벤트 진행
 
 	void ProgressChangeScene();														// 씬 전환 이벤트 진행
+	void ProgressResetScene();														// 씬 리셋 이벤트 진행
 
 private:
 	queue<pair<Scene*, GameObject*>>					addGameObjectQueue;			// 게임오브젝트 추가 이벤트 보관
@@ -50,6 +53,7 @@ private:
 	queue<pair<UIBase*, bool>>								showUIQueue;				// UI 표시 변경 이벤트 보관
 
 	pair<int, float>*									changeSceneEvent;			// 씬 전환 이벤트 보관 변수
+	queue<Scene*>										resetSceneQueue;			// 씬 리셋 이벤트 보관
 };
 
 #define WORLD		WorldManager::GetInstance()

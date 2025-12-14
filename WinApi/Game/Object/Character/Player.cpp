@@ -115,11 +115,11 @@ void Player::OnEnable()
 	bWasMovingInput = false;
 	prevVelocity = Vec2(0, 0);
 
-	stateSystem->RemoveTagAll(Tag_Moving);
-	rigidbody->SetVelocity(Vec2(0, 0));
-	movement->SetGrounded(false);
 	abilitySystem->CancelAbilitiesWithTag(Tag_AbilityAnimation);
 	abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
+	stateSystem->ClearTags();
+	rigidbody->SetVelocity(Vec2(0, 0));
+	movement->SetGrounded(false);
 }
 
 void Player::Update()

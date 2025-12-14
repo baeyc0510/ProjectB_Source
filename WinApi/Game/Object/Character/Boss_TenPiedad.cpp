@@ -34,7 +34,7 @@ void Boss_TenPiedad::Init()
 	Boss::Init();
 
 	// Collider
-	collider->SetScale(Vec2(80, 150));
+	collider->SetScale(Vec2(65, 150));
 	collider->SetOffset(Vec2(0, -75));
 	collider->SetLayer((UINT)ELayer::Monster);
 

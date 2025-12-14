@@ -12,7 +12,6 @@ public:
 	/*~ Hazard Interface ~*/
 	void SetDamage(float dmg) { damage = dmg; }
 	void SetDamageInterval(float interval) { damageInterval = interval; }
-
 protected:
 	/*~ GameObject Interface ~*/
 	void Init() override;
@@ -22,7 +21,6 @@ protected:
 	void OnDisable() override;
 	void Release() override;
 
-	void OnCollisionEnter(Collider* other) override;
 	void OnCollisionStay(Collider* other) override;
 
 	/*~ Hazard Interface ~*/

@@ -23,6 +23,9 @@ public:
 	void		SetStartScene(int key);				// 시작 씬 설정
 
 	Scene*		GetCurScene();						// 현재 씬 반환
+	int			GetCurSceneKey();
+	void		ResetAllGameScenes();				// 모든 게임 씬 리셋
+	const map<int, Scene*>& GetAllScenes() const { return mapScene; }
 
 private:
 	map<int, Scene*>		mapScene;				// 게임씬들을 보관하는 자료구조

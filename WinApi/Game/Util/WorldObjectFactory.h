@@ -5,5 +5,5 @@ class Character;
 class WorldObjectFactory
 {
 public:
-    static GameObject* CreateWorldObject(const string& objectType);
+    static GameObject* CreateWorldCharacter(const string& objectType);
 };

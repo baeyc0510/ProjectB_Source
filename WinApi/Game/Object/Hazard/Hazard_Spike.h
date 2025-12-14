@@ -22,7 +22,6 @@ protected:
 	/*~ Hazard_Spike Interface ~*/
 	void OnExpire();
 	void OnGameEvent(EGameEvent event);
-	void ApplyDamage();
 	
 private:
 	static const AttackData AttackData;

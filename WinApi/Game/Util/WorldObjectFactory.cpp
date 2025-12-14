@@ -5,7 +5,7 @@
 #include "Game/Object/Character/Enemy_Stoner.h"
 #include "Game/Object/World/Checkpoint.h"
 
-GameObject* WorldObjectFactory::CreateWorldObject(const string& objectType)
+GameObject* WorldObjectFactory::CreateWorldCharacter(const string& objectType)
 {
     GameObject* object = nullptr;
     
@@ -13,8 +13,7 @@ GameObject* WorldObjectFactory::CreateWorldObject(const string& objectType)
     if (objectType == "Acolyte") object = new Enemy_Acolyte();
     if (objectType == "Stoner") object = new Enemy_Stoner();
     if (objectType == "Piedad") object = new Boss_TenPiedad();
-    if (objectType == "CheckPoint") object = new Checkpoint();
     
-    assert(object && TEXT("Invalid object Type!"));
+    assert(object && TEXT("Invalid character Type!"));
     return object;
 }

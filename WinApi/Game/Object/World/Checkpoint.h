@@ -27,8 +27,8 @@ public:
     const wstring GetInteractionSFXKey(GameObject* interactor) const override;
 
     /*~ Checkpoint Interface ~*/
-    void SetCheckpointID(const wstring& id) { checkpointID = id; }
-    wstring GetCheckpointID() const { return checkpointID; }
+    void SetCheckpointID(int id) { checkpointID = id; }
+    int GetCheckpointID() const { return checkpointID; }
     bool IsActivated() const { return bIsActivated; }
     void Activate();  // 첫 활성화 (불 점화)
 
@@ -37,7 +37,7 @@ private:
     void RestorePlayerResources(StatComponent* playerStat);
 
 private:
-    wstring checkpointID;            // 고유 ID (예: "Stage01_CP01")
+    int checkpointID = 0;            // 고유 ID
     bool bIsActivated = false;       // 활성화 여부 (불이 켜졌는지)
     bool bPlayerInRange = false;     // 플레이어가 범위 내에 있는지
 

@@ -2,6 +2,7 @@
 #include "MapManager.h"
 
 #include "Game/Object/Character/Enemy.h"
+#include "Game/Object/World/Checkpoint.h"
 #include "Game/Object/World/Ground.h"
 #include "Game/Object/World/LadderCollider.h"
 #include "Game/Object/World/LedgeCollider.h"
@@ -10,6 +11,7 @@
 
 MapManager::MapManager()
 	: currentMap(nullptr)
+	, activeMap(nullptr)
 	, virtualCenter(0, 0)
 {
 }
@@ -30,7 +32,7 @@ void MapManager::Release()
 	UnloadMap();
 }
 
-void MapManager::LoadMap(const wstring& mapPath)
+Map* MapManager::LoadMap(const wstring& mapPath)
 {
 	currentMap = FindMap(mapPath);
 	if (!currentMap)
@@ -39,6 +41,12 @@ void MapManager::LoadMap(const wstring& mapPath)
 		currentMap->Load(mapPath);
 		mapCache[mapPath] = currentMap;
 	}
+	return currentMap;
+}
+
+void MapManager::SetActiveMap(const wstring& mapPath)
+{
+	activeMap = FindMap(mapPath);
 }
 
 void MapManager::UnloadMap()
@@ -53,6 +61,7 @@ void MapManager::UnloadMap()
 	}
 	mapCache.clear();
 	currentMap = nullptr;
+	activeMap = nullptr;
 }
 
 Map* MapManager::FindMap(const wstring& mapPath)
@@ -68,20 +77,20 @@ Map* MapManager::FindMap(const wstring& mapPath)
 
 void MapManager::RenderBackground()
 {
-	if (!currentMap)
+	if (!activeMap)
 		return;
 
 	Vec2 cameraPos = CAMERA->GetLookAt();
-	currentMap->RenderBackground(cameraPos);
+	activeMap->RenderBackground(cameraPos);
 }
 
 void MapManager::RenderForeground()
 {
-	if (!currentMap)
+	if (!activeMap)
 		return;
 
 	Vec2 cameraPos = CAMERA->GetLookAt();
-	currentMap->RenderForeground(cameraPos);
+	activeMap->RenderForeground(cameraPos);
 }
 
 Vec2 MapManager::WorldToPixel(Vec2 world) const
@@ -224,13 +233,27 @@ void MapManager::CreateWorldCharacters(Scene* scene)
 {
 	if (!scene || !currentMap)
 		return;
-	
+
 	for (const auto& objData : currentMap->GetWorldObjects())
 	{
-		if (GameObject* character = WorldObjectFactory::CreateWorldObject(objData.name))
+		if (GameObject* obj = WorldObjectFactory::CreateWorldCharacter(objData.name))
 		{
-			character->SetPos(PixelToWorld(objData.pos));
-			scene->AddGameObject(character);
+			obj->SetPos(PixelToWorld(objData.pos));
+			scene->AddGameObject(obj);
 		}
+	}
+}
+
+void MapManager::CreateWorldCheckpoints(Scene* scene)
+{
+	if (!scene || !currentMap)
+		return;
+
+	for (const CheckpointData& cpData : currentMap->GetCheckpoints())
+	{
+		Checkpoint* checkpoint = new Checkpoint();
+		checkpoint->SetPos(cpData.pos);
+		checkpoint->SetCheckpointID(cpData.id);
+		scene->AddGameObject(checkpoint);
 	}
 }

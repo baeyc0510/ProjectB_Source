@@ -68,7 +68,7 @@ void Hazard_Spike::OnCollisionStay(Collider* other)
 
 void Hazard_Spike::OnExpire()
 {
-	// 사라지는 애니메이션 재생 후 삭제
+	// 약간의 딜레이 후 삭제
 	SetLifetime(0.1f);
 }
 
@@ -79,9 +79,4 @@ void Hazard_Spike::OnGameEvent(EGameEvent event)
 		bDamageEnabled = true;
 		return;
 	}
-}
-
-void Hazard_Spike::ApplyDamage()
-{
-	
 }

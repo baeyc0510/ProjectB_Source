@@ -34,6 +34,9 @@ protected:
 
 class Ability_PlayerPushback : public Ability_HitReaction
 {
+public:
+    float GetCooldown() const override {return 0.3f;}
+
 protected:
     void OnActivate() override;
     void OnEnd() override;

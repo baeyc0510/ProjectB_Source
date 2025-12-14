@@ -45,12 +45,37 @@ void Scene::DeleteGameObject(GameObject* obj)
 
 void Scene::DeleteAllObject()
 {
+	list<GameObject*> toDelete;
 	for (GameObject* obj : objList)
+	{
+		if (!obj->IsPersistent())
+		{
+			toDelete.push_back(obj);
+		}
+	}
+	for (GameObject* obj : toDelete)
 	{
 		if (active) obj->ComponentOnDisable();
 		obj->ComponentRelease();
 		objList.remove(obj);
 		delete obj;
+	}
+}
+
+void Scene::DeletePersistentObjects()
+{
+	list<GameObject*> toDelete;
+	for (GameObject* obj : objList)
+	{
+		if (obj->IsPersistent())
+		{
+			toDelete.push_back(obj);
+		}
+	}
+
+	for (GameObject* obj : toDelete)
+	{
+		DeleteGameObject(obj);
 	}
 }
 
@@ -78,14 +103,20 @@ void Scene::DeleteUI(UIBase* ui)
 
 void Scene::DeleteAllUI()
 {
-	for (UIBase* ui : uiList)
+	list<UIBase*> toDelete = uiList;
+	for (UIBase* ui : toDelete)
 	{
 		if (active) ui->ComponentOnDisable();
 		ui->ComponentRelease();
 		ui->SetScene(nullptr);
-		uiList.remove(ui);
 		delete ui;
 	}
+	uiList.clear();
+}
+
+void Scene::ResetScene()
+{
+	Reset();
 }
 
 void Scene::SceneInit()

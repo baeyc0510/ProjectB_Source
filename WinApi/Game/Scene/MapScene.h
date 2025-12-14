@@ -12,7 +12,7 @@ public:
     /*~ MapScene Interface ~*/
     Player* SpawnPlayer();
     void SetSpawnId(int inSpawnId) { spawnId = inSpawnId; }
-    
+    void LoadMap();
 protected:
     /*~ Scene Interface ~*/
     void Init()		override;
@@ -21,6 +21,7 @@ protected:
     void Render()	override;
     void Exit()		override;
     void Release()	override;
+    void Reset()	override;
     
     // 맵 레이어 렌더링
     void RenderBackground() override;

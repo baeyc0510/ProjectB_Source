@@ -52,18 +52,6 @@ void Hazard::Release()
 {
 }
 
-void Hazard::OnCollisionEnter(Collider* other)
-{
-	if (bIsDestroyed)
-		return;
-
-	if (other->GetLayer() == (UINT)ELayer::Player)
-	{
-		GameObject* player = other->GetOwner();
-		ApplyDamageToPlayer(player);
-	}
-}
-
 void Hazard::OnCollisionStay(Collider* other)
 {
 	if (bIsDestroyed)
