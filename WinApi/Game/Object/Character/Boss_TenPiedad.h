@@ -36,9 +36,9 @@ private:
 	void StartTurnaround();			// 턴어라운드 애니메이션 시작
 	void OnTurnaroundComplete();	// 턴어라운드 완료 콜백
 
-private:
+public:
 	// 보스 설정 상수
-	struct Config
+	struct PiedadConfig
 	{
 		struct Encounter
 		{
@@ -61,6 +61,7 @@ private:
 		};
 	};
 
+private:
 	// 추격 상태
 	bool bIsChasing = false;
 	bool bIsTurningAround = false;

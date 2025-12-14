@@ -30,4 +30,5 @@ private:
 private:
 	HINSTANCE		hInst;
 	HWND			hWnd;
+	bool			bDebugRender = false;
 };

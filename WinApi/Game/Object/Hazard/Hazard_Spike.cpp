@@ -3,6 +3,8 @@
 
 #include "Game/Data/AnimKey.h"
 #include "Game/Enum.h"
+#include "Game/Data/SFXKeys.h"
+#include "Game/Manager/EventBusManager.h"
 #include "Game/Util/AnimationHelper.h"
 
 
@@ -54,8 +56,9 @@ void Hazard_Spike::OnSpawn()
 	if (!bHasSpawned)
 		return;
 
-	// 생성 애니메이션 재생
+	// 찌르기 애니메이션 재생
 	animator->Play(AnimKey::ThornThrust, true, BIND(this,OnExpire));
+	EVENT->OnPlaySFX(this,{SFXKey::HazardBreak});
 }
 
 void Hazard_Spike::OnCollisionStay(Collider* other)

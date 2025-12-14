@@ -16,7 +16,6 @@ public:
 private:
 	void OnHitCheck();
 	void SpawnHazard();
-	void ScheduleSpikeSpawn(Vec2 landingPos);
 
 	Vec2 GetTraceOffset() const;
 	Vec2 GetTraceSize() const;

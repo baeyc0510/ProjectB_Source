@@ -113,9 +113,7 @@ void Ability_Parry::OnHit(GameObject* source, const CombatContext& context)
     // 무거운 공격은 패링반격 X
     if (context.damageType == EDamageType::Heavy || context.damageType == EDamageType::SuperHeavy)
     {
-        // TODO: 패링 깨지는 애니메이션 재생
-        GetAnimator()->Play(AnimKey::ParrySuccess, true, BIND(this, OnEndParryAnim), BIND(this, OnInterruptedParryAnim));
-        PlaySFX(SFXKey::PlayerParrySuccess);
+        PlaySFX(SFXKey::PlayerGuard);
         return;
     }
     // 가벼운 공격은 패링반격 O

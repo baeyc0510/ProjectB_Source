@@ -1,7 +1,7 @@
 {
   "layers": [
     {
-      "image": "Sub/Scene05/Scene05_background.bmp",
+      "image": "Image/BackGround/Stage04/stage04_bg.bmp",
       "parallax": 0.0,
       "scale": 1.0,
       "offsetX": 0,
@@ -9,7 +9,7 @@
       "isMain": false
     },
     {
-      "image": "Sub/Scene05/scene05map.bmp",
+      "image": "Image/BackGround/Stage04/stage04_main.bmp",
       "parallax": 1.0,
       "scale": 1.0,
       "offsetX": 0,
@@ -17,7 +17,7 @@
       "isMain": true
     },
     {
-      "image": "Sub/Scene05/Scene05front.bmp",
+      "image": "Image/BackGround/Stage04/stage04_fg.bmp",
       "parallax": 1.0,
       "scale": 1.0,
       "offsetX": 0,
@@ -29,15 +29,15 @@
     {
       "spawnId": 0,
       "pos": [
-        139.4618124235902,
-        260.19360142587493
+        123.90474211695786,
+        275.7506717325072
       ]
     },
     {
       "spawnId": 1,
       "pos": [
-        1303.149589827863,
-        260.54627528198785
+        1309.6317024556265,
+        272.21407801196204
       ]
     }
   ],

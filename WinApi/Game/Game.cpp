@@ -200,6 +200,12 @@ void Game::Input()
 {
 	// 게임의 입력 진행
 	SINGLE(InputManager)->Update();
+	
+	// TEMP: toggle debug rendering
+	if (INPUT->ButtonDown(VK_F2))
+	{
+		bDebugRender = !bDebugRender;
+	}
 }
 
 void Game::Update()
@@ -225,8 +231,11 @@ void Game::Render()
 	SINGLE(SceneManager)->Render();
 	SINGLE(CameraManager)->Render();
 
-	// 디버그 드로우
-	// SINGLE(CollisionManager)->RenderDebug();
+	// TEMP: 디버그 드로우
+	if (bDebugRender)
+	{
+		SINGLE(CollisionManager)->RenderDebug();	
+	}
 
 	// Game UI
 	SINGLE(GameUIManager)->Render();

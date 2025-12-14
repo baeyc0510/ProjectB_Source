@@ -23,8 +23,8 @@ void Enemy_Acolyte::Init()
 	statComponent->InitStat(EStatType::AttackPower, ATTACK_POWER);
 	
     // Collider
-    collider->SetScale(Vec2(32, 66));
-    collider->SetOffset(Vec2(0, -33));
+    collider->SetScale(Vec2(26, 54));
+    collider->SetOffset(Vec2(0, -27));
     collider->SetLayer((UINT)ELayer::Monster);
 	
     // Abilities

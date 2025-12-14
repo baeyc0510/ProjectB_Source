@@ -1,7 +1,7 @@
 {
   "layers": [
     {
-      "image": "Image/BackGround/piedad_bg1.bmp",
+      "image": "Image/BackGround/Piedad/piedad_bg1.bmp",
       "parallax": 0.0,
       "scale": 1.0,
       "offsetX": 0,
@@ -9,7 +9,7 @@
       "isMain": false
     },
     {
-      "image": "Image/BackGround/piedad_map.bmp",
+      "image": "Image/BackGround/Piedad/piedad_map.bmp",
       "parallax": 1.0,
       "scale": 1.0,
       "offsetX": 0,
@@ -17,7 +17,7 @@
       "isMain": true
     },
     {
-      "image": "Image/BackGround/piedad_bg3.bmp",
+      "image": "Image/BackGround/Piedad/piedad_bg3.bmp",
       "parallax": 0.9,
       "scale": 1.0,
       "offsetX": 0,
@@ -25,7 +25,7 @@
       "isMain": false
     },
     {
-      "image": "Image/BackGround/piedad_map_door.bmp",
+      "image": "Image/BackGround/Piedad/piedad_map_door.bmp",
       "parallax": 1.0,
       "scale": 1.0,
       "offsetX": 0,

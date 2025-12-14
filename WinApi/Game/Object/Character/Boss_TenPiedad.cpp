@@ -79,19 +79,19 @@ void Boss_TenPiedad::ConfigureAI()
 		return;
 
 	// 공격 패턴 데이터 등록 (ability, minRange, maxRange, weight)
-	bossAI->RegisterAttack(EAbility::Boss_Slash, 0.f, Config::Attack::SlashRange, 1.5f);
-	bossAI->RegisterAttack(EAbility::Boss_Stomp, 0.f, Config::Attack::StompRange, 1.0f);
-	bossAI->RegisterAttack(EAbility::Boss_Spit, Config::Attack::SpitMinRange, 400.f, 1.0f);
-	bossAI->RegisterAttack(EAbility::Boss_GroundSmash, 0.f, Config::Attack::GroundSmashRange, 0.8f);
+	bossAI->RegisterAttack(EAbility::Boss_Slash, 0.f, PiedadConfig::Attack::SlashRange, 1.5f);
+	bossAI->RegisterAttack(EAbility::Boss_Stomp, 0.f, PiedadConfig::Attack::StompRange, 1.0f);
+	bossAI->RegisterAttack(EAbility::Boss_Spit, PiedadConfig::Attack::SpitMinRange, 400.f, 1.0f);
+	bossAI->RegisterAttack(EAbility::Boss_GroundSmash, 0.f, PiedadConfig::Attack::GroundSmashRange, 0.8f);
 
 	// 결정 간격 설정
 	bossAI->SetDecisionInterval(1.0f);
 
 	// 추격 설정
 	BossChaseConfig chaseConfig;
-	chaseConfig.chaseSpeed = Config::Chase::Speed;
-	chaseConfig.chaseRange = Config::Chase::Range;
-	chaseConfig.stopRange = Config::Chase::StopRange;
+	chaseConfig.chaseSpeed = PiedadConfig::Chase::Speed;
+	chaseConfig.chaseRange = PiedadConfig::Chase::Range;
+	chaseConfig.stopRange = PiedadConfig::Chase::StopRange;
 	chaseConfig.bCanChase = true;
 	bossAI->SetChaseConfig(chaseConfig);
 
@@ -137,7 +137,7 @@ bool Boss_TenPiedad::CheckEncounterPlayer()
 		return false;
 
 	float distance = bossAI->GetDistanceToTarget();
-	return distance < Config::Encounter::Range;
+	return distance < PiedadConfig::Encounter::Range;
 }
 
 void Boss_TenPiedad::OnDamage(GameObject* source, const CombatContext& context)

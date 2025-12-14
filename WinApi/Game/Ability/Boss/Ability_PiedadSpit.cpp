@@ -4,6 +4,8 @@
 #include "Game/Data/AnimKey.h"
 #include "Game/Data/SFXKeys.h"
 #include "Game/Object/Projectile/Projectile_Spit.h"
+#include "Game/Object/Character/Boss_TenPiedad.h"
+#include "Game/Component/Rigidbody.h"
 #include <cmath>
 
 #ifndef M_PI
@@ -14,9 +16,8 @@ void Ability_PiedadSpit::OnActivate()
 {
 	Ability::OnActivate();
 
-	// 발사 횟수 랜덤 결정
 	currentSpitCount = 0;
-	maxSpitCount = 2;
+	maxSpitCount = 3;
 
 	// spit_start 애니메이션 재생
 	GetAnimator()->Play(AnimKey::BossSpitStart, true, BIND(this, OnSpitStart), BIND(this, EndAbility));
@@ -66,18 +67,21 @@ void Ability_PiedadSpit::SpawnProjectile()
 	if (!owner->GetScene())
 		return;
 
-	
-	
 	// 투사체 생성 위치 (보스 입 위치 근처)
 	Vec2 spawnOffset(50.f * owner->GetForward(), -120.f);
 	Vec2 spawnPos = owner->GetWorldPos() + spawnOffset;
+
+	// SpitMinRange 기준으로 목표 거리 계산: [근거리, 중간, 원거리]
+	float baseDistance = Boss_TenPiedad::PiedadConfig::Attack::SpitMinRange;
+	float targetDistance = baseDistance + (currentSpitCount - 1) * DISTANCE_OFFSET;
+
+	// 목표 거리에 도달하는 속도 계산
+	float speed = CalculateSpeedForDistance(targetDistance);
 
 	// 투사체 속도 계산 (각도 기반)
 	float angleRad = PROJECTILE_ANGLE * static_cast<float>(M_PI) / 180.f;
 	float dirX = static_cast<float>(owner->GetForward());
 	Vec2 velocity;
-	
-	float speed = float(currentSpitCount + 1) / (maxSpitCount + 1) * PROJECTILE_SPEED;  
 	velocity.x = speed * cos(angleRad) * dirX;
 	velocity.y = -speed * sin(angleRad);
 
@@ -88,4 +92,14 @@ void Ability_PiedadSpit::SpawnProjectile()
 	projectile->SetLifetime(10.f);
 	owner->GetScene()->AddGameObject(projectile);
 	projectile->Launch(velocity);
+}
+
+float Ability_PiedadSpit::CalculateSpeedForDistance(float targetDistance) const
+{
+	// 포물선 공식: R = v^2 * sin(2θ) / g
+	// 따라서: v = sqrt(R * g / sin(2θ))
+	float angleRad = PROJECTILE_ANGLE * static_cast<float>(M_PI) / 180.f;
+	float sin2Theta = sin(2.f * angleRad);
+	float speed = sqrt(targetDistance * Rigidbody::GRAVITY_CONSTANT / sin2Theta);
+	return speed;
 }

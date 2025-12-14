@@ -43,7 +43,7 @@ void SceneTitle::Init()
 		else
 		{
 			// 새 게임 시작
-			WORLD->ChangeScene((int)ESceneType::Stage05, 0.5f);
+			WORLD->ChangeScene((int)ESceneType::Stage01, 0.5f);
 		}
 
 		SINGLE(UIManager)->SetFocusedUI(nullptr); // 포커스 해제해야 키입력 받음

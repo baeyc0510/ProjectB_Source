@@ -117,7 +117,7 @@ void Player::OnEnable()
 
 	abilitySystem->CancelAbilitiesWithTag(Tag_AbilityAnimation);
 	abilitySystem->CancelAbilitiesWithTag(Tag_Moving);
-	stateSystem->ClearTags();
+	stateSystem->RemoveTagAll(Tag_Moving);
 	rigidbody->SetVelocity(Vec2(0, 0));
 	movement->SetGrounded(false);
 }

@@ -1,5 +1,5 @@
 {
-    "image": "Image/Enemy/acolite_walking_anim.bmp",
+    "image": "Image/Enemy/acolyte_walking_anim.bmp",
     "pivot": [9.0, 0.0],
     "frame_interval": 0.0833,
     "frames": [

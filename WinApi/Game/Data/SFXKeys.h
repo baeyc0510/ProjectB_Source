@@ -79,4 +79,8 @@ namespace SFXKey
     // 기타
     constexpr const wchar_t* MapEnter = L"MapEnter";
     constexpr const wchar_t* ClearBoss = L"ClearBoss";
+    
+    constexpr const wchar_t* HazardGrow = L"HazardGrow";
+    constexpr const wchar_t* HazardHit = L"HazardHit";
+    constexpr const wchar_t* HazardBreak = L"HazardBreak";
 }

@@ -2,6 +2,8 @@
 #include "Projectile_Spit.h"
 #include "Game/Data/AnimKey.h"
 #include "Game/Component/Rigidbody.h"
+#include "Game/Data/SFXKeys.h"
+#include "Game/Manager/EventBusManager.h"
 #include "Game/Object/Hazard/Hazard_Spike.h"
 
 Projectile_Spit::Projectile_Spit()
@@ -46,6 +48,7 @@ void Projectile_Spit::OnHitGround(Vec2 hitPos, Collider* collider)
 			OnHitPlayer(nullptr);
 		},2.0f);
 	});
+	EVENT->OnPlaySFX(this,{SFXKey::HazardGrow});
 }
 
 void Projectile_Spit::OnHitWall(Vec2 hitPos)
@@ -95,7 +98,8 @@ void Projectile_Spit::OnDamage(GameObject* source, const CombatContext& context)
 	if (bIsDestroyed)
 		return;
 	
-	CAMERA->Shake(ShakePreset::Light);
+	EVENT->OnCameraShake(this,{ShakePreset::Light});
+	EVENT->OnPlaySFX(this,{SFXKey::HazardHit});
 	
 	if (bIsThorn)
 	{

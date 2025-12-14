@@ -7,6 +7,8 @@
 #include "Game/Interface/CombatInterface.h"
 #include "Game/Component/Rigidbody.h"
 #include "Game/Component/StateSystem.h"
+#include "Game/Object/Character/Boss_TenPiedad.h"
+#include "Game/Object/Hazard/Hazard_Spike.h"
 
 void Ability_PiedadStomp::OnActivate()
 {
@@ -56,15 +58,15 @@ void Ability_PiedadStomp::OnHitCheck()
 
 void Ability_PiedadStomp::SpawnHazard()
 {
-	// TODO: 착지 예상 위치에 가시 생성 (추후 Hazard 시스템 구현 후)
-	// Vec2 landingPos = PredictLandingPosition(player);
-	// ScheduleSpikeSpawn(landingPos);
-}
-
-void Ability_PiedadStomp::ScheduleSpikeSpawn(Vec2 landingPos)
-{
-	// TODO: Hazard 시스템 구현 후 가시 생성 로직 추가
-	// 플레이어 착지 예상 위치에 가시를 생성
+	Vec2 bossPos = owner->GetWorldPos();
+	float stompRange = Boss_TenPiedad::PiedadConfig::Attack::StompRange;
+	Vec2 spawnPos = bossPos + Vec2(stompRange,0) * owner->GetForward();
+	
+	// 가시 생성
+	Hazard_Spike* spikeRight = new Hazard_Spike();
+	spikeRight->SetPos(spawnPos);
+	spikeRight->SetSpawnDelay(0.5f);
+	owner->GetScene()->AddGameObject(spikeRight);
 }
 
 Vec2 Ability_PiedadStomp::GetTraceOffset() const

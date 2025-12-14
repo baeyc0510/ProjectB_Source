@@ -18,11 +18,12 @@ private:
 	void OnSpitLoop();
 	void OnSpitFinish();
 	void SpawnProjectile();
+	float CalculateSpeedForDistance(float targetDistance) const;
 
 private:
-	static constexpr float PROJECTILE_SPEED = 500.f;
 	static constexpr float PROJECTILE_ANGLE = 30.f;  // degrees
-	
+	static constexpr float DISTANCE_OFFSET = 30.f;   // SpitMinRange 전후 간격
+
 	int currentSpitCount = 0;
 	int maxSpitCount = 3;
 };

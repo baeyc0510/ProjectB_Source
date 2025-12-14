@@ -9,15 +9,7 @@
       "isMain": false
     },
     {
-      "image": "Sub/Scene06/SecondBossSceneBack.bmp",
-      "parallax": 1.0,
-      "scale": 1.0,
-      "offsetX": 0,
-      "offsetY": 0,
-      "isMain": false
-    },
-    {
-      "image": "Sub/Scene06/SecondBossSceneMap.bmp",
+      "image": "Image/BackGround/Stage02/stage02_main.bmp",
       "parallax": 1.0,
       "scale": 1.0,
       "offsetX": 0,
@@ -25,7 +17,7 @@
       "isMain": true
     },
     {
-      "image": "Sub/Scene06/SecondBossSceneFront.bmp",
+      "image": "Image/BackGround/Stage02/stage02_fg.bmp",
       "parallax": 1.0,
       "scale": 1.0,
       "offsetX": 0,
@@ -90,17 +82,6 @@
   "boxColliders": [
     {
       "rect": [
-        0.0,
-        300.0,
-        957.0,
-        55.0
-      ],
-      "tags": [
-        "Solid"
-      ]
-    },
-    {
-      "rect": [
         -3.0995589213501944,
         -4.681551462241146,
         12.379795173550562,
@@ -116,6 +97,17 @@
         -1.5866026688534873,
         13.411444771346623,
         347.66591445721156
+      ],
+      "tags": [
+        "Solid"
+      ]
+    },
+    {
+      "rect": [
+        0.11186951860863203,
+        288.755120451619,
+        949.3163197221093,
+        57.13477850179356
       ],
       "tags": [
         "Solid"
