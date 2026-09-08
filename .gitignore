@@ -35,3 +35,10 @@ _ReSharper*/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Excluded copyrighted assets and generated shortcuts
+Resources/Image/
+Resources/Sound/
+Docs/Movie/
+Docs/PPT/
+Blas1_Clone.lnk
